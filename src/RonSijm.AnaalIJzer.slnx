@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/Main/">
+    <Project Path="Main/RonSijm.AnaalIJzer/RonSijm.AnaalIJzer.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/RonSijm.AnaalIJzer.IntegrationTests/RonSijm.AnaalIJzer.IntegrationTests.csproj" />
+    <Project Path="Tests/RonSijm.AnaalIJzer.UnitTests/RonSijm.AnaalIJzer.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/Tools/">
+    <Project Path="Tools/RonSijm.AnaalIJzer.Ridder/RonSijm.AnaalIJzer.Ridder.csproj" />
+    <Project Path="Tools/RonSijm.AnaalIJzer.Tooling/RonSijm.AnaalIJzer.Tooling.csproj" />
+  </Folder>
+</Solution>

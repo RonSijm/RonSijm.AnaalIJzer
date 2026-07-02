@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Extra suppressions for the non-constructor-injection demo (uninitialized fields/properties) -->
+    <NoWarn>$(NoWarn);CS0169;CS8618;CS0649</NoWarn>
+  </PropertyGroup>
+
+</Project>

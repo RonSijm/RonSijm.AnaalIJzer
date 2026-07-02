@@ -1,0 +1,484 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="ArchitecturalLevels">
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded" minOccurs="0">
+        <xs:element name="Include"           type="IncludeType" />
+        <xs:element name="Layer"             type="LayerType" />
+        <xs:element name="Allowed"           type="AllowedContainerType" />
+        <xs:element name="Forbidden"         type="ForbiddenContainerType" />
+        <xs:element name="AllowedDependency" type="AllowedDependencyType" />
+        <xs:element name="BlockedDependency" type="BlockedDependencyType" />
+      </xs:choice>
+      <xs:attributeGroup ref="DocumentationAttributes" />
+      <xs:attribute name="strict" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>
+            When true, every dependency of a layered type must itself be assigned to a layer.
+            Unrecognized dependencies raise ARCH002.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="enforceAcyclic" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>
+            When true, explicit AllowedDependency edges must form an acyclic graph.
+            Wildcard and self edges are excluded from cycle detection.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="enableReport" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>
+            When true, Ridder uses reportPath as the default output for the Markdown
+            violation report.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="reportPath" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            Path for the generated Markdown report. Relative paths are resolved from the
+            directory of this file, or from the project file for inline config. Default:
+            architectural-violations.md.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="enableDocumentation" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>
+            When true, Ridder uses documentationPath as the default output for a Markdown
+            document containing Mermaid diagrams and the configured rule descriptions.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="documentationPath" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            Path for the generated architecture documentation (Markdown file). Relative paths
+            are resolved from the directory of this file, or from the project file for inline
+            config. Default: architecture-documentation.md.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:attributeGroup name="DocumentationAttributes">
+    <xs:attribute name="description" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          Optional human-readable description used by generated architecture documentation.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+
+  <xs:complexType name="IncludeType">
+    <xs:annotation>
+      <xs:documentation>
+        Includes another ArchitecturalLevels XML file. The path is resolved relative to the
+        file that declares the Include. Included files can include other files; files already
+        seen during the current parse are skipped to avoid cycles.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="path" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>Relative or absolute path to another ArchitecturalLevels XML file.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!--  <Layer name="Application">                                        -->
+  <!--      <Class endsWith="Manager" />                                  -->
+  <!--      <Namespace contains="Application" />                         -->
+  <!--  </Layer>                                                          -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+  <xs:complexType name="LayerType">
+    <xs:annotation>
+      <xs:documentation>
+        Declares a named architectural layer or boundary. Child Class, Namespace, and Assembly
+        elements describe its scope. Nested Layer elements refine that scope. Dependency rules
+        declared inside the layer govern the boundary gates beneath that scope.
+
+        To make this layer a crosscutting concern (usable from any other layer), add:
+          &lt;AllowedDependency from="*" to="LayerName" /&gt;
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="Class"     type="ClassMatchType" />
+      <xs:element name="Namespace" type="NamespaceMatchType" />
+      <xs:element name="Assembly"  type="AssemblyMatchType" />
+      <xs:element name="Layer"     type="LayerType" />
+      <xs:element name="Allowed"   type="AllowedContainerType" />
+      <xs:element name="Forbidden" type="ForbiddenContainerType" />
+      <xs:element name="AllowedDependency" type="AllowedDependencyType" />
+      <xs:element name="BlockedDependency" type="BlockedDependencyType" />
+    </xs:choice>
+    <xs:attribute name="name" type="LayerNameType" use="required">
+      <xs:annotation>
+        <xs:documentation>
+          The layer name. Referenced in AllowedDependency edges and diagnostic messages.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!--  <Allowed>                                                         -->
+  <!--      <Class startsWith="Create" />                                 -->
+  <!--      <Class startsWith="Cancel" />                                 -->
+  <!--  </Allowed>                                                        -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+  <xs:complexType name="AllowedContainerType">
+    <xs:annotation>
+      <xs:documentation>
+        Groups the type patterns that are permitted by an allow-list. A classified dependency
+        must match at least one rule in every applicable Allowed container. At the root the
+        policy applies globally; inside a Layer it applies to that layer and all descendants.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="1" maxOccurs="unbounded">
+      <xs:element name="Class"     type="ClassMatchType" />
+      <xs:element name="Namespace" type="NamespaceMatchType" />
+    </xs:choice>
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!--  <Forbidden>                                                       -->
+  <!--      <Class endsWith="Store" comment="Use a Repository instead."> -->
+  <!--          <Fix Rename="Repository" />                               -->
+  <!--      </Class>                                                      -->
+  <!--      <Namespace contains="Legacy" comment="Migrate away." />      -->
+  <!--  </Forbidden>                                                      -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+  <xs:complexType name="ForbiddenContainerType">
+    <xs:annotation>
+      <xs:documentation>
+        Groups one or more explicitly forbidden type patterns. At the root the policy applies
+        globally. Inside a Layer it applies only to dependencies classified into that layer or
+        one of its descendants. Depending on a matching type raises ARCH003.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="Class"     type="ForbiddenClassType" />
+      <xs:element name="Namespace" type="ForbiddenNamespaceType" />
+    </xs:choice>
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <!-- ── Shared match attributes ───────────────────────────────────────── -->
+
+  <xs:attributeGroup name="MatchAttributes">
+    <xs:annotation>
+      <xs:documentation>
+        Pattern matching attributes. Exactly one should be specified per element.
+        Evaluation order (highest precedence first):
+          typeName, exactName, exactFullName, inherits, implements, withAttribute,
+          withAccessModifier, endsWith, startsWith, contains, regex.
+
+        Note: exactFullName, inherits, implements, withAttribute and withAccessModifier
+        only apply to &lt;Class&gt; elements; on &lt;Namespace&gt; they are ignored.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="endsWith" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Matches when the subject string ends with this value.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="startsWith" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Matches when the subject string starts with this value.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="contains" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Matches when the subject string contains this value.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="regex" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          Matches when the subject string matches this .NET regular expression
+          (Regex.IsMatch semantics: matches anywhere in the input unless anchored
+          with ^ / $). The subject is the simple type name on &lt;Class&gt; and the
+          full namespace string on &lt;Namespace&gt;. Invalid patterns are ignored.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="exactName" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          Exact match against the simple type name (on &lt;Class&gt;) or the full
+          namespace string (on &lt;Namespace&gt;). Synonym of typeName on &lt;Class&gt;.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="exactFullName" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          Exact match against the fully-qualified type name (Namespace.TypeName).
+          &lt;Class&gt; only.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="inherits" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          Matches types whose base-type chain contains a type with this simple or full
+          name (e.g. inherits="ControllerBase"). &lt;Class&gt; only.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="implements" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          Matches types that implement an interface with this simple or full name
+          (transitively). &lt;Class&gt; only.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="withAttribute" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          Matches types decorated with the given attribute. The 'Attribute' suffix is
+          optional (withAttribute="ApiController" and "ApiControllerAttribute" both work).
+          &lt;Class&gt; only.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="withAccessModifier" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          Matches types declared with the given modifier(s). Supported tokens (case-
+          insensitive): public, internal, private, protected, sealed, abstract, static,
+          record. Multiple space-separated tokens require all to match
+          (e.g. withAccessModifier="public sealed"). &lt;Class&gt; only.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="comment" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Optional human-readable note (shown in diagnostics and reports).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:attributeGroup>
+
+  <!-- ── Class matching ────────────────────────────────────────────────── -->
+
+  <xs:complexType name="ClassMatchType">
+    <xs:annotation>
+      <xs:documentation>
+        Matches types by name, fully-qualified name, base type, implemented interface,
+        decorating attribute, or declaration modifier. See MatchAttributes for the full
+        list of attributes and their evaluation order.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Exceptions" type="ExceptionsType" minOccurs="0" maxOccurs="1" />
+    </xs:sequence>
+    <xs:attributeGroup ref="MatchAttributes" />
+    <xs:attribute name="typeName" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          Exact type name match (e.g. typeName="IIdentityContext"). Takes precedence over
+          all pattern attributes.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="ForbiddenClassType">
+    <xs:annotation>
+      <xs:documentation>
+        A forbidden type pattern. Any type matching the rule will trigger ARCH003.
+        Add a Fix child element to offer an automatic rename quick-fix in Visual Studio.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Fix" type="FixType" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>
+            When present, the Roslyn code fix provider will offer to rename the matched type
+            by replacing its endsWith suffix with the Rename value.
+            Only applicable when the parent Class uses endsWith=.
+            Example: &lt;Fix Rename="Repository" /&gt; renames 'OrderStore' to 'OrderRepository'.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Exceptions" type="ExceptionsType" minOccurs="0" maxOccurs="1" />
+    </xs:sequence>
+    <xs:attributeGroup ref="MatchAttributes" />
+    <xs:attribute name="typeName" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Exact type name match. Takes precedence over pattern attributes.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <!-- ── Namespace matching ────────────────────────────────────────────── -->
+
+  <xs:complexType name="NamespaceMatchType">
+    <xs:annotation>
+      <xs:documentation>
+        Matches types by their containing namespace using endsWith, startsWith, or contains.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Exceptions" type="ExceptionsType" minOccurs="0" maxOccurs="1" />
+    </xs:sequence>
+    <xs:attributeGroup ref="MatchAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="ForbiddenNamespaceType">
+    <xs:annotation>
+      <xs:documentation>
+        A forbidden namespace pattern. Any type whose namespace matches will trigger ARCH003.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Exceptions" type="ExceptionsType" minOccurs="0" maxOccurs="1" />
+    </xs:sequence>
+    <xs:attributeGroup ref="MatchAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="AssemblyMatchType">
+    <xs:annotation>
+      <xs:documentation>
+        Matches every type whose containing assembly name matches exactName, endsWith,
+        startsWith, contains, or regex.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Exceptions" type="ExceptionsType" minOccurs="0" maxOccurs="1" />
+    </xs:sequence>
+    <xs:attribute name="exactName" type="xs:string" />
+    <xs:attribute name="endsWith" type="xs:string" />
+    <xs:attribute name="startsWith" type="xs:string" />
+    <xs:attribute name="contains" type="xs:string" />
+    <xs:attribute name="regex" type="xs:string" />
+    <xs:attribute name="comment" type="xs:string" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:simpleType name="LayerNameType">
+    <xs:restriction base="xs:string">
+      <xs:minLength value="1" />
+      <xs:pattern value="[^/]+" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- ── Exceptions (the ratchet pattern) ──────────────────────────────── -->
+
+  <xs:complexType name="ExceptionsType">
+    <xs:annotation>
+      <xs:documentation>
+        Types matching any child Class or Namespace are exempt from the parent rule and
+        evaluation falls through to the next rule in document order. Exceptions can be
+        nested: each deeper matching exception level excepts the previous level, so odd
+        depths exclude and even depths include again. Exceptions support the full
+        MatchAttributes set, including the semantic matchers (inherits, implements,
+        withAttribute, withAccessModifier).
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="Class"     type="ClassMatchType" />
+      <xs:element name="Namespace" type="NamespaceMatchType" />
+    </xs:choice>
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!--  <AllowedDependency from="Application" to="DataAbstraction" />            -->
+  <!--  <AllowedDependency from="*"           to="Crosscutting"    />            -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+
+  <xs:complexType name="AllowedDependencyType">
+    <xs:annotation>
+      <xs:documentation>
+        Declares a permitted directed dependency edge in the architecture graph.
+
+        Use from="*" to allow any layer to depend on the target layer (crosscutting concern).
+        Use to="*" to allow the source layer to depend on any configured layer.
+        Inside a nested Layer, unqualified names resolve to direct children. Prefix a canonical
+        path with "/" to address a layer from the root, such as /Ordering/Application.
+        Cross-boundary dependencies must pass the root relationship and every nested egress
+        and ingress gate.
+
+        Optional allowedSites and blockedSites attributes scope the edge to syntactic dependency
+        sites. Supported comma-separated values: Constructor, Method, MethodReturn, Field,
+        Property, Local, New, GenericInvocation, GenericArgument, Inheritance, Attribute,
+        StaticMember. The attributes are mutually
+        exclusive; if both are present or an unknown value is used, the analyzer ignores the edge.
+
+        Only listed edges are allowed; omitting an edge makes the dependency illegal (ARCH001).
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="from" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>
+          Local child name, root-qualified layer path, or "*" to match any layer.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="to" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>Local child name, root-qualified layer path, or "*".</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="allowedSites" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          Comma-separated site list. When present, this edge allows only those dependency sites.
+          Supported values: Constructor, Method, MethodReturn, Field, Property, Local, New,
+          GenericInvocation, GenericArgument, Inheritance, Attribute, StaticMember.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="blockedSites" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          Comma-separated site list. When present, this edge allows every dependency site except
+          the listed sites. Do not combine with allowedSites.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="BlockedDependencyType">
+    <xs:annotation>
+      <xs:documentation>
+        Declares a dependency edge that is denied even when a broader AllowedDependency
+        wildcard would otherwise allow it. Optional site filters scope where the block applies.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="from" type="xs:string" use="required" />
+    <xs:attribute name="to" type="xs:string" use="required" />
+    <xs:attribute name="allowedSites" type="xs:string" />
+    <xs:attribute name="blockedSites" type="xs:string" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="FixType">
+    <xs:attribute name="Rename" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>
+          The replacement suffix for the rename quick-fix.
+          For example, Rename="Repository" will rename 'OrderStore' to 'OrderRepository'.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+</xs:schema>

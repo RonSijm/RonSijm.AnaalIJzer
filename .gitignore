@@ -166,3 +166,4 @@ $RECYCLE.BIN/
 
 # Compiled nuget files
 *.nupkg
+artifacts/

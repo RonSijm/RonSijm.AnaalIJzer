@@ -1,0 +1,31 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd" strict="false">
+
+  <Layer name="Presentation">
+    <Class endsWith="Endpoint" />
+  </Layer>
+
+  <Layer name="Application">
+    <Class endsWith="Service" />
+  </Layer>
+
+  <Layer name="Persistence">
+    <Class endsWith="Repository" />
+  </Layer>
+
+  <Layer name="QuerySurface">
+    <Class endsWith="Query" />
+  </Layer>
+
+  <Layer name="Projection">
+    <Class endsWith="Projection" />
+  </Layer>
+
+  <AllowedDependency from="Presentation" to="Application" />
+  <AllowedDependency from="Presentation" to="Projection" />
+  <AllowedDependency from="Application" to="Persistence" />
+  <AllowedDependency from="Application" to="Projection" />
+  <AllowedDependency from="Persistence" to="QuerySurface" />
+  <AllowedDependency from="QuerySurface" to="Projection" />
+
+</ArchitecturalLevels>

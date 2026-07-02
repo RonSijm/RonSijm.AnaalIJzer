@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsTestProject>true</IsTestProject>
+        <IsPackable>false</IsPackable>
+
+        <!-- Suppress RS warnings that fire because analyzer source files are compiled into a non-analyzer project -->
+        <NoWarn>RS1036;RS1038;RS1041;RS2008</NoWarn>
+
+        <!-- Test project compiles analyzer source directly; do not self-reference via Directory.Build.props -->
+        <EnableArchitecturalLevelAnalyzer>false</EnableArchitecturalLevelAnalyzer>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="AwesomeAssertions" Version="9.4.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.14.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+        <PackageReference Include="coverlet.collector" Version="6.0.2" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+          <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="xunit.v3" Version="3.2.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer\RonSijm.AnaalIJzer.csproj" />
+      <ProjectReference Include="..\..\Tools\RonSijm.AnaalIJzer.Tooling\RonSijm.AnaalIJzer.Tooling.csproj" />
+    </ItemGroup>
+
+</Project>

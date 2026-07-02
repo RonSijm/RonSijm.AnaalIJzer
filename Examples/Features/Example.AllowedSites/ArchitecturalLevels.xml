@@ -1,0 +1,60 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd">
+
+  <Layer name="Caller">
+    <Class endsWith="SiteExample" />
+  </Layer>
+
+  <Layer name="AllowedConstructorDependency"><Class typeName="AllowedConstructorType" /></Layer>
+  <Layer name="AllowedMethodDependency"><Class typeName="AllowedMethodType" /></Layer>
+  <Layer name="AllowedMethodReturnDependency"><Class typeName="AllowedMethodReturnType" /></Layer>
+  <Layer name="AllowedFieldDependency"><Class typeName="AllowedFieldType" /></Layer>
+  <Layer name="AllowedPropertyDependency"><Class typeName="AllowedPropertyType" /></Layer>
+  <Layer name="AllowedLocalDependency"><Class typeName="AllowedLocalType" /></Layer>
+  <Layer name="AllowedNewDependency"><Class typeName="AllowedNewType" /></Layer>
+  <Layer name="AllowedGenericInvocationDependency"><Class typeName="AllowedGenericInvocationType" /></Layer>
+  <Layer name="AllowedGenericArgumentDependency"><Class typeName="AllowedGenericArgumentType" /></Layer>
+  <Layer name="AllowedInheritanceDependency"><Class typeName="AllowedInheritanceType" /></Layer>
+  <Layer name="AllowedAttributeDependency"><Class typeName="AllowedAttributeType" /></Layer>
+  <Layer name="AllowedStaticMemberDependency"><Class typeName="AllowedStaticMemberType" /></Layer>
+
+  <Layer name="BlockedConstructorDependency"><Class typeName="BlockedConstructorType" /></Layer>
+  <Layer name="BlockedMethodDependency"><Class typeName="BlockedMethodType" /></Layer>
+  <Layer name="BlockedMethodReturnDependency"><Class typeName="BlockedMethodReturnType" /></Layer>
+  <Layer name="BlockedFieldDependency"><Class typeName="BlockedFieldType" /></Layer>
+  <Layer name="BlockedPropertyDependency"><Class typeName="BlockedPropertyType" /></Layer>
+  <Layer name="BlockedLocalDependency"><Class typeName="BlockedLocalType" /></Layer>
+  <Layer name="BlockedNewDependency"><Class typeName="BlockedNewType" /></Layer>
+  <Layer name="BlockedGenericInvocationDependency"><Class typeName="BlockedGenericInvocationType" /></Layer>
+  <Layer name="BlockedGenericArgumentDependency"><Class typeName="BlockedGenericArgumentType" /></Layer>
+  <Layer name="BlockedInheritanceDependency"><Class typeName="BlockedInheritanceType" /></Layer>
+  <Layer name="BlockedAttributeDependency"><Class typeName="BlockedAttributeType" /></Layer>
+  <Layer name="BlockedStaticMemberDependency"><Class typeName="BlockedStaticMemberType" /></Layer>
+
+  <AllowedDependency from="Caller" to="AllowedConstructorDependency" allowedSites="Constructor" />
+  <AllowedDependency from="Caller" to="AllowedMethodDependency" allowedSites="Method" />
+  <AllowedDependency from="Caller" to="AllowedMethodReturnDependency" allowedSites="MethodReturn" />
+  <AllowedDependency from="Caller" to="AllowedFieldDependency" allowedSites="Field" />
+  <AllowedDependency from="Caller" to="AllowedPropertyDependency" allowedSites="Property" />
+  <AllowedDependency from="Caller" to="AllowedLocalDependency" allowedSites="Local" />
+  <AllowedDependency from="Caller" to="AllowedNewDependency" allowedSites="New" />
+  <AllowedDependency from="Caller" to="AllowedGenericInvocationDependency" allowedSites="GenericInvocation" />
+  <AllowedDependency from="Caller" to="AllowedGenericArgumentDependency" allowedSites="GenericArgument" />
+  <AllowedDependency from="Caller" to="AllowedInheritanceDependency" allowedSites="Inheritance" />
+  <AllowedDependency from="Caller" to="AllowedAttributeDependency" allowedSites="Attribute" />
+  <AllowedDependency from="Caller" to="AllowedStaticMemberDependency" allowedSites="StaticMember" />
+
+  <AllowedDependency from="Caller" to="BlockedConstructorDependency" blockedSites="Constructor" />
+  <AllowedDependency from="Caller" to="BlockedMethodDependency" blockedSites="Method" />
+  <AllowedDependency from="Caller" to="BlockedMethodReturnDependency" blockedSites="MethodReturn" />
+  <AllowedDependency from="Caller" to="BlockedFieldDependency" blockedSites="Field" />
+  <AllowedDependency from="Caller" to="BlockedPropertyDependency" blockedSites="Property" />
+  <AllowedDependency from="Caller" to="BlockedLocalDependency" blockedSites="Local" />
+  <AllowedDependency from="Caller" to="BlockedNewDependency" blockedSites="New" />
+  <AllowedDependency from="Caller" to="BlockedGenericInvocationDependency" blockedSites="GenericInvocation" />
+  <AllowedDependency from="Caller" to="BlockedGenericArgumentDependency" blockedSites="GenericArgument" />
+  <AllowedDependency from="Caller" to="BlockedInheritanceDependency" blockedSites="Inheritance" />
+  <AllowedDependency from="Caller" to="BlockedAttributeDependency" blockedSites="Attribute" />
+  <AllowedDependency from="Caller" to="BlockedStaticMemberDependency" blockedSites="StaticMember" />
+
+</ArchitecturalLevels>

@@ -1,0 +1,47 @@
+<Solution>
+  <Folder Name="/Examples/Diagnostics/">
+    <Project Path="Examples/Diagnostics/Example.Arch001.GenericTypeArgument/Example.Arch001.GenericTypeArgument.csproj" />
+    <Project Path="Examples/Diagnostics/Example.Arch001.NoEdge/Example.Arch001.NoEdge.csproj" />
+    <Project Path="Examples/Diagnostics/Example.Arch001.NonConstructorInjection/Example.Arch001.NonConstructorInjection.csproj" />
+    <Project Path="Examples/Diagnostics/Example.Arch001.SkipsLayer/Example.Arch001.SkipsLayer.csproj" />
+    <Project Path="Examples/Diagnostics/Example.Arch002.UnrecognizedDependency/Example.Arch002.UnrecognizedDependency.csproj" />
+    <Project Path="Examples/Diagnostics/Example.Arch003.ForbiddenType/Example.Arch003.ForbiddenType.csproj" />
+    <Project Path="Examples/Diagnostics/Example.Arch004.WrongDirection/Example.Arch004.WrongDirection.csproj" />
+    <Project Path="Examples/Diagnostics/Example.Arch005.SameLayer/Example.Arch005.SameLayer.csproj" />
+    <Project Path="Examples/Diagnostics/Example.Arch006.UnknownLayer/Example.Arch006.UnknownLayer.csproj" />
+    <Project Path="Examples/Diagnostics/Example.Arch007.CyclicGraph/Example.Arch007.CyclicGraph.csproj" />
+  </Folder>
+  <Folder Name="/Examples/Features/">
+    <Project Path="Examples/Features/Example.AllowedSites/Example.AllowedSites.csproj" />
+    <Project Path="Examples/Features/Example.AllowedTypes/Example.AllowedTypes.csproj" />
+    <Project Path="Examples/Features/Example.ArchitectureHealth/Example.ArchitectureHealth.csproj" />
+    <Project Path="Examples/Features/Example.AssemblyMatcher/Example.AssemblyMatcher.csproj" />
+    <Project Path="Examples/Features/Example.BlockedDependency/Example.BlockedDependency.csproj" />
+    <Project Path="Examples/Features/Example.Exceptions/Example.Exceptions.csproj" />
+    <Project Path="Examples/Features/Example.IncludeSettings/Example.IncludeSettings.csproj" />
+    <Project Path="Examples/Features/Example.InlineXml/Example.InlineXml.csproj" />
+    <Project Path="Examples/Features/Example.NestedExceptions/Example.NestedExceptions.csproj" />
+    <Project Path="Examples/Features/Example.NestedLayers/Example.NestedLayers.csproj" />
+    <Project Path="Examples/Features/Example.NonClassCallers/Example.NonClassCallers.csproj" />
+    <Project Path="Examples/Features/Example.ScopedTypePolicies/Example.ScopedTypePolicies.csproj" />
+    <Project Path="Examples/Features/Example.WildcardTo/Example.WildcardTo.csproj" />
+  </Folder>
+  <Folder Name="/Examples/Documentation/">
+    <Project Path="Examples/Documentation/Example.DocumentationDemo/Example.DocumentationDemo.csproj" />
+    <Project Path="Examples/Documentation/Example.ReportDemo/Example.ReportDemo.csproj" />
+  </Folder>
+  <Folder Name="/Examples/Scenarios/">
+    <Project Path="Examples/Scenarios/Example.RepositoryQuerySurface/Example.RepositoryQuerySurface.csproj" />
+  </Folder>
+  <Folder Name="/Main/">
+    <Project Path="src/Main/RonSijm.AnaalIJzer/RonSijm.AnaalIJzer.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="src/Tests/RonSijm.AnaalIJzer.IntegrationTests/RonSijm.AnaalIJzer.IntegrationTests.csproj" />
+    <Project Path="src/Tests/RonSijm.AnaalIJzer.UnitTests/RonSijm.AnaalIJzer.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/Tools/">
+    <Project Path="src/Tools/RonSijm.AnaalIJzer.Ridder/RonSijm.AnaalIJzer.Ridder.csproj" />
+    <Project Path="src/Tools/RonSijm.AnaalIJzer.Tooling/RonSijm.AnaalIJzer.Tooling.csproj" />
+  </Folder>
+</Solution>

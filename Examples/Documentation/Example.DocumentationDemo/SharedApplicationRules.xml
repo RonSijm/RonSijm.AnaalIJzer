@@ -1,0 +1,65 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+                     description="Shared order-processing rules imported by the documentation demo.">
+
+  <Layer name="Presentation"
+         description="Public entry points that translate requests into application actions.">
+    <Class endsWith="Endpoint"
+           description="Endpoint suffixes are treated as public request handlers." />
+    <Class withAttribute="ApiController"
+           description="Types marked with ApiController also join the Presentation layer." />
+  </Layer>
+
+  <Layer name="Application"
+         description="Application orchestration that prepares orders without touching storage internals directly.">
+    <Class endsWith="Service"
+           description="Service classes coordinate use cases." />
+    <Class endsWith="Manager"
+           description="Manager classes are accepted while older application code is being renamed." />
+    <Class inherits="ApplicationServiceBase"
+           description="The base class matcher catches application services even when their suffix changes." />
+    <Class implements="IUseCase"
+           description="Use-case implementations belong to the application layer." />
+    <Class withAccessModifier="private"
+           description="Private nested helpers can be documented with access-modifier matching without broadening public layer ownership." />
+  </Layer>
+
+  <Layer name="Persistence"
+         description="Persistence entry points owned by the application, including repository namespaces.">
+    <Class endsWith="Repository"
+           description="Repository suffixes identify persistence access." />
+    <Namespace contains="DocumentationDemo.Persistence"
+               description="Types in the persistence namespace are repositories or repository helpers." />
+  </Layer>
+
+  <Layer name="QuerySurface"
+         description="Repository-owned fluent query builders that must be projected before leaving repository-owned code.">
+    <Class endsWith="Query"
+           description="Query objects are transient access points, not application dependencies." />
+  </Layer>
+
+  <Layer name="Projection"
+         description="Projected DTOs that are safe to return after query surfaces have done their work.">
+    <Class endsWith="Projection"
+           description="Projection classes carry data outward without exposing query mechanics." />
+  </Layer>
+
+  <AllowedDependency from="Presentation" to="Application"
+                     description="Presentation types may call the application layer to fulfill requests." />
+  <AllowedDependency from="Presentation" to="Projection"
+                     allowedSites="MethodReturn"
+                     description="Presentation types may return projected DTOs, but should not depend on query surfaces or repositories." />
+  <AllowedDependency from="Application" to="Persistence"
+                     blockedSites="Field, Property"
+                     description="Application code may use repositories, but should not retain them as mutable state in this example." />
+  <AllowedDependency from="Application" to="Projection"
+                     allowedSites="MethodReturn"
+                     description="Application services may return projected DTOs after repository query surfaces have finished their work." />
+  <AllowedDependency from="Persistence" to="QuerySurface"
+                     allowedSites="MethodReturn, New"
+                     description="Repositories may create and return query surfaces as fluent access points." />
+  <AllowedDependency from="QuerySurface" to="Projection"
+                     allowedSites="MethodReturn, New"
+                     description="Query surfaces may create projections and return only those projected objects." />
+
+</ArchitecturalLevels>

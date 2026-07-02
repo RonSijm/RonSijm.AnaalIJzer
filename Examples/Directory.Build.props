@@ -1,0 +1,47 @@
+<Project>
+
+  <!--
+    Shared MSBuild props for every example project under Examples/.
+
+    The example projects intentionally trigger ARCH00X errors as living
+    documentation. That makes opening the .slnx in an IDE noisy by default,
+    so the analyzer hook-up is gated on configuration:
+
+      Debug   - analyzer OFF (IDE default; build is silent)
+      Release - analyzer ON  (errors fire, ReportDemo regenerates docs)
+
+    Easy toggle: flip EnableAnalyzerOnDebug below to true if you want the
+    analyzer to fire during normal IDE / Debug builds too.
+
+    Per-build or per-project overrides still work:
+      <EnableArchitecturalLevelAnalyzer>true</EnableArchitecturalLevelAnalyzer>
+    or:  dotnet build Examples\Documentation\Example.ReportDemo -p:EnableArchitecturalLevelAnalyzer=true
+  -->
+
+  <PropertyGroup>
+    <!-- Flip to true to run the analyzer in Debug builds as well (e.g. while editing in the IDE). -->
+    <EnableAnalyzerOnDebug Condition="'$(EnableAnalyzerOnDebug)' == ''">false</EnableAnalyzerOnDebug>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <!-- Suppress "parameter unread" - example classes are intentionally minimal stubs -->
+    <NoWarn>CS9113</NoWarn>
+    <EnableArchitecturalLevelAnalyzer Condition="'$(EnableArchitecturalLevelAnalyzer)' == '' AND '$(Configuration)' == 'Release'">true</EnableArchitecturalLevelAnalyzer>
+    <EnableArchitecturalLevelAnalyzer Condition="'$(EnableArchitecturalLevelAnalyzer)' == '' AND '$(EnableAnalyzerOnDebug)' == 'true'">true</EnableArchitecturalLevelAnalyzer>
+    <EnableArchitecturalLevelAnalyzer Condition="'$(EnableArchitecturalLevelAnalyzer)' == ''">false</EnableArchitecturalLevelAnalyzer>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(EnableArchitecturalLevelAnalyzer)' == 'true'">
+    <ProjectReference
+        Include="$(MSBuildThisFileDirectory)..\src\Main\RonSijm.AnaalIJzer\RonSijm.AnaalIJzer.csproj"
+        OutputItemType="Analyzer"
+        ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="$(MSBuildProjectDirectory)\*.xml" />
+  </ItemGroup>
+
+</Project>
