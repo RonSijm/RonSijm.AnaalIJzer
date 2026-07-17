@@ -1,0 +1,28 @@
+<Solution>
+  <Folder Name="/Extensions/">
+    <Project Path="Extensions/RonSijm.AnaalIJzer.VisualStudio/RonSijm.AnaalIJzer.VisualStudio.csproj" />
+  </Folder>
+  <Folder Name="/Main/">
+    <Project Path="Main/RonSijm.AnaalIJzer.ConfigurationEditing/RonSijm.AnaalIJzer.ConfigurationEditing.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer.Graphing.Wpf/RonSijm.AnaalIJzer.Graphing.Wpf.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer.Graphing/RonSijm.AnaalIJzer.Graphing.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer.VisualStudio.Core/RonSijm.AnaalIJzer.VisualStudio.Core.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer/RonSijm.AnaalIJzer.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/RonSijm.AnaalIJzer.ConfigurationEditing.Tests/RonSijm.AnaalIJzer.ConfigurationEditing.Tests.csproj" />
+    <Project Path="Tests/RonSijm.AnaalIJzer.Graphing.Wpf.Tests/RonSijm.AnaalIJzer.Graphing.Wpf.Tests.csproj" />
+    <Project Path="Tests/RonSijm.AnaalIJzer.Graphing.Tests/RonSijm.AnaalIJzer.Graphing.Tests.csproj" />
+    <Project Path="Tests/RonSijm.AnaalIJzer.IntegrationTests/RonSijm.AnaalIJzer.IntegrationTests.csproj" />
+    <Project Path="Tests/RonSijm.AnaalIJzer.Arse.Tests/RonSijm.AnaalIJzer.Arse.Tests.csproj" />
+    <Project Path="Tests/RonSijm.AnaalIJzer.Tooling.Tests/RonSijm.AnaalIJzer.Tooling.Tests.csproj" />
+    <Project Path="Tests/RonSijm.AnaalIJzer.UnitTests/RonSijm.AnaalIJzer.UnitTests.csproj" />
+    <Project Path="Tests/RonSijm.AnaalIJzer.VisualStudio.Core.Tests/RonSijm.AnaalIJzer.VisualStudio.Core.Tests.csproj" />
+    <Project Path="Tests/RonSijm.AnaalIJzer.VisualStudio.Tests/RonSijm.AnaalIJzer.VisualStudio.Tests.csproj" />
+  </Folder>
+  <Folder Name="/Tools/">
+    <Project Path="Tools/RonSijm.AnaalIJzer.GraphEditor.Standalone/RonSijm.AnaalIJzer.GraphEditor.Standalone.csproj" />
+    <Project Path="Tools/RonSijm.AnaalIJzer.Arse/RonSijm.AnaalIJzer.Arse.csproj" />
+    <Project Path="Tools/RonSijm.AnaalIJzer.Tooling/RonSijm.AnaalIJzer.Tooling.csproj" />
+  </Folder>
+</Solution>

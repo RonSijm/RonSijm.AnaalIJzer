@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable">
+  <Extern href="stdidcmd.h" />
+  <Extern href="vsshlids.h" />
+
+  <Commands package="guidAnaalIJzerVisualStudioPackage">
+    <Menus>
+      <!-- "AnaalIJzer" toolbar (appears in View > Toolbars > AnaalIJzer) -->
+      <Menu guid="guidAnaalIJzerCommandSet" id="AnaalIJzerToolbar" priority="0x0000" type="Toolbar">
+        <Strings>
+          <ButtonText>AnaalIJzer</ButtonText>
+          <CommandName>AnaalIJzer</CommandName>
+        </Strings>
+      </Menu>
+    </Menus>
+
+    <Groups>
+      <Group guid="guidAnaalIJzerCommandSet" id="AnaalIJzerViewGroup" priority="0x7000">
+        <Parent guid="guidSHLMainMenu" id="IDG_VS_WNDO_OTRWNDWS1" />
+      </Group>
+      <Group guid="guidAnaalIJzerCommandSet" id="AnaalIJzerToolsGroup" priority="0x7000">
+        <Parent guid="guidSHLMainMenu" id="IDG_VS_TOOLS_EXTENSIBILITY" />
+      </Group>
+      <Group guid="guidAnaalIJzerCommandSet" id="AnaalIJzerToolbarGroup" priority="0x0000">
+        <Parent guid="guidAnaalIJzerCommandSet" id="AnaalIJzerToolbar" />
+      </Group>
+    </Groups>
+
+    <Buttons>
+      <Button guid="guidAnaalIJzerCommandSet" id="ShowDependencyGraphsCommand" priority="0x0100" type="Button">
+        <Parent guid="guidAnaalIJzerCommandSet" id="AnaalIJzerViewGroup" />
+        <Strings>
+          <ButtonText>AnaalIJzer: Show Dependency Graphs</ButtonText>
+          <CommandName>AnaalIJzer.ShowDependencyGraphs</CommandName>
+          <ToolTipText>Show the AnaalIJzer dependency graph tool window.</ToolTipText>
+        </Strings>
+      </Button>
+      <Button guid="guidAnaalIJzerCommandSet" id="ShowStatusCommand" priority="0x0101" type="Button">
+        <Parent guid="guidAnaalIJzerCommandSet" id="AnaalIJzerToolsGroup" />
+        <Strings>
+          <ButtonText>AnaalIJzer: Show Status</ButtonText>
+          <CommandName>AnaalIJzer.ShowStatus</CommandName>
+          <ToolTipText>Show what the AnaalIJzer extension sees for the active editor document.</ToolTipText>
+        </Strings>
+      </Button>
+      <Button guid="guidAnaalIJzerCommandSet" id="ToggleSitesDiagnosticsCommand" priority="0x0102" type="Button">
+        <Parent guid="guidAnaalIJzerCommandSet" id="AnaalIJzerToolsGroup" />
+        <Strings>
+          <ButtonText>AnaalIJzer: Toggle Sites Diagnostics</ButtonText>
+          <CommandName>AnaalIJzer.ToggleSitesDiagnostics</CommandName>
+          <ToolTipText>Toggle inline architectural dependency site labels.</ToolTipText>
+        </Strings>
+      </Button>
+    </Buttons>
+  </Commands>
+
+  <!-- Place the same buttons into the toolbar group -->
+  <CommandPlacements>
+    <CommandPlacement guid="guidAnaalIJzerCommandSet" id="ShowDependencyGraphsCommand" priority="0x0100">
+      <Parent guid="guidAnaalIJzerCommandSet" id="AnaalIJzerToolbarGroup" />
+    </CommandPlacement>
+    <CommandPlacement guid="guidAnaalIJzerCommandSet" id="ShowStatusCommand" priority="0x0101">
+      <Parent guid="guidAnaalIJzerCommandSet" id="AnaalIJzerToolbarGroup" />
+    </CommandPlacement>
+    <CommandPlacement guid="guidAnaalIJzerCommandSet" id="ToggleSitesDiagnosticsCommand" priority="0x0102">
+      <Parent guid="guidAnaalIJzerCommandSet" id="AnaalIJzerToolbarGroup" />
+    </CommandPlacement>
+  </CommandPlacements>
+
+  <Symbols>
+    <GuidSymbol name="guidAnaalIJzerVisualStudioPackage" value="{8db21a41-4f59-40cc-a6ef-8f8c8a24f4c0}" />
+    <GuidSymbol name="guidAnaalIJzerCommandSet" value="{7d1a9d98-56f5-44ec-a59c-8d58c7f5187d}">
+      <IDSymbol name="AnaalIJzerViewGroup" value="0x1010" />
+      <IDSymbol name="AnaalIJzerToolsGroup" value="0x1020" />
+      <IDSymbol name="AnaalIJzerToolbar" value="0x1030" />
+      <IDSymbol name="AnaalIJzerToolbarGroup" value="0x1040" />
+      <IDSymbol name="ToggleSitesDiagnosticsCommand" value="0x0100" />
+      <IDSymbol name="ShowDependencyGraphsCommand" value="0x0101" />
+      <IDSymbol name="ShowStatusCommand" value="0x0102" />
+    </GuidSymbol>
+  </Symbols>
+</CommandTable>
+

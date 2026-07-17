@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+                     requireRecognizedDependencies="Constructor"
+                     enableReport="false"
+                     reportPath="architectural-violations.md">
+
+  <!-- ── Forbidden patterns ─────────────────────────────────────── -->
+
+  <Forbidden>
+    <!--
+      Persistence infrastructure should use the Repository suffix.
+      The <Fix Rename="Repository"> element offers an automatic rename quick-fix in VS.
+    -->
+    <Class endsWith="Store" comment="Persistence types must use the Repository suffix.">
+      <Fix Rename="Repository" />
+    </Class>
+  </Forbidden>
+
+  <!-- ── Crosscutting layer ─────────────────────────────────────── -->
+
+  <Layer name="Crosscutting">
+    <Class typeName="ILogger" />
+    <Class typeName="ILoggerFactory" />
+    <Class typeName="IMemoryCache" />
+  </Layer>
+
+  <!-- ── Architectural layers ───────────────────────────────────── -->
+
+  <Layer name="Presentation">
+    <Class endsWith="Endpoint" />
+  </Layer>
+
+  <Layer name="Application">
+    <Class endsWith="Service" />
+    <Class endsWith="Manager" />
+    <Class endsWith="Coordinator" />
+  </Layer>
+
+  <Layer name="Persistence">
+    <Class endsWith="Repository" />
+  </Layer>
+
+  <Layer name="Database">
+    <Class endsWith="DbContext" />
+    <Class endsWith="DbContextFactory" />
+  </Layer>
+
+  <Layer name="ServiceAgent">
+    <Class endsWith="ServiceAgent" />
+  </Layer>
+
+  <!-- ── Allowed dependency edges ──────────────────────────────── -->
+
+  <AllowedDependency from="*"               to="Crosscutting" />
+  <AllowedDependency from="Presentation"    to="Application" />
+  <AllowedDependency from="Application"     to="Persistence" />
+  <AllowedDependency from="Application"     to="ServiceAgent" />
+  <AllowedDependency from="Persistence"     to="Database" />
+  <!-- ServiceAgent -> Database: intentionally omitted -->
+
+</ArchitecturalLevels>

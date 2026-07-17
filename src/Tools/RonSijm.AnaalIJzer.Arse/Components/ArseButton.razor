@@ -1,0 +1,47 @@
+@namespace RonSijm.AnaalIJzer.Arse.Components
+
+<div @onfocus="OnFocus"
+     @onfocusout="OnFocusOut"
+     @onclick="OnClick"
+     @onkeyup="OnKeyUp"
+     data-focusable="true"
+     data-focus-order="@FocusOrder"
+     @key="@_focusKey"
+     data-focus-key="@_focusKey">
+	<Markup Content="@Content" Background="@(_isFocused ? FocusedColor : BackgroundColor)" />
+</div>
+
+@code {
+	private readonly string _focusKey = Guid.NewGuid().ToString("N");
+	private bool _isFocused;
+
+	[Parameter]
+	public string Content { get; set; } = string.Empty;
+
+	[Parameter]
+	public EventCallback OnClick { get; set; }
+
+	[Parameter]
+	public EventCallback<KeyboardEventArgs> OnKeyUp { get; set; }
+
+	[Parameter]
+	public int FocusOrder { get; set; }
+
+	[Parameter]
+	public Color BackgroundColor { get; set; } = Color.Default;
+
+	[Parameter]
+	public Color FocusedColor { get; set; } = Color.DeepSkyBlue1;
+
+	private void OnFocus(FocusEventArgs args)
+	{
+		_isFocused = true;
+		StateHasChanged();
+	}
+
+	private void OnFocusOut(FocusEventArgs args)
+	{
+		_isFocused = false;
+		StateHasChanged();
+	}
+}

@@ -1,0 +1,17 @@
+<!-- Shared application settings that another Architecture.anl can include. -->
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd">
+  <Layer name="Presentation">
+    <Class endsWith="Endpoint" />
+  </Layer>
+
+  <Layer name="Application">
+    <Class endsWith="Service" />
+  </Layer>
+
+  <Layer name="Persistence">
+    <Class endsWith="Repository" />
+  </Layer>
+
+  <AllowedDependency from="Application" to="Persistence" />
+</ArchitecturalLevels>

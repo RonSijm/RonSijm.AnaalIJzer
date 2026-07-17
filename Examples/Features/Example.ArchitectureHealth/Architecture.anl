@@ -1,0 +1,16 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+                     description="An intentionally untidy architecture used by the validate command example.">
+  <Layer name="Application">
+    <Class endsWith="Service">
+      <Exceptions>
+        <Class typeName="RetiredService" />
+      </Exceptions>
+    </Class>
+  </Layer>
+  <Layer name="Repository"><Class endsWith="Repository" /></Layer>
+  <Layer name="Gateway"><Class endsWith="Gateway" /></Layer>
+  <AllowedDependency from="Application" to="Repository" />
+  <AllowedDependency from="Repository" to="Application" />
+  <AllowedDependency from="Application" to="Gateway" />
+</ArchitecturalLevels>

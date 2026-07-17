@@ -1,0 +1,20 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+                     requireRecognizedDependencies="Constructor, Method, MethodReturn, Field, Property, Local, New, GenericInvocation, GenericArgument, Inheritance, InterfaceImplementation, Attribute, StaticMember"
+                     description="Requires every dependency site recognized by the analyzer to use configured architectural types.">
+
+  <Layer name="Caller" description="Types whose dependencies are checked.">
+    <Class endsWith="Caller" />
+  </Layer>
+
+  <Layer name="Known" description="A configured dependency used by the valid example.">
+    <Class typeName="KnownDependency" />
+  </Layer>
+
+  <Layer name="Wrapper" description="Recognizes Lazy itself while its generic argument is checked separately.">
+    <Class typeName="Lazy" />
+  </Layer>
+
+  <AllowedDependency from="Caller" to="Known" />
+  <AllowedDependency from="Caller" to="Wrapper" allowedSites="Constructor" />
+</ArchitecturalLevels>

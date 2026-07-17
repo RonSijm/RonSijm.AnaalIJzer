@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+                     requireRecognizedDependencies="Constructor"
+                     enableReport="false"
+                     reportPath="architectural-violations.md">
+
+  <!--
+    Layer graph for the Connect bounded context.
+
+    Allowed dependency paths:
+      * -> Crosscutting  (ILogger, IIdentityContext, ILicentieService etc. — any layer may use these)
+      Wiring           -> *              (composition root: registers all layers into the DI container)
+      Auth             -> DataAbstraction  (auth handlers validate requests against stored partners)
+      Presentation     -> Application
+      Application      -> Persistence
+      Application      -> ServiceAgent
+      Persistence      -> DatabaseFactory  (Repositories receive the factory)
+      DatabaseFactory  -> Database         (factory creates DbContext)
+      (ServiceAgent cannot reach Database)
+  -->
+
+  <!-- ── Forbidden patterns ─────────────────────────────────────── -->
+
+  <Forbidden>
+    <!--
+      Persistence infrastructure should use the Repository suffix.
+      The <Fix Rename="Repository"> element offers an automatic rename quick-fix in VS.
+    -->
+    <Class endsWith="Store" comment="Persistence types must use the Repository suffix.">
+      <Fix Rename="Repository" />
+      <!--
+        <Exceptions> grandfathers pre-existing offenders into a baseline.
+        Same matchers as a top-level rule. Any type matching an exception
+        is skipped for *this* rule (new violations still fail the build).
+      -->
+      <Exceptions>
+        <Class startsWith="Legacy" />
+      </Exceptions>
+    </Class>
+  </Forbidden>
+
+  <!-- ── Crosscutting layer ─────────────────────────────────────── -->
+
+  <Layer name="Crosscutting">
+    <!-- BCL / framework types — always safe to use anywhere -->
+    <Namespace startsWith="System" />
+    <Namespace startsWith="Microsoft" />
+	  
+    <!-- Named infrastructure services -->
+    <Class typeName="ILogger" />
+    <Class typeName="IIdentityContext" />
+    <Class typeName="ILicentieService" />
+    <Class typeName="ILoggerFactory" />
+    <Class typeName="IMemoryCache" />
+    <Class typeName="IDbConnectionCache" />
+    <Class typeName="DbContextOptions" />
+	  
+    <!-- Value object IDs -->
+    <Class endsWith="Id" />
+    <!-- Identity context implementations -->
+    <Class endsWith="IdentityContext" />
+    <!-- Honest types / value objects scoped to the HonestTypes namespace -->
+    <Namespace contains="HonestTypes" />
+  </Layer>
+
+  <!-- ── Host layer (composition root) ─────────────────────────── -->
+  <!--
+    Wiring: DI registration modules that reference every layer to wire them together.
+    Auth:   Authentication handlers and identity context — only need DataAbstraction
+            (repositories) to validate incoming requests; they must not reach Application.
+  -->
+  <Layer name="Wiring">
+    <Namespace contains="Wiring" />
+  </Layer>
+
+  <Layer name="Auth">
+    <Class endsWith="AuthenticationHandler" />
+  </Layer>
+
+  <!-- ── Architectural layers ───────────────────────────────────── -->
+
+  <Layer name="Presentation">
+    <Class endsWith="Endpoint" />
+  </Layer>
+
+  <Layer name="Application">
+    <Class endsWith="Service" />
+    <Class endsWith="Manager" />
+    <Class endsWith="Coordinator" />
+  </Layer>
+
+  <Layer name="Persistence">
+    <Class endsWith="Repository" />
+  </Layer>
+
+  <Layer name="DatabaseFactory">
+    <Class endsWith="DbContextFactory" />
+  </Layer>
+
+  <Layer name="Database">
+    <Class endsWith="DbContext" />
+  </Layer>
+
+  <Layer name="ServiceAgent">
+    <Class endsWith="ServiceAgent" />
+  </Layer>
+
+  <!-- ── Allowed dependency edges ──────────────────────────────── -->
+
+  <AllowedDependency from="*"               to="Crosscutting" />
+  <AllowedDependency from="Wiring"          to="*" />
+  <AllowedDependency from="Auth"            to="Persistence" />
+  <AllowedDependency from="Presentation"    to="Application" />
+  <AllowedDependency from="Application"     to="Persistence" />
+  <AllowedDependency from="Application"     to="ServiceAgent" />
+  <AllowedDependency from="Persistence"     to="DatabaseFactory" />
+  <AllowedDependency from="DatabaseFactory" to="Database" />
+  <!-- ServiceAgent -> Database: intentionally omitted -->
+
+</ArchitecturalLevels>

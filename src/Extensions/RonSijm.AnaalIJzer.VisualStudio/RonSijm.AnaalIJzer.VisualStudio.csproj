@@ -1,0 +1,94 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <Import Project="../../../build/Settings/NuGetVersioning.props" />
+
+    <PropertyGroup>
+        <TargetFramework>net472</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <UseWPF>true</UseWPF>
+        <RootNamespace>RonSijm.AnaalIJzer.VisualStudio</RootNamespace>
+        <AssemblyName>RonSijm.AnaalIJzer.VisualStudio</AssemblyName>
+        <PackageId>RonSijm.AnaalIJzer.VisualStudio</PackageId>
+        <IsPackable>false</IsPackable>
+        <VSSDKBuildToolsAutoSetup>true</VSSDKBuildToolsAutoSetup>
+        <GeneratePkgDefFile>true</GeneratePkgDefFile>
+        <IncludeAssemblyInVSIXContainer>true</IncludeAssemblyInVSIXContainer>
+        <IncludeDebugSymbolsInVSIXContainer>false</IncludeDebugSymbolsInVSIXContainer>
+        <EnableArchitecturalLevelAnalyzer>false</EnableArchitecturalLevelAnalyzer>
+        <AnaalIJzerVsixVersion Condition="'$(AnaalIJzerVsixVersion)' == ''">1.$([System.DateTime]::UtcNow.ToString('yy')).$([System.DateTime]::UtcNow.ToString('MMdd')).$([System.DateTime]::UtcNow.ToString('HHmmss'))</AnaalIJzerVsixVersion>
+        <CreateVsixContainerDependsOn>$(CreateVsixContainerDependsOn);StampAnaalIJzerVsixManifestVersion</CreateVsixContainerDependsOn>
+        <CopyVsixManifestFileDependsOn>$(CopyVsixManifestFileDependsOn);StampAnaalIJzerVsixManifestVersion</CopyVsixManifestFileDependsOn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Reference Include="System.Design" />
+        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net472" Version="1.0.3" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.14.40265" PrivateAssets="all" ExcludeAssets="runtime" />
+        <PackageReference Include="Microsoft.VisualStudio.LanguageServices" Version="4.11.0" PrivateAssets="all" ExcludeAssets="runtime" />
+        <PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.14.40264" PrivateAssets="all" ExcludeAssets="runtime" />
+        <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="18.5.40034" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.ConfigurationEditing\RonSijm.AnaalIJzer.ConfigurationEditing.csproj"
+                          SetTargetFramework="TargetFramework=net472" />
+        <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Graphing.Wpf\RonSijm.AnaalIJzer.Graphing.Wpf.csproj"
+                          SetTargetFramework="TargetFramework=net472" />
+        <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Graphing\RonSijm.AnaalIJzer.Graphing.csproj"
+                          SetTargetFramework="TargetFramework=net472" />
+        <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.VisualStudio.Core\RonSijm.AnaalIJzer.VisualStudio.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <VSCTCompile Include="Shell\Commands.vsct">
+            <ResourceName>Menus.ctmenu</ResourceName>
+        </VSCTCompile>
+        <Content Include="source.extension.vsixmanifest">
+            <SubType>Designer</SubType>
+        </Content>
+        <Content Include="ReleaseNotes.txt">
+            <IncludeInVSIX>true</IncludeInVSIX>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="UnifiedSettings\AnaalIJzer.registration.json">
+            <IncludeInVSIX>true</IncludeInVSIX>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="..\..\..\build\Settings\icon.png" Link="icon.png">
+            <IncludeInVSIX>true</IncludeInVSIX>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>RonSijm.AnaalIJzer.VisualStudio.Tests</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+
+    <!-- Embed the compiled CTO as a direct manifest resource stream so VS can load it via
+         Assembly.GetManifestResourceStream("Menus.ctmenu"). The VSSDK also embeds it inside
+         _EmptyResource.resources, but VS needs the top-level named stream. -->
+    <Target Name="EmbedCtmenuResource" AfterTargets="MergeCtoResource" BeforeTargets="CoreCompile">
+        <Message Importance="High" Text="EmbedCtmenuResource: embedding $(IntermediateOutputPath)Commands.cto as Menus.ctmenu" />
+        <ItemGroup>
+            <EmbeddedResource Include="$(IntermediateOutputPath)Commands.cto">
+                <LogicalName>Menus.ctmenu</LogicalName>
+                <WithCulture>false</WithCulture>
+                <Type>Non-Resx</Type>
+            </EmbeddedResource>
+        </ItemGroup>
+    </Target>
+
+    <Target Name="StampAnaalIJzerVsixManifestVersion"
+            DependsOnTargets="DetokenizeVsixManifestFile"
+            Condition="'$(DesignTimeBuild)' != 'true' and Exists('$(IntermediateVsixManifest)')">
+        <XmlPoke XmlInputPath="$(IntermediateVsixManifest)"
+                 Query="/*[local-name()='PackageManifest']/*[local-name()='Metadata']/*[local-name()='Identity']/@Version"
+                 Value="$(AnaalIJzerVsixVersion)" />
+        <Message Importance="High" Text="AnaalIJzer VSIX version = $(AnaalIJzerVsixVersion)" />
+    </Target>
+
+</Project>

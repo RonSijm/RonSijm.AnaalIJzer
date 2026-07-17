@@ -11,6 +11,7 @@ target/
 # User-specific files
 *.suo
 *.user
+*.usersettings
 *.sln.docstates
 project.lock.json
 _references.js
@@ -166,3 +167,7 @@ $RECYCLE.BIN/
 
 # Compiled nuget files
 *.nupkg
+artifacts/
+build/Artifacts/*
+!build/Artifacts/.gitkeep
+

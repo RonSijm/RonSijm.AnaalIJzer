@@ -1,0 +1,162 @@
+@namespace RonSijm.AnaalIJzer.Arse.Components
+
+<TextInput Label="@Label"
+           Value="@_currentValue"
+           ValueChanged="OnValueChanged"
+           Placeholder="@Placeholder"
+           FocusOrder="@FocusOrder"
+           OnFocus="OnFocus"
+           OnBlur="OnBlur"
+           @onkeydown="OnKeyDown"
+           @onkeyup="OnKeyUpInternal"
+           Expand="true" />
+
+@if (_showSuggestions && _suggestionSet.Suggestions.Count > 0)
+{
+	<Panel Title="Path suggestions" Border="@BoxBorder.Rounded" BorderColor="@Color.Grey37" Expand="true">
+		<Rows>
+			@for (var index = 0; index < _suggestionSet.Suggestions.Count; index++)
+			{
+				var suggestion = _suggestionSet.Suggestions[index];
+				<Markup Content="@($"{(suggestion.IsDirectory ? "DIR " : "FILE")}  {suggestion.DisplayValue}")"
+				        Foreground="@(index == _selectedIndex ? Color.DeepSkyBlue1 : Color.Grey70)"
+				        Decoration="@(index == _selectedIndex ? Decoration.Bold : Decoration.None)" />
+			}
+		</Rows>
+	</Panel>
+}
+
+@code {
+	private string _currentValue = string.Empty;
+	private string _lastIncomingValue = string.Empty;
+	private PathSuggestionSet _suggestionSet = PathSuggestionSet.Empty(string.Empty);
+	private int _selectedIndex = -1;
+	private bool _showSuggestions;
+
+	[Parameter]
+	public string Label { get; set; } = string.Empty;
+
+	[Parameter]
+	public string? Value { get; set; }
+
+	[Parameter]
+	public EventCallback<string?> ValueChanged { get; set; }
+
+	[Parameter]
+	public string? Placeholder { get; set; }
+
+	[Parameter]
+	public int? FocusOrder { get; set; }
+
+	[Parameter]
+	public PathSelectionMode SelectionMode { get; set; } = PathSelectionMode.File;
+
+	[Parameter]
+	public IReadOnlyCollection<string> FileExtensions { get; set; } = [];
+
+	[Parameter]
+	public bool AllowMultiple { get; set; }
+
+	[Parameter]
+	public EventCallback<KeyboardEventArgs> OnKeyUp { get; set; }
+
+	protected override void OnParametersSet()
+	{
+		var incoming = Value ?? string.Empty;
+		if (!string.Equals(incoming, _lastIncomingValue, StringComparison.Ordinal))
+		{
+			_currentValue = incoming;
+			_lastIncomingValue = incoming;
+			RefreshSuggestions();
+		}
+	}
+
+	private async Task OnValueChanged(string? value)
+	{
+		_currentValue = value ?? string.Empty;
+		_lastIncomingValue = _currentValue;
+		_selectedIndex = -1;
+		_showSuggestions = true;
+		RefreshSuggestions();
+		await ValueChanged.InvokeAsync(_currentValue);
+	}
+
+	private Task OnFocus(FocusEventArgs args)
+	{
+		RefreshSuggestions();
+		return Task.CompletedTask;
+	}
+
+	private Task OnBlur(FocusEventArgs args)
+	{
+		_showSuggestions = false;
+		return Task.CompletedTask;
+	}
+
+	private async Task OnKeyDown(KeyboardEventArgs args)
+	{
+		switch (args.Key)
+		{
+			case "DownArrow":
+				MoveSelection(1);
+				break;
+			case "UpArrow":
+				MoveSelection(-1);
+				break;
+			case "RightArrow" when _selectedIndex >= 0:
+				await ApplyCompletion(_suggestionSet.Suggestions[_selectedIndex].Value);
+				break;
+			case "Tab" when !args.ShiftKey:
+				_showSuggestions = true;
+				RefreshSuggestions();
+				var completion = _selectedIndex >= 0
+					? _suggestionSet.Suggestions[_selectedIndex].Value
+					: _suggestionSet.CompletionValue;
+				if (!string.Equals(completion, _currentValue, StringComparison.Ordinal))
+				{
+					await ApplyCompletion(completion);
+				}
+				break;
+		}
+	}
+
+	private async Task OnKeyUpInternal(KeyboardEventArgs args)
+	{
+		if (OnKeyUp.HasDelegate)
+		{
+			await OnKeyUp.InvokeAsync(args);
+		}
+	}
+
+	private void MoveSelection(int offset)
+	{
+		_showSuggestions = true;
+		RefreshSuggestions();
+		if (_suggestionSet.Suggestions.Count == 0)
+		{
+			_selectedIndex = -1;
+			return;
+		}
+
+		_selectedIndex = (_selectedIndex + offset + _suggestionSet.Suggestions.Count) % _suggestionSet.Suggestions.Count;
+	}
+
+	private async Task ApplyCompletion(string value)
+	{
+		_currentValue = value;
+		_lastIncomingValue = value;
+		_selectedIndex = -1;
+		_showSuggestions = true;
+		RefreshSuggestions();
+		await ValueChanged.InvokeAsync(value);
+	}
+
+	private void RefreshSuggestions()
+	{
+		_suggestionSet = PathSuggestionProvider.Find(_currentValue, SelectionMode, FileExtensions, AllowMultiple);
+		if (_selectedIndex >= _suggestionSet.Suggestions.Count)
+		{
+			_selectedIndex = -1;
+		}
+	}
+}

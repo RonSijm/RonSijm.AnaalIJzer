@@ -1,0 +1,96 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+                     requireRecognizedDependencies="Constructor"
+                     enforceAcyclic="true"
+                     enableDocumentation="true"
+                     documentationPath="../Generated/architecture-documentation.md"
+                     description="A deliberately busy example that documents layers, matcher rules, allowed and forbidden type policies, site filters, wildcard rules and unrelated dependency chains.">
+
+  <Include path="SharedApplicationRules.anl"
+           description="Imports the primary application chain so this file can focus on crosscutting, forbidden and billing-specific rules." />
+
+  <Forbidden description="Names and namespaces that should never become dependencies in the documented architecture.">
+    <Class endsWith="Store"
+           comment="Use Repository instead."
+           description="A Store name hides persistence behind a retail metaphor; Repository is the supported persistence term.">
+      <Fix Rename="Repository"
+           description="The code fix replaces the forbidden Store suffix with Repository." />
+    </Class>
+    <Namespace contains="DocumentationDemo.Legacy"
+               comment="Do not depend on legacy internals."
+               description="Legacy internals may exist during migration, but layered code should not take dependencies on them.">
+      <Exceptions description="The migration adapter is the sanctioned bridge while old code is being removed.">
+        <Class typeName="LegacyAdapter"
+               description="LegacyAdapter is the one named exception to the legacy namespace ban." />
+      </Exceptions>
+    </Namespace>
+  </Forbidden>
+
+  <Layer name="Crosscutting"
+         description="Infrastructure-shaped helpers that can be requested by any layer without changing business direction.">
+    <Class typeName="ILogger"
+           description="Logging is intentionally available across the architecture." />
+    <Class exactFullName="DocumentationDemo.Telemetry.TelemetryClient"
+           description="Telemetry is matched by full name so refactors do not accidentally broaden the layer." />
+  </Layer>
+
+  <Layer name="Diagnostics"
+         description="Diagnostics code can inspect the application, but it should not retain long-lived references.">
+    <Class endsWith="Diagnostics"
+           description="Diagnostics classes are operational inspection tools." />
+  </Layer>
+
+  <Layer name="BillingEntry"
+         description="A separate billing entry chain, unrelated to the primary order-processing flow.">
+    <Namespace contains="DocumentationDemo.Billing.Entry"
+               description="Entry points for billing live under this namespace." />
+    <Class endsWith="EntryPoint"
+           description="EntryPoint classes are the public billing entry surface." />
+  </Layer>
+
+  <Layer name="BillingWorkflow"
+         requireRecognizedDependencies="Constructor"
+         description="Billing use-case orchestration that sits behind billing entry points.">
+    <Namespace contains="DocumentationDemo.Billing.Workflow"
+               description="Workflow implementations live here." />
+    <Class endsWith="Workflow"
+           description="Workflow classes coordinate billing work." />
+    <Allowed description="Billing workflows use the approved Invoice naming vocabulary.">
+      <Class startsWith="Invoice"
+             description="Invoice is the approved workflow subject in this bounded example." />
+    </Allowed>
+  </Layer>
+
+  <Layer name="BillingGateway"
+         description="External billing integration layer.">
+    <Namespace contains="DocumentationDemo.Billing.Gateways"
+               description="Gateway implementations live here." />
+    <Class endsWith="Gateway"
+           description="Gateway classes wrap external payment systems." />
+    <Forbidden description="Unsafe gateway variants must not become dependencies.">
+      <Class startsWith="Unsafe"
+             comment="Use an audited billing gateway."
+             description="Unsafe integrations are explicitly blocked inside the billing gateway layer." />
+    </Forbidden>
+  </Layer>
+
+  <Layer name="ExternalAdapters"
+         description="Types supplied by a separately compiled adapters assembly.">
+    <Assembly exactName="Example.DocumentationDemo.ExternalAdapters"
+              description="Assembly matching classifies referenced types without relying on namespace conventions." />
+  </Layer>
+
+  <AllowedDependency from="*" to="Crosscutting"
+                     allowedSites="Constructor, Method, Local"
+                     description="Any layer may use crosscutting helpers, but only as short-lived collaborators." />
+  <AllowedDependency from="Diagnostics" to="*"
+                     blockedSites="Field, Property"
+                     description="Diagnostics may inspect configured layers, but block lists prevent retained state." />
+  <AllowedDependency from="BillingEntry" to="BillingWorkflow"
+                     description="Billing entry points may call the workflow layer." />
+  <AllowedDependency from="BillingWorkflow" to="BillingGateway"
+                     description="Billing workflows may call the payment gateway layer." />
+  <BlockedDependency from="Presentation" to="Persistence"
+                     description="Presentation types must never bypass application services and access persistence directly." />
+
+</ArchitecturalLevels>

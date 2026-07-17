@@ -1,0 +1,11 @@
+AnaalIJzer Visual Studio Companion
+
+- Shows layer badges, gutter glyphs, and declaration background tints for configured AnaalIJzer layers.
+- Adds native QuickInfo and WPF tooltip content for layer and dependency-site indicators.
+- Adds the AnaalIJzer: Toggle Sites Diagnostics command for inline dependency-site labels.
+- Adds the AnaalIJzer: Show Dependency Graphs command with a dockable dependency graph sidebar.
+- Adds the AnaalIJzer: Show Status command for active-document troubleshooting.
+- Adds Activity Log and Output window diagnostics for package loading, command registration, editor taggers, config discovery, and snapshot results.
+- Adds graph focus modes to show all graphs, highlight the active graph, or filter to the active graph.
+- Reads the same Architecture.anl, Architecture.anl, or AssemblyMetadata("AnaalIJzerSettings", ...) configuration as the analyzer.
+- Targets Visual Studio 2026 and registers the options page for the modern Settings experience.

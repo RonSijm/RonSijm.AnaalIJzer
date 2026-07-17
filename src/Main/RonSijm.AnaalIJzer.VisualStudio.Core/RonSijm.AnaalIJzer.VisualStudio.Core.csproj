@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <!--
+        This project compiles all analyzer + editor code into a single assembly with a unique
+        name that is never published to NuGet. The VSIX references only this project, so
+        RonSijm.AnaalIJzer.dll is never bundled in the VSIX and can never conflict with
+        whatever version of the NuGet package a user has installed in their project.
+    -->
+
+    <Import Project="../../../build/Settings/NuGetVersioning.props" />
+
+    <PropertyGroup>
+        <TargetFramework>net472</TargetFramework>
+        <AssemblyName>RonSijm.AnaalIJzer.VisualStudio.Core</AssemblyName>
+        <RootNamespace>RonSijm.AnaalIJzer</RootNamespace>
+        <LangVersion>latest</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+        <EnableArchitecturalLevelAnalyzer>false</EnableArchitecturalLevelAnalyzer>
+        <EnforceExtendedAnalyzerRules>false</EnforceExtendedAnalyzerRules>
+        <!-- RS2008 fires because we share Diagnostics/ source files from the real analyzer project.
+             This project is not an analyzer package, so release tracking doesn't apply here. -->
+        <NoWarn>$(NoWarn);RS2008</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>RonSijm.AnaalIJzer.VisualStudio</_Parameter1>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>RonSijm.AnaalIJzer.VisualStudio.Tests</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+
+    <!-- Link all source files from the main analyzer project (no code duplication) -->
+    <ItemGroup>
+        <Compile Include="..\RonSijm.AnaalIJzer\Analysis\**\*.cs" LinkBase="Analysis\" />
+        <Compile Include="..\RonSijm.AnaalIJzer\Config\**\*.cs" LinkBase="Config\" />
+        <Compile Include="..\RonSijm.AnaalIJzer\Diagnostics\**\*.cs" LinkBase="Diagnostics\" />
+        <Compile Include="..\RonSijm.AnaalIJzer\Matching\**\*.cs" LinkBase="Matching\" />
+        <Compile Include="..\RonSijm.AnaalIJzer\Reporting\**\*.cs" LinkBase="Reporting\" />
+        <Compile Include="..\RonSijm.AnaalIJzer\ArchitecturalLevelAnalyzer.cs" />
+        <Compile Include="..\RonSijm.AnaalIJzer\Editor\**\*.cs" LinkBase="Editor\" />
+        <EmbeddedResource Include="..\RonSijm.AnaalIJzer\Scheme\AnaalIJzer.xsd"
+                          LogicalName="RonSijm.AnaalIJzer.AnaalIJzer.xsd" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.11.0" />
+        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net472" Version="1.0.3" PrivateAssets="all" />
+    </ItemGroup>
+
+</Project>

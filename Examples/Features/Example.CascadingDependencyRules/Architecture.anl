@@ -1,0 +1,32 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+                     description="Cascading dependency rules let framework-like layers pass nested boundary gates without repeating local egress rules.">
+
+  <Layer name="Application" description="Application contracts and implementation code.">
+    <Namespace startsWith="Example.Application" />
+    <Layer name="Contracts" description="Public application contracts may expose framework primitives.">
+      <Namespace startsWith="Example.Application.Contracts" />
+    </Layer>
+    <Layer name="Implementation" description="Application implementation details.">
+      <Namespace startsWith="Example.Application.Implementation" />
+    </Layer>
+  </Layer>
+
+  <Layer name="DataAbstraction" description="Repository contracts and abstractions.">
+    <Namespace startsWith="Example.DataAbstraction" />
+    <Layer name="Contracts" description="Repository contracts may also expose framework primitives.">
+      <Namespace startsWith="Example.DataAbstraction.Contracts" />
+    </Layer>
+  </Layer>
+
+  <Layer name="Framework" description="Framework primitives that are intentionally ambient.">
+    <Class typeName="Task" />
+    <Class typeName="Nullable" />
+    <Class typeName="CancellationToken" />
+  </Layer>
+
+  <AllowedDependency from="*"
+                     to="Framework"
+                     appliesToDescendants="true"
+                     description="Every boundary, including nested contracts, may depend on framework primitives." />
+</ArchitecturalLevels>

@@ -1,0 +1,65 @@
+---
+name: .NET
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      NUGET_API_KEY: ${{secrets.NUGET_API_KEY}}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0  # full history required for SourceLink
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Restore dependencies
+        run: dotnet restore src/RonSijm.AnaalIJzer.CrossPlatform.slnx
+      - name: Build
+        run: dotnet build src/RonSijm.AnaalIJzer.CrossPlatform.slnx --no-restore -p:GeneratePackageOnBuild=false
+      - name: Test
+        run: |
+          dotnet test src/Tests/RonSijm.AnaalIJzer.UnitTests/RonSijm.AnaalIJzer.UnitTests.csproj --no-build --collect:"XPlat Code Coverage" --settings src/Tests/RonSijm.AnaalIJzer.UnitTests/coverlet.runsettings --results-directory ./coverage
+          dotnet test src/Tests/RonSijm.AnaalIJzer.ConfigurationEditing.Tests/RonSijm.AnaalIJzer.ConfigurationEditing.Tests.csproj --no-build --collect:"XPlat Code Coverage" --settings src/Tests/RonSijm.AnaalIJzer.UnitTests/coverlet.runsettings --results-directory ./coverage
+          dotnet test src/Tests/RonSijm.AnaalIJzer.Graphing.Tests/RonSijm.AnaalIJzer.Graphing.Tests.csproj --no-build --collect:"XPlat Code Coverage" --settings src/Tests/RonSijm.AnaalIJzer.UnitTests/coverlet.runsettings --results-directory ./coverage
+          dotnet test src/Tests/RonSijm.AnaalIJzer.Tooling.Tests/RonSijm.AnaalIJzer.Tooling.Tests.csproj --no-build --collect:"XPlat Code Coverage" --settings src/Tests/RonSijm.AnaalIJzer.UnitTests/coverlet.runsettings --results-directory ./coverage
+          dotnet test src/Tests/RonSijm.AnaalIJzer.Arse.Tests/RonSijm.AnaalIJzer.Arse.Tests.csproj --no-build --collect:"XPlat Code Coverage" --settings src/Tests/RonSijm.AnaalIJzer.UnitTests/coverlet.runsettings --results-directory ./coverage
+          dotnet test src/Tests/RonSijm.AnaalIJzer.IntegrationTests/RonSijm.AnaalIJzer.IntegrationTests.csproj --no-build --collect:"XPlat Code Coverage" --settings src/Tests/RonSijm.AnaalIJzer.UnitTests/coverlet.runsettings --results-directory ./coverage
+      - name: Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{secrets.CODECOV_TOKEN}}
+          directory: ./coverage
+          fail_ci_if_error: true
+          verbose: true
+      - name: Build, pack, and publish when version changes
+        shell: pwsh
+        run: ./build/Scripts/build-when-nuget-version-changed.ps1 -SkipTests
+      - name: Upload NuGet package artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: AnaalIJzer-NuGet
+          path: |
+            build/Artifacts/packages/*.nupkg
+            build/Artifacts/packages/*.snupkg
+  build-windows-tools:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0  # full history required for SourceLink
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Build graph editor artifact
+        run: build\Scripts\build-graph-editor-standalone.bat
+      - name: Upload graph editor artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AnaalIJzer-GraphEditor-Standalone
+          path: build\Artifacts\GraphEditor.Standalone\**

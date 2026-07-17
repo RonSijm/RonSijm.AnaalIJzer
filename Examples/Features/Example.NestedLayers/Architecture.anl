@@ -1,0 +1,63 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+                     description="Nested boundaries apply broad module policy first, then narrower egress and ingress policy.">
+
+  <Layer name="Ordering" description="The ordering boundary owns order workflows and storage.">
+    <Namespace startsWith="ExampleCompany.Ordering" description="Limits every nested ordering layer to the ordering namespace." />
+    <Layer name="Application" description="Coordinates ordering use cases.">
+      <Namespace startsWith="ExampleCompany.Ordering.Application" />
+    </Layer>
+    <Layer name="Repository" description="Stores orders for the ordering boundary.">
+      <Namespace startsWith="ExampleCompany.Ordering.Repository" />
+    </Layer>
+    <AllowedDependency from="Application" to="Repository" description="Ordering use cases may use their own repositories." />
+    <AllowedDependency from="/Ordering" to="Repository" description="Types directly in Ordering may use ordering repositories." />
+    <AllowedDependency from="Application" to="/Billing/Contracts" description="Ordering application code may leave through Billing contracts." />
+  </Layer>
+
+  <Layer name="Billing" description="The billing boundary exposes contracts without exposing its internals.">
+    <Namespace startsWith="ExampleCompany.Billing" />
+    <Layer name="Application"><Namespace startsWith="ExampleCompany.Billing.Application" /></Layer>
+    <Layer name="Contracts"><Namespace startsWith="ExampleCompany.Billing.Contracts" /></Layer>
+    <AllowedDependency from="/Ordering/Application" to="Contracts" description="Ordering may enter Billing through its contracts." />
+  </Layer>
+
+  <AllowedDependency from="Ordering" to="Billing" description="Ordering and Billing may communicate when their inner gates also allow it." />
+
+  <Layer name="Catalog">
+    <Namespace startsWith="ExampleCompany.Catalog" />
+    <Layer name="Application"><Namespace startsWith="ExampleCompany.Catalog.Application" /></Layer>
+    <AllowedDependency from="Application" to="/Shipping/Contracts" />
+  </Layer>
+  <Layer name="Shipping">
+    <Namespace startsWith="ExampleCompany.Shipping" />
+    <Layer name="Contracts"><Namespace startsWith="ExampleCompany.Shipping.Contracts" /></Layer>
+    <AllowedDependency from="/Catalog/Application" to="Contracts" />
+  </Layer>
+  <!-- No Catalog -> Shipping root gate: CatalogService reports ARCH001. -->
+
+  <Layer name="Fulfillment">
+    <Namespace startsWith="ExampleCompany.Fulfillment" />
+    <Layer name="Application"><Namespace startsWith="ExampleCompany.Fulfillment.Application" /></Layer>
+    <!-- No Application egress gate: FulfillmentService reports ARCH001. -->
+  </Layer>
+  <Layer name="Support">
+    <Namespace startsWith="ExampleCompany.Support" />
+    <Layer name="Contracts"><Namespace startsWith="ExampleCompany.Support.Contracts" /></Layer>
+    <AllowedDependency from="/Fulfillment/Application" to="Contracts" />
+  </Layer>
+  <AllowedDependency from="Fulfillment" to="Support" />
+
+  <Layer name="Inventory">
+    <Namespace startsWith="ExampleCompany.Inventory" />
+    <Layer name="Application"><Namespace startsWith="ExampleCompany.Inventory.Application" /></Layer>
+    <AllowedDependency from="Application" to="/Payments/Contracts" />
+  </Layer>
+  <Layer name="Payments">
+    <Namespace startsWith="ExampleCompany.Payments" />
+    <Layer name="Contracts"><Namespace startsWith="ExampleCompany.Payments.Contracts" /></Layer>
+    <!-- No Contracts ingress gate: InventoryService reports ARCH001. -->
+  </Layer>
+  <AllowedDependency from="Inventory" to="Payments" />
+
+</ArchitecturalLevels>

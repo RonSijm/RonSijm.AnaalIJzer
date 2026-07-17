@@ -1,0 +1,62 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <Import Project="../../../build/Settings/NuGetVersioning.props" />
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <!-- The analyzer project should not analyze itself -->
+        <EnableArchitecturalLevelAnalyzer>false</EnableArchitecturalLevelAnalyzer>
+        <!-- Keep AssemblyVersion stable so the VSIX-bundled copy of this DLL always has a
+             different CLR identity from any older NuGet-installed version already loaded into
+             the VS process. PackageVersion (in NuGetVersioning.props) increments normally. -->
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <PackageId>RonSijm.AnaalIJzer</PackageId>
+        <Description>Roslyn analyzer that enforces architectural layering rules via an Architecture.anl config file. Define named layers, allowed dependency edges, and forbidden types — violations are reported as compile errors.</Description>
+        <PackageTags>roslyn;analyzer;architecture;layering;dependency</PackageTags>
+        <PackageProjectUrl>https://github.com/RonSijm/RonSijm.AnaalIJzer</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/RonSijm/RonSijm.AnaalIJzer</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>icon.png</PackageIcon>
+        <DevelopmentDependency>true</DevelopmentDependency>
+        <!-- Prevent the DLL from landing in lib/ — it belongs in analyzers/ only -->
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <!-- Analyzer packages conventionally embed the PDB into the DLL and ship no .snupkg.
+             NuGet's symbol-collection target is gated on IncludeBuildOutput=='true', so a separate
+             snupkg would be empty and get rejected by nuget.org with 400. SourceLink still works. -->
+        <DebugType>embedded</DebugType>
+        <IncludeSymbols>false</IncludeSymbols>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\..\..\README.md" Pack="true" PackagePath="\" />
+        <None Include="..\..\..\build\Settings\icon.png" Pack="true" PackagePath="\" Visible="false" />
+        <None Remove="bin\Debug\netstandard2.0\\RonSijm.AnaalIJzer.dll" />
+        <!-- Place the DLL where Roslyn expects analyzers -->
+        <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+        <!-- Empty placeholder so NuGet sees a lib/netstandard2.0 folder for the declared TFM
+             (silences NU5128 without shipping a runtime assembly the consumer shouldn't reference) -->
+        <None Include="..\..\..\build\Settings\_._" Pack="true" PackagePath="lib\netstandard2.0\_._" Visible="false" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <AdditionalFiles Include="AnalyzerReleases.Shipped.md" />
+        <AdditionalFiles Include="AnalyzerReleases.Unshipped.md" />
+        <EmbeddedResource Include="Scheme\AnaalIJzer.xsd" LogicalName="RonSijm.AnaalIJzer.AnaalIJzer.xsd" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.11.0" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,272 @@
+@namespace RonSijm.AnaalIJzer.Arse.Components
+@inject ToolRunner ToolRunner
+@using System.Globalization
+@using System.Text
+
+<Rows>
+	<Markup Content="Arse" Foreground="@Color.DeepSkyBlue1" Decoration="@Decoration.Bold" />
+	<Markup Content="Architecture Rule Standalone Executable" Foreground="@Color.Grey58" />
+	<Newline />
+
+	@if (CurrentOperation is not { } operation || CurrentInput is not { } input)
+	{
+		<Select TItem="string"
+		        Options="@OperationOptions"
+		        Value="@_selectedOperation"
+		        ValueChanged="OnOperationChanged"
+		        Expand="true" />
+
+		@if (IsFileAssociationOperation)
+		{
+			<Newline />
+			<Panel Title="@_selectedOperation" Border="@BoxBorder.Rounded" BorderColor="@Color.DeepSkyBlue1" Expand="true">
+				<Markup Content="This updates the current Windows user's .anl file association for Arse." Foreground="@Color.Grey70" />
+			</Panel>
+			<Newline />
+			<Columns>
+				<ArseButton Content="Run"
+				              OnClick="RunFileAssociationAsync"
+				              FocusOrder="1"
+				              BackgroundColor="@Color.Grey23"
+				              FocusedColor="@Color.DeepSkyBlue1" />
+				<ArseButton Content="Back"
+				              OnClick="Clear"
+				              FocusOrder="2"
+				              BackgroundColor="@Color.Grey23"
+				              FocusedColor="@Color.Grey50" />
+			</Columns>
+		}
+
+		@if (!string.IsNullOrWhiteSpace(_status))
+		{
+			<Newline />
+			<Panel Title="@_statusTitle" Border="@BoxBorder.Rounded" BorderColor="@_statusColor" Expand="true">
+				<Markup Content="@Spectre.Console.Markup.Escape(_status)" Foreground="@_statusColor" />
+			</Panel>
+		}
+	}
+	else if (operation.Kind == ToolOperationKind.Inspect && _inspectionReport is not null)
+	{
+		<Markup Content="@operation.DisplayName" Foreground="@Color.White" Decoration="@Decoration.Bold" />
+		<Markup Content="@_inspectionSummary" Foreground="@_inspectionColor" />
+		<Newline />
+
+		<ViewHeightScrollable LinesToRender="20" Context="scrollContext">
+			<div data-focusable="true"
+			     data-focus-order="0"
+			     @onkeydown="@(args => OnInspectionReportKeyDown(args, scrollContext.KeyDownEventHandler))">
+				<Panel Title="Architecture health" Border="@BoxBorder.Rounded" BorderColor="@_inspectionColor" Expand="true">
+					<SyntaxHighlighter Language="markdown" Code="@_inspectionReport" />
+				</Panel>
+			</div>
+		</ViewHeightScrollable>
+
+		<Newline />
+		@if (_selectingInspectionOutput)
+		{
+			<FileSelector Label="Output"
+			              Value="@_outputPath"
+			              ValueChanged="OnOutputPathChanged"
+			              Placeholder="path\to\architecture-health.md"
+			              FocusOrder="0"
+			              FileExtensions="@MarkdownFileExtensions"
+			              OnKeyUp="OnInspectionSaveKey" />
+
+			<Columns>
+				<ArseButton Content="Save"
+				              OnClick="SaveInspectionAsync"
+				              OnKeyUp="OnInspectionSaveKey"
+				              FocusOrder="1"
+				              BackgroundColor="@Color.Grey23"
+				              FocusedColor="@Color.DeepSkyBlue1" />
+				<ArseButton Content="Cancel"
+				              OnClick="CancelInspectionSave"
+				              OnKeyUp="OnInspectionSaveKey"
+				              FocusOrder="2"
+				              BackgroundColor="@Color.Grey23"
+				              FocusedColor="@Color.Grey50" />
+			</Columns>
+		}
+		else
+		{
+			<Columns>
+				<ArseButton Content="Save"
+				              OnClick="ShowInspectionSave"
+				              OnKeyUp="OnInspectionResultKeyUp"
+				              FocusOrder="1"
+				              BackgroundColor="@Color.Grey23"
+				              FocusedColor="@Color.DeepSkyBlue1" />
+				<ArseButton Content="Run again"
+				              OnClick="ReturnToInspectionForm"
+				              OnKeyUp="OnInspectionResultKeyUp"
+				              FocusOrder="2"
+				              BackgroundColor="@Color.Grey23"
+				              FocusedColor="@Color.Grey50" />
+			</Columns>
+		}
+
+		@if (!string.IsNullOrWhiteSpace(_status))
+		{
+			<Newline />
+			<Panel Title="@_statusTitle" Border="@BoxBorder.Rounded" BorderColor="@_statusColor" Expand="true">
+				<Markup Content="@Spectre.Console.Markup.Escape(_status)" Foreground="@_statusColor" />
+			</Panel>
+		}
+	}
+	else
+	{
+		<Markup Content="@operation.DisplayName" Foreground="@Color.White" Decoration="@Decoration.Bold" />
+		<Newline />
+		@if (operation.SupportedInputs.Count > 1)
+		{
+			<Select TItem="string"
+			        Options="@CurrentInputOptions"
+			        Value="@_selectedInput"
+			        ValueChanged="OnInputChanged"
+			        data-focus-order="1"
+			        @onkeyup="OnFormKeyUp"
+			        Expand="true" />
+		}
+
+		<FileSelector Label="@(operation.SupportsMultipleInputs ? $"{input.DisplayName} files" : input.DisplayName)"
+		              Value="@_inputPath"
+		              ValueChanged="OnInputPathChanged"
+		              Placeholder="@(operation.SupportsMultipleInputs ? "file1.anl; file2.anl" : input.Placeholder)"
+		              FocusOrder="0"
+		              FileExtensions="@CurrentInputFileExtensions"
+		              AllowMultiple="@operation.SupportsMultipleInputs"
+		              OnKeyUp="OnFormKeyUp" />
+
+		@if (IsMsBuildInput(input.Kind))
+		{
+			<TextInput Label="Configuration"
+			           Value="@_configuration"
+			           ValueChanged="OnConfigurationChanged"
+			           Placeholder="Release"
+			           FocusOrder="2"
+			           @onkeyup="OnFormKeyUp"
+			           Expand="true" />
+		}
+
+		@if (operation.Kind == ToolOperationKind.GenerateConfig)
+		{
+			<Select TItem="string"
+			        Options="@GenerationStrategyOptions"
+			        Value="@_generationStrategy"
+			        ValueChanged="OnGenerationStrategyChanged"
+			        data-focus-order="3"
+			        @onkeyup="OnFormKeyUp"
+			        Expand="true" />
+
+			@if (_generationStrategy == ConventionsStrategy)
+			{
+				<TextInput Label="Minimum confidence"
+				           Value="@_minimumConfidence"
+				           ValueChanged="OnMinimumConfidenceChanged"
+				           Placeholder="0.90"
+				           FocusOrder="4"
+				           @onkeyup="OnFormKeyUp"
+				           Expand="true" />
+
+				<TextInput Label="Minimum supporting callers"
+				           Value="@_minimumSupport"
+				           ValueChanged="OnMinimumSupportChanged"
+				           Placeholder="5"
+				           FocusOrder="5"
+				           @onkeyup="OnFormKeyUp"
+				           Expand="true" />
+			}
+
+			<Select TItem="string"
+			        Options="@GeneratedDocumentationOptions"
+			        Value="@_generatedDocumentation"
+			        ValueChanged="OnGeneratedDocumentationChanged"
+			        data-focus-order="6"
+			        @onkeyup="OnFormKeyUp"
+			        Expand="true" />
+
+			@if (_generatedDocumentation == GenerateDocumentation)
+			{
+				<Select TItem="string"
+				        Options="@InputInclusionOptions"
+				        Value="@_inputInclusion"
+				        ValueChanged="OnInputInclusionChanged"
+				        data-focus-order="7"
+				        @onkeyup="OnFormKeyUp"
+				        Expand="true" />
+			}
+		}
+
+		@if (operation.Kind == ToolOperationKind.Documentation)
+		{
+			@if (input.Kind == ToolInputKind.Project)
+			{
+				<Select TItem="string"
+				        Options="@CodeEvidenceOptions"
+				        Value="@_codeEvidence"
+				        ValueChanged="OnCodeEvidenceChanged"
+				        data-focus-order="3"
+				        @onkeyup="OnFormKeyUp"
+				        Expand="true" />
+			}
+
+			<Select TItem="string"
+			        Options="@InputInclusionOptions"
+			        Value="@_inputInclusion"
+			        ValueChanged="OnInputInclusionChanged"
+			        data-focus-order="4"
+			        @onkeyup="OnFormKeyUp"
+			        Expand="true" />
+		}
+
+		@if (operation.Kind != ToolOperationKind.Inspect)
+		{
+			<FileSelector Label="@(operation.OutputKind == ToolOutputKind.Directory ? "Output directory" : "Output")"
+			              Value="@_outputPath"
+			              ValueChanged="OnOutputPathChanged"
+			              Placeholder="@(operation.OutputKind == ToolOutputKind.Directory ? "Use a config-local directory" : "Use configured default")"
+			              FocusOrder="8"
+			              SelectionMode="@(operation.OutputKind == ToolOutputKind.Directory ? PathSelectionMode.Directory : PathSelectionMode.File)"
+			              FileExtensions="@CurrentOutputFileExtensions"
+			              OnKeyUp="OnFormKeyUp" />
+
+			<Select TItem="string"
+			        Options="@OverwriteOptions"
+			        Value="@_overwrite"
+			        ValueChanged="OnOverwriteChanged"
+			        data-focus-order="9"
+			        @onkeyup="OnFormKeyUp"
+			        Expand="true" />
+		}
+
+		<Newline />
+		<Columns>
+			<ArseButton Content="Run"
+			              OnClick="RunAsync"
+			              OnKeyUp="OnFormKeyUp"
+			              FocusOrder="10"
+			              BackgroundColor="@Color.Grey23"
+			              FocusedColor="@Color.DeepSkyBlue1" />
+			<ArseButton Content="Clear"
+			              OnClick="Clear"
+			              OnKeyUp="OnFormKeyUp"
+			              FocusOrder="11"
+			              BackgroundColor="@Color.Grey23"
+			              FocusedColor="@Color.Grey50" />
+		</Columns>
+
+		@if (_running)
+		{
+			<Newline />
+			<Spinner Message="@($"Running {operation.DisplayName.ToLowerInvariant()}...")" Style="deepskyblue1" />
+		}
+
+		@if (!string.IsNullOrWhiteSpace(_status))
+		{
+			<Newline />
+			<Panel Title="@_statusTitle" Border="@BoxBorder.Rounded" BorderColor="@_statusColor" Expand="true">
+				<Markup Content="@Spectre.Console.Markup.Escape(_status)" Foreground="@_statusColor" />
+			</Panel>
+		}
+	}
+</Rows>

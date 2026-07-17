@@ -1,0 +1,19 @@
+<Solution>
+  <Folder Name="/Main/">
+    <Project Path="Main/RonSijm.AnaalIJzer.ConfigurationEditing/RonSijm.AnaalIJzer.ConfigurationEditing.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer.Graphing/RonSijm.AnaalIJzer.Graphing.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer/RonSijm.AnaalIJzer.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/RonSijm.AnaalIJzer.ConfigurationEditing.Tests/RonSijm.AnaalIJzer.ConfigurationEditing.Tests.csproj" />
+    <Project Path="Tests/RonSijm.AnaalIJzer.Graphing.Tests/RonSijm.AnaalIJzer.Graphing.Tests.csproj" />
+    <Project Path="Tests/RonSijm.AnaalIJzer.IntegrationTests/RonSijm.AnaalIJzer.IntegrationTests.csproj" />
+    <Project Path="Tests/RonSijm.AnaalIJzer.Arse.Tests/RonSijm.AnaalIJzer.Arse.Tests.csproj" />
+    <Project Path="Tests/RonSijm.AnaalIJzer.Tooling.Tests/RonSijm.AnaalIJzer.Tooling.Tests.csproj" />
+    <Project Path="Tests/RonSijm.AnaalIJzer.UnitTests/RonSijm.AnaalIJzer.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/Tools/">
+    <Project Path="Tools/RonSijm.AnaalIJzer.Arse/RonSijm.AnaalIJzer.Arse.csproj" />
+    <Project Path="Tools/RonSijm.AnaalIJzer.Tooling/RonSijm.AnaalIJzer.Tooling.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,306 @@
+{
+  "$schema": "registration.schema.json",
+  "properties": {
+    "anaalIJzer.editor.externalSettings": {
+      "type": "external",
+      "title": "Editor",
+      "backingStoreDescription": "Stored in AnaalIJzer Visual Studio options.",
+      "callback": {
+        "packageId": "8db21a41-4f59-40cc-a6ef-8f8c8a24f4c0",
+        "serviceId": "af0e6eb4-77ec-4d32-a9b1-233720e65c03"
+      },
+      "realtimeNotifications": true,
+      "properties": {
+        "layerIndicators.enableInlineLayerBadges": {
+          "type": "boolean",
+          "title": "Show layer badges",
+          "description": "Show the resolved AnaalIJzer layer path after type declaration identifiers.",
+          "order": 0
+        },
+        "layerIndicators.enableLayerCodeLens": {
+          "type": "boolean",
+          "title": "Show layer metadata above declarations",
+          "description": "Show a clickable CodeLens-style AnaalIJzer layer summary above type declarations.",
+          "order": 1
+        },
+        "layerIndicators.showLayerBadgesWhenNotInLayer": {
+          "type": "boolean",
+          "title": "Show layer badges when not in layer",
+          "description": "Show a neutral badge after type declarations that are not assigned to any configured AnaalIJzer layer.",
+          "order": 2
+        },
+        "layerIndicators.showGlobalLayerRulesInBadges": {
+          "type": "boolean",
+          "title": "Show global layer rules in badge hover",
+          "description": "Include wildcard dependency rules such as '* (any layer)' in layer badge hover details.",
+          "order": 3
+        },
+        "layerIndicators.showLinearCallChainInBadges": {
+          "type": "boolean",
+          "title": "Show mini call graph in badge hover",
+          "description": "Show a compact dependency chain in layer badge hover details when the configured graph is a straight one-to-one chain.",
+          "order": 4
+        },
+        "layerIndicators.enableLayerGlyphs": {
+          "type": "boolean",
+          "title": "Gutter glyphs",
+          "description": "Show a glyph beside type declarations that belong to an AnaalIJzer layer.",
+          "order": 5
+        },
+        "layerIndicators.enableLayerBlockHighlight": {
+          "type": "boolean",
+          "title": "Highlight code in layer",
+          "description": "Show a region-like block highlight around type declarations that belong to an AnaalIJzer layer.",
+          "order": 6
+        },
+        "layerIndicators.enableLayerBackgroundTint": {
+          "type": "boolean",
+          "title": "Tint layer declaration text",
+          "description": "Apply the older line background tint to type declarations that belong to an AnaalIJzer layer.",
+          "order": 7
+        },
+        "layerInformation.showAll": {
+          "type": "boolean",
+          "title": "Show all layer information",
+          "description": "Enable or disable inline dependency-layer labels for every supported dependency site.",
+          "order": 0
+        },
+        "layerInformation.showConstructor": {
+          "type": "boolean",
+          "title": "Show Constructor Layer Information",
+          "description": "Show inline dependency-layer labels for constructor and primary-constructor dependency sites.",
+          "order": 1
+        },
+        "layerInformation.showMethod": {
+          "type": "boolean",
+          "title": "Show Method Layer Information",
+          "description": "Show inline dependency-layer labels for method parameter dependency sites.",
+          "order": 2
+        },
+        "layerInformation.showMethodReturn": {
+          "type": "boolean",
+          "title": "Show MethodReturn Layer Information",
+          "description": "Show inline dependency-layer labels for method return-type dependency sites.",
+          "order": 3
+        },
+        "layerInformation.showField": {
+          "type": "boolean",
+          "title": "Show Field Layer Information",
+          "description": "Show inline dependency-layer labels for field dependency sites.",
+          "order": 4
+        },
+        "layerInformation.showProperty": {
+          "type": "boolean",
+          "title": "Show Property Layer Information",
+          "description": "Show inline dependency-layer labels for property dependency sites.",
+          "order": 5
+        },
+        "layerInformation.showLocal": {
+          "type": "boolean",
+          "title": "Show Local Layer Information",
+          "description": "Show inline dependency-layer labels for local-variable dependency sites.",
+          "order": 6
+        },
+        "layerInformation.showNew": {
+          "type": "boolean",
+          "title": "Show New Layer Information",
+          "description": "Show inline dependency-layer labels for object creation dependency sites.",
+          "order": 7
+        },
+        "layerInformation.showGenericInvocation": {
+          "type": "boolean",
+          "title": "Show GenericInvocation Layer Information",
+          "description": "Show inline dependency-layer labels for generic method invocation type-argument dependency sites.",
+          "order": 8
+        },
+        "layerInformation.showGenericArgument": {
+          "type": "boolean",
+          "title": "Show GenericArgument Layer Information",
+          "description": "Show inline dependency-layer labels for generic type argument dependency sites.",
+          "order": 9
+        },
+        "layerInformation.showInheritance": {
+          "type": "boolean",
+          "title": "Show Inheritance Layer Information",
+          "description": "Show inline dependency-layer labels for base-class dependency sites.",
+          "order": 10
+        },
+        "layerInformation.showInterfaceImplementation": {
+          "type": "boolean",
+          "title": "Show InterfaceImplementation Layer Information",
+          "description": "Show inline dependency-layer labels for implemented-interface dependency sites.",
+          "order": 11
+        },
+        "layerInformation.showAttribute": {
+          "type": "boolean",
+          "title": "Show Attribute Layer Information",
+          "description": "Show inline dependency-layer labels for attribute dependency sites.",
+          "order": 12
+        },
+        "layerInformation.showStaticMember": {
+          "type": "boolean",
+          "title": "Show StaticMember Layer Information",
+          "description": "Show inline dependency-layer labels for static member access dependency sites.",
+          "order": 13
+        },
+        "siteDiagnostics.showAll": {
+          "type": "boolean",
+          "title": "Show all site diagnostics",
+          "description": "Enable or disable inline site-diagnostic labels for every supported dependency site.",
+          "order": 0
+        },
+        "siteDiagnostics.showConstructor": {
+          "type": "boolean",
+          "title": "Show Constructor Site Diagnostics",
+          "description": "Show inline labels for constructor and primary-constructor dependency sites.",
+          "order": 1
+        },
+        "siteDiagnostics.showMethod": {
+          "type": "boolean",
+          "title": "Show Method Site Diagnostics",
+          "description": "Show inline labels for method parameter dependency sites.",
+          "order": 2
+        },
+        "siteDiagnostics.showMethodReturn": {
+          "type": "boolean",
+          "title": "Show MethodReturn Site Diagnostics",
+          "description": "Show inline labels for method return-type dependency sites.",
+          "order": 3
+        },
+        "siteDiagnostics.showField": {
+          "type": "boolean",
+          "title": "Show Field Site Diagnostics",
+          "description": "Show inline labels for field dependency sites.",
+          "order": 4
+        },
+        "siteDiagnostics.showProperty": {
+          "type": "boolean",
+          "title": "Show Property Site Diagnostics",
+          "description": "Show inline labels for property dependency sites.",
+          "order": 5
+        },
+        "siteDiagnostics.showLocal": {
+          "type": "boolean",
+          "title": "Show Local Site Diagnostics",
+          "description": "Show inline labels for local-variable dependency sites.",
+          "order": 6
+        },
+        "siteDiagnostics.showNew": {
+          "type": "boolean",
+          "title": "Show New Site Diagnostics",
+          "description": "Show inline labels for object creation dependency sites.",
+          "order": 7
+        },
+        "siteDiagnostics.showGenericInvocation": {
+          "type": "boolean",
+          "title": "Show GenericInvocation Site Diagnostics",
+          "description": "Show inline labels for generic method invocation type-argument dependency sites.",
+          "order": 8
+        },
+        "siteDiagnostics.showGenericArgument": {
+          "type": "boolean",
+          "title": "Show GenericArgument Site Diagnostics",
+          "description": "Show inline labels for generic type argument dependency sites.",
+          "order": 9
+        },
+        "siteDiagnostics.showInheritance": {
+          "type": "boolean",
+          "title": "Show Inheritance Site Diagnostics",
+          "description": "Show inline labels for base-class dependency sites.",
+          "order": 10
+        },
+        "siteDiagnostics.showInterfaceImplementation": {
+          "type": "boolean",
+          "title": "Show InterfaceImplementation Site Diagnostics",
+          "description": "Show inline labels for implemented-interface dependency sites.",
+          "order": 11
+        },
+        "siteDiagnostics.showAttribute": {
+          "type": "boolean",
+          "title": "Show Attribute Site Diagnostics",
+          "description": "Show inline labels for attribute dependency sites.",
+          "order": 12
+        },
+        "siteDiagnostics.showStaticMember": {
+          "type": "boolean",
+          "title": "Show StaticMember Site Diagnostics",
+          "description": "Show inline labels for static member access dependency sites.",
+          "order": 13
+        },
+        "dependencyGraphs.focusMode": {
+          "type": "string",
+          "title": "Graph focus mode",
+          "description": "Controls whether the dependency graph tool window shows all graphs, highlights graphs that affect the active editor, or filters to only those graphs.",
+          "enum": [
+            "ShowAll",
+            "HighlightCurrent",
+            "FilterToCurrent"
+          ],
+          "enumItemLabels": [
+            "Show all graphs",
+            "Highlight graphs for the active editor",
+            "Filter to graphs for the active editor"
+          ],
+          "order": 0
+        },
+        "dependencyGraphs.openAnlFilesInGraphEditor": {
+          "type": "boolean",
+          "title": "Open .anl files in diagram editor",
+          "description": "When an AnaalIJzer .anl settings file is opened or selected, show it in the dependency graph editor automatically.",
+          "order": 1
+        },
+        "dependencyGraphs.includeCodeEvidence": {
+          "type": "boolean",
+          "title": "Include code evidence",
+          "description": "Include project-code evidence in dependency graph snapshots so layer boxes can show matching types and observed violations.",
+          "order": 2
+        }
+      },
+      "categories": {
+        "layerIndicators": {
+          "title": "Layer indicators",
+          "order": 0
+        },
+        "layerInformation": {
+          "title": "Layer information",
+          "order": 1
+        },
+        "siteDiagnostics": {
+          "title": "Site diagnostics",
+          "order": 2
+        },
+        "dependencyGraphs": {
+          "title": "Dependency graphs",
+          "order": 3
+        }
+      }
+    }
+  },
+  "categories": {
+    "anaalIJzer": {
+      "title": "AnaalIJzer",
+      "description": "Editor-only architecture awareness for AnaalIJzer rules.",
+      "additionalKeywords": [
+        "AnaalIJzer",
+        "architecture",
+        "dependency",
+        "layers",
+        "sites diagnostics"
+      ],
+      "canBeVisibleWhenEmpty": true
+    },
+    "anaalIJzer.editor": {
+      "title": "Editor",
+      "description": "Controls layer badges, layer highlighting, dependency-site labels, and dependency graph focus.",
+      "additionalKeywords": [
+        "AnaalIJzer",
+        "architecture",
+        "dependency",
+        "layers",
+        "sites diagnostics"
+      ],
+      "order": 0,
+      "canBeVisibleWhenEmpty": true
+    }
+  }
+}

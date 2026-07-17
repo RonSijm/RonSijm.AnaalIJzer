@@ -1,0 +1,19 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd">
+
+  <Layer name="Customer">
+    <Class endsWith="Customer" />
+  </Layer>
+
+  <Layer name="Waiter">
+    <Class endsWith="Waiter" />
+  </Layer>
+
+  <Layer name="Chef">
+    <Class endsWith="Chef" />
+  </Layer>
+
+  <AllowedDependency from="Customer" to="Waiter" />
+  <AllowedDependency from="Waiter" to="Chef" />
+  <AllowedDependency from="Chef" to="Chef" allowedSites="InterfaceImplementation" />
+  </ArchitecturalLevels>
