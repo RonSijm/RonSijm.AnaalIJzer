@@ -14,7 +14,14 @@ public sealed class ArchitectureRootInspectionResult
 		string? reportPath,
 		bool enableDocumentation,
 		string? documentationPath,
+		bool enableExceptionPolicy,
+		bool requireExceptionReason,
+		bool requireExceptionOwner,
+		bool requireExceptionExpiresOn,
+		int exceptionWarnBeforeDays,
+		string? exceptionPolicyDescription,
 		ImmutableArray<ArchitectureConfigurationElementDetails> includes,
+		ImmutableArray<ArchitectureConfigurationElementDetails> exceptionMatchers,
 		ImmutableArray<ArchitectureConfigurationElementDetails> allowedPolicies,
 		ImmutableArray<ArchitectureConfigurationElementDetails> forbiddenPolicies)
 	{
@@ -27,7 +34,14 @@ public sealed class ArchitectureRootInspectionResult
 		ReportPath = reportPath;
 		EnableDocumentation = enableDocumentation;
 		DocumentationPath = documentationPath;
+		EnableExceptionPolicy = enableExceptionPolicy;
+		RequireExceptionReason = requireExceptionReason;
+		RequireExceptionOwner = requireExceptionOwner;
+		RequireExceptionExpiresOn = requireExceptionExpiresOn;
+		ExceptionWarnBeforeDays = exceptionWarnBeforeDays;
+		ExceptionPolicyDescription = exceptionPolicyDescription;
 		Includes = includes;
+		ExceptionMatchers = exceptionMatchers;
 		AllowedPolicies = allowedPolicies;
 		ForbiddenPolicies = forbiddenPolicies;
 	}
@@ -50,7 +64,21 @@ public sealed class ArchitectureRootInspectionResult
 
 	public string? DocumentationPath { get; }
 
+	public bool EnableExceptionPolicy { get; }
+
+	public bool RequireExceptionReason { get; }
+
+	public bool RequireExceptionOwner { get; }
+
+	public bool RequireExceptionExpiresOn { get; }
+
+	public int ExceptionWarnBeforeDays { get; }
+
+	public string? ExceptionPolicyDescription { get; }
+
 	public ImmutableArray<ArchitectureConfigurationElementDetails> Includes { get; }
+
+	public ImmutableArray<ArchitectureConfigurationElementDetails> ExceptionMatchers { get; }
 
 	public ImmutableArray<ArchitectureConfigurationElementDetails> AllowedPolicies { get; }
 
@@ -64,7 +92,14 @@ public sealed class ArchitectureRootInspectionResult
 		string? reportPath,
 		bool enableDocumentation,
 		string? documentationPath,
+		bool enableExceptionPolicy,
+		bool requireExceptionReason,
+		bool requireExceptionOwner,
+		bool requireExceptionExpiresOn,
+		int exceptionWarnBeforeDays,
+		string? exceptionPolicyDescription,
 		ImmutableArray<ArchitectureConfigurationElementDetails> includes,
+		ImmutableArray<ArchitectureConfigurationElementDetails> exceptionMatchers,
 		ImmutableArray<ArchitectureConfigurationElementDetails> allowedPolicies,
 		ImmutableArray<ArchitectureConfigurationElementDetails> forbiddenPolicies)
 	{
@@ -78,7 +113,14 @@ public sealed class ArchitectureRootInspectionResult
 			reportPath,
 			enableDocumentation,
 			documentationPath,
+			enableExceptionPolicy,
+			requireExceptionReason,
+			requireExceptionOwner,
+			requireExceptionExpiresOn,
+			exceptionWarnBeforeDays,
+			exceptionPolicyDescription,
 			includes,
+			exceptionMatchers,
 			allowedPolicies,
 			forbiddenPolicies);
 
@@ -97,6 +139,13 @@ public sealed class ArchitectureRootInspectionResult
 			null,
 			false,
 			null,
+			false,
+			false,
+			false,
+			false,
+			14,
+			null,
+			ImmutableArray<ArchitectureConfigurationElementDetails>.Empty,
 			ImmutableArray<ArchitectureConfigurationElementDetails>.Empty,
 			ImmutableArray<ArchitectureConfigurationElementDetails>.Empty,
 			ImmutableArray<ArchitectureConfigurationElementDetails>.Empty);

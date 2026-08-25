@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <Import Project="../../../build/Settings/NuGetVersioning.props" />
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+        <EnableArchitecturalLevelAnalyzer>false</EnableArchitecturalLevelAnalyzer>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.BuildMetadata\RonSijm.AnaalIJzer.Core.BuildMetadata.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Findings\RonSijm.AnaalIJzer.Core.Findings.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Matchers\RonSijm.AnaalIJzer.Core.Matchers.csproj" />
+    </ItemGroup>
+
+</Project>

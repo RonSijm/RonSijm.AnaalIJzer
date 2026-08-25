@@ -1,0 +1,7 @@
+<Project>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net472' and '$(TargetFrameworks)' == ''">
+        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net472" Version="1.0.3" PrivateAssets="all" />
+    </ItemGroup>
+
+</Project>

@@ -16,4 +16,13 @@ internal static class AnaalIJzerFileAssociation
 
 		return result;
 	}
+
+	internal static bool UnassociateAnlFiles(ILogger logger)
+	{
+		logger.LogInformation("Removing {Extension} file association for the AnaalIJzer Graph Editor.", Extension);
+		var result = Extension.RemoveFileExtensionAssociation(ProgramName);
+		logger.LogInformation("Association removal result for {Extension}: changed={Changed}", Extension, result);
+
+		return result;
+	}
 }

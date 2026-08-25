@@ -1,8 +1,7 @@
-using RonSijm.AnaalIJzer.Graphing;
 using RonSijm.AnaalIJzer.Graphing.Model;
-using RonSijm.AnaalIJzer.Snapshots;
+using RonSijm.AnaalIJzer.Core.Editor.Snapshots;
 
-namespace RonSijm.AnaalIJzer.VisualStudio;
+namespace RonSijm.AnaalIJzer.VisualStudio.Graphs;
 
 internal static class ArchitectureGraphToolWindowState
 {
@@ -14,7 +13,7 @@ internal static class ArchitectureGraphToolWindowState
 
 	internal static void Publish(ArchitectureEditorSnapshot snapshot)
 	{
-		current = ArchitectureGraphSnapshotAdapter.FromEditorSnapshot(snapshot);
+		current = snapshot.GraphSnapshot;
 		Changed?.Invoke(null, EventArgs.Empty);
 	}
 

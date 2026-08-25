@@ -1,16 +1,15 @@
 using System.Windows.Controls;
-using RonSijm.AnaalIJzer.Graphing;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Threading;
 using RonSijm.AnaalIJzer.Graphing.Loading;
 using RonSijm.AnaalIJzer.Graphing.Model;
 using RonSijm.AnaalIJzer.Graphing.Wpf;
-using RonSijm.AnaalIJzer.Graphing.Wpf.Controls;
+using RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
 using RonSijm.AnaalIJzer.VisualStudio.Diagnostics;
 using RonSijm.AnaalIJzer.VisualStudio.Options;
 using RonSijm.AnaalIJzer.VisualStudio.Styling;
 
-namespace RonSijm.AnaalIJzer.VisualStudio;
+namespace RonSijm.AnaalIJzer.VisualStudio.Graphs;
 
 internal sealed class ArchitectureGraphToolWindowControl : UserControl
 {
@@ -24,11 +23,12 @@ internal sealed class ArchitectureGraphToolWindowControl : UserControl
 		ArchitectureVisualStudioTheme.ApplyBackground(root);
 		editor = new ArchitectureGraphEditorControl(
 			ArchitectureGraphToolWindowState.Current,
-			ArchitectureGraphSnapshotAdapter.ConvertFocusMode(ArchitectureVisualStudioOptions.Current.DependencyGraphFocusMode),
+			ArchitectureVisualStudioOptions.Current.DependencyGraphFocusMode,
 			ArchitectureVisualStudioTheme.CreateEditorTheme(root),
 			ArchitectureVisualStudioLog.Info,
 			ArchitectureVisualStudioLog.Warning,
-			snapshotReloader: ReloadSnapshot);
+			snapshotReloader: ReloadSnapshot,
+			snapshotPublisher: ArchitectureGraphToolWindowState.Publish);
 		root.Children.Add(editor);
 		Content = root;
 		Loaded += (_, _) => Subscribe();
@@ -64,7 +64,7 @@ internal sealed class ArchitectureGraphToolWindowControl : UserControl
 	{
 		editor.UpdateSnapshot(
 			ArchitectureGraphToolWindowState.Current,
-			ArchitectureGraphSnapshotAdapter.ConvertFocusMode(ArchitectureVisualStudioOptions.Current.DependencyGraphFocusMode));
+			ArchitectureVisualStudioOptions.Current.DependencyGraphFocusMode);
 	}
 
 	private static ArchitectureGraphSnapshot ReloadSnapshot(ArchitectureGraphSnapshot snapshot)

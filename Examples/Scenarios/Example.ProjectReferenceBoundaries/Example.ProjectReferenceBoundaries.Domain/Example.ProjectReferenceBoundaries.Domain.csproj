@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <AdditionalFiles Include="..\Architecture.anl" />
+    <ProjectReference Include="..\Example.ProjectReferenceBoundaries.Infrastructure\Example.ProjectReferenceBoundaries.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

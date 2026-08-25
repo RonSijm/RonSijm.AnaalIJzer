@@ -2,7 +2,7 @@
 
 **A**rchitecture **R**ule **S**tandalone **E**xecutable.
 
-Arse is the interactive and scriptable tool for `RonSijm.AnaalIJzer`. Both modes use the same operation catalog and `ToolRunner`, so they have identical capabilities. Interactive architecture inspection previews the report before offering `Save` and an output path.
+Arse is the interactive and scriptable tool for `RonSijm.AnaalIJzer`. Both modes use the same operation catalog and `ApplicationRunner`, so they have identical capabilities. Interactive architecture inspection previews the report before offering `Save` and an output path.
 
 Install the .NET tool:
 

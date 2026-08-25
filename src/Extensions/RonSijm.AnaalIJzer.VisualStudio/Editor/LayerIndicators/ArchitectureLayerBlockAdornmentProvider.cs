@@ -7,13 +7,15 @@ using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Utilities;
 using RonSijm.AnaalIJzer.Indicators;
-using RonSijm.AnaalIJzer.Snapshots;
+using RonSijm.AnaalIJzer.Core.Editor.Snapshots;
 using RonSijm.AnaalIJzer.VisualStudio.Diagnostics;
 using RonSijm.AnaalIJzer.VisualStudio.Options;
-using RonSijm.AnaalIJzer.VisualStudio.Snapshots;
+using RonSijm.AnaalIJzer.VisualStudio.Editor.Snapshots;
 using RonSijm.AnaalIJzer.VisualStudio.Styling;
 
-namespace RonSijm.AnaalIJzer.VisualStudio.LayerIndicators;
+using RonSijm.AnaalIJzer.Engine.LayerModel;
+
+namespace RonSijm.AnaalIJzer.VisualStudio.Editor.LayerIndicators;
 
 [Export(typeof(IWpfTextViewCreationListener))]
 [ContentType("CSharp")]

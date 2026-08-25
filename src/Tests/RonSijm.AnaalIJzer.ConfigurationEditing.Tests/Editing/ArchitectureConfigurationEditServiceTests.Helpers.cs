@@ -49,6 +49,14 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 			return filePath;
 		}
 
+		public string GetPath(string fileName)
+		{
+			Directory.CreateDirectory(path);
+			var result = Path.Combine(path, fileName);
+
+			return result;
+		}
+
 		public void Dispose()
 		{
 			if (Directory.Exists(path))

@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <Import Project="../../../build/Settings/NuGetVersioning.props" />
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+        <EnableArchitecturalLevelAnalyzer>false</EnableArchitecturalLevelAnalyzer>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.DependencyRules\RonSijm.AnaalIJzer.Core.DependencyRules.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Visibility\RonSijm.AnaalIJzer.Core.Visibility.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="RonSijm.AnaalIJzer.Engine" />
+        <InternalsVisibleTo Include="RonSijm.AnaalIJzer" />
+        <InternalsVisibleTo Include="RonSijm.AnaalIJzer.Application" />
+        <InternalsVisibleTo Include="RonSijm.AnaalIJzer.EditorRuntime" />
+        <InternalsVisibleTo Include="RonSijm.AnaalIJzer.Core.ApiSurface.Tests" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+    </ItemGroup>
+
+</Project>

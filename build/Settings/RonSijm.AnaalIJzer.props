@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <AnaalIJzerReferenceManifestFileName Condition="'$(AnaalIJzerReferenceManifestFileName)' == ''">AnaalIJzerReferenceManifest.txt</AnaalIJzerReferenceManifestFileName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <CompilerVisibleProperty Include="MSBuildProjectDirectory" />
+  </ItemGroup>
+</Project>

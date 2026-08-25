@@ -1,0 +1,31 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd">
+
+  <ProjectArchitecture requireRecognizedProjects="true"
+                       description="Project-level package policies for the scenario.">
+    <ProjectGroup name="Domain" description="Core domain projects.">
+      <Project endsWith=".Domain" />
+    </ProjectGroup>
+
+    <ProjectGroup name="Data" description="Persistence projects.">
+      <Project endsWith=".Data" />
+    </ProjectGroup>
+
+    <PackagePolicy projectGroup="Domain"
+                   description="Domain stays free of logging package references.">
+      <Forbidden>
+        <Package exactName="Microsoft.Extensions.Logging"
+                 description="Logging belongs outside the domain project." />
+      </Forbidden>
+    </PackagePolicy>
+
+    <PackagePolicy projectGroup="Data"
+                   description="Data may use logging packages.">
+      <Allowed>
+        <Package startsWith="Microsoft.Extensions.Logging"
+                 description="Data infrastructure may depend on logging packages." />
+      </Allowed>
+    </PackagePolicy>
+  </ProjectArchitecture>
+
+</ArchitecturalLevels>

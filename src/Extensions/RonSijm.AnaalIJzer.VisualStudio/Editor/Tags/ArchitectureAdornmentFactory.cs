@@ -2,11 +2,12 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using RonSijm.AnaalIJzer.Indicators;
-using RonSijm.AnaalIJzer.QuickInfo;
+using RonSijm.AnaalIJzer.Core.Editor.QuickInfo;
 using RonSijm.AnaalIJzer.VisualStudio.Options;
 using RonSijm.AnaalIJzer.VisualStudio.Styling;
+using RonSijm.AnaalIJzer.Engine.LayerModel;
 
-namespace RonSijm.AnaalIJzer.VisualStudio.Tags;
+namespace RonSijm.AnaalIJzer.VisualStudio.Editor.Tags;
 
 internal static class ArchitectureAdornmentFactory
 {
@@ -71,6 +72,66 @@ internal static class ArchitectureAdornmentFactory
 				Foreground = Brushes.White,
 				FontSize = 10,
 				FontWeight = FontWeights.SemiBold
+			}
+		};
+
+		return label;
+	}
+
+	internal static UIElement CreateNameRuleBadge(ArchitectureNameRuleIndicator indicator)
+	{
+		var label = new Border
+		{
+			Background = ArchitecturePalette.GetStatusBrush(ArchitectureDependencySiteStatus.TypePolicyViolation),
+			CornerRadius = new CornerRadius(3),
+			Margin = new Thickness(4, 0, 0, 0),
+			Padding = new Thickness(4, 0, 4, 1),
+			ToolTip = ArchitectureQuickInfoContentBuilder.CreateNameRuleContent(indicator).ToString(),
+			Child = new TextBlock
+			{
+				Text = indicator.RuleKind,
+				Foreground = Brushes.White,
+				FontSize = 10
+			}
+		};
+
+		return label;
+	}
+
+	internal static UIElement CreateVisibilityPolicyBadge(ArchitectureVisibilityPolicyIndicator indicator)
+	{
+		var label = new Border
+		{
+			Background = ArchitecturePalette.GetStatusBrush(ArchitectureDependencySiteStatus.TypePolicyViolation),
+			CornerRadius = new CornerRadius(3),
+			Margin = new Thickness(4, 0, 0, 0),
+			Padding = new Thickness(4, 0, 4, 1),
+			ToolTip = ArchitectureQuickInfoContentBuilder.CreateVisibilityPolicyContent(indicator).ToString(),
+			Child = new TextBlock
+			{
+				Text = indicator.DiagnosticId,
+				Foreground = Brushes.White,
+				FontSize = 10
+			}
+		};
+
+		return label;
+	}
+
+	internal static UIElement CreateApiSurfaceBadge(ArchitectureApiSurfaceIndicator indicator)
+	{
+		var label = new Border
+		{
+			Background = ArchitecturePalette.GetStatusBrush(ArchitectureDependencySiteStatus.TypePolicyViolation),
+			CornerRadius = new CornerRadius(3),
+			Margin = new Thickness(4, 0, 0, 0),
+			Padding = new Thickness(4, 0, 4, 1),
+			ToolTip = ArchitectureQuickInfoContentBuilder.CreateApiSurfaceContent(indicator).ToString(),
+			Child = new TextBlock
+			{
+				Text = indicator.DiagnosticId,
+				Foreground = Brushes.White,
+				FontSize = 10
 			}
 		};
 

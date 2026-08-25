@@ -1,3 +1,5 @@
+using RonSijm.AnaalIJzer.ConfigurationEditing.Document;
+
 namespace RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
 
 public sealed class ArchitectureConfigurationEditResult
@@ -24,5 +26,14 @@ public sealed class ArchitectureConfigurationEditResult
 		var result = new ArchitectureConfigurationEditResult(false, message);
 
 		return result;
+	}
+
+	internal static ArchitectureConfigurationEditResult FromDocumentResult(ArchitectureConfigurationDocumentOperationResult result)
+	{
+		var convertedResult = result.Succeeded
+			? Success(result.Message)
+			: Failure(result.Message);
+
+		return convertedResult;
 	}
 }

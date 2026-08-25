@@ -22,6 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.GraphModel\RonSijm.AnaalIJzer.GraphModel.csproj" />
         <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Graphing\RonSijm.AnaalIJzer.Graphing.csproj" />
     </ItemGroup>
 

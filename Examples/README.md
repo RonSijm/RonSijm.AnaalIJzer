@@ -1,6 +1,6 @@
 # Examples
 
-This folder contains runnable sample projects for **RonSijm.AnaalIJzer**. Simple one-file examples keep their top-level config inline in `Example.cs` with `AssemblyMetadata("AnaalIJzerSettings", ...)`, so exact type rules can use `nameof(...)` and stay refactor-safe. Broader multi-file, scenario, or include-focused examples use `Architecture.anl`, which keeps larger rule sets easier to scan. Most examples intentionally fail with documented architectural diagnostics, while a few demonstrate clean configuration or generated documentation output.
+This folder contains runnable sample projects for **RonSijm.AnaalIJzer**. Simple one-file examples keep their top-level config inline in the example source file with `AssemblyMetadata("AnaalIJzerSettings", ...)`, so exact type rules can use `nameof(...)` and stay refactor-safe. Broader multi-file, scenario, or include-focused examples use `Architecture.anl`, which keeps larger rule sets easier to scan. Most examples intentionally fail with documented architectural diagnostics, while a few demonstrate clean configuration or generated documentation output.
 
 > The repository root [`README.md`](../README.md) is the primary documentation. This file just explains the build wiring of the `Examples/` folder itself.
 
@@ -68,6 +68,14 @@ The main [`README.md`](../README.md) explains each feature inline. The folders h
 | [`Example.Arch005.SameLayer`](Diagnostics/Example.Arch005.SameLayer) | [`ARCH005 - Same-layer dependency`](../README.md#arch005---same-layer-dependency) |
 | [`Example.Arch006.UnknownLayer`](Diagnostics/Example.Arch006.UnknownLayer) | [`ARCH006 - Invalid architecture configuration`](../README.md#arch006---invalid-architecture-configuration) |
 | [`Example.Arch007.CyclicGraph`](Diagnostics/Example.Arch007.CyclicGraph) | [`ARCH007 - Cyclic architecture dependency graph`](../README.md#arch007---cyclic-architecture-dependency-graph) |
+| [`Example.Arch009.ApiSurfaceLeakage`](Diagnostics/Example.Arch009.ApiSurfaceLeakage) | [`API surface policies`](../README.md#api-surface-policies) |
+| [`Example.Arch012.VisibilityPolicy`](Diagnostics/Example.Arch012.VisibilityPolicy) | [`Visibility policies`](../README.md#visibility-policies) |
+| [`Example.Arch013.ContractPurity`](Diagnostics/Example.Arch013.ContractPurity) | [`Contract purity`](../README.md#contract-purity) |
+| [`Example.Arch013.ContractPurity.MethodBodyNotAllowed`](Diagnostics/Example.Arch013.ContractPurity.MethodBodyNotAllowed) | [`Contract purity`](../README.md#contract-purity) |
+| [`Example.Arch014.TransitiveExposure`](Diagnostics/Example.Arch014.TransitiveExposure) | [`Transitive API exposure`](../README.md#transitive-api-exposure) |
+| [`Example.Arch016.BoundaryEntryPoints`](Diagnostics/Example.Arch016.BoundaryEntryPoints) | [`ARCH016 - Boundary entry-point violation`](../README.md#arch016---boundary-entry-point-violation) |
+| [`Example.Arch018.ObservedCycle`](Diagnostics/Example.Arch018.ObservedCycle) | [`ARCH018 - Observed architectural dependency cycle`](../README.md#arch018---observed-architectural-dependency-cycle) |
+| [`Example.Arch019.InheritancePolicy`](Diagnostics/Example.Arch019.InheritancePolicy) | `InheritancePolicy` - layer-scoped required base types and interfaces. |
 
 ### Features
 
@@ -80,22 +88,29 @@ The main [`README.md`](../README.md) explains each feature inline. The folders h
 | [`Example.BlockedDependency`](Features/Example.BlockedDependency) | [`<BlockedDependency>`](../README.md#blockeddependency) |
 | [`Example.CascadingDependencyRules`](Features/Example.CascadingDependencyRules) | [`<AllowedDependency>`](../README.md#alloweddependency) |
 | [`Example.CombinedMatchers`](Features/Example.CombinedMatchers) | [`Matcher types`](../README.md#matcher-types) |
+| [`Example.DeclarationNameMatchesType`](Features/Example.DeclarationNameMatchesType) | [`NameRules`](../README.md#namerules) |
+| [`Example.ExceptionPolicy`](Features/Example.ExceptionPolicy) | `ExceptionPolicy` and temporary architecture exception review warnings (`ARCH017`). |
 | [`Example.WildcardTo`](Features/Example.WildcardTo) | [`<AllowedDependency>`](../README.md#alloweddependency) |
 | [`Example.Exceptions`](Features/Example.Exceptions) | [`<Exceptions>`](../README.md#exceptions) |
 | [`Example.IncludeSettings`](Features/Example.IncludeSettings) | [`<Include>`](../README.md#include) |
 | [`Example.InlineXml`](Features/Example.InlineXml) | [`Optional: inline settings with AssemblyMetadata`](../README.md#5-optional-inline-settings-with-assemblymetadata) |
 | [`Example.LayerScopedRecognizedDependencies`](Features/Example.LayerScopedRecognizedDependencies) | [`requireRecognizedDependencies`](../README.md#requirerecognizeddependencies-attribute) |
+| [`Example.NameRules`](Features/Example.NameRules) | [`NameRules`](../README.md#namerules) |
 | [`Example.NestedExceptions`](Features/Example.NestedExceptions) | [`Nesting`](../README.md#nesting) |
 | [`Example.NestedLayers`](Features/Example.NestedLayers) | [`Hierarchical layer boundaries`](../README.md#hierarchical-layer-boundaries) |
 | [`Example.NonClassCallers`](Features/Example.NonClassCallers) | [`Diagnostic properties`](../README.md#diagnostic-properties) |
 | [`Example.RequiredRecognizedDependencySites`](Features/Example.RequiredRecognizedDependencySites) | [`requireRecognizedDependencies`](../README.md#requirerecognizeddependencies-attribute) |
 | [`Example.SameLayerInheritance`](Features/Example.SameLayerInheritance) | [`ARCH005 - Same-layer dependency`](../README.md#arch005---same-layer-dependency) |
 | [`Example.ScopedTypePolicies`](Features/Example.ScopedTypePolicies) | [`Layer-scoped type policies`](../README.md#layer-scoped-type-policies) |
+| [`Example.SourceLocations`](Features/Example.SourceLocations) | [`Source locations`](../README.md#source-locations) |
 
 ### Scenarios
 
 | Folder | Scenario |
 | ------ | -------- |
+| [`Example.HonestTypeEndpointNames`](Scenarios/Example.HonestTypeEndpointNames) | Strong endpoint parameter types whose convention-based binding names must still match their semantic types. |
+| [`Example.PackageReferenceBoundaries`](Scenarios/Example.PackageReferenceBoundaries) | Multi-project scenario showing that a forbidden direct NuGet package reference raises `ARCH011` even when no source file uses a type from that package yet. Projects: `Example.PackageReferenceBoundaries.Domain`, `Example.PackageReferenceBoundaries.Data`. |
+| [`Example.ProjectReferenceBoundaries`](Scenarios/Example.ProjectReferenceBoundaries) | Multi-project scenario showing that an illegal `.csproj` reference raises `ARCH010` even when no source file uses it yet. Projects: `Example.ProjectReferenceBoundaries.Application`, `Example.ProjectReferenceBoundaries.Domain`, `Example.ProjectReferenceBoundaries.Infrastructure`. |
 | [`Example.RepositoryQuerySurface`](Scenarios/Example.RepositoryQuerySurface) | Repository-owned fluent query surface that must be projected before it becomes an application dependency. |
 
 ### Documentation

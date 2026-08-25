@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <Import Project="../../../build/Settings/NuGetVersioning.props" />
+
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
+        <LangVersion>latest</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+        <EnableArchitecturalLevelAnalyzer>false</EnableArchitecturalLevelAnalyzer>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\\RonSijm.AnaalIJzer.Core.Matchers\\RonSijm.AnaalIJzer.Core.Matchers.csproj"
+                          SetTargetFramework="TargetFramework=netstandard2.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net472" Version="1.0.3" PrivateAssets="all" Condition="'$(TargetFramework)' == 'net472'" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Include="..\RonSijm.AnaalIJzer\Scheme\AnaalIJzer.xsd"
+                          LogicalName="RonSijm.AnaalIJzer.AnaalIJzer.xsd" />
+    </ItemGroup>
+
+</Project>

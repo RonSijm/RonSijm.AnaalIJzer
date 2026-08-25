@@ -1,64 +1,84 @@
 using System.Collections.Immutable;
 using Microsoft.Build.Locator;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.MSBuild;
+using RonSijm.AnaalIJzer.Core.Editor.Snapshots;
+using RonSijm.AnaalIJzer.EditorRuntime.Snapshots;
+using RonSijm.AnaalIJzer.Workspace;
 
 namespace RonSijm.AnaalIJzer.IntegrationTests;
 
 internal sealed class ExampleProjectAnalysisHost : IDisposable
 {
-	private const string InlineSettingsMetadataKey = "AnaalIJzerSettings";
 	private static readonly object MsBuildRegistrationLock = new();
-	private readonly MSBuildWorkspace _workspace;
-	private readonly List<string> _workspaceFailures = [];
 
 	public ExampleProjectAnalysisHost()
 	{
 		RegisterMsBuild();
-		_workspace = MSBuildWorkspace.Create(new Dictionary<string, string>
-		{
-			["Configuration"] = "Release",
-			["DesignTimeBuild"] = "true",
-			["EnableArchitecturalLevelAnalyzer"] = "false",
-			["EnableSourceLink"] = "false"
-		});
-		_workspace.WorkspaceFailed += (_, args) =>
-		{
-			if (args.Diagnostic.Kind == WorkspaceDiagnosticKind.Failure)
-			{
-				_workspaceFailures.Add(args.Diagnostic.ToString());
-			}
-		};
 	}
 
-	public async Task<ProjectAnalysisResult> AnalyzeProjectAsync(string projectPath, CancellationToken cancellationToken)
+	public async Task<ExampleProjectAnalysisResult> AnalyzeProjectAsync(string projectPath, CancellationToken cancellationToken)
 	{
-		_workspaceFailures.Clear();
-		var project = await _workspace.OpenProjectAsync(projectPath, cancellationToken: cancellationToken);
-		var compilation = await project.GetCompilationAsync(cancellationToken) ?? throw new InvalidOperationException($"Could not compile {projectPath}.");
-		var compilerErrors = compilation.GetDiagnostics(cancellationToken)
-			.Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)
+		using var host = new ProjectAnalysisHost("Release");
+		var analysis = await host.AnalyzeAsync(projectPath, cancellationToken);
+		var analyzerDiagnosticMessages = analysis.AnalyzerDiagnostics
 			.Select(diagnostic => diagnostic.ToString())
 			.ToImmutableArray();
+		var result = new ExampleProjectAnalysisResult(
+			analysis.Config.HasLayers || analysis.Config.HasProjectArchitecture,
+			CountAnalyzerDiagnostics(analysis.AnalyzerDiagnostics),
+			analyzerDiagnosticMessages,
+			analysis.CompilerErrors,
+			analysis.InlineConfigXml,
+			analysis.WorkspaceFailures);
 
-		var analyzerDiagnostics = await compilation
-			.WithAnalyzers([new ArchitecturalLevelAnalyzer()], project.AnalyzerOptions)
-			.GetAnalyzerDiagnosticsAsync(cancellationToken);
+		return result;
+	}
 
-		return new ProjectAnalysisResult(
-			CountAnalyzerDiagnostics(analyzerDiagnostics),
-			compilerErrors,
-			ReadInlineConfigXml(compilation),
-			[.._workspaceFailures]);
+	public async Task<ArchitectureEditorSnapshot> CreateEditorSnapshotAsync(string projectPath, string documentFileName, CancellationToken cancellationToken)
+	{
+		RegisterMsBuild();
+
+		var failures = ImmutableArray.CreateBuilder<string>();
+		using var workspace = MSBuildWorkspace.Create(CreateGlobalProperties("Debug", enableAnalyzer: false, designTimeBuild: true));
+		workspace.WorkspaceFailed += (_, args) => failures.Add(args.Diagnostic.Message);
+
+		var project = await workspace.OpenProjectAsync(projectPath, cancellationToken: cancellationToken);
+		if (failures.Count > 0)
+		{
+			throw new InvalidOperationException("Workspace failed to load the example project:" + Environment.NewLine + string.Join(Environment.NewLine, failures));
+		}
+
+		var document = project.Documents.SingleOrDefault(candidate => string.Equals(Path.GetFileName(candidate.FilePath), documentFileName, StringComparison.OrdinalIgnoreCase));
+		if (document is null)
+		{
+			throw new InvalidOperationException("Could not find document '" + documentFileName + "' in example project '" + projectPath + "'.");
+		}
+
+		var result = await ArchitectureEditorSnapshotService.CreateSnapshotAsync(document, project.AnalyzerOptions.AdditionalFiles, cancellationToken: cancellationToken);
+
+		return result;
 	}
 
 	public void Dispose()
-    {
-        _workspace.Dispose();
-    }
+	{
+	}
 
-    private static void RegisterMsBuild()
+	private static Dictionary<string, string> CreateGlobalProperties(string configuration, bool enableAnalyzer, bool designTimeBuild)
+	{
+		var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+		{
+			["Configuration"] = configuration,
+			["DesignTimeBuild"] = designTimeBuild ? "true" : "false",
+			["EnableArchitecturalLevelAnalyzer"] = enableAnalyzer ? "true" : "false",
+			["EnableSourceLink"] = "false",
+			["UseSharedCompilation"] = "false"
+		};
+
+		return result;
+	}
+
+	private static void RegisterMsBuild()
 	{
 		lock (MsBuildRegistrationLock)
 		{
@@ -69,44 +89,21 @@ internal sealed class ExampleProjectAnalysisHost : IDisposable
 		}
 	}
 
-	private static Dictionary<string, int> CountAnalyzerDiagnostics(ImmutableArray<Diagnostic> diagnostics)
-    {
-        return diagnostics
-            .GroupBy(diagnostic => diagnostic.Id, StringComparer.Ordinal)
-            .ToDictionary(group => group.Key, group => group.Count(), StringComparer.Ordinal);
-    }
-
-    private static string? ReadInlineConfigXml(Compilation compilation)
+	private static Dictionary<string, int> CountAnalyzerDiagnostics(IEnumerable<Diagnostic> diagnostics)
 	{
-		foreach (var attribute in compilation.Assembly.GetAttributes())
-		{
-			if (!IsAssemblyMetadataAttribute(attribute.AttributeClass))
-			{
-				continue;
-			}
+		var result = diagnostics
+			.GroupBy(diagnostic => diagnostic.Id, StringComparer.Ordinal)
+			.ToDictionary(group => group.Key, group => group.Count(), StringComparer.Ordinal);
 
-			if (attribute.ConstructorArguments.Length >= 2
-			    && string.Equals(attribute.ConstructorArguments[0].Value as string, InlineSettingsMetadataKey, StringComparison.Ordinal)
-			    && attribute.ConstructorArguments[1].Value is string xml)
-			{
-				return xml;
-			}
-		}
-
-		return null;
+		return result;
 	}
 
-	private static bool IsAssemblyMetadataAttribute(INamedTypeSymbol? attributeClass)
-    {
-        return attributeClass is not null
-               && string.Equals(attributeClass.Name, "AssemblyMetadataAttribute", StringComparison.Ordinal)
-               && string.Equals(attributeClass.ContainingNamespace?.ToDisplayString(), "System.Reflection",
-                   StringComparison.Ordinal);
-    }
 }
 
-internal sealed record ProjectAnalysisResult(
+internal sealed record ExampleProjectAnalysisResult(
+	bool HasConfiguration,
 	IReadOnlyDictionary<string, int> AnalyzerDiagnostics,
+	ImmutableArray<string> AnalyzerDiagnosticMessages,
 	ImmutableArray<string> CompilerErrors,
 	string? InlineConfigXml,
 	ImmutableArray<string> WorkspaceFailures);

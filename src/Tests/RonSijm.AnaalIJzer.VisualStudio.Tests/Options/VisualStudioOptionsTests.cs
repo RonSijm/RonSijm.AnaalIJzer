@@ -3,10 +3,10 @@ using System.IO;
 using System.IO.Compression;
 using AwesomeAssertions;
 using Microsoft.CodeAnalysis.Text;
-using RonSijm.AnaalIJzer.Graph;
+using RonSijm.AnaalIJzer.Graphing.Model;
 using RonSijm.AnaalIJzer.Indicators;
-using RonSijm.AnaalIJzer.Snapshots;
-using RonSijm.AnaalIJzer.VisualStudio.LayerIndicators;
+using RonSijm.AnaalIJzer.Core.Editor.Snapshots;
+using RonSijm.AnaalIJzer.VisualStudio.Editor.LayerIndicators;
 using RonSijm.AnaalIJzer.VisualStudio.Options;
 using RonSijm.AnaalIJzer.VisualStudio.Shell.Commands;
 using Xunit;
@@ -62,12 +62,19 @@ public sealed class VisualStudioOptionsTests
 	}
 
 	[Fact]
-	public void CommandTable_UsesVisibleViewAndToolsMenuGroups()
+	public void CommandTable_PlacesCommandsUnderExtensionsIjzerMenu()
 	{
 		var commands = File.ReadAllText(FindRepositoryFile("src", "Extensions", "RonSijm.AnaalIJzer.VisualStudio", "Shell", "Commands.vsct"));
 
-		commands.Should().Contain("IDG_VS_WNDO_OTRWNDWS1");
-		commands.Should().Contain("IDG_VS_TOOLS_EXTENSIBILITY");
+		commands.Should().Contain("IDM_VS_MENU_EXTENSIONS");
+		commands.Should().Contain("IJzerExtensionsMenu");
+		commands.Should().Contain("IJzerExtensionsCommandGroup");
+		commands.Should().Contain("<ButtonText>IJzer</ButtonText>");
+		commands.Should().Contain("<ButtonText>Show Dependency Graphs</ButtonText>");
+		commands.Should().Contain("<ButtonText>Show Status</ButtonText>");
+		commands.Should().Contain("<ButtonText>Toggle Sites Diagnostics</ButtonText>");
+		commands.Should().NotContain("IDG_VS_WNDO_OTRWNDWS1");
+		commands.Should().NotContain("IDG_VS_TOOLS_EXTENSIBILITY");
 		commands.Should().NotContain("IDM_VS_MENU_ADDINS");
 	}
 

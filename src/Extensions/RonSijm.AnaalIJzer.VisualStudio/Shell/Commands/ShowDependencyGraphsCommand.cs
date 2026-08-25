@@ -3,6 +3,7 @@ using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using RonSijm.AnaalIJzer.VisualStudio.Diagnostics;
+using RonSijm.AnaalIJzer.VisualStudio.Graphs;
 
 namespace RonSijm.AnaalIJzer.VisualStudio.Shell.Commands;
 

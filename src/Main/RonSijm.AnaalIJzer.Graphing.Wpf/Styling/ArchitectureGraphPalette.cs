@@ -2,7 +2,7 @@ using System.Windows.Media;
 
 namespace RonSijm.AnaalIJzer.Graphing.Wpf.Styling;
 
-internal static class ArchitectureGraphPalette
+public static class ArchitectureGraphPalette
 {
 	private static readonly Color[] Colors =
 	[

@@ -1,6 +1,8 @@
 <!-- This README is generated from docs/*.md. Edit docs and run docs/build-readme.ps1. -->
 
-# *A*nalyzer for **N**-dimensional **A**dvanced Architectural Layering - ANAAL IJzer
+# IJzer
+
+An **A**nalyzer for **N**-dimensional **A**dvanced **A**rchitectural **L**ayering.
 
 [![NuGet](https://img.shields.io/nuget/v/RonSijm.AnaalIJzer.svg)](https://www.nuget.org/packages/RonSijm.AnaalIJzer)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/RonSijm.AnaalIJzer.svg)](https://www.nuget.org/packages/RonSijm.AnaalIJzer)
@@ -9,6 +11,32 @@
 ## Introduction
 
 A Roslyn analyzer that enforces architectural layering rules in your codebase. You define named layers and explicit allowed dependency edges in an XML file, and the analyzer ensures each type only depends on types in permitted layers - catching illegal dependencies at compile time.
+
+## Readme Meta
+
+This README is composed from the standalone notes in [`docs/`](docs/). The generated README is generated as one full document - also because to embed this in the NuGet package and the Visual Studio landing page.
+
+The compose order is defined in [`docs/_readme-order.txt`](docs/_readme-order.txt). After changing the individual notes, run [`docs/build-readme.ps1`](docs/build-readme.ps1) to regenerate this readme.
+## Legend
+
+| Standalone note | Use it for |
+|---|---|
+| [`docs/introduction.md`](docs/introduction.md) | Project overview, naming, restaurant example domain, and Roslyn background. |
+| [`docs/setup.md`](docs/setup.md) | NuGet setup, `.anl` settings files, inline settings, and shared project configuration. |
+| [`docs/components/visual-studio-addon.md`](docs/components/visual-studio-addon.md) | Visual Studio companion extension behavior, options, graph editor, and CodeLens UI. |
+| [`docs/tools/arse.md`](docs/tools/arse.md) | Arse command/TUI usage, reports, generated config, documentation, and file associations. |
+| [`docs/components/wpf-graph-editor.md`](docs/components/wpf-graph-editor.md) | Standalone WPF graph editor usage and graph image export. |
+| [`docs/configuration/mental-model.md`](docs/configuration/mental-model.md) | Beginner-friendly rule precedence and the "four questions" model. |
+| [`docs/configuration/*.md`](docs/configuration/) | Detailed settings reference for layers, dependency rules, type policies, exceptions, name rules, reports, and generated documentation. |
+| [`docs/diagnostics/index.md`](docs/diagnostics/index.md) | Diagnostic overview and links to the `ARCH001` through `ARCH008` pages. |
+| [`docs/q-and-a.md`](docs/q-and-a.md) | Common questions such as framework types, nested boundaries, and same-project interfaces. |
+| [`docs/suppressing-violations.md`](docs/suppressing-violations.md) | Local suppression guidance. |
+| [`docs/violation-report.md`](docs/violation-report.md) | Generated violation report output. |
+| [`docs/architecture-health.md`](docs/architecture-health.md) | Architecture health inspection output. |
+| [`docs/architecture-documentation.md`](docs/architecture-documentation.md) | Generated architecture documentation output. |
+| [`docs/no-config-source.md`](docs/no-config-source.md) | What happens when no settings source is configured. |
+| [`docs/getting-started-help.md`](docs/getting-started-help.md) | First-step guidance when starting from an existing codebase. |
+| [`docs/design-generated-files.md`](docs/design-generated-files.md) | Generated file expectations and maintenance notes. |
 
 ---
 
@@ -88,7 +116,7 @@ The integration points are:
 1. [`ArchitecturalLevelAnalyzer`](src/Main/RonSijm.AnaalIJzer/ArchitecturalLevelAnalyzer.cs) is marked with `[DiagnosticAnalyzer(LanguageNames.CSharp)]`, which makes it discoverable as a C# analyzer.
 2. For each compilation snapshot, its `CompilationStartAction` reads `Architecture.anl` from Roslyn's `AdditionalFiles`, or reads inline `AssemblyMetadata("AnaalIJzerSettings", ...)`. The parsed configuration is then reused by every callback registered for that compilation.
 3. It registers `SyntaxNodeAction` callbacks only for syntax that can introduce an architectural dependency: type and constructor declarations, methods, fields, properties, locals, object creation, invocations, attributes, inheritance, and static member access. Generated code is ignored, and callbacks may run concurrently.
-4. [`LayerDependencyAnalyzer`](src/Main/RonSijm.AnaalIJzer/Analysis/LayerDependencyAnalyzer.cs) uses the callback's `SemanticModel` to resolve syntax to real Roslyn symbols such as `ITypeSymbol`. This is why aliases, inferred local types, generic type arguments, implemented interfaces, and referenced types can be evaluated by their actual type identity instead of by source text alone.
+4. [`LayerDependencyAnalyzer`](src/Main/RonSijm.AnaalIJzer/Analysis/BoundaryRules/LayerDependencies/LayerDependencyAnalyzer.cs) uses the callback's `SemanticModel` to resolve syntax to real Roslyn symbols such as `ITypeSymbol`. This is why aliases, inferred local types, generic type arguments, implemented interfaces, and referenced types can be evaluated by their actual type identity instead of by source text alone.
 5. The resolved caller and dependency symbols are matched to configured layer paths. The dependency graph evaluates the relevant boundary gates, blocked rules, site filters, recognized-dependency requirements, and forbidden patterns. A failure is returned to Roslyn with `ReportDiagnostic`, including the source location and diagnostic properties such as `Site`.
 6. Configuration failures and configured cycles are reported at the end of the compilation as ARCH006 or ARCH007. If there is no configuration source, no dependency callbacks are registered and the analyzer remains silent.
 
@@ -281,7 +309,7 @@ The analyzer already reports the actual `ARCH00X` diagnostics in Visual Studio. 
 Build the VSIX from the repository root:
 
 ```cmd
-build\Scripts\build-vs-extension.cmd
+build\Scripts\Addon\build-vs-extension.cmd
 ```
 
 The script writes `RonSijm.AnaalIJzer.VisualStudio.vsix` to `build\Artifacts\VisualStudio`. Install that VSIX into Visual Studio 2026 to enable the editor companion. Each VSIX build stamps a fresh timestamp-based extension version, so Visual Studio can install a newly built local VSIX over the previous one.
@@ -301,11 +329,11 @@ Layer indicators are controlled from Visual Studio 2026 Settings under `AnaalIJz
 | Individual site diagnostics | Off | Each supported site has its own switch, such as `Show Constructor Site Diagnostics`, `Show Local Site Diagnostics`, `Show InterfaceImplementation Site Diagnostics`, and `Show StaticMember Site Diagnostics`. |
 | Graph focus mode | Highlight current | Controls whether the dependency graph tool window shows every graph, highlights the graph that affects the active editor, or filters to only the active graph. |
 
-You can also toggle site labels from `Tools > AnaalIJzer: Toggle Sites Diagnostics` or command search. The command turns every site label on when none are enabled, and turns every site label off when at least one is enabled. These labels do not create or suppress diagnostics; they only make the syntax site visible while the analyzer remains responsible for compile/build errors. Site labels use separate allowed, warning, unclassified, and error colors so an allowed constructor dependency does not look the same as a site-filtered or blocked dependency.
+You can also toggle site labels from `Extensions > IJzer > Toggle Sites Diagnostics` or command search. The command turns every site label on when none are enabled, and turns every site label off when at least one is enabled. These labels do not create or suppress diagnostics; they only make the syntax site visible while the analyzer remains responsible for compile/build errors. Site labels use separate allowed, warning, unclassified, and error colors so an allowed constructor dependency does not look the same as a site-filtered or blocked dependency.
 
-Use `View > Other Windows > AnaalIJzer: Show Dependency Graphs` or command search to open a dockable dependency-graph sidebar. The sidebar groups concrete layer rules into connected graphs and shows wildcard/global rules separately. When the active editor contains a type assigned to a layer, the configured graph focus mode can either keep all graphs visible and highlight the affected one, or show only the affected graph.
+Use `Extensions > IJzer > Show Dependency Graphs` or command search to open a dockable dependency-graph sidebar. The sidebar groups concrete layer rules into connected graphs and shows wildcard/global rules separately. When the active editor contains a type assigned to a layer, the configured graph focus mode can either keep all graphs visible and highlight the affected one, or show only the affected graph.
 
-Use `Tools > AnaalIJzer: Show Status` if the editor appears quiet. It analyzes the active document and reports whether the file is part of Visual Studio's Roslyn workspace, whether settings were found, how many layer/site indicators were produced, and whether configuration issues are suppressing visual adornments.
+Use `Extensions > IJzer > Show Status` if the editor appears quiet. It analyzes the active document and reports whether the file is part of Visual Studio's Roslyn workspace, whether settings were found, how many layer/site indicators were produced, and whether configuration issues are suppressing visual adornments.
 
 Hovering a layered type or dependency site shows native Visual Studio QuickInfo. Layer QuickInfo shows the canonical path, ancestry, palette slot, description when configured, which layers may call the current layer, and which layers the current layer may call. Site QuickInfo shows the site name, caller, dependency, status, diagnostic ID when present, and the same denial reason used by the analyzer snapshot.
 
@@ -313,7 +341,7 @@ The companion writes diagnostic logs to Visual Studio's Activity Log and to an O
 
 The VSIX uses classic Visual Studio editor extension points: MEF taggers, glyphs, inline adornments, option pages and Fonts & Colors format definitions. The shared snapshot logic lives in the analyzer assembly under `RonSijm.AnaalIJzer.Editor`, so the extension does not duplicate config parsing or layer matching.
 
-For local validation, use the [Visual Studio companion manual acceptance checklist](docs/visual-studio-companion-manual-acceptance.md). If no adornments appear, run `Tools > AnaalIJzer: Show Status` first. The extension reads analyzer `AdditionalFiles`, inline `AssemblyMetadata("AnaalIJzerSettings", ...)`, and as an editor-only convenience the nearest `Architecture.anl` above the active document; if the config is invalid, the companion intentionally renders nothing and leaves the `ARCH006` diagnostic as the source of truth.
+For local validation, use the [Visual Studio companion manual acceptance checklist](docs/visual-studio-companion-manual-acceptance.md). If no adornments appear, run `Extensions > IJzer > Show Status` first. The extension reads analyzer `AdditionalFiles`, inline `AssemblyMetadata("AnaalIJzerSettings", ...)`, and as an editor-only convenience the nearest `Architecture.anl` above the active document; if the config is invalid, the companion intentionally renders nothing and leaves the `ARCH006` diagnostic as the source of truth.
 
 ## Arse TUI
 
@@ -327,6 +355,7 @@ Run `arse` without arguments for the interactive terminal interface built with [
 
 ```cmd
 arse generate-config --project src\MyApp\MyApp.csproj --output Architecture.anl
+arse generate-config --solution src\MyApp.slnx --strategy helpful --output Architecture.anl
 arse generate-config --project src\MyApp\MyApp.csproj --strategy conventions --minimum-confidence 0.95 --minimum-support 10 --generate-documentation --include-input
 arse export-config --project src\MyApp\MyApp.csproj --output Architecture.anl
 arse documentation --project src\MyApp\MyApp.csproj --output docs\architecture-documentation.md --force
@@ -337,6 +366,8 @@ arse inspect       --project src\MyApp\MyApp.csproj --output docs\architecture-h
 arse inspect       --solution src\MyApp.slnx --output docs\architecture-health.md --force
 arse merge-config  --config Shared.anl --config Project.anl --output Architecture.anl --force
 arse split-config  --config Architecture.anl --output ArchitectureRules --force
+arse format-config --config Architecture.anl
+arse explain-config --config Architecture.anl --output docs\architecture-explanation.md --force
 ```
 
 `generate-config` inspects source-defined types and the dependency sites already present in the project. It infers layers from the first namespace segment below the project's common namespace, falling back to familiar type suffixes such as `Controller`, `Service`, `Repository`, `Handler` and `Projection`. The command writes both `Architecture.anl` and a local `AnaalIJzer.xsd`, then runs the analyzer against the generated XML before accepting the result.
@@ -346,7 +377,19 @@ The generation strategy controls how observed dependencies become rules:
 | Strategy | Behavior |
 |---|---|
 | `snapshot` | The default. Every observed layer edge and dependency site becomes an `AllowedDependency`, producing a passing description of the current structure. |
+| `helpful` | A gentle baseline. For projects it behaves like a current-structure snapshot with softer wording. For solutions it creates one layer per C# project assembly using `<Assembly exactName="...">` and permits observed project-to-project dependency sites. |
 | `conventions` | Infers dominant edges and writes minority caller types into `<Exceptions>`, producing a passing ratchet that blocks new callers from following those outliers. |
+
+For a solution-wide baseline, generate `Architecture.anl` beside the solution or in an ancestor directory:
+
+```cmd
+arse generate-config --solution src\MyApp.slnx --strategy helpful --output Architecture.anl
+arse inspect --solution src\MyApp.slnx --output build\Artifacts\architecture-health.md --force
+```
+
+Solution inspection still respects project-specific `Architecture.anl` and inline `AssemblyMetadata("AnaalIJzerSettings", ...)` first. If a project has no local config, Arse applies the nearest `Architecture.anl` found from the solution directory upward. Shared solution configs are inspected against the combined solution evidence, so assembly matchers and dependency edges are not reported as unused just because they do not apply to every project individually.
+
+AnaalIJzer dogfoods this flow with [`build\Scripts\Arse\inspect-self-architecture.cmd`](build/Scripts/Arse/inspect-self-architecture.cmd), using a helpful solution baseline instead of a strict hand-authored policy.
 
 Convention inference is configurable:
 
@@ -403,7 +446,7 @@ The first invocation treats `Presentation --> Application` as the dominant conve
 
 The two outlier endpoint names are illustrative; Arse writes the actual fully qualified caller names it found. If **no** edge from a source layer reaches both thresholds, Arse does not guess: it preserves every observed edge from that layer as an ambiguous snapshot.
 
-The executable counterpart is [`ConfigurationGenerator_AppliesDifferentThresholdsToTheSameEvidence`](src/Tests/RonSijm.AnaalIJzer.Tooling.Tests/Tooling/ToolingTests.cs#L89). Its four theory cases run this same 8/2 setup with the four threshold combinations above and verify the generated edges, ambiguity fallback, and exceptions.
+The executable counterpart lives in [`src/Tests/RonSijm.AnaalIJzer.Application.Tests/ApplicationOperations`](src/Tests/RonSijm.AnaalIJzer.Application.Tests/ApplicationOperations). The theory cases there run this same 8/2 setup with the four threshold combinations above and verify the generated edges, ambiguity fallback, and exceptions.
 
 Generated `<Exceptions>` use the analyzer's existing ratchet semantics: the caller is exempt from that layer matcher, so all of that caller's dependencies are grandfathered. Review these entries before adopting the file. Convention mode identifies statistically dominant structure; it cannot prove architectural intent.
 
@@ -411,7 +454,7 @@ Add `--generate-documentation` to write `architecture-documentation.md` beside t
 
 `export-config` writes the evaluated inline XML, so `typeName="{nameof(OrderRepository)}"` becomes `typeName="OrderRepository"` in the persisted file. `documentation` accepts either a project for compiled inline settings and project-backed XML or a specific XML file directly. `report` accepts a project or solution; solution mode opens every C# project in the solution, runs the same analyzer pass per project, and aggregates the diagnostics into one Markdown report. `documentation` and `report` use `documentationPath` / `reportPath` from the config when the output is omitted. Solution `report` uses the first configured project as the representative settings source; if no `reportPath` is enabled there, it defaults to `architectural-violations.md` beside the solution.
 
-`inspect` (aliases: `validate`, `doctor`, `health`) accepts a project, solution, or XML file and writes `architecture-health.md`. XML inspection reports malformed settings, missing includes, invalid matchers, unknown layer references, and configured cycles. Project inspection additionally reports unclassified or ambiguously classified types, unmatched matchers, stale exceptions, unused allowed edges, observed dependency cycles, and current analyzer violations. Solution inspection runs that same project inspection for every C# project and aggregates the findings into one report. Headless Arse exits with code `3` when findings require review.
+`inspect` (aliases: `validate`, `doctor`, `health`, `self-check`) accepts a project, solution, or XML file and writes `architecture-health.md`. XML inspection reports malformed settings, missing includes, invalid matchers, unknown layer references, and configured cycles. Project inspection additionally reports unclassified or ambiguously classified types, unmatched matchers, stale exceptions, unused allowed edges, observed dependency cycles, and current analyzer violations. Solution inspection runs that same project inspection for every C# project and aggregates the findings into one report. Headless Arse exits with code `3` when findings require review.
 
 `merge-config` recursively replaces `<Include>` elements with their referenced rules and writes one self-contained XML file. Repeated references resolving to the same path are included once. Root settings such as `requireRecognizedDependencies`, report paths, documentation paths and the XSD location are preserved and rebased relative to the merged output.
 
@@ -423,7 +466,11 @@ Add `--generate-documentation` to write `architecture-documentation.md` beside t
 
 The manifest includes every generated file, so it remains a complete replacement for the original configuration. Wildcard dependencies connect every named layer and therefore prevent those layers from being split into separate graphs. In Arse's interactive mode, enter multiple merge inputs separated by semicolons.
 
-Arse's interactive and headless modes share `RonSijm.AnaalIJzer.Tooling`. Its `ToolOperationCatalog`, `ToolRequest` and `ToolRunner` own the available operations, supported inputs, validation and execution behavior, keeping both modes in feature parity.
+`format-config` normalizes the XML formatting of an `.anl` file. Without `--output`, it formats the input file in place. Use `--output` when you want to preview the normalized version beside the original.
+
+`explain-config` writes a compact Markdown walkthrough of a settings file in XML order: root settings, includes, layers, matchers, dependency rules, type policies and name rules. It is intentionally shorter than generated architecture documentation and useful during review when you want to understand what a ruleset says before loading a project.
+
+Arse's interactive and headless modes share `RonSijm.AnaalIJzer.Application`. Its `ToolOperationCatalog`, `ToolRequest` and `ToolRunner` own the available operations, supported inputs, validation and execution behavior, keeping both modes in feature parity.
 
 ## WPF graph editor component
 
@@ -450,22 +497,33 @@ The editor is source-aware. It can edit XML settings files and inline `AssemblyM
 - editing layer matchers, scoped type policies, includes and root settings from the inspector.
 - exporting the currently rendered graph surface to a PNG image.
 
-The component itself is not a Roslyn analyzer. It edits the configuration model through `RonSijm.AnaalIJzer.ConfigurationEditing`, and hosts decide where snapshots come from. Visual Studio builds snapshots from the active Roslyn workspace. The standalone harness can open `Architecture.anl`, `.xml`, `.csproj`, `.sln`, and `.slnx` inputs. Project and solution inputs use the shared MSBuildWorkspace tooling host, choose the first project with an AnaalIJzer configuration as the editable settings source, and overlay solution-wide code evidence on the diagram.
+The component itself is not a Roslyn analyzer. It edits the configuration model through `RonSijm.AnaalIJzer.ConfigurationEditing`, and hosts decide where snapshots come from. Visual Studio builds snapshots from the active Roslyn workspace. The standalone harness treats `Architecture.anl` as the normal settings file and can also open project, solution, and legacy `.xml` inputs. Project and solution inputs use the shared MSBuildWorkspace tooling host, choose the first project with an AnaalIJzer configuration as the editable settings source, and overlay solution-wide code evidence on the diagram.
 
 The `Export PNG` button is part of the shared WPF control, so it is available in both the standalone graph editor and the Visual Studio dependency-graph tool window. Tests can also call `ArchitectureGraphEditorControl.ExportGraphsAsPng(...)` directly for quick render smoke checks.
 
 To regenerate a graph image for every example project, run:
 
 ```cmd
-build\Scripts\export-example-graph-images.cmd
+build\Scripts\GraphEditor\export-example-graph-images.cmd
 ```
 
-The script builds the standalone graph editor, writes flat PNG artifacts to `build\Artifacts\ExampleGraphImages`, and copies each image next to its example project as `<ExampleProjectName>-Graph.png`. Intentionally invalid diagnostic examples get a placeholder image instead of stopping the whole export run.
+By default, the script preserves the existing repository-friendly behavior: it writes flat PNG artifacts to `build\Artifacts\ExampleGraphImages` and copies each image next to its example project as `<ExampleProjectName>-Graph.png`. Intentionally invalid diagnostic examples get a placeholder image instead of stopping the whole export run.
+
+Use `-Placement` to choose where the generated images go:
+
+```cmd
+build\Scripts\GraphEditor\export-example-graph-images.cmd -Placement Flat -OutputDirectory build\Artifacts\ExampleGraphImages
+build\Scripts\GraphEditor\export-example-graph-images.cmd -Placement PreserveStructure -OutputDirectory build\Artifacts\ExampleGraphImages
+build\Scripts\GraphEditor\export-example-graph-images.cmd -Placement SideBySide
+build\Scripts\GraphEditor\export-example-graph-images.cmd -Placement All
+```
+
+`Flat` writes one big export folder with files such as `Example.IncludeSettings-Graph.png`. `PreserveStructure` writes under one export folder while keeping the `Examples` folder structure. `SideBySide` writes next to each example project. `FlatAndSideBySide` is the default, and `All` writes all three shapes.
 
 Build the standalone harness locally from the repository root:
 
 ```cmd
-build\Scripts\build-graph-editor-standalone.bat
+build\Scripts\GraphEditor\build-graph-editor-standalone.bat
 ```
 
 The script writes the runnable output to `build\Artifacts\GraphEditor.Standalone`. You can also run the project output directly:
@@ -475,15 +533,22 @@ src\Tools\RonSijm.AnaalIJzer.GraphEditor.Standalone\bin\Release\net10.0-windows\
 src\Tools\RonSijm.AnaalIJzer.GraphEditor.Standalone\bin\Release\net10.0-windows\RonSijm.AnaalIJzer.GraphEditor.Standalone.exe path\to\MySolution.slnx
 ```
 
-The GitHub `build_main.yml` workflow also builds this Windows-only editor and uploads `build\Artifacts\GraphEditor.Standalone` as a workflow artifact.
+Use `Tools > Associate .anl files` in the standalone editor to make Windows open `.anl` files with the graph editor. The same operation is available from the executable:
+
+```cmd
+RonSijm.AnaalIJzer.GraphEditor.Standalone.exe --associate-anl
+RonSijm.AnaalIJzer.GraphEditor.Standalone.exe --unassociate-anl
+```
+
+The GitHub `build_main.yml` workflow builds this Windows-only editor, uploads `build\Artifacts\GraphEditor.Standalone` as a workflow artifact, and publishes a zipped release asset named `AnaalIJzer-GraphEditor-Standalone-<version>.zip`. If the `graph-editor-v<version>` release already exists, the workflow removes that release and tag before creating the new one.
 
 The standalone graph editor is not shipped as a `dotnet tool install` package. The .NET SDK does not support `PackAsTool` for WPF or WindowsDesktop projects, so Arse remains the command-line dotnet tool while the graph editor is distributed as a Windows executable artifact and hosted inside the Visual Studio extension.
 
-The WPF behavior is covered by `RonSijm.AnaalIJzer.Graphing.Wpf.Tests`, including persistence from visual edits, inline-settings edits, context menus, connector-created dependencies, layout preservation, group collapse and theme behavior.
+The WPF behavior is covered by `RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests`, including persistence from visual edits, inline-settings edits, context menus, connector-created dependencies, layout preservation, group collapse and theme behavior.
 
 ## Configuration mental model
 
-The settings are not one large list of competing rules. They answer four different questions, in order. Imagine that every type is a person entering a restaurant: first the analyzer gives them a job badge, then checks whether that kind of person is permitted, then checks who their role may depend on, and finally checks how that dependency is used in code.
+The settings are not one large list of competing rules. They answer six different questions. Imagine that every type is a person entering a restaurant: the analyzer gives them a job badge, checks whether that kind of person and their public visibility are permitted, checks who their role may depend on and how, then checks whether important names keep their meaning.
 
 ### 1. What role does this type have?
 
@@ -504,7 +569,13 @@ An [`<Exceptions>`](#exceptions) block tells one matcher to ignore a particular 
 
 These policies can be global or scoped to a layer. Scoped policies are inherited by nested layers, so a `Restaurant/Kitchen` policy also applies to `Restaurant/Kitchen/Chef`.
 
-### 3. Which roles may depend on which?
+### 3. Is this declaration visible to the right audience?
+
+[`<VisibilityPolicy>`](#visibility-policies) restricts whether types and members in a layer may be `public`, `internal`, `private`, and so on. It checks the declaration itself, not a dependency relationship. For example, a repository query surface can be required to remain `internal` even when the repository is allowed to use it.
+
+`<Allowed>` and `<VisibilityPolicy allowedAccessibilities="...">` are different allowlists: the first permits dependency **types**, while the second permits declared **accessibilities**.
+
+### 4. Which roles may depend on which?
 
 [`<AllowedDependency>`](#alloweddependency) permits one layer to depend on another. In the restaurant model, `Waiter --> Chef` means a `Waiter` type may hold or introduce a reference to a `Chef` type. It describes a permitted code dependency, not the runtime order in which people speak or data moves.
 
@@ -512,7 +583,7 @@ These policies can be global or scoped to a layer. Scoped policies are inherited
 
 Wildcards are only shorthand for “any layer.” For example, `from="*"` means any source layer. A wildcard does not bypass a `<Forbidden>` type policy, a `<BlockedDependency>`, or a denial at a parent boundary.
 
-### 4. Where may the dependency appear?
+### 5. Where may the dependency appear?
 
 An allowed relationship can be narrowed to particular [dependency sites](#site-filters) - the different ways one type can keep, receive, create, or expose another type.
 
@@ -523,6 +594,12 @@ An allowed relationship can be narrowed to particular [dependency sites](#site-f
 
 `allowedSites` is a site allowlist: only the named sites are permitted. `blockedSites` is a site denylist: every site except the named sites is permitted. They are mutually exclusive on one dependency edge.
 
+### 6. Do important value names still mean the same thing?
+
+[`<NameRules>`](#namerules) are layer-scoped semantic-name policies. They can protect primitive value movement such as `customerId` versus `orderId`, or require a declaration such as `PatientId patientId` to agree with its semantic type.
+
+A `NameRules` policy can require names to match at selected sites, then allow narrow translations where they are intentional. For example, a `Waiter` layer might allow `reservationCustomerId` to become `customerId` only while constructing an order ticket, but still reject passing `animalId` into a `customerId` parameter.
+
 ### Similar names, different jobs
 
 | Pair | Difference |
@@ -532,10 +609,12 @@ An allowed relationship can be narrowed to particular [dependency sites](#site-f
 | `<Exceptions>` / allowed dependencies | A matcher that ignores a type versus architectural permission to depend on a layer |
 | `allowedSites` / `blockedSites` | Only these code locations are permitted versus every code location except these |
 | Nested layers / nested exceptions | Cumulative architectural boundaries versus alternating exclusion and re-inclusion for one matcher |
+| `<AllowedDependency>` / `<NameRules><Allow>` | Permission between layers versus permission for one intentional value-name translation |
+| `<Allowed>` / `<VisibilityPolicy>` | Permitted dependency types versus permitted declaration accessibilities |
 
 ### Rule precedence
 
-The analyzer evaluates a discovered dependency through this pipeline. The numbered boxes are evaluation stages; the connector lines are deliberately not architecture dependency arrows.
+The analyzer evaluates dependency-related rules through this pipeline. Visibility policies independently evaluate declarations after their layer is known. The numbered boxes are evaluation stages; the connector lines are deliberately not architecture dependency arrows.
 
 ```mermaid
 flowchart TD
@@ -544,13 +623,15 @@ flowchart TD
     Boundaries["3. Check every boundary<br/>Outermost to innermost"]
     Edges["4. Check dependency rules<br/>Blocked, then AllowedDependency"]
     Sites["5. Check the dependency site"]
-    Result["6. Permit the dependency<br/>or report ARCH00X"]
+    Names["6. Check NameRules<br/>For named value movements"]
+    Result["7. Permit the code<br/>or report ARCH00X"]
 
     Classify --- TypePolicy
     TypePolicy --- Boundaries
     Boundaries --- Edges
     Edges --- Sites
-    Sites --- Result
+    Sites --- Names
+    Names --- Result
 ```
 
 More precisely:
@@ -563,8 +644,9 @@ More precisely:
 6. At least one matching `<AllowedDependency>` must permit the current dependency site.
 7. Wildcards participate as ordinary matching edges; they receive no special power over blocks or type policies.
 8. If a dependency type does not match a layer and its current site is listed by root-level or caller-layer `requireRecognizedDependencies`, report ARCH002.
+9. For named value movements inside the caller layer, apply inherited `<NameRules>`. A mismatch without a matching `<Allow>` mapping reports ARCH008.
 
-The important distinction is that `<Allowed>` cannot create an architecture edge, `<AllowedDependency>` cannot approve a forbidden type, and `<Exceptions>` does not create a narrow allowed edge - it changes whether one matcher applies at all. Each feature answers a different question.
+The important distinction is that `<Allowed>` cannot create an architecture edge, `<AllowedDependency>` cannot approve a forbidden type, `<Exceptions>` does not create a narrow allowed edge, and `<NameRules><Allow>` does not permit a type dependency - it only permits one value-name translation. Each feature answers a different question.
 
 ---
 
@@ -581,6 +663,17 @@ The XML root element is `<ArchitecturalLevels>`. It supports the child elements 
 | Allowed type policies | `allowed-type-policy.md` |
 | Forbidden type policies | `forbidden-type-policy.md` |
 | Matcher exceptions | `exceptions.md` |
+| Exception review policy | `exception-policy.md` |
+| Name rules | `name-rules.md` |
+| Visibility policies | `visibility-policies.md` |
+| Inheritance policies | `inheritance-policies.md` |
+| Contract purity | `contract-policies.md` |
+| Project architecture | `project-architecture.md` |
+| API surface policies | `api-surface.md` |
+| Transitive API exposure | `transitive-api-exposure.md` |
+| Boundary entry points | `boundary-entry-points.md` |
+| Source locations | `source-locations.md` |
+| Observed dependency cycles | `enforce-observed-acyclic.md` |
 | Required recognized dependency sites | `require-recognized-dependencies.md` |
 | Report output settings | `report-attributes.md` |
 | Documentation output settings | `documentation-attributes.md` |
@@ -1280,6 +1373,860 @@ public class TestEndpoint(InMemoryCachedTestOrderRepository repository) { }
 public class LegacyEndpoint(LegacyInMemoryCachedOrderRepository repository) { }
 ```
 
+## ExceptionPolicy
+
+`<ExceptionPolicy>` makes matcher exceptions temporary and reviewable.
+
+Without it, `<Exceptions>` keep their existing behavior:
+
+- no metadata is required;
+- no warning is reported;
+- exceptions stay active until someone edits the config.
+
+With it, you can require metadata on every matcher directly inside an `<Exceptions>` block:
+
+```xml
+<ArchitecturalLevels>
+  <ExceptionPolicy requireReason="true"
+                   requireOwner="true"
+                   requireExpiresOn="true"
+                   warnBeforeDays="14" />
+
+  <Layer name="Application">
+    <Class endsWith="Manager">
+      <Exceptions>
+        <Class typeName="LegacyManager"
+               reason="Migration tracked in ORDERING-142"
+               owner="Ordering Team"
+               expiresOn="2026-10-31" />
+      </Exceptions>
+    </Class>
+  </Layer>
+</ArchitecturalLevels>
+```
+
+Supported attributes:
+
+| Attribute | Default | Meaning |
+|---|---|---|
+| `requireReason` | `false` | Require a non-empty `reason` attribute on exception matchers |
+| `requireOwner` | `false` | Require a non-empty `owner` attribute on exception matchers |
+| `requireExpiresOn` | `false` | Require an `expiresOn="yyyy-MM-dd"` attribute on exception matchers |
+| `warnBeforeDays` | `14` | Emit `ARCH017` when an exception expires within this many days |
+
+Behavior:
+
+- Missing required metadata reports `ARCH017`.
+- Invalid `expiresOn` reports `ARCH017`.
+- Expired exceptions report `ARCH017` and fail closed.
+- Expiring-soon exceptions report `ARCH017` but remain active.
+- Stale exceptions are reported by Arse health inspection, not by normal project compilation.
+
+See also:
+
+- [`exceptions.md`](docs/configuration/exceptions.md)
+- [`../diagnostics/arch017-exception-review.md`](docs/diagnostics/arch017-exception-review.md)
+- [`../../Examples/Features/Example.ExceptionPolicy/Example.cs`](Examples/Features/Example.ExceptionPolicy/Example.cs)
+
+### `<NameRules>`
+
+`NameRules` are layer-scoped semantic-name policies. They do not create layer dependencies. They can check either a named value moving into a differently named target or a declaration identifier that disagrees with its own semantic type.
+
+Use this when primitive values are still necessary, but you want some of the protection people often get from "honest types":
+
+```xml
+<Layer name="Application">
+  <Class endsWith="Service" />
+
+  <NameRules>
+    <RequireMatchingNames>
+      <Name endsWith="Id" />
+      <Allow from="legacyCustomerId" to="customerId" allowedSites="Constructor" />
+    </RequireMatchingNames>
+  </NameRules>
+</Layer>
+```
+
+`RequireMatchingNames` above says:
+
+| Element | Meaning |
+|---|---|
+| `<Name endsWith="Id" />` | Check source or target names ending with `Id`. |
+| `<Allow from="legacyCustomerId" to="customerId" />` | This intentional rename is allowed. |
+| `allowedSites="Constructor"` | The rename is allowed only when calling a constructor. |
+
+The analyzer normalizes names before comparing them. For example, `customerId` and `Customer.Id` are treated as the same meaning. `fruitId` and `animalId` are not.
+
+```csharp
+// Valid: customerId normalizes to Customer.Id.
+customer.Id = customerId;
+
+// ARCH008: animalId does not mean Customer.Id.
+customer.Id = animalId;
+
+// ARCH008: arguments are swapped.
+Log(animalId, fruitId);
+
+void Log(int fruitId, int animalId) { }
+```
+
+#### Matchers
+
+`Name`, `Source`, and `Target` use the same matcher attributes and AND/OR behavior as layer `<Class>` matchers:
+
+```xml
+<RequireMatchingNames>
+  <Name startsWith="customer" endsWith="Id" />
+</RequireMatchingNames>
+
+<RequireMatchingNames>
+  <Source endsWith="RowId" />
+  <Target endsWith="Id" />
+  <Allow>
+    <Source exactName="customerRowId" />
+    <Target exactName="Customer.Id" />
+  </Allow>
+</RequireMatchingNames>
+```
+
+Multiple attributes on one matcher are combined with AND semantics. Multiple matcher elements are alternatives.
+
+#### Sites
+
+`RequireMatchingNames` and nested `Allow` mappings support the same `allowedSites` and `blockedSites` attributes as dependency edges. The first implementation reports value-name movements at these sites:
+
+| Site | Example |
+|---|---|
+| `Constructor` | `new Customer(legacyCustomerId)` compared with constructor parameter `customerId` |
+| `Method` | `Save(animalId)` compared with method parameter `fruitId` |
+| `MethodReturn` | `return animalId;` compared with the containing method name |
+| `Field` | `_fruitId = animalId` or field initializer assignment |
+| `Property` | `customer.Id = animalId` or property initializer assignment |
+| `Local` | `var fruitId = animalId` or `fruitId = animalId` |
+
+Other site names remain valid in filters because the site vocabulary is shared across the analyzer, but NameRules only produce diagnostics for value movements that have both a source name and a target name.
+
+**Example project:** [`Example.NameRules`](Examples/Features/Example.NameRules)
+
+#### Declaration names and semantic types
+
+`RequireDeclarationNameMatchesType` checks the declaration itself. This is useful when serializers, model binders, dependency injection, or humans rely on an identifier to describe a strongly typed value:
+
+```xml
+<Layer name="AspEndpoints">
+  <Class endsWith="Endpoint" />
+  <NameRules>
+    <RequireDeclarationNameMatchesType allowedSites="Method, Property">
+      <Type implements="IHonestType" />
+    </RequireDeclarationNameMatchesType>
+  </NameRules>
+</Layer>
+```
+
+```csharp
+public void GetPatient(PatientId patientId) { } // Allowed
+public void GetPatient(DoctorId patientId) { }  // ARCH008
+
+public PatientId PatientId { get; set; } // Allowed
+public DoctorId PatientId { get; set; }  // ARCH008
+```
+
+`Type` selects semantic declared types. `Name` optionally selects declaration identifiers. Both use the same conjunctive matcher attributes as `Class`, and multiple sibling matchers are alternatives:
+
+```xml
+<RequireDeclarationNameMatchesType allowedSites="Method">
+  <Type implements="IHonestType" endsWith="Id" />
+  <Name endsWith="Id" />
+  <Allow from="LegacyPatientIdentifier" to="patientId" />
+</RequireDeclarationNameMatchesType>
+```
+
+The supported declaration sites are:
+
+| Site | Declaration compared with its semantic type |
+|---|---|
+| `Constructor` | Constructor or primary-constructor parameter |
+| `Method` | Ordinary method parameter |
+| `MethodReturn` | Method name and return type |
+| `Field` | Each declared field variable |
+| `Property` | Property name and property type |
+| `Local` | Explicit or `var` local variable |
+
+These two rules answer different questions:
+
+| Code | Responsible rule |
+|---|---|
+| `DoctorId patientId` | `RequireDeclarationNameMatchesType`: the declaration name disagrees with its type |
+| `PatientId patientId = doctorId` | `RequireMatchingNames`: a differently named value moves into the declaration |
+| `DoctorId GetPatientId()` | `RequireDeclarationNameMatchesType` at `MethodReturn` |
+| `return doctorId;` from `GetPatientId` | `RequireMatchingNames` at `MethodReturn` |
+
+Declaration rules use the semantic type, so aliases and `var` are resolved by Roslyn. Nullable value types are unwrapped. Arrays, collections, `Task<T>`, and arbitrary generic wrappers are not implicitly projected to an inner type.
+
+**Examples:** [`Example.DeclarationNameMatchesType`](Examples/Features/Example.DeclarationNameMatchesType) covers all six declaration sites. [`Example.HonestTypeEndpointNames`](Examples/Scenarios/Example.HonestTypeEndpointNames) shows the convention-based endpoint binding use case.
+
+### Visibility policies
+
+`<VisibilityPolicy>` restricts the declared accessibility of types and members owned by a layer. It is opt-in and does not create or block a dependency edge.
+
+Use an allowlist when only a small set is acceptable:
+
+```xml
+<Layer name="RepositoryQuerySurface">
+  <Class endsWith="Queryable" />
+
+  <VisibilityPolicy
+    targets="Type"
+    allowedAccessibilities="Internal, File"
+    description="Repository query surfaces are implementation details." />
+</Layer>
+```
+
+Use a blocklist when most accessibilities are acceptable:
+
+```xml
+<VisibilityPolicy
+  targets="Field, Property"
+  blockedAccessibilities="Public, Protected, ProtectedInternal" />
+```
+
+Exactly one of `allowedAccessibilities` and `blockedAccessibilities` is required.
+
+#### Declaration targets
+
+`targets` is a required, comma-separated list. Tokens are case-insensitive.
+
+| Target | Declaration |
+|---|---|
+| `Type` | Top-level class, interface, struct, record, enum, or delegate |
+| `NestedType` | A type declared inside another type |
+| `Constructor` | Instance or static constructor |
+| `Method` | Ordinary method, including an explicit interface implementation |
+| `Property` | Property or indexer |
+| `Field` | Field or field-like enum member |
+| `Event` | Field-like or explicit event |
+| `Operator` | User-defined operator |
+| `Conversion` | Implicit or explicit conversion operator |
+
+Implicit compiler-generated declarations are ignored. Partial symbols are evaluated once.
+
+#### Accessibility values
+
+Accessibility lists support:
+
+| Value | C# form |
+|---|---|
+| `Public` | `public` |
+| `Internal` | `internal` or the default for a top-level type |
+| `Protected` | `protected` |
+| `ProtectedInternal` | `protected internal` |
+| `PrivateProtected` | `private protected` |
+| `Private` | `private` or the default for a class member |
+| `File` | `file` type |
+
+The analyzer uses Roslyn symbols, not modifier text. Interface members therefore have their semantic public accessibility, and explicit interface implementations have their semantic private accessibility.
+
+#### Nested layers
+
+Policies apply to the owning layer and all descendants. Parent and child policies are cumulative, and every applicable policy must pass:
+
+```xml
+<Layer name="Application">
+  <Assembly exactName="Restaurant.Application" />
+  <VisibilityPolicy targets="Field" blockedAccessibilities="Public" />
+
+  <Layer name="Contracts">
+    <Class endsWith="Contract" />
+    <VisibilityPolicy targets="Type" allowedAccessibilities="Public" />
+  </Layer>
+</Layer>
+```
+
+The child policy cannot override a parent failure. The first failing policy is reported from outermost to innermost.
+
+#### What this rule does not mean
+
+- Visibility policies check a declaration's own accessibility. A public nested class inside an internal parent is still declared `Public`.
+- Whether a declaration is effectively visible outside all its containing types is exposed to documentation and editor tooling for context, but it does not change `ARCH012`.
+- Whether a public signature exposes a forbidden layer is a separate API-surface concern (`ARCH009`).
+- Whether an interface or contract contains an allowed kind of member is a separate contract-purity concern (`ARCH013`).
+
+Arse includes visibility findings in `inspect`, `report`, generated documentation, and code evidence. The standalone WPF editor and Visual Studio graph inspector provide checkable target/accessibility controls and autosave the same `.anl` or inline metadata source.
+
+**Example project:** [`Example.Arch012.VisibilityPolicy`](Examples/Diagnostics/Example.Arch012.VisibilityPolicy)
+
+### Inheritance policies
+
+`<InheritancePolicy>` requires declarations in a layer to inherit a specific base type or implement specific interfaces. It is opt-in and separate from dependency permission, visibility, and contract purity.
+
+Use it when a layer has a semantic base contract that every declaration must follow:
+
+```xml
+<Layer name="PersistenceEntities">
+  <Namespace startsWith="Shop.Persistence" />
+
+  <InheritancePolicy
+    typeKinds="Class, Record"
+    requiredBaseTypes="Entity, AggregateRoot"
+    requiredInterfaces="IAuditedEntity"
+    description="Persistence entities inherit the shared entity base and auditing contract." />
+</Layer>
+```
+
+#### Type-kind values
+
+`typeKinds` is required. Tokens are case-insensitive.
+
+| Value | Meaning |
+|---|---|
+| `Class` | Class declarations, excluding records |
+| `Interface` | Interface declarations |
+| `Struct` | Struct declarations, excluding record structs |
+| `Record` | Record class declarations |
+| `RecordStruct` | Record struct declarations |
+| `Enum` | Enum declarations |
+| `Delegate` | Delegate declarations |
+
+#### Required contracts
+
+At least one of `requiredBaseTypes` and `requiredInterfaces` is required.
+
+- `requiredBaseTypes` passes when the declaration inherits **any** listed base type.
+- `requiredInterfaces` passes when the declaration implements **all** listed interfaces.
+
+Both attributes accept comma-separated simple or fully qualified type names.
+
+```xml
+<InheritancePolicy typeKinds="Class" requiredBaseTypes="Entity" />
+<InheritancePolicy typeKinds="Class, Record" requiredInterfaces="IAuditedEntity, ISoftDelete" />
+<InheritancePolicy typeKinds="Class" requiredBaseTypes="AggregateRoot" requiredInterfaces="IAuditedEntity" />
+```
+
+#### Nested layers
+
+Inheritance policies apply to the owning layer and all descendants. Parent and child policies are cumulative:
+
+```xml
+<Layer name="Domain">
+  <Namespace startsWith="Shop.Domain" />
+  <InheritancePolicy typeKinds="Class" requiredInterfaces="IDomainType" />
+
+  <Layer name="Entities">
+    <Class endsWith="Entity" />
+    <InheritancePolicy typeKinds="Class" requiredBaseTypes="Entity" />
+  </Layer>
+</Layer>
+```
+
+The child policy cannot override an outer denial. The first failure is reported from outermost to innermost.
+
+#### What this rule does not mean
+
+- Inheritance policies do not grant or deny dependency edges. That is still controlled by `<AllowedDependency>` and `<BlockedDependency>`.
+- Inheritance policies do not decide whether a declaration may be `public` or `internal`. That is a visibility-policy concern (`ARCH012`).
+- Inheritance policies do not replace contract purity. A type can inherit the right base class and still violate `<ContractPolicy>`.
+- Inheritance policies check declarations that already exist. They do not classify a type into a layer by themselves; the layer matchers still do that.
+
+Arse includes inheritance-policy findings in `inspect`, `report`, generated documentation, and code evidence. The standalone WPF editor and Visual Studio graph inspector expose the same settings at layer scope.
+
+**Example project:** [`Example.Arch019.InheritancePolicy`](Examples/Diagnostics/Example.Arch019.InheritancePolicy)
+
+### Contract purity
+
+`<ContractPolicy>` restricts which declaration shapes are acceptable for contract types owned by a layer. It is opt-in and separate from dependency permission, visibility, and API exposure.
+
+Use it when a layer should stay abstract and message-like:
+
+```xml
+<Layer name="Contracts">
+  <Class endsWith="Contract" typeKind="Interface" />
+
+  <ContractPolicy
+    allowedTypeKinds="Interface"
+    allowedMemberKinds="Method, Property"
+    allowedPropertyAccessors="Get, Init"
+    allowMethodBodies="false"
+    allowStaticMembers="false"
+    allowNestedTypes="false"
+    description="Contracts stay abstract and expose immutable state only." />
+</Layer>
+```
+
+#### Type-kind values
+
+`allowedTypeKinds` is required. Tokens are case-insensitive.
+
+| Value | Meaning |
+|---|---|
+| `Class` | Class declarations, excluding records |
+| `Interface` | Interface declarations |
+| `Struct` | Struct declarations, excluding record structs |
+| `Record` | Record class declarations |
+| `RecordStruct` | Record struct declarations |
+| `Enum` | Enum declarations |
+| `Delegate` | Delegate declarations |
+
+#### Member-kind values
+
+`allowedMemberKinds` is required. Tokens are case-insensitive.
+
+| Value | Declaration |
+|---|---|
+| `Constructor` | Instance or static constructor |
+| `Method` | Ordinary method |
+| `Property` | Property or indexer |
+| `Event` | Event |
+| `Field` | Field |
+| `Operator` | User-defined operator |
+| `Conversion` | Implicit or explicit conversion operator |
+
+#### Property accessors
+
+`allowedPropertyAccessors` is optional. When omitted, accessors are not restricted.
+
+| Value | Meaning |
+|---|---|
+| `Get` | Getter accessor |
+| `Set` | Setter accessor |
+| `Init` | Init accessor |
+
+#### Boolean settings
+
+All booleans default to `false` when omitted.
+
+| Attribute | Meaning when `false` |
+|---|---|
+| `allowMethodBodies` | Methods, accessors, and default interface members must stay body-free |
+| `allowStaticMembers` | Source-declared static members are rejected |
+| `allowNestedTypes` | Source-declared nested types are rejected |
+
+#### Nested layers
+
+Contract policies apply to the owning layer and all descendants. Parent and child policies are cumulative:
+
+```xml
+<Layer name="Application">
+  <Assembly exactName="Restaurant.Application" />
+  <ContractPolicy
+    allowedTypeKinds="Interface, Record"
+    allowedMemberKinds="Method, Property" />
+
+  <Layer name="Contracts">
+    <Class endsWith="Contract" />
+    <ContractPolicy
+      allowedTypeKinds="Interface"
+      allowedMemberKinds="Method, Property"
+      allowedPropertyAccessors="Get" />
+  </Layer>
+</Layer>
+```
+
+The child policy cannot override an outer denial. The first failure is reported from outermost to innermost.
+
+#### What this rule does not mean
+
+- Contract purity does not grant or deny dependency edges. That is still controlled by `<AllowedDependency>` and `<BlockedDependency>`.
+- Contract purity does not decide whether a declaration may be `public` or `internal`. That is a visibility-policy concern (`ARCH012`).
+- Contract purity does not decide whether a public signature leaks a forbidden layer. That is an API-surface concern (`ARCH009` / `ARCH014`).
+- Contract purity is not inferred from a layer name such as `Contracts`; it only runs when `<ContractPolicy>` is present.
+
+Arse includes contract-purity findings in `inspect`, `report`, generated documentation, and code evidence. The standalone WPF editor and Visual Studio graph inspector expose the same settings as token checklists and booleans.
+
+**Focused example projects:**
+
+- [`Example.Arch013.ContractPurity`](Examples/Diagnostics/Example.Arch013.ContractPurity) - getter-only contract properties; setters trigger `ARCH013`.
+- [`Example.Arch013.ContractPurity.MethodBodyNotAllowed`](Examples/Diagnostics/Example.Arch013.ContractPurity.MethodBodyNotAllowed) - contract methods stay signature-only; default interface method bodies trigger `ARCH013`.
+
+## Project Architecture
+
+`ProjectArchitecture` adds rules for `.csproj` references.
+
+Use it when the problem is at project level rather than type level:
+
+- one project should not reference another project at all;
+- a project reference is architecturally wrong even if no code uses it yet;
+- solution topology matters separately from type dependency rules.
+
+### Example
+
+```xml
+<ArchitecturalLevels>
+  <ProjectArchitecture requireRecognizedProjects="true">
+    <ProjectGroup name="Presentation">
+      <Project endsWith=".Web" />
+    </ProjectGroup>
+
+    <ProjectGroup name="Application">
+      <Project endsWith=".Application" />
+    </ProjectGroup>
+
+    <ProjectGroup name="Domain">
+      <Project endsWith=".Domain" />
+    </ProjectGroup>
+
+    <AllowedProjectReference from="Presentation" to="Application" />
+    <AllowedProjectReference from="Application" to="Domain" />
+  </ProjectArchitecture>
+</ArchitecturalLevels>
+```
+
+With that configuration:
+
+- `Shop.Web -> Shop.Application` is allowed
+- `Shop.Application -> Shop.Domain` is allowed
+- `Shop.Web -> Shop.Domain` raises `ARCH010`
+
+### Matchers
+
+`Project` matchers are textual and apply to the project file name without `.csproj`.
+
+Supported attributes:
+
+| Attribute | Meaning |
+|---|---|
+| `typeName` | Exact match |
+| `exactName` | Exact match |
+| `startsWith` | Prefix match |
+| `endsWith` | Suffix match |
+| `contains` | Substring match |
+| `regex` | Regular expression |
+
+Attributes on one `Project` element are combined with AND semantics.
+Separate `Project` elements inside one `ProjectGroup` are alternatives.
+
+### Rules
+
+Supported edges:
+
+```xml
+<AllowedProjectReference from="Presentation" to="Application" />
+<BlockedProjectReference from="Domain" to="Infrastructure" />
+<AllowedProjectReference from="Tests" to="*" />
+<AllowedProjectReference from="*" to="Shared" />
+```
+
+Notes:
+
+- `*` means any configured project group
+- blocked rules win over allowed rules
+- if a source group has at least one allowed rule, that source enters allowlist mode
+- same-group references need an explicit self-edge while that source is in allowlist mode
+- `allowedSites`, `blockedSites`, and `appliesToDescendants` do not apply here
+
+### Recognition
+
+`requireRecognizedProjects` defaults to `false`.
+
+When enabled:
+
+- the source project must match a `ProjectGroup`
+- the target project must match a `ProjectGroup`
+
+If either side is unrecognized, `ARCH010` reports that directly.
+
+### Build Integration
+
+Roslyn does not reliably expose project-reference provenance by itself.
+
+The analyzer package therefore ships a `buildTransitive` target that writes a small project-reference manifest and adds it as an analyzer `AdditionalFile`.
+
+Arse and solution inspection do not need that generated manifest because they can inspect `MSBuildWorkspace` project references directly.
+
+## API surface policies
+
+An `<AllowedDependency>` answers whether code may **use** another layer. An `<ApiSurface>` answers a different question: whether an externally visible declaration may **expose** that layer to its callers.
+
+This distinction is useful for repository-owned fluent query surfaces. An application service may use a `LollyQueryable` internally, but its public API should return a stable `LollyProjection` contract:
+
+```xml
+<Layer name="Application">
+  <Class endsWith="Service" />
+
+  <ApiSurface description="Public application APIs expose contracts only.">
+    <AllowedLayer path="/Contracts" />
+    <BlockedLayer path="/RepositoryQuerySurface" />
+  </ApiSurface>
+</Layer>
+
+<Layer name="Contracts">
+  <Class endsWith="Projection" />
+</Layer>
+
+<Layer name="RepositoryQuerySurface">
+  <Class endsWith="Queryable" />
+</Layer>
+
+<!-- Internal use remains a separate dependency decision. -->
+<AllowedDependency from="Application" to="RepositoryQuerySurface" />
+```
+
+```csharp
+public class CandyOrderingService
+{
+    // Allowed: the public result is a contract.
+    public LollyProjection OrderProjectedLolly() => null!;
+
+    // Allowed: a private implementation detail is not external API.
+    private LollyQueryable BuildQuery() => null!;
+
+    // ARCH009: a repository-owned query surface escapes through public API.
+    public LollyQueryable OrderRawLolly() => null!;
+}
+```
+
+### Evaluation rules
+
+- The policy applies to its layer and all descendant layers.
+- Parent and child policies are cumulative; a child cannot override a parent denial.
+- A matching `<BlockedLayer>` wins over an `<AllowedLayer>`.
+- If one or more `<AllowedLayer>` entries apply at the current site, the exposed recognized type must match one of them.
+- A parent layer path selects its complete subtree.
+- By default, unclassified framework and third-party types are ignored.
+- Set `requireRecognizedTypes="true"` to reject unclassified exposed types too.
+- Only externally visible declarations are checked: `public`, `protected`, and `protected internal`, through an externally visible containing-type chain.
+
+### API sites
+
+| Site | Exposed declaration |
+|---|---|
+| `Constructor` | Constructor parameter |
+| `Method` | Method or delegate parameter |
+| `MethodReturn` | Method or delegate return type |
+| `Property` | Property, indexer type, or indexer parameter |
+| `Field` | Field or event type |
+| `Inheritance` | Base class |
+| `InterfaceImplementation` | Implemented interface |
+| `GenericArgument` | Generic arguments and nested signature parts |
+| `Attribute` | Attribute type on an externally visible declaration |
+
+`allowedSites` makes an API layer rule apply only at the listed sites. `blockedSites` makes it apply everywhere except the listed sites:
+
+```xml
+<AllowedLayer path="/Contracts" allowedSites="Method, MethodReturn, Property" />
+<BlockedLayer path="/RepositoryQuerySurface" blockedSites="Method" />
+```
+
+Locals, object creation, generic invocation, and static member access are implementation behavior rather than API declarations, so `<ApiSurface>` does not inspect them.
+
+To inspect the public object graph behind an allowed signature type, enable [`TransitiveExposure`](docs/configuration/transitive-api-exposure.md). Direct violations remain ARCH009; hidden violations reached through a permitted contract report ARCH014.
+
+**Example project:** [`Example.Arch009.ApiSurfaceLeakage`](Examples/Diagnostics/Example.Arch009.ApiSurfaceLeakage)
+
+## Transitive API exposure
+
+Direct API checks stop at the declared signature type. A contract can therefore look safe while its public object graph exposes a repository-owned type one step later:
+
+```text
+CandyOrderingService.OrderRawLolly
+    -> CandyReceipt.RawQuery
+    -> LollyQueryable
+```
+
+Add `<TransitiveExposure>` to an existing `<ApiSurface>` to inspect that object graph:
+
+```xml
+<Layer name="Application">
+  <Class endsWith="Service" />
+
+  <ApiSurface description="Public application APIs expose contracts only.">
+    <TransitiveExposure
+        maxDepth="3"
+        description="Follow public contract members for hidden repository surfaces." />
+    <AllowedLayer path="/Contracts" />
+    <BlockedLayer path="/RepositoryQuerySurface" />
+  </ApiSurface>
+</Layer>
+```
+
+`maxDepth` defaults to `3` and accepts values from `1` through `10`. Traversal is opt-in: omitting `<TransitiveExposure>` preserves direct ARCH009 behavior.
+
+The analyzer performs a breadth-first traversal and reports the shortest forbidden path. It follows externally visible fields, events, properties, indexers, method and constructor signatures, base types, interfaces, constraints, arrays, tuples, nullable values, delegates, and generic arguments. Private implementation details are ignored.
+
+Traversal is:
+
+- bounded by `maxDepth`;
+- cached per compilation;
+- cycle-safe for self-referential and mutually recursive contracts;
+- cancellable;
+- stopped at unrecognized types unless `requireRecognizedTypes="true"` makes the unrecognized exposure itself invalid.
+
+The nested member's own API site is evaluated against `allowedSites` and `blockedSites`. A property reached through a public contract therefore uses `Property`, even when the root contract was exposed at `MethodReturn`.
+
+A directly forbidden signature still reports ARCH009 only. ARCH014 is reserved for a permitted root type whose public object graph reaches a forbidden type.
+
+**Example project:** [`Example.Arch014.TransitiveExposure`](Examples/Diagnostics/Example.Arch014.TransitiveExposure)
+
+## Boundary entry points
+
+`<EntryPoints>` lets a parent boundary say which child layers or specific dependency types are valid external doors into that boundary.
+
+Restaurant version:
+
+- the kitchen may have several rooms inside it;
+- outside staff may enter through the service counter;
+- they should not walk straight into the cooking area.
+
+That is different from `<AllowedDependency>`:
+
+- `<AllowedDependency>` says whether one role may depend on another at all;
+- `<EntryPoints>` says which part of a boundary is the allowed doorway after the dependency is otherwise legal.
+
+Example:
+
+```xml
+<Layer name="Ordering">
+  <Namespace startsWith="Shop.Ordering" />
+
+  <EntryPoints>
+    <EntryPoint layer="Contracts" />
+    <EntryPoint allowedSites="Method">
+      <Class endsWith="OrderingFacade" />
+    </EntryPoint>
+  </EntryPoints>
+
+  <Layer name="Contracts">
+    <Class typeKind="Interface" />
+  </Layer>
+
+  <Layer name="Implementation">
+    <Class typeKind="Class" />
+  </Layer>
+</Layer>
+```
+
+Rules:
+
+- no `<EntryPoints>` means no `ARCH016`;
+- entry points only restrict callers outside the owning boundary;
+- internal calls inside the same boundary are unchanged;
+- nested boundaries are cumulative from outermost to innermost;
+- entry points never grant a dependency that `<AllowedDependency>` would deny.
+
+### Selector forms
+
+Each `<EntryPoint>` uses exactly one selector form:
+
+| Form | Meaning |
+|---|---|
+| `layer="Contracts"` | permit entry through that descendant layer subtree |
+| matcher elements | permit entry through dependency types matching `<Class>`, `<Namespace>`, or `<Assembly>` |
+
+`allowedSites` and `blockedSites` work the same way as on dependency edges.
+
+### Example
+
+See [`Example.Arch016.BoundaryEntryPoints`](Examples/Diagnostics/Example.Arch016.BoundaryEntryPoints), where `Presentation -> Ordering` is allowed in general, but only `Ordering/Contracts` is a valid external entry point.
+
+## Source locations
+
+`<SourceLocations>` lets a layer say where its types are allowed to live on disk. This is separate from layer matching:
+
+- layer matchers answer "what role does this type have?";
+- source locations answer "does that role live in the right project or folder?"
+
+Restaurant version:
+
+- the type may still be a `Chef`;
+- `SourceLocations` checks whether that chef is actually in the kitchen, not wandering around the pantry office.
+
+Example:
+
+```xml
+<Layer name="Ordering">
+  <Namespace startsWith="Shop.Ordering" />
+
+  <SourceLocations relativeTo="Project">
+    <Source startsWith="Ordering/" />
+    <Source startsWith="Contracts/Ordering/" assemblyName="Shop.Contracts" />
+  </SourceLocations>
+</Layer>
+```
+
+`<Source>` uses the same textual matcher attributes as other text-based matching:
+
+| Attribute | Meaning |
+|---|---|
+| `typeName` | Exact normalized path text |
+| `exactName` | Exact normalized path text |
+| `startsWith` | Path prefix |
+| `endsWith` | Path suffix |
+| `contains` | Path fragment |
+| `regex` | Regular expression against the normalized path |
+| `assemblyName` | Optional exact compilation assembly name that must also match |
+
+Attributes on one `<Source>` are combined with AND semantics. Separate `<Source>` elements are alternatives.
+
+### `relativeTo`
+
+| Value | Base path |
+|---|---|
+| `Project` | `MSBuildProjectDirectory` |
+| `Configuration` | The physical `.anl` file that declared the rule |
+| `Absolute` | The full normalized source path |
+
+Default: `Project`.
+
+`Configuration` is only valid for file-based settings. Inline `AssemblyMetadata("AnaalIJzerSettings", ...)` has no physical settings directory, so that combination reports `ARCH006`.
+
+### Partial types
+
+Every declaration of a partial type must satisfy every applicable source-location policy. One correctly placed file does not hide one misplaced file.
+
+### Nested layers
+
+Source-location policies are cumulative through ancestry:
+
+- a parent layer policy still applies to child layers;
+- a child can add more specific ownership rules;
+- a child cannot relax a parent source-location rule.
+
+### Example
+
+See [`Example.SourceLocations`](Examples/Features/Example.SourceLocations), where one `SweetShop.Ordering` type is correctly placed under `Ordering/` and another is deliberately misplaced under `Infrastructure/`.
+
+## Observed dependency cycles
+
+`enforceObservedAcyclic="true"` tells AnaalIJzer to inspect the dependencies that actually occur in source code and fail when those observed edges form a cycle.
+
+This is different from `enforceAcyclic`:
+
+- `enforceAcyclic` checks the configured `<AllowedDependency>` graph;
+- `enforceObservedAcyclic` checks the dependencies the code is currently using.
+
+Example:
+
+```xml
+<ArchitecturalLevels enforceObservedAcyclic="true">
+  <Layer name="Ordering">
+    <Namespace startsWith="Shop.Ordering" />
+  </Layer>
+
+  <Layer name="Notifications">
+    <Namespace startsWith="Shop.Notifications" />
+  </Layer>
+
+  <AllowedDependency from="Ordering" to="Notifications" />
+  <AllowedDependency from="Notifications" to="Ordering" />
+</ArchitecturalLevels>
+```
+
+That configuration is still legal as a configured graph. It only becomes `ARCH018` when code really uses both directions and closes the cycle.
+
+Restaurant version:
+
+- the restaurant manual may allow the waiter and the chef to talk both ways;
+- `enforceObservedAcyclic` asks whether the current staff behavior has actually turned that into a loop where each role now waits on the next.
+
+Behavior:
+
+- default is `false`;
+- accepted values are `true`, `false`, `1`, and `0`;
+- invalid values report `ARCH006` and disable observed-cycle enforcement;
+- a project build only sees cycles inside that compilation;
+- `arse inspect --solution` can also find cross-project observed cycles.
+
+See [`Example.Arch018.ObservedCycle`](Examples/Diagnostics/Example.Arch018.ObservedCycle).
+
 ### `requireRecognizedDependencies` attribute
 
 `requireRecognizedDependencies` is a comma-separated list of [dependency sites](#site-filters). At each listed site, a dependency used by a layered caller must itself belong to a configured layer. An unknown type reports **ARCH002**. When the attribute is omitted, unknown types do not report ARCH002.
@@ -1378,7 +2325,7 @@ When `enableDocumentation="true"` is set, Arse uses `documentationPath` as the d
 
 ### `description` attributes
 
-Every XML element that participates in the ruleset can carry a `description` attribute: `<ArchitecturalLevels>`, `<Include>`, `<Layer>`, `<Class>`, `<Namespace>`, `<Assembly>`, `<Allowed>`, `<Forbidden>`, `<Exceptions>`, `<Fix>`, `<AllowedDependency>` and `<BlockedDependency>`. Descriptions do not affect diagnostics. They exist so generated documentation can explain why a rule exists while preserving the same order as the XML.
+Every XML element that participates in the ruleset can carry a `description` attribute: `<ArchitecturalLevels>`, `<Include>`, `<Layer>`, `<Class>`, `<Namespace>`, `<Assembly>`, `<Allowed>`, `<Forbidden>`, `<Exceptions>`, `<Fix>`, `<AllowedDependency>`, `<BlockedDependency>`, `<NameRules>`, `<RequireMatchingNames>`, `<RequireDeclarationNameMatchesType>`, `<VisibilityPolicy>`, `<InheritancePolicy>`, `<ApiSurface>`, `<AllowedLayer>`, `<BlockedLayer>`, `<Type>`, `<Name>`, `<Source>`, `<Target>` and `<Allow>`. Descriptions do not affect diagnostics. They exist so generated documentation can explain why a rule exists while preserving the same order as the XML.
 
 ```xml
 <Layer name="QuerySurface"
@@ -1406,7 +2353,7 @@ Every XML element that participates in the ruleset can carry a `description` att
 
 ## Diagnostics
 
-The analyzer ships with seven diagnostic IDs. The three dependency-direction rules (ARCH001/004/005) are split by the reason a dependency is illegal, while ARCH006 and ARCH007 protect the integrity of the configuration itself. Dependency diagnostics expose their syntactic site through the `Site` property.
+The analyzer ships with nineteen diagnostic IDs. The three dependency-direction rules (ARCH001/004/005) are split by the reason a dependency is illegal, while ARCH006 and ARCH007 protect the integrity of the configuration itself. Dependency, name-rule, and API-surface diagnostics expose their syntactic site through the `Site` property.
 
 | ID      | Meaning                                                      |
 |---------|--------------------------------------------------------------|
@@ -1417,6 +2364,18 @@ The analyzer ships with seven diagnostic IDs. The three dependency-direction rul
 | ARCH005 | Same-layer dependency                                        |
 | ARCH006 | Invalid architecture configuration                           |
 | ARCH007 | Cyclic allowed-dependency graph while `enforceAcyclic` is enabled |
+| ARCH008 | Name rule violation                                          |
+| ARCH009 | Externally visible API exposes a type rejected by its layer policy |
+| ARCH010 | Direct project reference violates `ProjectArchitecture`      |
+| ARCH011 | Direct package reference violates `ProjectArchitecture`      |
+| ARCH012 | Declared accessibility violates a layer visibility policy    |
+| ARCH013 | Contract declaration shape violates a layer contract policy  |
+| ARCH014 | Allowed API root transitively exposes a type rejected by its layer policy |
+| ARCH015 | Layer source declaration is outside an allowed source location |
+| ARCH016 | Dependency enters a boundary through a disallowed entry point |
+| ARCH017 | Architecture exception metadata, expiry, or stale state requires review |
+| ARCH018 | Observed source dependencies form a cycle between configured layers |
+| ARCH019 | Declared base type or implemented interfaces violate a layer inheritance policy |
 
 The example projects referenced inline below are self-contained and deliberately broken so Visual Studio, Rider and `dotnet build` show the corresponding `ARCH00X` error.
 
@@ -1718,9 +2677,360 @@ Reported when `enforceAcyclic="true"` and the explicit allowed dependency graph 
 
 **Example project:** [`Example.Arch007.CyclicGraph`](Examples/Diagnostics/Example.Arch007.CyclicGraph)
 
+### ARCH008 - Name rule violation
+
+Reported when a value movement or declaration inside a layer matches an applicable `<NameRules>` policy, but the compared names do not normalize to the same meaning and no matching `<Allow>` mapping permits that site.
+
+Example message:
+
+```text
+'OrderService' (layer Application) violates name rule 'RequireMatchingNames' at Property:
+source 'animalId' normalizes to 'animal.id', target 'Customer.Id' normalizes to 'customer.id'
+```
+
+Declaration/type example:
+
+```text
+'PatientEndpoint' (layer AspEndpoints) violates name rule
+'RequireDeclarationNameMatchesType' at Method: type 'DoctorId' normalizes to
+'doctor.id', declaration name 'patientId' normalizes to 'patient.id'
+```
+
+**Examples:** [`Example.NameRules`](Examples/Features/Example.NameRules), [`Example.DeclarationNameMatchesType`](Examples/Features/Example.DeclarationNameMatchesType), and [`Example.HonestTypeEndpointNames`](Examples/Scenarios/Example.HonestTypeEndpointNames).
+
+Typical fixes:
+
+- Pass or assign the value with the matching meaning.
+- Rename the local, parameter, field, or property when the code is correct but the name is misleading.
+- Add a narrow `<Allow>` mapping when the translation is intentional.
+- Scope that mapping with `allowedSites` or `blockedSites` when it should only be valid in one kind of code location.
+
+### ARCH009 - API surface leakage
+
+ARCH009 means an externally visible declaration exposes a type rejected by the owning layer's `<ApiSurface>` policy.
+
+```text
+'CandyOrderingService' (layer Application) exposes 'LollyQueryable'
+(layer RepositoryQuerySurface) at MethodReturn: the API surface policy
+in layer 'Application' blocks layer '/RepositoryQuerySurface' at MethodReturn
+```
+
+The diagnostic is reported on the exposed type syntax. Its properties include the caller and exposed type/layer, canonical API `Site`, `ApiMemberName`, exact denial reason, and the originating configuration location.
+
+Common fixes are:
+
+- project the internal type to a contract before returning it;
+- make the declaration non-public when it is an implementation detail;
+- add the exposed type to the intended contract layer;
+- deliberately adjust the `<ApiSurface>` policy or its site filter.
+
+Adding an `<AllowedDependency>` is not an ARCH009 fix by itself. That edge permits internal use; it does not grant permission to publish the type as API.
+
+**Example project:** [`Example.Arch009.ApiSurfaceLeakage`](Examples/Diagnostics/Example.Arch009.ApiSurfaceLeakage)
+
+## ARCH010: Project Reference Violation
+
+`ARCH010` reports an illegal direct project reference.
+
+This is a project-topology rule, not a type-usage rule.
+
+### Example
+
+```text
+Project 'Shop.Web' (project group Presentation) may not reference project 'Shop.Domain' (project group Domain): no AllowedProjectReference permits project group 'Presentation' to reference project group 'Domain'
+```
+
+### Typical Causes
+
+- a direct `<ProjectReference />` skips an allowed project group
+- a project reference points in the wrong architectural direction
+- a blocked project edge is present
+- `requireRecognizedProjects="true"` is enabled and one side matches no `ProjectGroup`
+- a same-group reference exists without an explicit self-edge while that source group is in allowlist mode
+
+### Typical Fixes
+
+- remove the illegal `<ProjectReference />`
+- move the shared abstraction into an allowed project group
+- add the missing allowed project edge if the topology is intentional
+- classify the unrecognized project with a `ProjectGroup`
+- add an explicit self-edge if same-group references are intentionally allowed
+
+### Not The Same As
+
+- `ARCH001`: illegal type dependency in code
+- `ARCH004`: wrong-direction type dependency in code
+- `ARCH005`: same-layer type dependency in code
+
+`ARCH010` can fire even when no source file currently uses the referenced project.
+
+### ARCH012 - Visibility policy violation
+
+Reported when a source declaration belongs to a layer with an applicable `<VisibilityPolicy>` and its declared accessibility does not pass that policy.
+
+Example:
+
+```text
+'SourLollyQueryable' (layer RepositoryQuerySurface) is declared Public:
+the VisibilityPolicy for Type in layer 'RepositoryQuerySurface' allows only Internal, File
+```
+
+The diagnostic is reported on an accessibility modifier when one exists, otherwise on the declaration identifier.
+
+Diagnostic properties include:
+
+- `CallerTypeName`
+- `CallerLayerName`
+- `DeclaredSymbolName`
+- `DeclarationTarget`
+- `DeclaredAccessibility`
+- `ViolationReason`
+- the originating rule path, line, and column
+
+Typical fixes:
+
+- reduce the declaration's accessibility;
+- narrow or change the policy when the public declaration is intentional;
+- move the declaration to a layer whose visibility contract matches its responsibility.
+
+**Example project:** [`Example.Arch012.VisibilityPolicy`](Examples/Diagnostics/Example.Arch012.VisibilityPolicy)
+
+### ARCH013 - Contract purity violation
+
+Reported when a source declaration belongs to a layer with an applicable `<ContractPolicy>` and its declaration shape does not pass that policy.
+
+Example:
+
+```text
+'Name' (layer Contracts) violates contract purity at DisallowedPropertyAccessor:
+the ContractPolicy in layer 'Contracts' allows only property accessors Get
+```
+
+The diagnostic is reported on the offending member, accessor, body, or type identifier, depending on the failing rule.
+
+Diagnostic properties include:
+
+- `CallerTypeName`
+- `CallerLayerName`
+- `DeclaredSymbolName`
+- `ContractViolationKind`
+- `ViolationReason`
+- the originating rule path, line, and column
+
+Typical fixes:
+
+- remove the implementation body from the contract member;
+- replace mutable setters with `get` / `init`;
+- move stateful helpers or concrete implementations out of the contract layer;
+- broaden the policy only when that contract shape is intentional.
+
+**Focused example projects:**
+
+- [`Example.Arch013.ContractPurity`](Examples/Diagnostics/Example.Arch013.ContractPurity) - property setters are rejected by `allowedPropertyAccessors="Get"`.
+- [`Example.Arch013.ContractPurity.MethodBodyNotAllowed`](Examples/Diagnostics/Example.Arch013.ContractPurity.MethodBodyNotAllowed) - default interface method bodies are rejected by `allowMethodBodies="false"`.
+
+## ARCH014 - Forbidden transitive exposure
+
+ARCH014 reports when an externally visible declaration exposes an allowed root type whose public object graph reaches a type rejected by the owning layer's `<ApiSurface>` policy.
+
+```csharp
+public class CandyReceipt
+{
+    public LollyQueryable RawQuery { get; init; } = new();
+}
+
+// ARCH014: CandyOrderingService.OrderRawLolly
+//          -> CandyReceipt.RawQuery
+//          -> LollyQueryable
+public CandyReceipt OrderRawLolly()
+{
+    return new CandyReceipt();
+}
+```
+
+The primary location is the root signature, because that declaration publishes the unsafe graph. When the nested member is source-backed, its declaration is included as an additional diagnostic location.
+
+Diagnostic properties include:
+
+- `ApiMemberName` and `ExposureRootMember`;
+- `ExposurePath` and `ExposureDepth`;
+- `NestedMemberName` and `NestedMemberContainingType`;
+- the forbidden type and layer;
+- the nested member's canonical `Site`;
+- the exact policy reason and configuration origin.
+
+A direct forbidden type reports ARCH009 instead. The two diagnostics are deliberately not duplicated.
+
+**Example project:** [`Example.Arch014.TransitiveExposure`](Examples/Diagnostics/Example.Arch014.TransitiveExposure)
+
+## ARCH015 - Source-location violation
+
+`ARCH015` means a type matched a layer, but one of its source declarations is not in an allowed owned location for that layer.
+
+Example message:
+
+```text
+'CandyOrderingService' belongs to layer 'Ordering/Application' but source file 'Infrastructure/CandyOrderingService.cs' does not match an allowed SourceLocations rule for layer 'Ordering'
+```
+
+Typical causes:
+
+- the namespace still matches the intended layer, but the file was moved into the wrong folder;
+- a partial type was split across owned and unowned locations;
+- a configuration-relative rule points at the wrong base folder;
+- an assembly-constrained source rule matches the folder but not the project assembly.
+
+Typical fixes:
+
+- move the file into the owned folder or project;
+- tighten or correct the `<SourceLocations>` patterns;
+- split mixed-responsibility partial declarations;
+- if the layout is intentional, add an explicit `<Source>` rule that documents it.
+
+Important: folders do not classify layers by themselves. `ARCH015` only runs after the type has already been matched into a layer by the normal layer matchers.
+
+See [`Example.SourceLocations`](Examples/Features/Example.SourceLocations) for a small build-verified sample.
+
+## ARCH016 - Boundary entry-point violation
+
+`ARCH016` reports when a dependency already passed the normal dependency graph, but still enters a boundary through the wrong child layer or type.
+
+Example message:
+
+```text
+'CandyController' (layer Presentation) may not enter boundary 'Ordering' through 'CandyOrderingService' (layer Ordering/Implementation): the boundary permits entry only through Ordering/Contracts
+```
+
+Typical causes:
+
+- a controller reaches into an implementation layer instead of a contract layer;
+- a facade entry point is allowed only at certain sites, but the dependency appears at a blocked site;
+- nested boundaries define progressively narrower external entry doors.
+
+Important precedence rule:
+
+- if the dependency is already illegal for the usual reasons, you still get `ARCH001`, `ARCH003`, `ARCH004`, or `ARCH005`;
+- `ARCH016` only appears when the dependency graph allowed the dependency first.
+
+See [`Example.Arch016.BoundaryEntryPoints`](Examples/Diagnostics/Example.Arch016.BoundaryEntryPoints).
+
+## ARCH017 - Architecture exception requires review
+
+`ARCH017` is a warning about the exception itself, not about the original architectural rule.
+
+It appears when an exception matcher:
+
+- is missing required metadata from `<ExceptionPolicy>`;
+- has an invalid `expiresOn` date;
+- has already expired;
+- is close to expiry;
+- or, in Arse health inspection, is stale and matches no type in the inspected scope.
+
+Example warning:
+
+```text
+Architecture exception for Class 'typeName="LegacyManager"' is missing required owner metadata
+```
+
+Typical causes:
+
+1. The config has `<ExceptionPolicy requireOwner="true" />`, but the exception has no `owner`.
+2. The exception expired before Sunday, July 26, 2026.
+3. The exception was once needed, but the type it named no longer exists.
+
+Important semantics:
+
+- Missing or invalid required metadata makes the exception inactive.
+- Expired exceptions are ignored by the matcher engine.
+- If an expired exception used to suppress another diagnostic, that original diagnostic can reappear.
+- Expiring-soon exceptions still suppress the original diagnostic until their expiry date.
+
+The warning carries these properties:
+
+- `ExceptionMatcherKind`
+- `ExceptionMatcherLabel`
+- `ExceptionReason`
+- `ExceptionOwner`
+- `ExceptionExpiresOn`
+- `ExceptionStatus`
+
+See also:
+
+- [`../configuration/exception-policy.md`](docs/configuration/exception-policy.md)
+- [`../../Examples/Features/Example.ExceptionPolicy/Example.cs`](Examples/Features/Example.ExceptionPolicy/Example.cs)
+
+## ARCH018 - Observed architectural dependency cycle
+
+`ARCH018` reports when the dependencies that currently exist in source code form a cycle between configured layers.
+
+Example message:
+
+```text
+Observed architectural dependency cycle: Ordering -> Notifications -> Ordering
+```
+
+This is intentionally different from `ARCH007`:
+
+- `ARCH007` says the configuration permits a cycle;
+- `ARCH018` says the code is currently using a cycle.
+
+Typical causes:
+
+- two architectural areas have started calling each other directly over time;
+- one boundary grew a convenience reverse dependency;
+- both directions are allowed, but the current code reality has become circular.
+
+Important behavior:
+
+- `ARCH018` only appears when `enforceObservedAcyclic="true"` is enabled;
+- the cycle is built from observed source dependency sites, not from hypothetical allowed edges;
+- direct diagnostics such as `ARCH001` and `ARCH004` still report separately;
+- `arse inspect --solution` can find cross-project observed cycles that one project build cannot see by itself.
+
+See [`Example.Arch018.ObservedCycle`](Examples/Diagnostics/Example.Arch018.ObservedCycle).
+
+### ARCH019 - Inheritance policy violation
+
+Reported when a source declaration belongs to a layer with an applicable `<InheritancePolicy>` and its declared base-type or interface contract does not pass that policy.
+
+Example:
+
+```text
+'SyrupEntity' (layer PersistenceEntities) violates inheritance policy at MissingRequiredBaseType:
+the InheritancePolicy in layer 'PersistenceEntities' requires one of base types Entity
+```
+
+The diagnostic is reported on the declaration identifier.
+
+Diagnostic properties include:
+
+- `CallerTypeName`
+- `CallerLayerName`
+- `DeclaredSymbolName`
+- `InheritanceViolationKind`
+- `ViolationReason`
+- the originating rule path, line, and column
+
+Typical fixes:
+
+- inherit the required base type;
+- implement the missing interface contract;
+- move the declaration out of the layer if it is not meant to follow that shared inheritance rule;
+- narrow or broaden the policy only when the declaration is intentionally outside the current contract.
+
+**Example project:** [`Example.Arch019.InheritancePolicy`](Examples/Diagnostics/Example.Arch019.InheritancePolicy)
+
 ### Diagnostic properties
 
-Every layering diagnostic (ARCH001, ARCH004, ARCH005) carries a `Site` property in `Diagnostic.Properties` indicating where the dependency was found. This lets code-fix providers, custom reporters and CI dashboards filter or group by injection style without re-parsing the source.
+Every dependency diagnostic (ARCH001, ARCH004, ARCH005), name-rule diagnostic (ARCH008), and API-surface diagnostic (ARCH009 and ARCH014) carries a `Site` property in `Diagnostic.Properties` indicating where the issue was found. This lets code-fix providers, custom reporters and CI dashboards filter or group by dependency style without re-parsing the source.
+
+ARCH012 describes declarations rather than dependency sites. It exposes `DeclarationTarget`, `DeclaredAccessibility`, and `DeclaredSymbolName` alongside the caller layer and rule-origin properties.
+
+ARCH019 also describes declarations rather than dependency sites. It exposes `DeclaredSymbolName` and `InheritanceViolationKind` alongside the caller layer and rule-origin properties.
+
+ARCH009 additionally exposes `ApiMemberName`, identifying the externally visible declaration that published the dependency type.
+
+ARCH014 adds `ExposureRootMember`, `ExposurePath`, `ExposureDepth`, `NestedMemberName`, and `NestedMemberContainingType`. Its `Site` identifies the nested public member that exposed the forbidden type rather than the root signature site.
 
 | `Site` value        | Where the dependency was introduced                                        |
 |---------------------|----------------------------------------------------------------------------|
@@ -1904,7 +3214,7 @@ arse report --project src\MyApp\MyApp.csproj --force
 arse report --solution src\MyApp.slnx --output docs\architectural-violations.md --force
 ```
 
-The violation report groups code dependency violations by diagnostic ID (ARCH001/002/003/004/005) and, for ARCH002, includes a **Suggested Configuration** block with `<Layer>` and `<AllowedDependency>` snippets that would resolve the unrecognized dependencies it found. Use `--project` for one assembly or `--solution` when the architecture is enforced across multiple projects. Configuration findings and cycles belong in the `inspect` health report.
+The violation report groups code dependency and name-rule violations by diagnostic ID (ARCH001/002/003/004/005/008) and, for ARCH002, includes a **Suggested Configuration** block with `<Layer>` and `<AllowedDependency>` snippets that would resolve the unrecognized dependencies it found. Use `--project` for one assembly or `--solution` when the architecture is enforced across multiple projects. Configuration findings and cycles belong in the `inspect` health report.
 
 - **CI dashboards** - commit the report as a build artifact and diff it across runs to track architectural drift.
 - **Onboarding** - point new contributors at a single file that summarizes the project's layering health.
@@ -1997,7 +3307,7 @@ Examples\Documentation\Example.DocumentationDemo\GenerateDocumentation.bat
 
 The [example batch file](Examples/Documentation/Example.DocumentationDemo/GenerateDocumentation.bat) invokes Arse with `--config` and targets that example's `Architecture.anl` directly. **In your own project**, install the tool and run either `arse documentation --project path\to\Project.csproj --include-code-evidence --include-input` or `arse documentation --config path\to\Architecture.anl --include-input`. Pass `--output` to override `documentationPath`, and `--force` to overwrite an existing file.
 
-Documentation coverage is guarded by [`ToolRunner_GeneratesDocumentationForSupportedConfigurationFeatures`](src/Tests/RonSijm.AnaalIJzer.IntegrationTests/ExampleToolingIntegrationTests.cs), which runs the real `arse documentation --config` path against a feature-matrix XML containing nested layers, descriptions, type policies, exceptions, rename fixes, site filters, wildcard rules and input inclusion.
+Documentation coverage is guarded by [`ToolRunner_GeneratesDocumentationForSupportedConfigurationFeatures`](src/Tests/RonSijm.AnaalIJzer.IntegrationTests/ExampleApplicationIntegrationTests.cs), which runs the real `arse documentation --config` path against a feature-matrix XML containing nested layers, descriptions, type policies, exceptions, rename fixes, site filters, wildcard rules and input inclusion.
 
 ---
 
@@ -2027,4 +3337,3 @@ The shared tooling engine is the explicit generation host used by both Arse mode
 - `split-config` extracts disconnected dependency graphs into an include-based configuration.
 
 That keeps normal builds focused on diagnostics while still making reports and documentation easy to regenerate in CI or before committing documentation updates.
-

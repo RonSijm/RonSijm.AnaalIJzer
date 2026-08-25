@@ -2,9 +2,9 @@ using System.ComponentModel.Composition;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Utilities;
-using RonSijm.AnaalIJzer.VisualStudio.Snapshots;
+using RonSijm.AnaalIJzer.VisualStudio.Editor.Snapshots;
 
-namespace RonSijm.AnaalIJzer.VisualStudio;
+namespace RonSijm.AnaalIJzer.VisualStudio.Editor.QuickInfo;
 
 [Export(typeof(IAsyncQuickInfoSourceProvider))]
 [Name("AnaalIJzer QuickInfo")]

@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RazorConsole.Core;
-using RonSijm.AnaalIJzer.Tooling;
+using RonSijm.AnaalIJzer.Application;
 using RonSijm.AnaalIJzer.Arse.Components;
 
 namespace RonSijm.AnaalIJzer.Arse;
@@ -23,7 +23,7 @@ internal static class Program
 		var builder = Host.CreateDefaultBuilder(args.Skip(1).ToArray())
 			.UseRazorConsole<App>(configure: configuration =>
 			{
-				configuration.ConfigureServices(services => services.AddSingleton<ToolRunner>());
+				configuration.ConfigureServices(services => services.AddSingleton<ApplicationRunner>());
 			});
 
 		await builder.Build().RunAsync();

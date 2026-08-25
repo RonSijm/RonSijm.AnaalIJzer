@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <Import Project="../../../build/Settings/NuGetVersioning.props" />
+    <Import Project="../../../build/Settings/NetFxCompatibleProjectTargetFramework.props" />
 
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
@@ -12,7 +13,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Configuration.Document\RonSijm.AnaalIJzer.Core.Configuration.Document.csproj"
+                          SetTargetFramework="TargetFramework=$(NetFxCompatibleProjectTargetFramework)" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
         <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net472" Version="1.0.3" PrivateAssets="all" Condition="'$(TargetFramework)' == 'net472'" />
     </ItemGroup>
 

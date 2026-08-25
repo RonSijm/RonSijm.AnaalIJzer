@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Example.ProjectReferenceBoundaries.Application/Example.ProjectReferenceBoundaries.Application.csproj" />
+  <Project Path="Example.ProjectReferenceBoundaries.Domain/Example.ProjectReferenceBoundaries.Domain.csproj" />
+  <Project Path="Example.ProjectReferenceBoundaries.Infrastructure/Example.ProjectReferenceBoundaries.Infrastructure.csproj" />
+</Solution>

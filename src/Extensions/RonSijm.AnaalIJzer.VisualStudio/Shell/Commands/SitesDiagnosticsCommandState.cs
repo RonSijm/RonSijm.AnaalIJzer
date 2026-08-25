@@ -1,5 +1,5 @@
 using RonSijm.AnaalIJzer.Indicators;
-using RonSijm.AnaalIJzer.Snapshots;
+using RonSijm.AnaalIJzer.Core.Editor.Snapshots;
 
 namespace RonSijm.AnaalIJzer.VisualStudio.Shell.Commands;
 

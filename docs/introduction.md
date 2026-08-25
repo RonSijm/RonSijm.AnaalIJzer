@@ -1,4 +1,6 @@
-# *A*nalyzer for **N**-dimensional **A**dvanced Architectural Layering - ANAAL IJzer
+# IJzer
+
+An **A**nalyzer for **N**-dimensional **A**dvanced **A**rchitectural **L**ayering.
 
 [![NuGet](https://img.shields.io/nuget/v/RonSijm.AnaalIJzer.svg)](https://www.nuget.org/packages/RonSijm.AnaalIJzer)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/RonSijm.AnaalIJzer.svg)](https://www.nuget.org/packages/RonSijm.AnaalIJzer)
@@ -7,6 +9,32 @@
 ## Introduction
 
 A Roslyn analyzer that enforces architectural layering rules in your codebase. You define named layers and explicit allowed dependency edges in an XML file, and the analyzer ensures each type only depends on types in permitted layers - catching illegal dependencies at compile time.
+
+## Readme Meta
+
+This README is composed from the standalone notes in [`docs/`](../docs/). The generated README is generated as one full document - also because to embed this in the NuGet package and the Visual Studio landing page.
+
+The compose order is defined in [`docs/_readme-order.txt`](../docs/_readme-order.txt). After changing the individual notes, run [`docs/build-readme.ps1`](../docs/build-readme.ps1) to regenerate this readme.
+## Legend
+
+| Standalone note | Use it for |
+|---|---|
+| [`docs/introduction.md`](../docs/introduction.md) | Project overview, naming, restaurant example domain, and Roslyn background. |
+| [`docs/setup.md`](../docs/setup.md) | NuGet setup, `.anl` settings files, inline settings, and shared project configuration. |
+| [`docs/components/visual-studio-addon.md`](../docs/components/visual-studio-addon.md) | Visual Studio companion extension behavior, options, graph editor, and CodeLens UI. |
+| [`docs/tools/arse.md`](../docs/tools/arse.md) | Arse command/TUI usage, reports, generated config, documentation, and file associations. |
+| [`docs/components/wpf-graph-editor.md`](../docs/components/wpf-graph-editor.md) | Standalone WPF graph editor usage and graph image export. |
+| [`docs/configuration/mental-model.md`](../docs/configuration/mental-model.md) | Beginner-friendly rule precedence and the "four questions" model. |
+| [`docs/configuration/*.md`](../docs/configuration/) | Detailed settings reference for layers, dependency rules, type policies, exceptions, name rules, reports, and generated documentation. |
+| [`docs/diagnostics/index.md`](../docs/diagnostics/index.md) | Diagnostic overview and links to the `ARCH001` through `ARCH008` pages. |
+| [`docs/q-and-a.md`](../docs/q-and-a.md) | Common questions such as framework types, nested boundaries, and same-project interfaces. |
+| [`docs/suppressing-violations.md`](../docs/suppressing-violations.md) | Local suppression guidance. |
+| [`docs/violation-report.md`](../docs/violation-report.md) | Generated violation report output. |
+| [`docs/architecture-health.md`](../docs/architecture-health.md) | Architecture health inspection output. |
+| [`docs/architecture-documentation.md`](../docs/architecture-documentation.md) | Generated architecture documentation output. |
+| [`docs/no-config-source.md`](../docs/no-config-source.md) | What happens when no settings source is configured. |
+| [`docs/getting-started-help.md`](../docs/getting-started-help.md) | First-step guidance when starting from an existing codebase. |
+| [`docs/design-generated-files.md`](../docs/design-generated-files.md) | Generated file expectations and maintenance notes. |
 
 ---
 
@@ -86,7 +114,7 @@ The integration points are:
 1. [`ArchitecturalLevelAnalyzer`](../src/Main/RonSijm.AnaalIJzer/ArchitecturalLevelAnalyzer.cs) is marked with `[DiagnosticAnalyzer(LanguageNames.CSharp)]`, which makes it discoverable as a C# analyzer.
 2. For each compilation snapshot, its `CompilationStartAction` reads `Architecture.anl` from Roslyn's `AdditionalFiles`, or reads inline `AssemblyMetadata("AnaalIJzerSettings", ...)`. The parsed configuration is then reused by every callback registered for that compilation.
 3. It registers `SyntaxNodeAction` callbacks only for syntax that can introduce an architectural dependency: type and constructor declarations, methods, fields, properties, locals, object creation, invocations, attributes, inheritance, and static member access. Generated code is ignored, and callbacks may run concurrently.
-4. [`LayerDependencyAnalyzer`](../src/Main/RonSijm.AnaalIJzer/Analysis/LayerDependencyAnalyzer.cs) uses the callback's `SemanticModel` to resolve syntax to real Roslyn symbols such as `ITypeSymbol`. This is why aliases, inferred local types, generic type arguments, implemented interfaces, and referenced types can be evaluated by their actual type identity instead of by source text alone.
+4. [`LayerDependencyAnalyzer`](../src/Main/RonSijm.AnaalIJzer/Analysis/BoundaryRules/LayerDependencies/LayerDependencyAnalyzer.cs) uses the callback's `SemanticModel` to resolve syntax to real Roslyn symbols such as `ITypeSymbol`. This is why aliases, inferred local types, generic type arguments, implemented interfaces, and referenced types can be evaluated by their actual type identity instead of by source text alone.
 5. The resolved caller and dependency symbols are matched to configured layer paths. The dependency graph evaluates the relevant boundary gates, blocked rules, site filters, recognized-dependency requirements, and forbidden patterns. A failure is returned to Roslyn with `ReportDiagnostic`, including the source location and diagnostic properties such as `Site`.
 6. Configuration failures and configured cycles are reported at the end of the compilation as ARCH006 or ARCH007. If there is no configuration source, no dependency callbacks are registered and the analyzer remains silent.
 

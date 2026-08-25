@@ -1,13 +1,13 @@
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Text;
 using RonSijm.AnaalIJzer.Indicators;
-using RonSijm.AnaalIJzer.QuickInfo;
-using RonSijm.AnaalIJzer.Snapshots;
+using RonSijm.AnaalIJzer.Core.Editor.QuickInfo;
+using RonSijm.AnaalIJzer.Core.Editor.Snapshots;
 using RonSijm.AnaalIJzer.VisualStudio.Diagnostics;
 using RonSijm.AnaalIJzer.VisualStudio.Options;
-using RonSijm.AnaalIJzer.VisualStudio.Snapshots;
+using RonSijm.AnaalIJzer.VisualStudio.Editor.Snapshots;
 
-namespace RonSijm.AnaalIJzer.VisualStudio;
+namespace RonSijm.AnaalIJzer.VisualStudio.Editor.QuickInfo;
 
 internal sealed class ArchitectureQuickInfoSource : IAsyncQuickInfoSource
 {
@@ -42,13 +42,70 @@ internal sealed class ArchitectureQuickInfoSource : IAsyncQuickInfoSource
 		}
 
 		var position = triggerPoint.Value.Position;
-		var item = TryCreateSiteQuickInfo(snapshot, buffer.CurrentSnapshot, position)
+		var item = TryCreateApiSurfaceQuickInfo(snapshot, buffer.CurrentSnapshot, position)
+		           ?? TryCreateVisibilityPolicyQuickInfo(snapshot, buffer.CurrentSnapshot, position)
+		           ?? TryCreateNameRuleQuickInfo(snapshot, buffer.CurrentSnapshot, position)
+		           ?? TryCreateSiteQuickInfo(snapshot, buffer.CurrentSnapshot, position)
 		           ?? TryCreateLayerQuickInfo(snapshot, buffer.CurrentSnapshot, position);
 		ArchitectureVisualStudioLog.Info(item is null
 			? "QuickInfo found no AnaalIJzer item at position " + position + "."
 			: "QuickInfo created AnaalIJzer item at position " + position + ".");
 
 		return item;
+	}
+
+	private static QuickInfoItem? TryCreateApiSurfaceQuickInfo(ArchitectureEditorSnapshot editorSnapshot, ITextSnapshot textSnapshot, int position)
+	{
+		foreach (var indicator in editorSnapshot.ApiSurfaceIndicators.OrderBy(indicator => indicator.Span.Length))
+		{
+			if (!ContainsPosition(indicator.Span, position) || !TryCreateTrackingSpan(textSnapshot, indicator.Span, out var trackingSpan))
+			{
+				continue;
+			}
+
+			var content = ArchitectureQuickInfoContentBuilder.CreateApiSurfaceContent(indicator);
+			var result = new QuickInfoItem(trackingSpan, content.ToString());
+
+			return result;
+		}
+
+		return null;
+	}
+
+	private static QuickInfoItem? TryCreateVisibilityPolicyQuickInfo(ArchitectureEditorSnapshot editorSnapshot, ITextSnapshot textSnapshot, int position)
+	{
+		foreach (var indicator in editorSnapshot.VisibilityPolicyIndicators.OrderBy(indicator => indicator.Span.Length))
+		{
+			if (!ContainsPosition(indicator.Span, position) || !TryCreateTrackingSpan(textSnapshot, indicator.Span, out var trackingSpan))
+			{
+				continue;
+			}
+
+			var content = ArchitectureQuickInfoContentBuilder.CreateVisibilityPolicyContent(indicator);
+			var result = new QuickInfoItem(trackingSpan, content.ToString());
+
+			return result;
+		}
+
+		return null;
+	}
+
+	private static QuickInfoItem? TryCreateNameRuleQuickInfo(ArchitectureEditorSnapshot editorSnapshot, ITextSnapshot textSnapshot, int position)
+	{
+		foreach (var indicator in editorSnapshot.NameRuleIndicators.OrderBy(indicator => indicator.Span.Length))
+		{
+			if (!ContainsPosition(indicator.Span, position) || !TryCreateTrackingSpan(textSnapshot, indicator.Span, out var trackingSpan))
+			{
+				continue;
+			}
+
+			var content = ArchitectureQuickInfoContentBuilder.CreateNameRuleContent(indicator);
+			var result = new QuickInfoItem(trackingSpan, content.ToString());
+
+			return result;
+		}
+
+		return null;
 	}
 
 	private static QuickInfoItem? TryCreateSiteQuickInfo(ArchitectureEditorSnapshot editorSnapshot, ITextSnapshot textSnapshot, int position)

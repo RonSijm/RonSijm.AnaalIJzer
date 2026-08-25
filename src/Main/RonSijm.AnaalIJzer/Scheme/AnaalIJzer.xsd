@@ -5,11 +5,13 @@
     <xs:complexType>
       <xs:choice maxOccurs="unbounded" minOccurs="0">
         <xs:element name="Include"           type="IncludeType" />
+        <xs:element name="ExceptionPolicy"   type="ExceptionPolicyType" />
         <xs:element name="Layer"             type="LayerType" />
         <xs:element name="Allowed"           type="AllowedContainerType" />
         <xs:element name="Forbidden"         type="ForbiddenContainerType" />
         <xs:element name="AllowedDependency" type="AllowedDependencyType" />
         <xs:element name="BlockedDependency" type="BlockedDependencyType" />
+        <xs:element name="ProjectArchitecture" type="ProjectArchitectureType" />
       </xs:choice>
       <xs:attributeGroup ref="DocumentationAttributes" />
       <xs:attribute name="requireRecognizedDependencies" type="xs:string">
@@ -28,6 +30,15 @@
           <xs:documentation>
             When true, explicit AllowedDependency edges must form an acyclic graph.
             Wildcard and self edges are excluded from cycle detection.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="enforceObservedAcyclic" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>
+            When true, currently observed source dependencies must not form a cycle between
+            configured layers. Unlike enforceAcyclic, this checks code reality rather than
+            configured AllowedDependency edges.
           </xs:documentation>
         </xs:annotation>
       </xs:attribute>
@@ -94,6 +105,21 @@
     <xs:attributeGroup ref="DocumentationAttributes" />
   </xs:complexType>
 
+  <xs:complexType name="ExceptionPolicyType">
+    <xs:annotation>
+      <xs:documentation>
+        Configures optional metadata requirements and review thresholds for exceptions declared
+        inside any Exceptions container. When omitted, exceptions keep their existing behavior
+        and no review warnings are produced.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="requireReason" type="xs:boolean" default="false" />
+    <xs:attribute name="requireOwner" type="xs:boolean" default="false" />
+    <xs:attribute name="requireExpiresOn" type="xs:boolean" default="false" />
+    <xs:attribute name="warnBeforeDays" type="xs:nonNegativeInteger" default="14" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
   <!-- ═══════════════════════════════════════════════════════════════════ -->
   <!--  <Layer name="Application">                                        -->
   <!--      <Class endsWith="Manager" />                                  -->
@@ -121,6 +147,13 @@
       <xs:element name="Layer"     type="LayerType" />
       <xs:element name="Allowed"   type="AllowedContainerType" />
       <xs:element name="Forbidden" type="ForbiddenContainerType" />
+      <xs:element name="NameRules" type="NameRulesType" />
+      <xs:element name="InheritancePolicy" type="InheritancePolicyType" />
+      <xs:element name="VisibilityPolicy" type="VisibilityPolicyType" />
+      <xs:element name="ContractPolicy" type="ContractPolicyType" />
+      <xs:element name="ApiSurface" type="ApiSurfaceType" />
+      <xs:element name="EntryPoints" type="EntryPointsType" />
+      <xs:element name="SourceLocations" type="SourceLocationsType" />
       <xs:element name="AllowedDependency" type="AllowedDependencyType" />
       <xs:element name="BlockedDependency" type="BlockedDependencyType" />
     </xs:choice>
@@ -167,6 +200,175 @@
     <xs:attributeGroup ref="DocumentationAttributes" />
   </xs:complexType>
 
+  <xs:complexType name="VisibilityPolicyType">
+    <xs:annotation>
+      <xs:documentation>
+        Restricts the declared accessibility of source declarations owned by this layer or a
+        descendant. targets is a comma-separated list containing Type, Constructor, Method,
+        Property, Field, Event, Operator, Conversion, or NestedType. Configure exactly one of
+        allowedAccessibilities and blockedAccessibilities with values from Public, Internal,
+        Protected, ProtectedInternal, PrivateProtected, Private, and File.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="targets" type="xs:string" use="required" />
+    <xs:attribute name="allowedAccessibilities" type="xs:string" />
+    <xs:attribute name="blockedAccessibilities" type="xs:string" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="InheritancePolicyType">
+    <xs:annotation>
+      <xs:documentation>
+        Requires declarations owned by this layer or a descendant to carry an explicit base
+        type and/or interface contract. typeKinds is required and uses the same declared-type
+        tokens as Class typeKind: Class, Interface, Struct, Record, RecordStruct, Enum, or
+        Delegate. Configure at least one of requiredBaseTypes or requiredInterfaces as a
+        comma-separated list of simple or fully qualified type names.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="typeKinds" type="xs:string" use="required" />
+    <xs:attribute name="requiredBaseTypes" type="xs:string" />
+    <xs:attribute name="requiredInterfaces" type="xs:string" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="ApiSurfaceType">
+    <xs:annotation>
+      <xs:documentation>
+        Restricts which configured layers may appear in externally visible declarations owned
+        by this layer or a descendant. BlockedLayer wins over AllowedLayer. When one or more
+        AllowedLayer entries apply to a declaration site, the exposed type must match one of
+        them. requireRecognizedTypes also rejects exposed types that match no configured layer.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="1" maxOccurs="unbounded">
+      <xs:element name="AllowedLayer" type="ApiSurfaceLayerRuleType" />
+      <xs:element name="BlockedLayer" type="ApiSurfaceLayerRuleType" />
+      <xs:element name="TransitiveExposure" type="TransitiveExposureType" />
+    </xs:choice>
+    <xs:attribute name="requireRecognizedTypes" type="xs:boolean" default="false" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="ContractPolicyType">
+    <xs:annotation>
+      <xs:documentation>
+        Restricts what contract declarations owned by this layer or a descendant may contain.
+        allowedTypeKinds and allowedMemberKinds are required comma-separated lists. Optional
+        allowedPropertyAccessors narrows property accessors. allowMethodBodies,
+        allowStaticMembers, and allowNestedTypes default to false when omitted.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="allowedTypeKinds" type="xs:string" use="required" />
+    <xs:attribute name="allowedMemberKinds" type="xs:string" use="required" />
+    <xs:attribute name="allowedPropertyAccessors" type="xs:string" />
+    <xs:attribute name="allowMethodBodies" type="xs:boolean" default="false" />
+    <xs:attribute name="allowStaticMembers" type="xs:boolean" default="false" />
+    <xs:attribute name="allowNestedTypes" type="xs:boolean" default="false" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="TransitiveExposureType">
+    <xs:annotation>
+      <xs:documentation>
+        Enables bounded breadth-first inspection of externally visible member types reachable
+        through an otherwise allowed direct API type. maxDepth defaults to 3 and must be from
+        1 through 10.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="maxDepth" type="xs:positiveInteger" default="3" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="ApiSurfaceLayerRuleType">
+    <xs:annotation>
+      <xs:documentation>
+        Selects a layer subtree by canonical path. allowedSites permits this entry only at
+        listed API sites; blockedSites permits it at every API site except those listed.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="path" type="xs:string" use="required" />
+    <xs:attribute name="allowedSites" type="xs:string" />
+    <xs:attribute name="blockedSites" type="xs:string" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="SourceLocationsType">
+    <xs:annotation>
+      <xs:documentation>
+        Declares allowed physical source-file locations for declarations classified into the
+        owning layer or its descendants. Child Source entries are OR alternatives. Attributes
+        on one Source are conjunctive textual path matchers against a normalized source path.
+        relativeTo selects whether matching is relative to the project directory, the physical
+        configuration file, or the absolute normalized file path.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="1" maxOccurs="unbounded">
+      <xs:element name="Source" type="SourceLocationMatchType" />
+    </xs:choice>
+    <xs:attribute name="relativeTo" type="xs:string" default="Project">
+      <xs:annotation>
+        <xs:documentation>
+          Case-insensitive relative base: Project, Configuration, or Absolute. Configuration
+          is invalid for inline AssemblyMetadata settings because no physical configuration
+          directory exists there.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="EntryPointsType">
+    <xs:annotation>
+      <xs:documentation>
+        Restricts how external callers may enter this boundary after ordinary dependency
+        gates have already allowed the dependency. EntryPoint alternatives may select either
+        a descendant layer subtree through the layer attribute, or one or more matcher
+        elements against the dependency type.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="1" maxOccurs="unbounded">
+      <xs:element name="EntryPoint" type="EntryPointType" />
+    </xs:choice>
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="EntryPointType">
+    <xs:annotation>
+      <xs:documentation>
+        Boundary entry-point alternative. Use either layer="..." or matcher elements, not
+        both. allowedSites and blockedSites scope where the entry point is valid.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="Class" type="ClassMatchType" />
+      <xs:element name="Namespace" type="NamespaceMatchType" />
+      <xs:element name="Assembly" type="AssemblyMatchType" />
+    </xs:choice>
+    <xs:attribute name="layer" type="xs:string" />
+    <xs:attribute name="allowedSites" type="xs:string" />
+    <xs:attribute name="blockedSites" type="xs:string" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="SourceLocationMatchType">
+    <xs:annotation>
+      <xs:documentation>
+        Matches a normalized source path using one or more conjunctive textual matcher
+        attributes: typeName, exactName, startsWith, endsWith, contains, or regex. Optional
+        assemblyName further constrains the rule to a specific Compilation.AssemblyName.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="typeName" type="xs:string" />
+    <xs:attribute name="exactName" type="xs:string" />
+    <xs:attribute name="startsWith" type="xs:string" />
+    <xs:attribute name="endsWith" type="xs:string" />
+    <xs:attribute name="contains" type="xs:string" />
+    <xs:attribute name="regex" type="xs:string" />
+    <xs:attribute name="assemblyName" type="xs:string" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
   <!-- ═══════════════════════════════════════════════════════════════════ -->
   <!--  <Forbidden>                                                       -->
   <!--      <Class endsWith="Store" comment="Use a Repository instead."> -->
@@ -191,6 +393,132 @@
     <xs:attributeGroup ref="DocumentationAttributes" />
   </xs:complexType>
 
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!--  <NameRules>                                                       -->
+  <!--      <RequireMatchingNames allowedSites="Method, Local">          -->
+  <!--          <Name endsWith="Id" />                                    -->
+  <!--          <Allow from="legacyCustomerId" to="customerId" />         -->
+  <!--      </RequireMatchingNames>                                       -->
+  <!--  </NameRules>                                                      -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+  <xs:complexType name="NameRulesType">
+    <xs:annotation>
+      <xs:documentation>
+        Layer-scoped value-name policies. NameRules apply to callers classified into the
+        layer that contains this element and to callers in descendant layers. They do not
+        create dependency edges; they check whether named values are passed or assigned into
+        differently named targets at supported dependency sites.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="1" maxOccurs="unbounded">
+      <xs:element name="RequireMatchingNames" type="RequireMatchingNamesType" />
+      <xs:element name="RequireDeclarationNameMatchesType" type="RequireDeclarationNameMatchesTypeType" />
+    </xs:choice>
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="RequireMatchingNamesType">
+    <xs:annotation>
+      <xs:documentation>
+        Requires the normalized source and target names to match when the configured name
+        matchers apply. Name, Source, and Target use the same matcher attributes as Class.
+        allowedSites and blockedSites scope where this requirement is enforced.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="Name"   type="NameMatchType" />
+      <xs:element name="Source" type="NameMatchType" />
+      <xs:element name="Target" type="NameMatchType" />
+      <xs:element name="Allow"  type="NameRuleAllowType" />
+    </xs:choice>
+    <xs:attribute name="allowedSites" type="xs:string" />
+    <xs:attribute name="blockedSites" type="xs:string" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="RequireDeclarationNameMatchesTypeType">
+    <xs:annotation>
+      <xs:documentation>
+        Requires a declaration identifier to match its semantic type name after NameRules
+        normalization. Type selects declared semantic types and Name selects declaration
+        identifiers. Supported declaration sites are Constructor, Method, MethodReturn,
+        Field, Property, and Local.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="Type" type="NameMatchType" />
+      <xs:element name="Name" type="NameMatchType" />
+      <xs:element name="Allow" type="DeclarationNameRuleAllowType" />
+    </xs:choice>
+    <xs:attribute name="allowedSites" type="xs:string" />
+    <xs:attribute name="blockedSites" type="xs:string" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="DeclarationNameRuleAllowType">
+    <xs:annotation>
+      <xs:documentation>
+        Permits one intentional type-to-declaration-name translation. Use from/to for exact
+        matching, or Type and Name child elements for the full matcher attribute set.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="Type" type="NameMatchType" />
+      <xs:element name="Name" type="NameMatchType" />
+    </xs:choice>
+    <xs:attribute name="from" type="xs:string" />
+    <xs:attribute name="to" type="xs:string" />
+    <xs:attribute name="allowedSites" type="xs:string" />
+    <xs:attribute name="blockedSites" type="xs:string" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="NameRuleAllowType">
+    <xs:annotation>
+      <xs:documentation>
+        Permits one intentional source-to-target name translation for the containing
+        RequireMatchingNames rule. Use from/to for exact-name convenience, or Source and
+        Target child elements for the full matcher attribute set. allowedSites and
+        blockedSites scope where the mapping is valid.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="Source" type="NameMatchType" />
+      <xs:element name="Target" type="NameMatchType" />
+    </xs:choice>
+    <xs:attribute name="from" type="xs:string" />
+    <xs:attribute name="to" type="xs:string" />
+    <xs:attribute name="allowedSites" type="xs:string" />
+    <xs:attribute name="blockedSites" type="xs:string" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="NameMatchType">
+    <xs:annotation>
+      <xs:documentation>
+        Matches a value-name subject by one or more conjunctive matcher attributes. The
+        subject string is the best semantic name for a source or target, such as customerId,
+        fruitId, or Customer.Id. Semantic matcher attributes such as typeKind evaluate the
+        value type when Roslyn can resolve it.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attributeGroup ref="MatchAttributes" />
+    <xs:attribute name="typeName" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Exact value-name match. Synonym of exactName for NameRules.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="typeKind" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          Optional case-insensitive value-type constraint. Supported values: Class,
+          Interface, Struct, Record, RecordStruct, Enum, Delegate.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
   <!-- ── Shared match attributes ───────────────────────────────────────── -->
 
   <xs:attributeGroup name="MatchAttributes">
@@ -203,7 +531,8 @@
           withAccessModifier, typeKind, endsWith, startsWith, contains, regex.
 
         Note: exactFullName, inherits, implements, withAttribute, withAccessModifier and
-        typeKind only apply to &lt;Class&gt; elements.
+        typeKind apply to &lt;Class&gt; elements and to NameRules value-name matchers when a
+        semantic value type is available.
       </xs:documentation>
     </xs:annotation>
     <xs:attribute name="endsWith" type="xs:string">
@@ -288,6 +617,30 @@
       </xs:annotation>
     </xs:attribute>
     <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:attributeGroup>
+
+  <xs:attributeGroup name="ExceptionMetadataAttributes">
+    <xs:attribute name="reason" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          Optional human-readable reason for the exception. May be required by ExceptionPolicy.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="owner" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          Optional owner responsible for removing the exception. May be required by ExceptionPolicy.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="expiresOn" type="xs:date">
+      <xs:annotation>
+        <xs:documentation>
+          Optional UTC calendar date in yyyy-MM-dd format after which the exception expires.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- ── Class matching ────────────────────────────────────────────────── -->
@@ -405,6 +758,30 @@
     <xs:attributeGroup ref="DocumentationAttributes" />
   </xs:complexType>
 
+  <xs:complexType name="ExceptionClassMatchType">
+    <xs:complexContent>
+      <xs:extension base="ClassMatchType">
+        <xs:attributeGroup ref="ExceptionMetadataAttributes" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ExceptionNamespaceType">
+    <xs:complexContent>
+      <xs:extension base="NamespaceMatchType">
+        <xs:attributeGroup ref="ExceptionMetadataAttributes" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ExceptionAssemblyType">
+    <xs:complexContent>
+      <xs:extension base="AssemblyMatchType">
+        <xs:attributeGroup ref="ExceptionMetadataAttributes" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
   <xs:simpleType name="LayerNameType">
     <xs:restriction base="xs:string">
       <xs:minLength value="1" />
@@ -426,8 +803,9 @@
       </xs:documentation>
     </xs:annotation>
     <xs:choice minOccurs="0" maxOccurs="unbounded">
-      <xs:element name="Class"     type="ClassMatchType" />
-      <xs:element name="Namespace" type="NamespaceMatchType" />
+      <xs:element name="Class"     type="ExceptionClassMatchType" />
+      <xs:element name="Namespace" type="ExceptionNamespaceType" />
+      <xs:element name="Assembly"  type="ExceptionAssemblyType" />
     </xs:choice>
     <xs:attributeGroup ref="DocumentationAttributes" />
   </xs:complexType>
@@ -515,6 +893,115 @@
     <xs:attribute name="allowedSites" type="xs:string" />
     <xs:attribute name="blockedSites" type="xs:string" />
     <xs:attribute name="appliesToDescendants" type="xs:boolean" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="ProjectArchitectureType">
+    <xs:annotation>
+      <xs:documentation>
+        Declares flat project-topology groups and allowed or blocked project-reference edges.
+        This is separate from type layers and is intended for project-level architecture rules.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="ProjectGroup" type="ProjectGroupType" />
+      <xs:element name="AllowedProjectReference" type="ProjectReferenceRuleType" />
+      <xs:element name="BlockedProjectReference" type="ProjectReferenceRuleType" />
+      <xs:element name="PackagePolicy" type="PackagePolicyType" />
+    </xs:choice>
+    <xs:attribute name="requireRecognizedProjects" type="xs:boolean" default="false" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="ProjectGroupType">
+    <xs:annotation>
+      <xs:documentation>
+        Defines a named project group. Child Project matchers use only textual name matching
+        against the project file name without the .csproj extension.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="1" maxOccurs="unbounded">
+      <xs:element name="Project" type="ProjectMatchType" />
+    </xs:choice>
+    <xs:attribute name="name" type="xs:string" use="required" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="ProjectMatchType">
+    <xs:annotation>
+      <xs:documentation>
+        Matches a project by one or more conjunctive textual matcher attributes:
+        typeName, exactName, startsWith, endsWith, contains, or regex.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="typeName" type="xs:string" />
+    <xs:attribute name="exactName" type="xs:string" />
+    <xs:attribute name="startsWith" type="xs:string" />
+    <xs:attribute name="endsWith" type="xs:string" />
+    <xs:attribute name="contains" type="xs:string" />
+    <xs:attribute name="regex" type="xs:string" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="ProjectReferenceRuleType">
+    <xs:annotation>
+      <xs:documentation>
+        Declares an allowed or blocked project-reference edge between project groups. Use *
+        as from or to to match any configured project group.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="from" type="xs:string" use="required" />
+    <xs:attribute name="to" type="xs:string" use="required" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="PackagePolicyType">
+    <xs:annotation>
+      <xs:documentation>
+        Declares package allowlist and blocklist rules for one ProjectGroup. Allowed and
+        Forbidden child containers use Package matchers against the NuGet package ID. Set
+        includeTransitive="true" to evaluate transitive resolved packages as well as direct
+        PackageReference entries.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="1" maxOccurs="unbounded">
+      <xs:element name="Allowed" type="PackageAllowedContainerType" />
+      <xs:element name="Forbidden" type="PackageForbiddenContainerType" />
+    </xs:choice>
+    <xs:attribute name="projectGroup" type="xs:string" use="required" />
+    <xs:attribute name="includeTransitive" type="xs:boolean" default="false" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="PackageAllowedContainerType">
+    <xs:choice minOccurs="1" maxOccurs="unbounded">
+      <xs:element name="Package" type="PackageMatchType" />
+    </xs:choice>
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="PackageForbiddenContainerType">
+    <xs:choice minOccurs="1" maxOccurs="unbounded">
+      <xs:element name="Package" type="PackageMatchType" />
+    </xs:choice>
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="PackageMatchType">
+    <xs:annotation>
+      <xs:documentation>
+        Matches a NuGet package ID using one or more conjunctive textual matcher attributes:
+        typeName, exactName, startsWith, endsWith, contains, or regex. Matching is
+        case-insensitive.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="typeName" type="xs:string" />
+    <xs:attribute name="exactName" type="xs:string" />
+    <xs:attribute name="startsWith" type="xs:string" />
+    <xs:attribute name="endsWith" type="xs:string" />
+    <xs:attribute name="contains" type="xs:string" />
+    <xs:attribute name="regex" type="xs:string" />
+    <xs:attribute name="comment" type="xs:string" />
     <xs:attributeGroup ref="DocumentationAttributes" />
   </xs:complexType>
 

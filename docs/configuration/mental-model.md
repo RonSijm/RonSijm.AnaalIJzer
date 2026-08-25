@@ -1,6 +1,6 @@
 ## Configuration mental model
 
-The settings are not one large list of competing rules. They answer four different questions, in order. Imagine that every type is a person entering a restaurant: first the analyzer gives them a job badge, then checks whether that kind of person is permitted, then checks who their role may depend on, and finally checks how that dependency is used in code.
+The settings are not one large list of competing rules. They answer six different questions. Imagine that every type is a person entering a restaurant: the analyzer gives them a job badge, checks whether that kind of person and their public visibility are permitted, checks who their role may depend on and how, then checks whether important names keep their meaning.
 
 ### 1. What role does this type have?
 
@@ -21,7 +21,13 @@ An [`<Exceptions>`](#exceptions) block tells one matcher to ignore a particular 
 
 These policies can be global or scoped to a layer. Scoped policies are inherited by nested layers, so a `Restaurant/Kitchen` policy also applies to `Restaurant/Kitchen/Chef`.
 
-### 3. Which roles may depend on which?
+### 3. Is this declaration visible to the right audience?
+
+[`<VisibilityPolicy>`](#visibility-policies) restricts whether types and members in a layer may be `public`, `internal`, `private`, and so on. It checks the declaration itself, not a dependency relationship. For example, a repository query surface can be required to remain `internal` even when the repository is allowed to use it.
+
+`<Allowed>` and `<VisibilityPolicy allowedAccessibilities="...">` are different allowlists: the first permits dependency **types**, while the second permits declared **accessibilities**.
+
+### 4. Which roles may depend on which?
 
 [`<AllowedDependency>`](#alloweddependency) permits one layer to depend on another. In the restaurant model, `Waiter --> Chef` means a `Waiter` type may hold or introduce a reference to a `Chef` type. It describes a permitted code dependency, not the runtime order in which people speak or data moves.
 
@@ -29,7 +35,7 @@ These policies can be global or scoped to a layer. Scoped policies are inherited
 
 Wildcards are only shorthand for “any layer.” For example, `from="*"` means any source layer. A wildcard does not bypass a `<Forbidden>` type policy, a `<BlockedDependency>`, or a denial at a parent boundary.
 
-### 4. Where may the dependency appear?
+### 5. Where may the dependency appear?
 
 An allowed relationship can be narrowed to particular [dependency sites](#site-filters) - the different ways one type can keep, receive, create, or expose another type.
 
@@ -40,6 +46,12 @@ An allowed relationship can be narrowed to particular [dependency sites](#site-f
 
 `allowedSites` is a site allowlist: only the named sites are permitted. `blockedSites` is a site denylist: every site except the named sites is permitted. They are mutually exclusive on one dependency edge.
 
+### 6. Do important value names still mean the same thing?
+
+[`<NameRules>`](#namerules) are layer-scoped semantic-name policies. They can protect primitive value movement such as `customerId` versus `orderId`, or require a declaration such as `PatientId patientId` to agree with its semantic type.
+
+A `NameRules` policy can require names to match at selected sites, then allow narrow translations where they are intentional. For example, a `Waiter` layer might allow `reservationCustomerId` to become `customerId` only while constructing an order ticket, but still reject passing `animalId` into a `customerId` parameter.
+
 ### Similar names, different jobs
 
 | Pair | Difference |
@@ -49,10 +61,12 @@ An allowed relationship can be narrowed to particular [dependency sites](#site-f
 | `<Exceptions>` / allowed dependencies | A matcher that ignores a type versus architectural permission to depend on a layer |
 | `allowedSites` / `blockedSites` | Only these code locations are permitted versus every code location except these |
 | Nested layers / nested exceptions | Cumulative architectural boundaries versus alternating exclusion and re-inclusion for one matcher |
+| `<AllowedDependency>` / `<NameRules><Allow>` | Permission between layers versus permission for one intentional value-name translation |
+| `<Allowed>` / `<VisibilityPolicy>` | Permitted dependency types versus permitted declaration accessibilities |
 
 ### Rule precedence
 
-The analyzer evaluates a discovered dependency through this pipeline. The numbered boxes are evaluation stages; the connector lines are deliberately not architecture dependency arrows.
+The analyzer evaluates dependency-related rules through this pipeline. Visibility policies independently evaluate declarations after their layer is known. The numbered boxes are evaluation stages; the connector lines are deliberately not architecture dependency arrows.
 
 ```mermaid
 flowchart TD
@@ -61,13 +75,15 @@ flowchart TD
     Boundaries["3. Check every boundary<br/>Outermost to innermost"]
     Edges["4. Check dependency rules<br/>Blocked, then AllowedDependency"]
     Sites["5. Check the dependency site"]
-    Result["6. Permit the dependency<br/>or report ARCH00X"]
+    Names["6. Check NameRules<br/>For named value movements"]
+    Result["7. Permit the code<br/>or report ARCH00X"]
 
     Classify --- TypePolicy
     TypePolicy --- Boundaries
     Boundaries --- Edges
     Edges --- Sites
-    Sites --- Result
+    Sites --- Names
+    Names --- Result
 ```
 
 More precisely:
@@ -80,7 +96,8 @@ More precisely:
 6. At least one matching `<AllowedDependency>` must permit the current dependency site.
 7. Wildcards participate as ordinary matching edges; they receive no special power over blocks or type policies.
 8. If a dependency type does not match a layer and its current site is listed by root-level or caller-layer `requireRecognizedDependencies`, report ARCH002.
+9. For named value movements inside the caller layer, apply inherited `<NameRules>`. A mismatch without a matching `<Allow>` mapping reports ARCH008.
 
-The important distinction is that `<Allowed>` cannot create an architecture edge, `<AllowedDependency>` cannot approve a forbidden type, and `<Exceptions>` does not create a narrow allowed edge - it changes whether one matcher applies at all. Each feature answers a different question.
+The important distinction is that `<Allowed>` cannot create an architecture edge, `<AllowedDependency>` cannot approve a forbidden type, `<Exceptions>` does not create a narrow allowed edge, and `<NameRules><Allow>` does not permit a type dependency - it only permits one value-name translation. Each feature answers a different question.
 
 ---

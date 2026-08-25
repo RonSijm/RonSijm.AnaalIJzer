@@ -14,7 +14,7 @@ arse report --project src\MyApp\MyApp.csproj --force
 arse report --solution src\MyApp.slnx --output docs\architectural-violations.md --force
 ```
 
-The violation report groups code dependency violations by diagnostic ID (ARCH001/002/003/004/005) and, for ARCH002, includes a **Suggested Configuration** block with `<Layer>` and `<AllowedDependency>` snippets that would resolve the unrecognized dependencies it found. Use `--project` for one assembly or `--solution` when the architecture is enforced across multiple projects. Configuration findings and cycles belong in the `inspect` health report.
+The violation report groups code dependency and name-rule violations by diagnostic ID (ARCH001/002/003/004/005/008) and, for ARCH002, includes a **Suggested Configuration** block with `<Layer>` and `<AllowedDependency>` snippets that would resolve the unrecognized dependencies it found. Use `--project` for one assembly or `--solution` when the architecture is enforced across multiple projects. Configuration findings and cycles belong in the `inspect` health report.
 
 - **CI dashboards** - commit the report as a build artifact and diff it across runs to track architectural drift.
 - **Onboarding** - point new contributors at a single file that summarizes the project's layering health.

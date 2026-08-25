@@ -4,10 +4,10 @@ using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.Utilities;
 using RonSijm.AnaalIJzer.VisualStudio.Diagnostics;
-using RonSijm.AnaalIJzer.VisualStudio.LayerIndicators;
-using RonSijm.AnaalIJzer.VisualStudio.Snapshots;
+using RonSijm.AnaalIJzer.VisualStudio.Editor.LayerIndicators;
+using RonSijm.AnaalIJzer.VisualStudio.Editor.Snapshots;
 
-namespace RonSijm.AnaalIJzer.VisualStudio.Tags;
+namespace RonSijm.AnaalIJzer.VisualStudio.Editor.Tags;
 
 [Export(typeof(IViewTaggerProvider))]
 [Name("AnaalIJzer Architecture Tags")]

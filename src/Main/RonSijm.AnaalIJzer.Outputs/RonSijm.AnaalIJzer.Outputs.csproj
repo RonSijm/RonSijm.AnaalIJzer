@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <EnableArchitecturalLevelAnalyzer>false</EnableArchitecturalLevelAnalyzer>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Diagnostics\RonSijm.AnaalIJzer.Diagnostics.csproj" />
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Exceptions\RonSijm.AnaalIJzer.Core.Exceptions.csproj" />
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.LayerModel\RonSijm.AnaalIJzer.Core.LayerModel.csproj" />
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.RuntimeConfig\RonSijm.AnaalIJzer.Core.RuntimeConfig.csproj" />
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Indicators\RonSijm.AnaalIJzer.Core.Indicators.csproj" />
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Violations\RonSijm.AnaalIJzer.Core.Violations.csproj" />
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Findings\RonSijm.AnaalIJzer.Core.Findings.csproj" />
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.GraphModel\RonSijm.AnaalIJzer.GraphModel.csproj" />
+  </ItemGroup>
+
+</Project>

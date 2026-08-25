@@ -1,5 +1,4 @@
 @namespace RonSijm.AnaalIJzer.Arse.Components
-@inject ToolRunner ToolRunner
 @using System.Globalization
 @using System.Text
 
@@ -26,12 +25,12 @@
 			<Columns>
 				<ArseButton Content="Run"
 				              OnClick="RunFileAssociationAsync"
-				              FocusOrder="1"
+				              FocusOrder="0"
 				              BackgroundColor="@Color.Grey23"
 				              FocusedColor="@Color.DeepSkyBlue1" />
 				<ArseButton Content="Back"
 				              OnClick="Clear"
-				              FocusOrder="2"
+				              FocusOrder="1"
 				              BackgroundColor="@Color.Grey23"
 				              FocusedColor="@Color.Grey50" />
 			</Columns>
@@ -45,11 +44,54 @@
 			</Panel>
 		}
 	}
-	else if (operation.Kind == ToolOperationKind.Inspect && _inspectionReport is not null)
+	else if (operation.Kind == ApplicationOperationKind.Inspect && _inspectionReport is not null)
 	{
 		<Markup Content="@operation.DisplayName" Foreground="@Color.White" Decoration="@Decoration.Bold" />
 		<Markup Content="@_inspectionSummary" Foreground="@_inspectionColor" />
 		<Newline />
+
+		@if (HasInspectionExceptionFindings)
+		{
+			<Panel Title="ARCH017 filters" Border="@BoxBorder.Rounded" BorderColor="@Color.DarkOrange" Expand="true">
+				<Columns>
+					<ArseButton Content="@GetInspectionExceptionFilterLabel("Invalid")"
+					              OnClick="@(() => ToggleInspectionExceptionFilter("Invalid"))"
+					              FocusOrder="0"
+					              BackgroundColor="@Color.Grey23"
+					              FocusedColor="@Color.DarkOrange" />
+					<ArseButton Content="@GetInspectionExceptionFilterLabel("ExpiringSoon")"
+					              OnClick="@(() => ToggleInspectionExceptionFilter("ExpiringSoon"))"
+					              FocusOrder="0"
+					              BackgroundColor="@Color.Grey23"
+					              FocusedColor="@Color.DarkOrange" />
+					<ArseButton Content="@GetInspectionExceptionFilterLabel("Expired")"
+					              OnClick="@(() => ToggleInspectionExceptionFilter("Expired"))"
+					              FocusOrder="0"
+					              BackgroundColor="@Color.Grey23"
+					              FocusedColor="@Color.DarkOrange" />
+					<ArseButton Content="@GetInspectionExceptionFilterLabel("Stale")"
+					              OnClick="@(() => ToggleInspectionExceptionFilter("Stale"))"
+					              FocusOrder="0"
+					              BackgroundColor="@Color.Grey23"
+					              FocusedColor="@Color.DarkOrange" />
+				</Columns>
+				<Newline />
+				@if (FilteredInspectionExceptionFindings.Length == 0)
+				{
+					<Markup Content="No ARCH017 findings match the current filter." Foreground="@Color.Grey70" />
+				}
+				else
+				{
+					@foreach (var finding in FilteredInspectionExceptionFindings)
+					{
+						<Markup Content="@Spectre.Console.Markup.Escape($"[{finding.State}] {finding.Message}")" Foreground="@Color.Yellow" />
+						<Markup Content="@Spectre.Console.Markup.Escape(finding.Context)" Foreground="@Color.Grey70" />
+						<Newline />
+					}
+				}
+			</Panel>
+			<Newline />
+		}
 
 		<ViewHeightScrollable LinesToRender="20" Context="scrollContext">
 			<div data-focusable="true"
@@ -123,7 +165,6 @@
 			        Options="@CurrentInputOptions"
 			        Value="@_selectedInput"
 			        ValueChanged="OnInputChanged"
-			        data-focus-order="1"
 			        @onkeyup="OnFormKeyUp"
 			        Expand="true" />
 		}
@@ -143,18 +184,17 @@
 			           Value="@_configuration"
 			           ValueChanged="OnConfigurationChanged"
 			           Placeholder="Release"
-			           FocusOrder="2"
+			           FocusOrder="1"
 			           @onkeyup="OnFormKeyUp"
 			           Expand="true" />
 		}
 
-		@if (operation.Kind == ToolOperationKind.GenerateConfig)
+		@if (operation.Kind == ApplicationOperationKind.GenerateConfig)
 		{
 			<Select TItem="string"
 			        Options="@GenerationStrategyOptions"
 			        Value="@_generationStrategy"
 			        ValueChanged="OnGenerationStrategyChanged"
-			        data-focus-order="3"
 			        @onkeyup="OnFormKeyUp"
 			        Expand="true" />
 
@@ -164,7 +204,7 @@
 				           Value="@_minimumConfidence"
 				           ValueChanged="OnMinimumConfidenceChanged"
 				           Placeholder="0.90"
-				           FocusOrder="4"
+				           FocusOrder="@MinimumConfidenceFocusOrder(input)"
 				           @onkeyup="OnFormKeyUp"
 				           Expand="true" />
 
@@ -172,7 +212,7 @@
 				           Value="@_minimumSupport"
 				           ValueChanged="OnMinimumSupportChanged"
 				           Placeholder="5"
-				           FocusOrder="5"
+				           FocusOrder="@MinimumSupportFocusOrder(input)"
 				           @onkeyup="OnFormKeyUp"
 				           Expand="true" />
 			}
@@ -181,7 +221,6 @@
 			        Options="@GeneratedDocumentationOptions"
 			        Value="@_generatedDocumentation"
 			        ValueChanged="OnGeneratedDocumentationChanged"
-			        data-focus-order="6"
 			        @onkeyup="OnFormKeyUp"
 			        Expand="true" />
 
@@ -191,21 +230,19 @@
 				        Options="@InputInclusionOptions"
 				        Value="@_inputInclusion"
 				        ValueChanged="OnInputInclusionChanged"
-				        data-focus-order="7"
 				        @onkeyup="OnFormKeyUp"
 				        Expand="true" />
 			}
 		}
 
-		@if (operation.Kind == ToolOperationKind.Documentation)
+		@if (operation.Kind == ApplicationOperationKind.Documentation)
 		{
-			@if (input.Kind == ToolInputKind.Project)
+			@if (input.Kind == ApplicationInputKind.Project)
 			{
 				<Select TItem="string"
 				        Options="@CodeEvidenceOptions"
 				        Value="@_codeEvidence"
 				        ValueChanged="OnCodeEvidenceChanged"
-				        data-focus-order="3"
 				        @onkeyup="OnFormKeyUp"
 				        Expand="true" />
 			}
@@ -214,19 +251,18 @@
 			        Options="@InputInclusionOptions"
 			        Value="@_inputInclusion"
 			        ValueChanged="OnInputInclusionChanged"
-			        data-focus-order="4"
 			        @onkeyup="OnFormKeyUp"
 			        Expand="true" />
 		}
 
-		@if (operation.Kind != ToolOperationKind.Inspect)
+		@if (operation.Kind != ApplicationOperationKind.Inspect)
 		{
-			<FileSelector Label="@(operation.OutputKind == ToolOutputKind.Directory ? "Output directory" : "Output")"
+			<FileSelector Label="@(operation.OutputKind == ApplicationOutputKind.Directory ? "Output directory" : "Output")"
 			              Value="@_outputPath"
 			              ValueChanged="OnOutputPathChanged"
-			              Placeholder="@(operation.OutputKind == ToolOutputKind.Directory ? "Use a config-local directory" : "Use configured default")"
-			              FocusOrder="8"
-			              SelectionMode="@(operation.OutputKind == ToolOutputKind.Directory ? PathSelectionMode.Directory : PathSelectionMode.File)"
+			              Placeholder="@(operation.OutputKind == ApplicationOutputKind.Directory ? "Use a config-local directory" : "Use configured default")"
+			              FocusOrder="@OutputFocusOrder(operation, input)"
+			              SelectionMode="@(operation.OutputKind == ApplicationOutputKind.Directory ? PathSelectionMode.Directory : PathSelectionMode.File)"
 			              FileExtensions="@CurrentOutputFileExtensions"
 			              OnKeyUp="OnFormKeyUp" />
 
@@ -234,7 +270,6 @@
 			        Options="@OverwriteOptions"
 			        Value="@_overwrite"
 			        ValueChanged="OnOverwriteChanged"
-			        data-focus-order="9"
 			        @onkeyup="OnFormKeyUp"
 			        Expand="true" />
 		}
@@ -244,13 +279,13 @@
 			<ArseButton Content="Run"
 			              OnClick="RunAsync"
 			              OnKeyUp="OnFormKeyUp"
-			              FocusOrder="10"
+			              FocusOrder="@RunFocusOrder(operation, input)"
 			              BackgroundColor="@Color.Grey23"
 			              FocusedColor="@Color.DeepSkyBlue1" />
 			<ArseButton Content="Clear"
 			              OnClick="Clear"
 			              OnKeyUp="OnFormKeyUp"
-			              FocusOrder="11"
+			              FocusOrder="@ClearFocusOrder(operation, input)"
 			              BackgroundColor="@Color.Grey23"
 			              FocusedColor="@Color.Grey50" />
 		</Columns>

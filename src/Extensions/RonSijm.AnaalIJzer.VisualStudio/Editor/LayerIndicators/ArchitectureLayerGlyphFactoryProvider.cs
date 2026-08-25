@@ -4,9 +4,9 @@ using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Formatting;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.Utilities;
-using RonSijm.AnaalIJzer.VisualStudio.Tags;
+using RonSijm.AnaalIJzer.VisualStudio.Editor.Tags;
 
-namespace RonSijm.AnaalIJzer.VisualStudio.LayerIndicators;
+namespace RonSijm.AnaalIJzer.VisualStudio.Editor.LayerIndicators;
 
 [Export(typeof(IGlyphFactoryProvider))]
 [Name("AnaalIJzerLayerGlyph")]

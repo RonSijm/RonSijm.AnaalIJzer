@@ -39,7 +39,18 @@ internal static class Program
 			return;
 		}
 
-		var app = new Application();
+		if (args.Any(argument => string.Equals(argument, "--unassociate-anl", StringComparison.OrdinalIgnoreCase)))
+		{
+			var changed = AnaalIJzerFileAssociation.UnassociateAnlFiles(logger);
+			MessageBox.Show(
+				changed ? ".anl files are no longer associated with the AnaalIJzer Graph Editor." : ".anl files were not associated with the AnaalIJzer Graph Editor.",
+				"AnaalIJzer Graph Editor",
+				MessageBoxButton.OK,
+				MessageBoxImage.Information);
+			return;
+		}
+
+		var app = new System.Windows.Application();
 		RegisterExceptionLogging(app, logger);
 		try
 		{
@@ -76,7 +87,7 @@ internal static class Program
 			return;
 		}
 
-		var app = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
+		var app = new System.Windows.Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
 		RegisterExceptionLogging(app, logger);
 		var previousSynchronizationContext = SynchronizationContext.Current;
 		SynchronizationContext.SetSynchronizationContext(null);
@@ -97,7 +108,7 @@ internal static class Program
 		}
 	}
 
-	private static void RegisterExceptionLogging(Application app, ILogger logger)
+	private static void RegisterExceptionLogging(System.Windows.Application app, ILogger logger)
 	{
 		app.DispatcherUnhandledException += (_, args) =>
 		{

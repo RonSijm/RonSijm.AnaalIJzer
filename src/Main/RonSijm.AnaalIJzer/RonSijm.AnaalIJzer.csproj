@@ -8,6 +8,9 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <!-- Release-tracking analyzers do not follow SupportedDiagnostics across the extracted
+             diagnostics assembly, so RS2002/RS2003 are false positives after the shared split. -->
+        <NoWarn>$(NoWarn);RS2002;RS2003</NoWarn>
         <!-- The analyzer project should not analyze itself -->
         <EnableArchitecturalLevelAnalyzer>false</EnableArchitecturalLevelAnalyzer>
         <!-- Keep AssemblyVersion stable so the VSIX-bundled copy of this DLL always has a
@@ -37,26 +40,81 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Remove="ArchitecturalLevelAnalyzer.cs" />
+        <Compile Remove="ArchitecturalLevelAnalyzer.ConfigurationLocations.cs" />
+        <Compile Remove="ArchitecturalLevelAnalyzer.ConfigurationReporting.cs" />
+        <Compile Remove="ArchitecturalLevelAnalyzer.ObservedCycles.cs" />
+        <Compile Remove="Analysis\**\*.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Diagnostics\RonSijm.AnaalIJzer.Diagnostics.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Engine\RonSijm.AnaalIJzer.Engine.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="RonSijm.AnaalIJzer.Workspace" />
+        <InternalsVisibleTo Include="RonSijm.AnaalIJzer.Core.Configuration.Compilation.Tests" />
+    </ItemGroup>
+
+    <ItemGroup>
         <None Include="..\..\..\README.md" Pack="true" PackagePath="\" />
         <None Include="..\..\..\build\Settings\icon.png" Pack="true" PackagePath="\" Visible="false" />
+        <None Include="..\..\..\build\Settings\RonSijm.AnaalIJzer.props" Pack="true" PackagePath="buildTransitive\RonSijm.AnaalIJzer.props" Visible="false" />
+        <None Include="..\..\..\build\Settings\RonSijm.AnaalIJzer.targets" Pack="true" PackagePath="buildTransitive\RonSijm.AnaalIJzer.targets" Visible="false" />
         <None Remove="bin\Debug\netstandard2.0\\RonSijm.AnaalIJzer.dll" />
-        <!-- Place the DLL where Roslyn expects analyzers -->
-        <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
         <!-- Empty placeholder so NuGet sees a lib/netstandard2.0 folder for the declared TFM
              (silences NU5128 without shipping a runtime assembly the consumer shouldn't reference) -->
         <None Include="..\..\..\build\Settings\_._" Pack="true" PackagePath="lib\netstandard2.0\_._" Visible="false" />
     </ItemGroup>
 
     <ItemGroup>
-        <AdditionalFiles Include="AnalyzerReleases.Shipped.md" />
-        <AdditionalFiles Include="AnalyzerReleases.Unshipped.md" />
-        <EmbeddedResource Include="Scheme\AnaalIJzer.xsd" LogicalName="RonSijm.AnaalIJzer.AnaalIJzer.xsd" />
+        <AnalyzerPackageAssembly Include="
+            RonSijm.AnaalIJzer.Engine;
+            RonSijm.AnaalIJzer.Core.DependencyRules;
+            RonSijm.AnaalIJzer.Core.EntryPoints;
+            RonSijm.AnaalIJzer.Core.ApiSurface;
+            RonSijm.AnaalIJzer.Core.NameRules;
+            RonSijm.AnaalIJzer.Core.SourceLocations;
+            RonSijm.AnaalIJzer.Core.LayerModel;
+            RonSijm.AnaalIJzer.Core.PolicyEvaluation;
+            RonSijm.AnaalIJzer.Core.RuntimeConfig;
+            RonSijm.AnaalIJzer.Core.Visibility;
+            RonSijm.AnaalIJzer.Core.Contracts;
+            RonSijm.AnaalIJzer.Core.Inheritance;
+            RonSijm.AnaalIJzer.Core.Exceptions;
+            RonSijm.AnaalIJzer.Core.BuildMetadata;
+            RonSijm.AnaalIJzer.Core.Indicators;
+            RonSijm.AnaalIJzer.Core.Violations;
+            RonSijm.AnaalIJzer.Core.Findings;
+            RonSijm.AnaalIJzer.Diagnostics;
+            RonSijm.AnaalIJzer.Core.Observations;
+            RonSijm.AnaalIJzer.Core.ProjectArchitecture;
+            RonSijm.AnaalIJzer.Core.Configuration.Compilation;
+            RonSijm.AnaalIJzer.Core.Configuration.Document;
+            RonSijm.AnaalIJzer.Core.Matchers;
+            RonSijm.AnaalIJzer.GraphModel" />
+        <!-- Place the analyzer dependency DLLs where Roslyn expects analyzers. -->
+        <None Include="@(AnalyzerPackageAssembly -> '$(OutputPath)\%(Identity).dll')"
+              Pack="true"
+              PackagePath="analyzers/dotnet/cs"
+              Visible="false" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" />
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.11.0" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     </ItemGroup>
+
+    <Target Name="CopyAnalyzerDependencyAssemblies" AfterTargets="Build">
+        <ItemGroup>
+            <AnalyzerDependencyAssemblies Include="@(ReferenceCopyLocalPaths)"
+                                          Condition="'%(ReferenceCopyLocalPaths.ReferenceSourceTarget)' == 'ProjectReference'
+                                                     AND '%(ReferenceCopyLocalPaths.Extension)' == '.dll'" />
+        </ItemGroup>
+
+        <Copy SourceFiles="@(AnalyzerDependencyAssemblies)"
+              DestinationFolder="$(OutputPath)"
+              SkipUnchangedFiles="true" />
+    </Target>
 
 </Project>

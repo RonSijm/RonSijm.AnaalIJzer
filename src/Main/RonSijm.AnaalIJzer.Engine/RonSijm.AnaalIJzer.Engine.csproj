@@ -1,0 +1,62 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <Import Project="../../../build/Settings/NuGetVersioning.props" />
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <NoWarn>$(NoWarn);RS2002;RS2003</NoWarn>
+        <EnableArchitecturalLevelAnalyzer>false</EnableArchitecturalLevelAnalyzer>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="..\RonSijm.AnaalIJzer\ArchitecturalLevelAnalyzer.cs" />
+        <Compile Include="..\RonSijm.AnaalIJzer\ArchitecturalLevelAnalyzer.ConfigurationLocations.cs" />
+        <Compile Include="..\RonSijm.AnaalIJzer\ArchitecturalLevelAnalyzer.ConfigurationReporting.cs" />
+        <Compile Include="..\RonSijm.AnaalIJzer\ArchitecturalLevelAnalyzer.ObservedCycles.cs" />
+        <Compile Include="..\RonSijm.AnaalIJzer\Analysis\**\*.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <AdditionalFiles Include="..\RonSijm.AnaalIJzer\AnalyzerReleases.Shipped.md" />
+        <AdditionalFiles Include="..\RonSijm.AnaalIJzer\AnalyzerReleases.Unshipped.md" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.DependencyRules\RonSijm.AnaalIJzer.Core.DependencyRules.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.EntryPoints\RonSijm.AnaalIJzer.Core.EntryPoints.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.ApiSurface\RonSijm.AnaalIJzer.Core.ApiSurface.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.NameRules\RonSijm.AnaalIJzer.Core.NameRules.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.SourceLocations\RonSijm.AnaalIJzer.Core.SourceLocations.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.LayerModel\RonSijm.AnaalIJzer.Core.LayerModel.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.PolicyEvaluation\RonSijm.AnaalIJzer.Core.PolicyEvaluation.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.RuntimeConfig\RonSijm.AnaalIJzer.Core.RuntimeConfig.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Visibility\RonSijm.AnaalIJzer.Core.Visibility.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Contracts\RonSijm.AnaalIJzer.Core.Contracts.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Inheritance\RonSijm.AnaalIJzer.Core.Inheritance.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Exceptions\RonSijm.AnaalIJzer.Core.Exceptions.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Indicators\RonSijm.AnaalIJzer.Core.Indicators.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Violations\RonSijm.AnaalIJzer.Core.Violations.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.BuildMetadata\RonSijm.AnaalIJzer.Core.BuildMetadata.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Findings\RonSijm.AnaalIJzer.Core.Findings.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Diagnostics\RonSijm.AnaalIJzer.Diagnostics.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Observations\RonSijm.AnaalIJzer.Core.Observations.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.ProjectArchitecture\RonSijm.AnaalIJzer.Core.ProjectArchitecture.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Configuration.Compilation\RonSijm.AnaalIJzer.Core.Configuration.Compilation.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Configuration.Document\RonSijm.AnaalIJzer.Core.Configuration.Document.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Matchers\RonSijm.AnaalIJzer.Core.Matchers.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.GraphModel\RonSijm.AnaalIJzer.GraphModel.csproj"
+                          SetTargetFramework="TargetFramework=netstandard2.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.14.0" />
+    </ItemGroup>
+
+</Project>

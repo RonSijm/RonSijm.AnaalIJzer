@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using AwesomeAssertions;
 using RonSijm.AnaalIJzer.Graphing.Model;
 using RonSijm.AnaalIJzer.Graphing.ViewModels;
@@ -259,6 +259,43 @@ public sealed class ArchitectureGraphViewModelBuilderTests
 	}
 
 	[Fact]
+	public void Build_WhenEvidenceContainsTransitiveExposure_IncludesPathAndDepthInEdgeDescription()
+	{
+		var layers = ImmutableArray.Create(
+			new ArchitectureGraphLayer("Application", "Application", null, 0, 1, true),
+			new ArchitectureGraphLayer("QuerySurface", "QuerySurface", null, 0, 2, false));
+		var evidence = new ArchitectureGraphEvidence(
+			ImmutableArray<ArchitectureGraphTypeEvidence>.Empty,
+			ImmutableArray.Create(
+				new ArchitectureGraphDependencyEvidence(
+					"Application",
+					"QuerySurface",
+					"CandyService",
+					"LollyQueryable",
+					"Property",
+					"TypePolicyViolation",
+					"ARCH014",
+					"public contracts may not reveal query surfaces",
+					"CandyService.cs",
+					12,
+					"CandyService.OrderRaw -> CandyReceipt.RawQuery -> LollyQueryable",
+					1)));
+		var snapshot = new ArchitectureGraphSnapshot(
+			true,
+			false,
+			layers,
+			ImmutableArray<ArchitectureGraphRule>.Empty,
+			ImmutableArray.Create("Application"),
+			ImmutableArray<string>.Empty,
+			evidence: evidence);
+
+		var group = ArchitectureGraphViewModelBuilder.Build(snapshot, ArchitectureGraphFocusMode.ShowAll, includeEvidence: true).Should().ContainSingle().Subject;
+		var evidenceEdge = group.Edges.Should().ContainSingle(edge => edge.IsEvidence).Subject;
+
+		evidenceEdge.Description.Should().Contain("via CandyService.OrderRaw -> CandyReceipt.RawQuery -> LollyQueryable (depth 1)");
+	}
+
+	[Fact]
 	public void Build_WhenEvidenceDisabled_KeepsEvidenceOutOfGraph()
 	{
 		var layers = ImmutableArray.Create(
@@ -290,6 +327,39 @@ public sealed class ArchitectureGraphViewModelBuilderTests
 
 		groups.Should().HaveCount(2);
 		groups.Should().OnlyContain(group => group.Edges.All(edge => !edge.IsEvidence));
+	}
+
+	[Fact]
+	public void Build_PropagatesExceptionReviewCountsAndSummariesToNodesAndBoundaries()
+	{
+		var layers = ImmutableArray.Create(
+			new ArchitectureGraphLayer("Application", "Application", null, 0, 1, false),
+			new ArchitectureGraphLayer("Application/Contracts", "Contracts", null, 1, 2, true),
+			new ArchitectureGraphLayer("Application/Implementation", "Implementation", null, 1, 3, false));
+		var exceptionReviews = ImmutableArray.Create(
+			new ArchitectureGraphExceptionReview("Application/Contracts", "Class", "typeName=\"OrderContract\"", "Invalid", "Missing owner", null, null, null, "Architecture.anl", 10, 1),
+			new ArchitectureGraphExceptionReview("Application/Implementation", "Class", "typeName=\"OrderService\"", "Stale", "No longer matches code", null, "Team", "2026-08-30", "Architecture.anl", 14, 1));
+		var snapshot = new ArchitectureGraphSnapshot(
+			true,
+			false,
+			layers,
+			ImmutableArray<ArchitectureGraphRule>.Empty,
+			ImmutableArray.Create("Application/Contracts"),
+			ImmutableArray<string>.Empty,
+			exceptionReviews: exceptionReviews);
+
+		var group = ArchitectureGraphViewModelBuilder.Build(snapshot, ArchitectureGraphFocusMode.ShowAll).Should().ContainSingle().Subject;
+		var boundary = group.Boundaries.Should().ContainSingle().Subject;
+		var contracts = group.Nodes.Should().ContainSingle(node => node.Path == "Application/Contracts").Subject;
+		var implementation = group.Nodes.Should().ContainSingle(node => node.Path == "Application/Implementation").Subject;
+
+		boundary.ExceptionReviewCount.Should().Be(2);
+		boundary.ExceptionReviewSummaries.Should().Contain("[Invalid] Class typeName=\"OrderContract\"");
+		boundary.ExceptionReviewSummaries.Should().Contain("[Stale] Class typeName=\"OrderService\"");
+		contracts.ExceptionReviewCount.Should().Be(1);
+		contracts.ExceptionReviewSummaries.Should().ContainSingle().Which.Should().Be("[Invalid] Class typeName=\"OrderContract\"");
+		implementation.ExceptionReviewCount.Should().Be(1);
+		implementation.ExceptionReviewSummaries.Should().ContainSingle().Which.Should().Be("[Stale] Class typeName=\"OrderService\"");
 	}
 
 	private static ArchitectureGraphSnapshot CreateSnapshot()

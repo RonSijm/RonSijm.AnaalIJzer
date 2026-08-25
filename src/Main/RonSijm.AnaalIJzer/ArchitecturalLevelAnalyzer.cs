@@ -3,23 +3,24 @@ using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
-using RonSijm.AnaalIJzer.Parsing;
+using RonSijm.AnaalIJzer.Analysis.ApiSurface;
+using RonSijm.AnaalIJzer.Analysis.ApiSurface.Model;
+using RonSijm.AnaalIJzer.Analysis.ProjectArchitecture;
+using RonSijm.AnaalIJzer.Analysis.SourceLocations;
+using RonSijm.AnaalIJzer.Analysis.Visibility;
+using RonSijm.AnaalIJzer.Analysis.Inheritance;
+using RonSijm.AnaalIJzer.Config.Parsing;
+using RonSijm.AnaalIJzer.Contracts;
+using RonSijm.AnaalIJzer.Exceptions;
+using RonSijm.AnaalIJzer.ObservedDependencies;
 using RonSijm.AnaalIJzer.Violations;
 using AnalyzerConfig = RonSijm.AnaalIJzer.Model.AnalyzerConfig;
 
 namespace RonSijm.AnaalIJzer;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-public sealed class ArchitecturalLevelAnalyzer : DiagnosticAnalyzer
+public sealed partial class ArchitecturalLevelAnalyzer : DiagnosticAnalyzer
 {
-	// Forwarded for backward compatibility - tests and the code fix provider reference these.
-	internal const string PropertyMatchedSuffix = ArchitecturalDiagnostics.PropertyMatchedSuffix;
-	internal const string PropertyFixSuffix = ArchitecturalDiagnostics.PropertyFixSuffix;
-	internal const string PropertyRuleXmlLine = ArchitecturalDiagnostics.PropertyRuleXmlLine;
-	internal const string PropertyRuleXmlCol = ArchitecturalDiagnostics.PropertyRuleXmlCol;
-	internal const string PropertyRuleXmlPath = ArchitecturalDiagnostics.PropertyRuleXmlPath;
-	internal const string PropertyDepTypeName = ArchitecturalDiagnostics.PropertyDepTypeName;
-
 	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
 	[
 		ArchitecturalDiagnostics.IllegalDependency,
@@ -29,6 +30,18 @@ public sealed class ArchitecturalLevelAnalyzer : DiagnosticAnalyzer
 		ArchitecturalDiagnostics.SameLayerDependency,
 		ArchitecturalDiagnostics.InvalidConfiguration,
 		ArchitecturalDiagnostics.CyclicDependencyGraph,
+		ArchitecturalDiagnostics.NameRuleViolation,
+		ArchitecturalDiagnostics.ApiSurfaceLeakage,
+		ArchitecturalDiagnostics.ProjectReferenceViolation,
+		ArchitecturalDiagnostics.PackageReferenceViolation,
+		ArchitecturalDiagnostics.VisibilityPolicyViolation,
+		ArchitecturalDiagnostics.ContractPurityViolation,
+		ArchitecturalDiagnostics.InheritancePolicyViolation,
+		ArchitecturalDiagnostics.ForbiddenTransitiveExposure,
+		ArchitecturalDiagnostics.SourceLocationViolation,
+		ArchitecturalDiagnostics.BoundaryEntryPointViolation,
+		ArchitecturalDiagnostics.ExceptionReview,
+		ArchitecturalDiagnostics.ObservedDependencyCycle,
 	];
 
 	public override void Initialize(AnalysisContext context)
@@ -41,78 +54,75 @@ public sealed class ArchitecturalLevelAnalyzer : DiagnosticAnalyzer
 			var config = ArchitecturalConfigParser.Parse(compilationContext.Options.AdditionalFiles, compilationContext.Compilation, compilationContext.CancellationToken);
 			if (config.HasConfigurationIssues)
 			{
-				compilationContext.RegisterCompilationEndAction(context => ReportConfigurationIssues(context, config, compilationContext.Options.AdditionalFiles));
+				compilationContext.RegisterCompilationEndAction(reportContext => ReportConfigurationIssues(reportContext, config, compilationContext.Options.AdditionalFiles));
 			}
 
-			if (!config.HasLayers)
+			if (config.HasExceptionReviews)
+			{
+				compilationContext.RegisterCompilationEndAction(reportContext => ReportExceptionReviews(reportContext, config, compilationContext.Options.AdditionalFiles));
+			}
+
+			if (config.HasProjectArchitecture)
+			{
+				compilationContext.RegisterCompilationEndAction(reportContext => ProjectReferenceAnalyzer.AnalyzeCompilation(reportContext, config, compilationContext.Options.AdditionalFiles));
+			}
+
+			if (!config.Engine.HasLayers)
 			{
 				return;
 			}
 
 			var violations = new ConcurrentBag<ViolationRecord>();
+			var observedDependencies = config.EnforceObservedAcyclic ? new ObservedDependencyCollector() : null;
+			var buildProperties = AnalyzerBuildProperties.Read(compilationContext.Options.AnalyzerConfigOptionsProvider);
 
-			compilationContext.RegisterSyntaxNodeAction(ctx => LayerDependencyAnalyzer.AnalyzeConstructorDeclaration(ctx, config, violations), SyntaxKind.ConstructorDeclaration);
+			if (config.Engine.HasVisibilityPolicies)
+			{
+				var analyzedVisibilitySymbols = new ConcurrentDictionary<ISymbol, byte>(SymbolEqualityComparer.Default);
+				compilationContext.RegisterSymbolAction(symbolContext => VisibilityPolicyAnalyzer.AnalyzeSymbol(symbolContext, config, analyzedVisibilitySymbols), SymbolKind.NamedType, SymbolKind.Method, SymbolKind.Property, SymbolKind.Field, SymbolKind.Event);
+			}
 
-			compilationContext.RegisterSyntaxNodeAction(ctx => LayerDependencyAnalyzer.AnalyzeTypeDeclaration(ctx, config, violations), SyntaxKind.ClassDeclaration, SyntaxKind.StructDeclaration, SyntaxKind.InterfaceDeclaration, SyntaxKind.RecordDeclaration, SyntaxKind.RecordStructDeclaration);
+			if (config.Engine.HasContractPolicies)
+			{
+				var analyzedContractSymbols = new ConcurrentDictionary<ISymbol, byte>(SymbolEqualityComparer.Default);
+				compilationContext.RegisterSymbolAction(symbolContext => ContractPurityAnalyzer.AnalyzeSymbol(symbolContext, config, analyzedContractSymbols), SymbolKind.NamedType);
+			}
 
-			compilationContext.RegisterSyntaxNodeAction(ctx => LayerDependencyAnalyzer.AnalyzeMethodDeclaration(ctx, config, violations), SyntaxKind.MethodDeclaration);
+			if (config.Engine.HasInheritancePolicies)
+			{
+				var analyzedInheritanceSymbols = new ConcurrentDictionary<ISymbol, byte>(SymbolEqualityComparer.Default);
+				compilationContext.RegisterSymbolAction(symbolContext => InheritancePolicyAnalyzer.AnalyzeSymbol(symbolContext, config, analyzedInheritanceSymbols), SymbolKind.NamedType);
+			}
 
-			compilationContext.RegisterSyntaxNodeAction(ctx => LayerDependencyAnalyzer.AnalyzeFieldDeclaration(ctx, config, violations), SyntaxKind.FieldDeclaration);
+			if (config.Engine.HasApiSurfacePolicies)
+			{
+				var analyzedApiSurfaceSymbols = new ConcurrentDictionary<ISymbol, byte>(SymbolEqualityComparer.Default);
+				var transitiveMemberCache = new ConcurrentDictionary<INamedTypeSymbol, ImmutableArray<ExposureMemberTypeReference>>(SymbolEqualityComparer.Default);
+				compilationContext.RegisterSymbolAction(symbolContext => ApiSurfaceAnalyzer.AnalyzeSymbol(symbolContext, config, analyzedApiSurfaceSymbols, transitiveMemberCache), SymbolKind.NamedType, SymbolKind.Method, SymbolKind.Property, SymbolKind.Field, SymbolKind.Event);
+			}
 
-			compilationContext.RegisterSyntaxNodeAction(ctx => LayerDependencyAnalyzer.AnalyzePropertyDeclaration(ctx, config, violations), SyntaxKind.PropertyDeclaration);
+			if (config.Engine.HasSourceLocationPolicies)
+			{
+				var analyzedSourceLocationSymbols = new ConcurrentDictionary<ISymbol, byte>(SymbolEqualityComparer.Default);
+				compilationContext.RegisterSymbolAction(symbolContext => LayerSourceLocationAnalyzer.AnalyzeSymbol(symbolContext, config, buildProperties, analyzedSourceLocationSymbols), SymbolKind.NamedType);
+			}
 
-			compilationContext.RegisterSyntaxNodeAction(ctx => LayerDependencyAnalyzer.AnalyzeObjectCreation(ctx, config, violations), SyntaxKind.ObjectCreationExpression, SyntaxKind.ImplicitObjectCreationExpression);
-
-			compilationContext.RegisterSyntaxNodeAction(ctx => LayerDependencyAnalyzer.AnalyzeInvocation(ctx, config, violations), SyntaxKind.InvocationExpression);
-
-			compilationContext.RegisterSyntaxNodeAction(ctx => LayerDependencyAnalyzer.AnalyzeLocalDeclaration(ctx, config, violations), SyntaxKind.LocalDeclarationStatement);
-
-			compilationContext.RegisterSyntaxNodeAction(ctx => LayerDependencyAnalyzer.AnalyzeAttribute(ctx, config, violations), SyntaxKind.Attribute);
-
-			compilationContext.RegisterSyntaxNodeAction(ctx => LayerDependencyAnalyzer.AnalyzeStaticMemberAccess(ctx, config, violations), SyntaxKind.SimpleMemberAccessExpression);
+			compilationContext.RegisterSyntaxNodeAction(nodeContext => LayerDependencyAnalyzer.AnalyzeConstructorDeclaration(nodeContext, config, violations, observedDependencies), SyntaxKind.ConstructorDeclaration);
+			compilationContext.RegisterSyntaxNodeAction(nodeContext => LayerDependencyAnalyzer.AnalyzeTypeDeclaration(nodeContext, config, violations, observedDependencies), SyntaxKind.ClassDeclaration, SyntaxKind.StructDeclaration, SyntaxKind.InterfaceDeclaration, SyntaxKind.RecordDeclaration, SyntaxKind.RecordStructDeclaration);
+			compilationContext.RegisterSyntaxNodeAction(nodeContext => LayerDependencyAnalyzer.AnalyzeMethodDeclaration(nodeContext, config, violations, observedDependencies), SyntaxKind.MethodDeclaration);
+			compilationContext.RegisterSyntaxNodeAction(nodeContext => LayerDependencyAnalyzer.AnalyzeFieldDeclaration(nodeContext, config, violations, observedDependencies), SyntaxKind.FieldDeclaration);
+			compilationContext.RegisterSyntaxNodeAction(nodeContext => LayerDependencyAnalyzer.AnalyzePropertyDeclaration(nodeContext, config, violations, observedDependencies), SyntaxKind.PropertyDeclaration);
+			compilationContext.RegisterSyntaxNodeAction(nodeContext => LayerDependencyAnalyzer.AnalyzeObjectCreation(nodeContext, config, violations, observedDependencies), SyntaxKind.ObjectCreationExpression, SyntaxKind.ImplicitObjectCreationExpression);
+			compilationContext.RegisterSyntaxNodeAction(nodeContext => LayerDependencyAnalyzer.AnalyzeInvocation(nodeContext, config, violations, observedDependencies), SyntaxKind.InvocationExpression);
+			compilationContext.RegisterSyntaxNodeAction(nodeContext => LayerDependencyAnalyzer.AnalyzeLocalDeclaration(nodeContext, config, violations, observedDependencies), SyntaxKind.LocalDeclarationStatement);
+			compilationContext.RegisterSyntaxNodeAction(nodeContext => LayerDependencyAnalyzer.AnalyzeAttribute(nodeContext, config, violations, observedDependencies), SyntaxKind.Attribute);
+			compilationContext.RegisterSyntaxNodeAction(nodeContext => LayerDependencyAnalyzer.AnalyzeStaticMemberAccess(nodeContext, config, violations, observedDependencies), SyntaxKind.SimpleMemberAccessExpression);
+			compilationContext.RegisterSyntaxNodeAction(nodeContext => LayerDependencyAnalyzer.AnalyzeAssignmentExpression(nodeContext, config, violations), SyntaxKind.SimpleAssignmentExpression);
+			compilationContext.RegisterSyntaxNodeAction(nodeContext => LayerDependencyAnalyzer.AnalyzeReturnStatement(nodeContext, config, violations), SyntaxKind.ReturnStatement);
+			if (observedDependencies is not null)
+			{
+				compilationContext.RegisterCompilationEndAction(reportContext => ReportObservedDependencyCycles(reportContext, config, observedDependencies));
+			}
 		});
-	}
-
-	private static void ReportConfigurationIssues(CompilationAnalysisContext context, AnalyzerConfig config, ImmutableArray<AdditionalText> additionalFiles)
-	{
-		foreach (var issue in config.ConfigurationIssues)
-		{
-			var descriptor = issue.Kind == ConfigurationIssueKind.CyclicDependencyGraph
-				? ArchitecturalDiagnostics.CyclicDependencyGraph
-				: ArchitecturalDiagnostics.InvalidConfiguration;
-			context.ReportDiagnostic(Diagnostic.Create(descriptor, CreateConfigurationLocation(issue, additionalFiles, context.CancellationToken), issue.Message));
-		}
-	}
-
-	private static Location CreateConfigurationLocation(ConfigurationIssue issue, ImmutableArray<AdditionalText> additionalFiles, CancellationToken cancellationToken)
-	{
-		if (issue.LineNumber <= 0)
-		{
-			return Location.None;
-		}
-
-		var file = additionalFiles.FirstOrDefault(candidate => string.Equals(NormalizePath(candidate.Path), NormalizePath(issue.Path), StringComparison.OrdinalIgnoreCase));
-		var text = file?.GetText(cancellationToken);
-		if (text is null || issue.LineNumber > text.Lines.Count)
-		{
-			return Location.None;
-		}
-
-		var line = text.Lines[issue.LineNumber - 1];
-		var character = Math.Max(0, Math.Min(issue.LinePosition - 1, line.Span.Length));
-		var position = line.Start + character;
-		return Location.Create(issue.Path, new Microsoft.CodeAnalysis.Text.TextSpan(position, 0), new Microsoft.CodeAnalysis.Text.LinePositionSpan(new Microsoft.CodeAnalysis.Text.LinePosition(issue.LineNumber - 1, character), new Microsoft.CodeAnalysis.Text.LinePosition(issue.LineNumber - 1, character)));
-	}
-
-	private static string NormalizePath(string path)
-	{
-		try
-		{
-			return Path.GetFullPath(path);
-		}
-		catch
-		{
-			return path;
-		}
 	}
 }

@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsTestProject>true</IsTestProject>
+        <IsPackable>false</IsPackable>
+        <EnableArchitecturalLevelAnalyzer>false</EnableArchitecturalLevelAnalyzer>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="AwesomeAssertions" Version="9.4.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+        <PackageReference Include="coverlet.collector" Version="6.0.2" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+          <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="xunit.v3" Version="3.2.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Core.Configuration.Compilation\RonSijm.AnaalIJzer.Core.Configuration.Compilation.csproj" />
+        <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Core.Configuration.Document\RonSijm.AnaalIJzer.Core.Configuration.Document.csproj" />
+        <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Core.DependencyRules\RonSijm.AnaalIJzer.Core.DependencyRules.csproj" />
+        <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Core.Exceptions\RonSijm.AnaalIJzer.Core.Exceptions.csproj" />
+        <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Core.LayerModel\RonSijm.AnaalIJzer.Core.LayerModel.csproj" />
+        <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Core.PolicyEvaluation\RonSijm.AnaalIJzer.Core.PolicyEvaluation.csproj" />
+        <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Core.ProjectArchitecture\RonSijm.AnaalIJzer.Core.ProjectArchitecture.csproj" />
+        <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Core.RuntimeConfig\RonSijm.AnaalIJzer.Core.RuntimeConfig.csproj" />
+        <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer\RonSijm.AnaalIJzer.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -1,10 +1,10 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using RonSijm.AnaalIJzer.Graphing.Model;
 using RonSijm.AnaalIJzer.Graphing.ViewModels;
 
 namespace RonSijm.AnaalIJzer.Graphing.Building;
 
-public static partial class ArchitectureGraphViewModelBuilder
+internal static partial class ArchitectureGraphViewModelBuilder
 {
 	private static GraphDiagram BuildWildcardDiagram(ArchitectureGraphSnapshot snapshot, ImmutableArray<ArchitectureGraphRule> rules)
 	{
@@ -94,7 +94,16 @@ public static partial class ArchitectureGraphViewModelBuilder
 						.OrderBy(dependency => dependency.FilePath, StringComparer.OrdinalIgnoreCase)
 						.ThenBy(dependency => dependency.LineNumber)
 						.Take(8)
-						.Select(dependency => dependency.CallerTypeName + " -> " + dependency.DependencyTypeName + " (" + dependency.Site + "): " + dependency.Reason)),
+						.Select(dependency => dependency.CallerTypeName
+							+ " -> "
+							+ dependency.DependencyTypeName
+							+ " ("
+							+ dependency.Site
+							+ "): "
+							+ dependency.Reason
+							+ (string.IsNullOrWhiteSpace(dependency.ExposurePath)
+								? string.Empty
+								: " via " + dependency.ExposurePath + (dependency.ExposureDepth is int depth ? " (depth " + depth + ")" : string.Empty)))),
 					isEvidence: true,
 					observedUsageCount: observedUsageCount,
 					violationCount: violationCount);

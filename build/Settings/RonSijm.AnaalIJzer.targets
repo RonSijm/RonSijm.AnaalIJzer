@@ -1,0 +1,57 @@
+<Project>
+  <Target Name="GenerateAnaalIJzerReferenceManifest"
+          BeforeTargets="CoreCompile"
+          Condition="'$(EnableArchitecturalLevelAnalyzer)' != 'false'">
+    <PropertyGroup>
+      <AnaalIJzerReferenceManifestDirectory Condition="'$(AnaalIJzerReferenceManifestDirectory)' == ''">$(IntermediateOutputPath)AnaalIJzer\</AnaalIJzerReferenceManifestDirectory>
+      <AnaalIJzerReferenceManifestPath Condition="'$(AnaalIJzerReferenceManifestPath)' == ''">$(AnaalIJzerReferenceManifestDirectory)$(AnaalIJzerReferenceManifestFileName)</AnaalIJzerReferenceManifestPath>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <_AnaalIJzerDirectPackageReference Include="@(PackageReference)"
+                                         Condition="'%(PackageReference.Identity)' != ''" />
+      <_AnaalIJzerResolvedProjectReference Include="%(ProjectReference.FullPath)"
+                                           Condition="'%(ProjectReference.FullPath)' != '' and '%(ProjectReference.ReferenceOutputAssembly)' != 'false'" />
+      <_AnaalIJzerResolvedPackageAsset Include="@(ReferencePath)"
+                                       Condition="'%(ReferencePath.NuGetPackageId)' != '' and '%(ReferencePath.NuGetPackageVersion)' != ''" />
+    </ItemGroup>
+
+    <PropertyGroup>
+      <_AnaalIJzerDirectPackageIds>;@(_AnaalIJzerDirectPackageReference->'%(PackageReference.Identity)';);</_AnaalIJzerDirectPackageIds>
+    </PropertyGroup>
+
+    <RemoveDuplicates Inputs="@(_AnaalIJzerResolvedProjectReference)">
+      <Output TaskParameter="Filtered" ItemName="_AnaalIJzerDistinctProjectReference" />
+    </RemoveDuplicates>
+
+    <RemoveDuplicates Inputs="@(_AnaalIJzerResolvedPackageAsset)">
+      <Output TaskParameter="Filtered" ItemName="_AnaalIJzerDistinctResolvedPackageAsset" />
+    </RemoveDuplicates>
+
+    <ItemGroup>
+      <_AnaalIJzerPackageManifestLine Include="Package&#x9;$(MSBuildProjectFullPath)&#x9;%(_AnaalIJzerDistinctResolvedPackageAsset.NuGetPackageId)&#x9;%(_AnaalIJzerDistinctResolvedPackageAsset.NuGetPackageVersion)&#x9;Direct"
+                                      Condition="'%(_AnaalIJzerDistinctResolvedPackageAsset.NuGetPackageId)' != '' and $([System.String]::Copy('$(_AnaalIJzerDirectPackageIds)').Contains(';%(_AnaalIJzerDistinctResolvedPackageAsset.NuGetPackageId);'))" />
+      <_AnaalIJzerPackageManifestLine Include="Package&#x9;$(MSBuildProjectFullPath)&#x9;%(_AnaalIJzerDistinctResolvedPackageAsset.NuGetPackageId)&#x9;%(_AnaalIJzerDistinctResolvedPackageAsset.NuGetPackageVersion)&#x9;Transitive"
+                                      Condition="'%(_AnaalIJzerDistinctResolvedPackageAsset.NuGetPackageId)' != '' and !$([System.String]::Copy('$(_AnaalIJzerDirectPackageIds)').Contains(';%(_AnaalIJzerDistinctResolvedPackageAsset.NuGetPackageId);'))" />
+    </ItemGroup>
+
+    <RemoveDuplicates Inputs="@(_AnaalIJzerPackageManifestLine)">
+      <Output TaskParameter="Filtered" ItemName="_AnaalIJzerDistinctPackageManifestLine" />
+    </RemoveDuplicates>
+
+    <ItemGroup>
+      <_AnaalIJzerHeaderManifestLine Include="AnaalIJzerReferenceManifest/1" />
+      <_AnaalIJzerProjectManifestLine Include="Project&#x9;$(MSBuildProjectFullPath)&#x9;%(_AnaalIJzerDistinctProjectReference.Identity)"
+                                      Condition="'%(_AnaalIJzerDistinctProjectReference.Identity)' != ''" />
+    </ItemGroup>
+
+    <MakeDir Directories="$(AnaalIJzerReferenceManifestDirectory)" />
+    <WriteLinesToFile File="$(AnaalIJzerReferenceManifestPath)"
+                      Lines="@(_AnaalIJzerHeaderManifestLine);@(_AnaalIJzerProjectManifestLine);@(_AnaalIJzerDistinctPackageManifestLine)"
+                      Overwrite="true" />
+
+    <ItemGroup>
+      <AdditionalFiles Include="$(AnaalIJzerReferenceManifestPath)" />
+    </ItemGroup>
+  </Target>
+</Project>

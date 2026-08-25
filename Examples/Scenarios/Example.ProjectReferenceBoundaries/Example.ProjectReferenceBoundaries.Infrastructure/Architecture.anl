@@ -1,0 +1,48 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd">
+
+  <Layer name="Application">
+    <Assembly endsWith=".Application" />
+  </Layer>
+
+  <Layer name="Domain">
+    <Assembly endsWith=".Domain" />
+  </Layer>
+
+  <Layer name="Infrastructure">
+    <Assembly endsWith=".Infrastructure" />
+  </Layer>
+
+  <AllowedDependency from="Application"
+                     to="Domain"
+                     description="Application code may depend on domain code." />
+  <AllowedDependency from="Infrastructure"
+                     to="Domain"
+                     description="Infrastructure code may depend on domain code." />
+
+  <ProjectArchitecture requireRecognizedProjects="true"
+                       description="Project-level reference rules for the scenario.">
+    <ProjectGroup name="Application" description="Application orchestration projects.">
+      <Project endsWith=".Application" />
+    </ProjectGroup>
+
+    <ProjectGroup name="Domain" description="Core domain projects.">
+      <Project endsWith=".Domain" />
+    </ProjectGroup>
+
+    <ProjectGroup name="Infrastructure" description="Infrastructure projects.">
+      <Project endsWith=".Infrastructure" />
+    </ProjectGroup>
+
+    <AllowedProjectReference from="Application"
+                             to="Domain"
+                             description="Application may reference domain." />
+    <AllowedProjectReference from="Infrastructure"
+                             to="Domain"
+                             description="Infrastructure may reference domain." />
+    <BlockedProjectReference from="Domain"
+                             to="Infrastructure"
+                             description="Domain must not directly reference infrastructure." />
+  </ProjectArchitecture>
+
+</ArchitecturalLevels>

@@ -1,0 +1,8 @@
+<Project>
+
+    <PropertyGroup>
+        <NetFxCompatibleProjectTargetFramework Condition="'$(TargetFramework)' == 'net472'">net472</NetFxCompatibleProjectTargetFramework>
+        <NetFxCompatibleProjectTargetFramework Condition="'$(NetFxCompatibleProjectTargetFramework)' == ''">netstandard2.0</NetFxCompatibleProjectTargetFramework>
+    </PropertyGroup>
+
+</Project>

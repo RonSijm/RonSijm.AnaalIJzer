@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+permissions:
+  contents: write
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -17,18 +19,14 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
-      - name: Restore dependencies
+      - name: Check generated docs, schema, and links
+        shell: pwsh
+        run: ./build/Scripts/Docs/check-docs.ps1
+      - name: Restore cross-platform test graph
         run: dotnet restore src/RonSijm.AnaalIJzer.CrossPlatform.slnx
-      - name: Build
-        run: dotnet build src/RonSijm.AnaalIJzer.CrossPlatform.slnx --no-restore -p:GeneratePackageOnBuild=false
-      - name: Test
-        run: |
-          dotnet test src/Tests/RonSijm.AnaalIJzer.UnitTests/RonSijm.AnaalIJzer.UnitTests.csproj --no-build --collect:"XPlat Code Coverage" --settings src/Tests/RonSijm.AnaalIJzer.UnitTests/coverlet.runsettings --results-directory ./coverage
-          dotnet test src/Tests/RonSijm.AnaalIJzer.ConfigurationEditing.Tests/RonSijm.AnaalIJzer.ConfigurationEditing.Tests.csproj --no-build --collect:"XPlat Code Coverage" --settings src/Tests/RonSijm.AnaalIJzer.UnitTests/coverlet.runsettings --results-directory ./coverage
-          dotnet test src/Tests/RonSijm.AnaalIJzer.Graphing.Tests/RonSijm.AnaalIJzer.Graphing.Tests.csproj --no-build --collect:"XPlat Code Coverage" --settings src/Tests/RonSijm.AnaalIJzer.UnitTests/coverlet.runsettings --results-directory ./coverage
-          dotnet test src/Tests/RonSijm.AnaalIJzer.Tooling.Tests/RonSijm.AnaalIJzer.Tooling.Tests.csproj --no-build --collect:"XPlat Code Coverage" --settings src/Tests/RonSijm.AnaalIJzer.UnitTests/coverlet.runsettings --results-directory ./coverage
-          dotnet test src/Tests/RonSijm.AnaalIJzer.Arse.Tests/RonSijm.AnaalIJzer.Arse.Tests.csproj --no-build --collect:"XPlat Code Coverage" --settings src/Tests/RonSijm.AnaalIJzer.UnitTests/coverlet.runsettings --results-directory ./coverage
-          dotnet test src/Tests/RonSijm.AnaalIJzer.IntegrationTests/RonSijm.AnaalIJzer.IntegrationTests.csproj --no-build --collect:"XPlat Code Coverage" --settings src/Tests/RonSijm.AnaalIJzer.UnitTests/coverlet.runsettings --results-directory ./coverage
+      - name: Run cross-platform tests
+        shell: pwsh
+        run: ./build/Scripts/Testing/test-all.ps1 -Configuration Debug -SkipWindowsOnly -NoRestore -CollectCoverage -ResultsDirectory ./coverage
       - name: Codecov
         uses: codecov/codecov-action@v5
         with:
@@ -38,14 +36,14 @@ jobs:
           verbose: true
       - name: Build, pack, and publish when version changes
         shell: pwsh
-        run: ./build/Scripts/build-when-nuget-version-changed.ps1 -SkipTests
+        run: ./build/Scripts/Packages/build-when-nuget-version-changed.ps1 -SkipTests
       - name: Upload NuGet package artifacts
         uses: actions/upload-artifact@v4
         with:
           name: AnaalIJzer-NuGet
           path: |
-            build/Artifacts/packages/*.nupkg
-            build/Artifacts/packages/*.snupkg
+            build/Artifacts/Packages/*.nupkg
+            build/Artifacts/Packages/*.snupkg
   build-windows-tools:
     runs-on: windows-latest
     steps:
@@ -57,9 +55,47 @@ jobs:
         with:
           dotnet-version: 10.0.x
       - name: Build graph editor artifact
-        run: build\Scripts\build-graph-editor-standalone.bat
+        run: build\Scripts\GraphEditor\build-graph-editor-standalone.bat
+      - name: Test graph editor WPF support code
+        run: dotnet test src\Tests\RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests\RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests.csproj --configuration Release
       - name: Upload graph editor artifact
         uses: actions/upload-artifact@v4
         with:
           name: AnaalIJzer-GraphEditor-Standalone
           path: build\Artifacts\GraphEditor.Standalone\**
+      - name: Package graph editor release asset
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        id: graph_editor_release
+        shell: pwsh
+        run: |
+          [xml]$versioning = Get-Content -LiteralPath build\Settings\NuGetVersioning.props
+          $version = [string]$versioning.Project.PropertyGroup.VersionPrefix
+          if ([string]::IsNullOrWhiteSpace($version)) {
+            throw "VersionPrefix was not found in build\Settings\NuGetVersioning.props."
+          }
+
+          $artifactDirectory = Resolve-Path -LiteralPath build\Artifacts\GraphEditor.Standalone
+          $releaseDirectory = Join-Path (Resolve-Path .).Path "build\Artifacts\Releases"
+          New-Item -ItemType Directory -Force -Path $releaseDirectory | Out-Null
+
+          $zipRelativePath = "build/Artifacts/Releases/AnaalIJzer-GraphEditor-Standalone-$version.zip"
+          $zipFullPath = Join-Path (Resolve-Path .).Path ($zipRelativePath -replace '/', '\')
+          if (Test-Path -LiteralPath $zipFullPath) {
+            Remove-Item -LiteralPath $zipFullPath -Force
+          }
+
+          Compress-Archive -Path (Join-Path $artifactDirectory "*") -DestinationPath $zipFullPath -Force
+
+          "tag=graph-editor-v$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "name=AnaalIJzer Graph Editor $version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "file=$zipRelativePath" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+      - name: Publish graph editor release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ steps.graph_editor_release.outputs.tag }}
+          target_commitish: ${{ github.ref_name }}
+          name: ${{ steps.graph_editor_release.outputs.name }}
+          body: Standalone WPF graph editor for AnaalIJzer architecture settings.
+          files: ${{ steps.graph_editor_release.outputs.file }}
+          overwrite_files: true

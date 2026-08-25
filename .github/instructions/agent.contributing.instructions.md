@@ -16,11 +16,21 @@ src/
     Matching/                        — pattern matching types (LayerDefinition, PatternMatcher, …)
     Reporting/                       — markdown report and architecture documentation writers
     ArchitecturalLevelAnalyzer.cs    — entry point (thin orchestrator)
-  Tests/RonSijm.AnaalIJzer.UnitTests/ — xUnit v3 unit tests
+  Main/RonSijm.AnaalIJzer.ConfigurationEditing/ — source-aware XML/inline settings editing
+  Main/RonSijm.AnaalIJzer.Graphing/ — reusable dependency graph view models and layout grouping
+  Main/RonSijm.AnaalIJzer.Graphing.Wpf/ — WPF graph rendering theme and export support
+  Main/RonSijm.AnaalIJzer.GraphEditor.Wpf/ — reusable WPF graph editor component
+  Main/RonSijm.AnaalIJzer.EditorRuntime/ — shared editor snapshot/runtime intelligence
+  Tests/RonSijm.AnaalIJzer.Core.Matchers.Tests/ — matcher-kernel unit tests
+  Tests/RonSijm.AnaalIJzer.Core.Configuration.Document.Tests/ — configuration document/source-loading unit tests
+  Tests/RonSijm.AnaalIJzer.Analyzer.Tests/ — xUnit v3 analyzer-host unit tests
   Tests/RonSijm.AnaalIJzer.IntegrationTests/ — xUnit v3 integration tests that build sample projects
-  Tests/RonSijm.AnaalIJzer.Arse.Tests/ — xUnit v3 tests for Arse and its shared tooling host
-  Tools/RonSijm.AnaalIJzer.Tooling/   — shared operation catalog and execution host
+  Tests/RonSijm.AnaalIJzer.Application.Tests/ — xUnit v3 tests for shared application/use-case operations
+  Tests/RonSijm.AnaalIJzer.Arse.Tests/ — xUnit v3 tests for Arse and its shared application host
+  Main/RonSijm.AnaalIJzer.Application/ — shared operation catalog and execution host
   Tools/RonSijm.AnaalIJzer.Arse/    — unified RazorConsole and headless command front end
+  Tools/RonSijm.AnaalIJzer.GraphEditor.Standalone/ — standalone WPF graph editor harness
+  Extensions/RonSijm.AnaalIJzer.VisualStudio/ — Visual Studio 2026 companion VSIX host
 Examples/                            — runnable projects that demonstrate diagnostics and config features
   Directory.Build.props              — shared MSBuild props inherited by every example project
   Diagnostics/Example.Arch00X.*/     — one project per diagnostic case
@@ -37,13 +47,13 @@ README.md
 
 - **Tabs, CRLF** for all C# files (follow `.editorconfig`).
 - **`internal` by default** — only promote to `public` when consumed across assembly boundaries.
-- **No primary constructors** on classes or structs. Records may keep their parameter list.
+- **Use Primary constructors** on classes or structs. Records may keep their parameter list.
 - **No pass-through interfaces** — do not create `IFoo` unless there are (or imminently will be) ≥2 implementations or the seam is genuinely needed for testing.
 - **Feature-based folders** — new files go in the folder whose concern they belong to (`Analysis/`, `Config/`, `Diagnostics/`, `Matching/`, `Reporting/`). Do not add files to the project root unless they are top-level entry points.
 
 ## Arse tool modes
 
-- Put tool operations, supported input kinds, validation and execution behavior in `RonSijm.AnaalIJzer.Tooling`.
+- Put tool operations, supported input kinds, validation and execution behavior in `RonSijm.AnaalIJzer.Application`.
 - Arse's headless command mode and interactive TUI are presentation modes. They must create `ToolRequest` values and execute them through `ToolRunner`; do not duplicate MSBuild loading, config parsing or output generation in either mode.
 - Add operations and aliases to `ToolOperationCatalog`. The Arse command list and TUI operation selector must continue to derive from that catalog.
 - Update `RonSijm.AnaalIJzer.Arse.Tests` whenever an operation, supported input kind, or Arse component behavior changes.
@@ -61,7 +71,7 @@ When a new diagnostic (e.g. ARCH004) or a new config element is introduced, **al
 
 ### 2. Tests
 
-- Add at least one unit test in `Tests/RonSijm.AnaalIJzer.UnitTests/` that:
+- Add at least one unit test in `Tests/RonSijm.AnaalIJzer.Analyzer.Tests/` that:
   - Verifies the violation **is** reported on invalid code.
   - Verifies the violation is **not** reported on valid code.
 - Use `AwesomeAssertions` for assertions and `xUnit v3` (`[Fact]`) for test methods.
@@ -74,7 +84,7 @@ When a new diagnostic (e.g. ARCH004) or a new config element is introduced, **al
 - Create larger multi-project examples under `Examples/Scenarios/<ScenarioName>/`.
 - The project must contain:
   - `<ProjectName>.csproj` — normally minimal, relying on `Examples/Directory.Build.props` for shared target framework, analyzer reference and XML `AdditionalFiles`.
-  - Either inline `AssemblyMetadata("AnaalIJzerSettings", ...)` settings in `Example.cs` for simple one-file examples, or `ArchitecturalLevels.xml` for broader multi-file, scenario, or include-focused examples — minimal config that triggers exactly this diagnostic.
+  - Either inline `AssemblyMetadata("AnaalIJzerSettings", ...)` settings in `Example.cs` for simple one-file examples, or `Architecture.anl` for broader multi-file, scenario, or include-focused examples — minimal config that triggers exactly this diagnostic.
   - Any extra XML files referenced by `<Include path="..." />`, kept beside the example that uses them.
   - `Example.cs` — one `✅` valid case and one `❌` violating case, with inline comments explaining why.
 - Build the example project to confirm it produces the intended ARCH error and nothing else.
@@ -85,7 +95,7 @@ When the behavior or schema of an existing element changes (e.g. a new attribute
 
 - Add or update a dedicated feature example project under `Examples/Features/` that clearly demonstrates that one behavior.
 - Do not combine distinct feature behaviors in one example project; each sample should make one configuration behavior obvious.
-- Use inline `AssemblyMetadata("AnaalIJzerSettings", ...)` settings in `Example.cs` for simple one-file examples. Use `ArchitecturalLevels.xml` when an example has several source files, includes other XML files, or is a broader scenario.
+- Use inline `AssemblyMetadata("AnaalIJzerSettings", ...)` settings in `Example.cs` for simple one-file examples. Use `Architecture.anl` when an example has several source files, includes other `.anl` files, or is a broader scenario.
 - Update the **README** (see below).
 
 ## README
@@ -107,7 +117,7 @@ Each sample must use one vocabulary consistently. Diagram nodes, layer names, ty
 
 ## XML config schema conventions
 
-When extending `ArchitecturalLevels.xml`:
+When extending `Architecture.anl`:
 
 - New matcher attributes (`startsWith`, `contains`, etc.) apply to both `<Class>` and `<Namespace>` elements symmetrically.
 - New top-level elements (siblings of `<Layer>`, `<Forbidden>`, `<AllowedDependency>`) must be documented in the README before the change is considered done.
@@ -119,10 +129,13 @@ When extending `ArchitecturalLevels.xml`:
 | Task | Command |
 |------|---------|
 | Build analyzer | `dotnet build src` |
-| Run unit tests | `dotnet test src\Tests\RonSijm.AnaalIJzer.UnitTests` |
+| Run matcher core tests | `dotnet test src\Tests\RonSijm.AnaalIJzer.Core.Matchers.Tests` |
+| Run configuration document tests | `dotnet test src\Tests\RonSijm.AnaalIJzer.Core.Configuration.Document.Tests` |
+| Run analyzer tests | `dotnet test src\Tests\RonSijm.AnaalIJzer.Analyzer.Tests` |
 | Run integration tests | `dotnet test src\Tests\RonSijm.AnaalIJzer.IntegrationTests` |
 | Run Arse tests | `dotnet test src\Tests\RonSijm.AnaalIJzer.Arse.Tests` |
-| Run all tests | `dotnet test src` |
+| Run all tests | `build\Scripts\Testing\test-all.cmd` |
+| Run all tests from PowerShell | `pwsh -NoProfile -ExecutionPolicy Bypass -File build\Scripts\Testing\test-all.ps1` |
 | Build Arse | `dotnet build src\Tools\RonSijm.AnaalIJzer.Arse` |
 | Build a single example | `dotnet build Examples\Diagnostics\Example.Arch001.SkipsLayer` |
 | Build all examples | `Get-ChildItem Examples -Recurse -Filter *.csproj \| ForEach-Object { dotnet build $_.FullName }` |

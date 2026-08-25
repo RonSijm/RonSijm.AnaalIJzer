@@ -3,7 +3,7 @@ using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
 
 namespace RonSijm.AnaalIJzer.Graphing.ViewModels;
 
-public sealed class ArchitectureGraphEdgeViewModel
+internal sealed class ArchitectureGraphEdgeViewModel
 {
 	public ArchitectureGraphEdgeViewModel(
 		string from,

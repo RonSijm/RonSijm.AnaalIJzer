@@ -4,7 +4,7 @@ using RonSijm.AnaalIJzer.Graphing.Model;
 
 namespace RonSijm.AnaalIJzer.Graphing.ViewModels;
 
-public sealed class ArchitectureGraphBoundaryViewModel(
+internal sealed class ArchitectureGraphBoundaryViewModel(
     string path,
     string displayName,
     string? description,
@@ -20,7 +20,9 @@ public sealed class ArchitectureGraphBoundaryViewModel(
     int incomingDependencyCount = 0,
     int outgoingDependencyCount = 0,
     int incomingViolationCount = 0,
-    int outgoingViolationCount = 0)
+    int outgoingViolationCount = 0,
+    int exceptionReviewCount = 0,
+    ImmutableArray<string> exceptionReviewSummaries = default)
 {
     public string Path { get; } = path;
 
@@ -63,4 +65,8 @@ public sealed class ArchitectureGraphBoundaryViewModel(
     public int IncomingViolationCount { get; } = incomingViolationCount;
 
     public int OutgoingViolationCount { get; } = outgoingViolationCount;
+
+    public int ExceptionReviewCount { get; } = exceptionReviewCount;
+
+    public ImmutableArray<string> ExceptionReviewSummaries { get; } = exceptionReviewSummaries.IsDefault ? ImmutableArray<string>.Empty : exceptionReviewSummaries;
 }

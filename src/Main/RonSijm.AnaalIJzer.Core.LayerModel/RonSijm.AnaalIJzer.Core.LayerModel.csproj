@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Matchers\RonSijm.AnaalIJzer.Core.Matchers.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Exceptions\RonSijm.AnaalIJzer.Core.Exceptions.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.NameRules\RonSijm.AnaalIJzer.Core.NameRules.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Contracts\RonSijm.AnaalIJzer.Core.Contracts.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Inheritance\RonSijm.AnaalIJzer.Core.Inheritance.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Visibility\RonSijm.AnaalIJzer.Core.Visibility.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.ApiSurface\RonSijm.AnaalIJzer.Core.ApiSurface.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.EntryPoints\RonSijm.AnaalIJzer.Core.EntryPoints.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.SourceLocations\RonSijm.AnaalIJzer.Core.SourceLocations.csproj" />
+    </ItemGroup>
+
+</Project>
+

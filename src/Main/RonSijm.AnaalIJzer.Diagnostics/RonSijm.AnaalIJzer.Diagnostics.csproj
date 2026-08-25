@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <Import Project="../../../build/Settings/NuGetVersioning.props" />
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+        <EnableArchitecturalLevelAnalyzer>false</EnableArchitecturalLevelAnalyzer>
+        <!-- Descriptor ownership lives here now, but release tracking still belongs to the
+             analyzer package entrypoint project rather than this shared helper assembly. -->
+        <NoWarn>$(NoWarn);RS2008</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Configuration.Document\RonSijm.AnaalIJzer.Core.Configuration.Document.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Exceptions\RonSijm.AnaalIJzer.Core.Exceptions.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Findings\RonSijm.AnaalIJzer.Core.Findings.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+    <InternalsVisibleTo Include="RonSijm.AnaalIJzer.Engine" />
+        <InternalsVisibleTo Include="RonSijm.AnaalIJzer" />
+        <InternalsVisibleTo Include="RonSijm.AnaalIJzer.Analyzer.Tests" />
+        <InternalsVisibleTo Include="RonSijm.AnaalIJzer.Outputs" />
+        <InternalsVisibleTo Include="RonSijm.AnaalIJzer.Outputs.Tests" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.14.0" />
+    </ItemGroup>
+
+</Project>

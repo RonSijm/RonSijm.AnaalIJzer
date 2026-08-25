@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <Import Project="../../../build/Settings/NuGetVersioning.props" />
+    <Import Project="../../../build/Settings/NetFxCompatibleProjectTargetFramework.props" />
 
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
@@ -16,12 +17,23 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\RonSijm.AnaalIJzer.ConfigurationEditing\RonSijm.AnaalIJzer.ConfigurationEditing.csproj"
-                          SetTargetFramework="TargetFramework=net472"
-                          Condition="'$(TargetFramework)' == 'net472'" />
-        <ProjectReference Include="..\RonSijm.AnaalIJzer.ConfigurationEditing\RonSijm.AnaalIJzer.ConfigurationEditing.csproj"
-                          SetTargetFramework="TargetFramework=netstandard2.0"
-                          Condition="'$(TargetFramework)' != 'net472'" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.GraphModel\RonSijm.AnaalIJzer.GraphModel.csproj"
+                          SetTargetFramework="TargetFramework=$(NetFxCompatibleProjectTargetFramework)" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>RonSijm.AnaalIJzer.GraphEditor.Wpf</_Parameter1>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests</_Parameter1>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>RonSijm.AnaalIJzer.GraphEditor.Standalone</_Parameter1>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>RonSijm.AnaalIJzer.Graphing.Tests</_Parameter1>
+        </AssemblyAttribute>
     </ItemGroup>
 
 </Project>

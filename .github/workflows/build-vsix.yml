@@ -21,7 +21,13 @@ jobs:
           dotnet-version: 10.0.x
 
       - name: Build VSIX artifact
-        run: build\Scripts\build-vs-extension.cmd
+        run: build\Scripts\Addon\build-vs-extension.cmd
+
+      - name: Test editor runtime support
+        run: dotnet test src\Tests\RonSijm.AnaalIJzer.EditorRuntime.Tests\RonSijm.AnaalIJzer.EditorRuntime.Tests.csproj --configuration Release --no-build
+
+      - name: Test graph editor WPF support
+        run: dotnet test src\Tests\RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests\RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests.csproj --configuration Release --no-build
 
       - name: Test VSIX support code
         run: dotnet test src\Tests\RonSijm.AnaalIJzer.VisualStudio.Tests\RonSijm.AnaalIJzer.VisualStudio.Tests.csproj --configuration Release --no-build

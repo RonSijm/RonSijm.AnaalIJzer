@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using RonSijm.AnaalIJzer.VisualStudio.Diagnostics;
+using RonSijm.AnaalIJzer.VisualStudio.Graphs;
 using RonSijm.AnaalIJzer.VisualStudio.Options;
 using RonSijm.AnaalIJzer.VisualStudio.Shell.Commands;
 

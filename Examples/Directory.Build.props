@@ -1,17 +1,20 @@
 <Project>
 
+  <Import Project="..\build\Settings\RonSijm.AnaalIJzer.props"
+          Condition="Exists('..\build\Settings\RonSijm.AnaalIJzer.props')" />
+
   <!--
     Shared MSBuild props for every example project under Examples/.
 
     The example projects intentionally trigger ARCH00X errors as living
-    documentation. That makes opening the .slnx in an IDE noisy by default,
-    so the analyzer hook-up is gated on configuration:
+    documentation. The examples should therefore light up in ordinary IDE and
+    Debug builds by default.
 
-      Debug   - analyzer OFF (IDE default; build is silent)
-      Release - analyzer ON  (errors fire, ReportDemo regenerates docs)
+      Debug   - analyzer ON
+      Release - analyzer ON
 
-    Easy toggle: flip EnableAnalyzerOnDebug below to true if you want the
-    analyzer to fire during normal IDE / Debug builds too.
+    Easy toggle: flip EnableAnalyzerOnDebug below to false if you want the
+    examples to stay quiet during normal IDE / Debug editing.
 
     Per-build or per-project overrides still work:
       <EnableArchitecturalLevelAnalyzer>true</EnableArchitecturalLevelAnalyzer>
@@ -19,8 +22,8 @@
   -->
 
   <PropertyGroup>
-    <!-- Flip to true to run the analyzer in Debug builds as well (e.g. while editing in the IDE). -->
-    <EnableAnalyzerOnDebug Condition="'$(EnableAnalyzerOnDebug)' == ''">false</EnableAnalyzerOnDebug>
+    <!-- Flip to false to keep Debug builds quiet while editing the examples in the IDE. -->
+    <EnableAnalyzerOnDebug Condition="'$(EnableAnalyzerOnDebug)' == ''">true</EnableAnalyzerOnDebug>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -29,20 +32,31 @@
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     <!-- Suppress "parameter unread" - example classes are intentionally minimal stubs -->
     <NoWarn>CS9113</NoWarn>
+    <AnaalIJzerEngineProjectPath>$(MSBuildThisFileDirectory)..\src\Main\RonSijm.AnaalIJzer.Engine\RonSijm.AnaalIJzer.Engine.csproj</AnaalIJzerEngineProjectPath>
+    <AnaalIJzerEngineOutputDirectory>$(MSBuildThisFileDirectory)..\src\Main\RonSijm.AnaalIJzer.Engine\bin\$(Configuration)\netstandard2.0\</AnaalIJzerEngineOutputDirectory>
     <EnableArchitecturalLevelAnalyzer Condition="'$(EnableArchitecturalLevelAnalyzer)' == '' AND '$(Configuration)' == 'Release'">true</EnableArchitecturalLevelAnalyzer>
     <EnableArchitecturalLevelAnalyzer Condition="'$(EnableArchitecturalLevelAnalyzer)' == '' AND '$(EnableAnalyzerOnDebug)' == 'true'">true</EnableArchitecturalLevelAnalyzer>
     <EnableArchitecturalLevelAnalyzer Condition="'$(EnableArchitecturalLevelAnalyzer)' == ''">false</EnableArchitecturalLevelAnalyzer>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(EnableArchitecturalLevelAnalyzer)' == 'true'">
-    <ProjectReference
-        Include="$(MSBuildThisFileDirectory)..\src\Main\RonSijm.AnaalIJzer\RonSijm.AnaalIJzer.csproj"
-        OutputItemType="Analyzer"
-        ReferenceOutputAssembly="false" />
-  </ItemGroup>
+  <Target Name="AttachAnaalIJzerExampleAnalyzers"
+          BeforeTargets="CoreCompile"
+          Condition="'$(EnableArchitecturalLevelAnalyzer)' == 'true'">
+    <MSBuild Projects="$(AnaalIJzerEngineProjectPath)"
+             Targets="Build"
+             Properties="Configuration=$(Configuration)" />
+
+    <ItemGroup>
+      <Analyzer Include="$(AnaalIJzerEngineOutputDirectory)RonSijm.AnaalIJzer*.dll" />
+    </ItemGroup>
+  </Target>
 
   <ItemGroup>
     <AdditionalFiles Include="$(MSBuildProjectDirectory)\*.anl" />
+    <AdditionalFiles Include="$(MSBuildProjectDirectory)\..\*.anl" />
   </ItemGroup>
+
+  <Import Project="..\build\Settings\RonSijm.AnaalIJzer.targets"
+          Condition="Exists('..\build\Settings\RonSijm.AnaalIJzer.targets')" />
 
 </Project>

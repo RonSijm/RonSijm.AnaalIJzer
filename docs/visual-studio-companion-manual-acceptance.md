@@ -21,10 +21,10 @@ Checklist:
 - Known layers show gutter glyphs and declaration background tint.
 - Hovering a type declaration shows native QuickInfo with layer path, ancestry, palette slot, and description when configured.
 - Visual Studio 2026 Settings under `AnaalIJzer > Editor` can disable and re-enable badges, glyphs, and tint without rebuilding.
-- `Tools > AnaalIJzer: Show Status` reports the active document, whether settings were found, layer/site indicator counts, graph counts, or a clear reason why the document is not being analyzed.
-- `Tools > AnaalIJzer: Toggle Sites Diagnostics` shows and hides site labels without rebuilding.
+- `Extensions > IJzer > Show Status` reports the active document, whether settings were found, layer/site indicator counts, graph counts, or a clear reason why the document is not being analyzed.
+- `Extensions > IJzer > Toggle Sites Diagnostics` shows and hides site labels without rebuilding.
 - Hovering a dependency site shows native QuickInfo with site, caller, dependency, status, diagnostic ID when present, and reason.
-- `View > Other Windows > AnaalIJzer: Show Dependency Graphs` or command search opens a dockable graph sidebar.
+- `Extensions > IJzer > Show Dependency Graphs` or command search opens a dockable graph sidebar.
 - The graph sidebar shows concrete dependency graphs and a separate wildcard/global rules section.
 - Changing `AnaalIJzer > Editor > Graph focus mode` between `ShowAll`, `HighlightCurrent`, and `FilterToCurrent` changes whether active graphs are highlighted or filtered.
 - Editing `Architecture.anl` refreshes visible indicators.

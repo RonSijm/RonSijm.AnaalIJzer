@@ -10,6 +10,9 @@
     <Nullable>enable</Nullable>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>arse</ToolCommandName>
+    <!-- Local verification artifacts sometimes live under this project in build/Artifacts;
+         exclude that tree from default Razor content discovery so the tool package stays clean. -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);build\**\*</DefaultItemExcludes>
     <PackageId>RonSijm.AnaalIJzer.Arse</PackageId>
     <Description>Architecture Rules, Settings, and Evidence. Interactive and headless architecture tooling for RonSijm.AnaalIJzer.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -27,7 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RonSijm.AnaalIJzer.Tooling\RonSijm.AnaalIJzer.Tooling.csproj" />
+    <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Application\RonSijm.AnaalIJzer.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>

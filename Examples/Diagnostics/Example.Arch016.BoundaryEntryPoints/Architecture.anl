@@ -1,0 +1,26 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+                     description="Boundary entry points let a parent boundary say which child layers are valid external doors.">
+
+  <Layer name="Presentation" description="Outside callers that may enter Ordering only through its contract desk.">
+    <Class endsWith="Controller" />
+  </Layer>
+
+  <AllowedDependency from="Presentation" to="Ordering" appliesToDescendants="true" />
+
+  <Layer name="Ordering" description="Ordering may be entered from outside only through Contracts.">
+    <Namespace startsWith="SweetShop.Ordering" />
+    <EntryPoints>
+      <EntryPoint layer="Contracts" />
+    </EntryPoints>
+    <AllowedDependency from="Implementation" to="Contracts" />
+
+    <Layer name="Contracts" description="The public door into Ordering.">
+      <Class endsWith="Contract" />
+    </Layer>
+
+    <Layer name="Implementation" description="Internal implementation details that outside callers should not touch directly.">
+      <Class endsWith="Service" />
+    </Layer>
+  </Layer>
+</ArchitecturalLevels>

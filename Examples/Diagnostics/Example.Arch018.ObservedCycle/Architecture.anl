@@ -1,0 +1,16 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+                     enforceObservedAcyclic="true"
+                     description="Observed dependency cycles fail when current code actually forms a layer cycle, even if the configured edges allow both directions.">
+
+  <Layer name="Ordering">
+    <Namespace startsWith="SweetShop.Ordering" />
+  </Layer>
+
+  <Layer name="Notifications">
+    <Namespace startsWith="SweetShop.Notifications" />
+  </Layer>
+
+  <AllowedDependency from="Ordering" to="Notifications" />
+  <AllowedDependency from="Notifications" to="Ordering" />
+</ArchitecturalLevels>

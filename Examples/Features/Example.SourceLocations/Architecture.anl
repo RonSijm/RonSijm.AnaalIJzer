@@ -1,0 +1,12 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+                     description="Source-location ownership keeps a layer in the project area that owns it.">
+
+  <Layer name="Ordering" description="Ordering services must stay under the Ordering folder.">
+    <Namespace startsWith="SweetShop.Ordering" />
+    <SourceLocations relativeTo="Project"
+                     description="Ordering code belongs in the project-local Ordering subtree.">
+      <Source startsWith="Ordering/" />
+    </SourceLocations>
+  </Layer>
+</ArchitecturalLevels>

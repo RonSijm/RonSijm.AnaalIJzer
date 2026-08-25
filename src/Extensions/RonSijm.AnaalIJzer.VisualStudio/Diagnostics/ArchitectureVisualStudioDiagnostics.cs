@@ -1,4 +1,4 @@
-using RonSijm.AnaalIJzer.Snapshots;
+using RonSijm.AnaalIJzer.Core.Editor.Snapshots;
 
 namespace RonSijm.AnaalIJzer.VisualStudio.Diagnostics;
 
@@ -19,7 +19,7 @@ internal static class ArchitectureVisualStudioDiagnostics
 		{
 			return "AnaalIJzer did not find architecture settings for the active document.\r\n"
 			       + $"Document: {filePath}\r\n"
-			       + "Checked Roslyn analyzer AdditionalFiles, inline AssemblyMetadata(\"AnaalIJzerSettings\", ...), and the nearest Architecture.anl above the document.";
+			       + "Checked Roslyn analyzer AdditionalFiles, inline AssemblyMetadata(\"AnaalIJzerSettings\", ...), and, if the project had no config of its own, the nearest Architecture.anl above the document.";
 		}
 
 		if (snapshot.HasConfigurationIssues)

@@ -3,7 +3,7 @@ using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
 
 namespace RonSijm.AnaalIJzer.Graphing.ViewModels;
 
-public sealed class ArchitectureGraphGroupViewModel(
+internal sealed class ArchitectureGraphGroupViewModel(
     string title,
     bool isActive,
     bool isHighlighted,

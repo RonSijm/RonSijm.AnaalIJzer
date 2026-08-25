@@ -7,6 +7,74 @@ namespace RonSijm.AnaalIJzer.ConfigurationEditing.Tests.Editing;
 public sealed partial class ArchitectureConfigurationEditServiceTests
 {
 	[Fact]
+	public void CreateConfiguration_WritesEmptyArchitectureFile()
+	{
+		using var directory = new TemporaryDirectory();
+		var path = directory.GetPath("Architecture.anl");
+		var source = new ArchitectureConfigurationSource(ArchitectureConfigurationSourceKind.XmlFile, path);
+
+		var result = ArchitectureConfigurationEditService.CreateConfiguration(source);
+
+		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
+		File.Exists(path).Should().BeTrue();
+		File.ReadAllText(path).Should().Contain("<ArchitecturalLevels");
+	}
+
+	[Fact]
+	public void CreateConfiguration_ProjectFileTarget_RegistersAdditionalFiles()
+	{
+		using var directory = new TemporaryDirectory();
+		var projectPath = directory.WriteFile("Demo.csproj", "<Project Sdk=\"Microsoft.NET.Sdk\" />");
+		var architecturePath = directory.GetPath("Architecture.anl");
+		var source = new ArchitectureConfigurationSource(ArchitectureConfigurationSourceKind.XmlFile, architecturePath);
+		var target = new ArchitectureConfigurationCreationTarget(
+			"Project file",
+			"Create project settings.",
+			source,
+			ArchitectureConfigurationRegistrationKind.ProjectFile,
+			projectPath);
+
+		var result = ArchitectureConfigurationEditService.CreateConfiguration(target);
+
+		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
+		File.ReadAllText(projectPath).Should().Contain("<AdditionalFiles Include=\"Architecture.anl\" />");
+	}
+
+	[Fact]
+	public void CreateConfiguration_DirectoryBuildPropsTarget_CreatesPropsAndRegistersAdditionalFiles()
+	{
+		using var directory = new TemporaryDirectory();
+		var propsPath = directory.GetPath("Directory.Build.props");
+		var architecturePath = directory.GetPath("Architecture.anl");
+		var source = new ArchitectureConfigurationSource(ArchitectureConfigurationSourceKind.XmlFile, architecturePath);
+		var target = new ArchitectureConfigurationCreationTarget(
+			"Project folder",
+			"Create folder settings.",
+			source,
+			ArchitectureConfigurationRegistrationKind.DirectoryBuildProps,
+			propsPath);
+
+		var result = ArchitectureConfigurationEditService.CreateConfiguration(target);
+
+		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
+		File.Exists(propsPath).Should().BeTrue();
+		File.ReadAllText(propsPath).Should().Contain("<AdditionalFiles Include=\"Architecture.anl\" />");
+	}
+
+	[Fact]
+	public void CreateConfiguration_DoesNotOverwriteExistingArchitectureFile()
+	{
+		using var directory = new TemporaryDirectory();
+		var path = directory.WriteFile("Architecture.anl", "<ArchitecturalLevels />");
+		var source = new ArchitectureConfigurationSource(ArchitectureConfigurationSourceKind.XmlFile, path);
+
+		var result = ArchitectureConfigurationEditService.CreateConfiguration(source);
+
+		result.Succeeded.Should().BeFalse();
+		result.Message.Should().Contain("already exists");
+	}
+
+	[Fact]
 	public void RemoveDependency_RemovesXmlRuleUsingEditHandle()
 	{
 		using var directory = new TemporaryDirectory();

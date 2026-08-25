@@ -76,8 +76,8 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 
 		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
 		AssertionExtensions.Should((string)result.Name).Be("Kitchen");
-		AssertionExtensions.Should((string)result.Description).Be("Makes food.");
-		AssertionExtensions.Should((string)result.RequireRecognizedDependencies).Be("Constructor");
+		AssertionExtensions.Should((string?)result.Description).Be("Makes food.");
+		AssertionExtensions.Should((string?)result.RequireRecognizedDependencies).Be("Constructor");
 		ImmutableArrayExtensions.Select(result.Matchers, item => item.Summary).Should().Contain("<Class endsWith=\"Kitchen\" />");
 		ImmutableArrayExtensions.Select(result.Matchers, item => item.Summary).Should().Contain("<Namespace contains=\"Restaurant.Kitchen\" />");
 		AssertionExtensions.Should((string)ImmutableArrayExtensions.Single(result.AllowedPolicies).Summary).Be("<Class typeKind=\"Class\" />");
@@ -188,6 +188,7 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 			"Architecture.anl",
 			"""
 			<ArchitecturalLevels description="Rules" requireRecognizedDependencies="Constructor" enforceAcyclic="true" enableReport="true" reportPath="reports/violations.md" enableDocumentation="true" documentationPath="docs/architecture.md">
+			  <ExceptionPolicy requireReason="true" requireOwner="true" requireExpiresOn="true" warnBeforeDays="21" description="Every exception must expire." />
 			  <Include path="Shared.anl" />
 			  <Allowed>
 			    <Class typeKind="Class" />
@@ -202,13 +203,19 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 		var result = ArchitectureConfigurationEditService.GetRootDetails(source);
 
 		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
-		AssertionExtensions.Should((string)result.Description).Be("Rules");
-		AssertionExtensions.Should((string)result.RequireRecognizedDependencies).Be("Constructor");
+		AssertionExtensions.Should((string?)result.Description).Be("Rules");
+		AssertionExtensions.Should((string?)result.RequireRecognizedDependencies).Be("Constructor");
 		AssertionExtensions.Should((bool)result.EnforceAcyclic).BeTrue();
 		AssertionExtensions.Should((bool)result.EnableReport).BeTrue();
-		AssertionExtensions.Should((string)result.ReportPath).Be("reports/violations.md");
+		AssertionExtensions.Should((string?)result.ReportPath).Be("reports/violations.md");
 		AssertionExtensions.Should((bool)result.EnableDocumentation).BeTrue();
-		AssertionExtensions.Should((string)result.DocumentationPath).Be("docs/architecture.md");
+		AssertionExtensions.Should((string?)result.DocumentationPath).Be("docs/architecture.md");
+		AssertionExtensions.Should((bool)result.EnableExceptionPolicy).BeTrue();
+		AssertionExtensions.Should((bool)result.RequireExceptionReason).BeTrue();
+		AssertionExtensions.Should((bool)result.RequireExceptionOwner).BeTrue();
+		AssertionExtensions.Should((bool)result.RequireExceptionExpiresOn).BeTrue();
+		AssertionExtensions.Should((int)result.ExceptionWarnBeforeDays).Be(21);
+		AssertionExtensions.Should((string?)result.ExceptionPolicyDescription).Be("Every exception must expire.");
 		AssertionExtensions.Should((string)ImmutableArrayExtensions.Single(result.Includes).Summary).Be("<Include path=\"Shared.anl\" />");
 		AssertionExtensions.Should((string)ImmutableArrayExtensions.Single(result.AllowedPolicies).Summary).Be("<Class typeKind=\"Class\" />");
 		AssertionExtensions.Should((string)ImmutableArrayExtensions.Single(result.ForbiddenPolicies).Summary).Be("<Namespace contains=\"Legacy\" />");
@@ -235,7 +242,13 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 			true,
 			"reports/violations.md",
 			true,
-			"docs/architecture.md");
+			"docs/architecture.md",
+			true,
+			true,
+			true,
+			true,
+			30,
+			"Temporary exceptions need ownership.");
 
 		var content = File.ReadAllText(path);
 		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
@@ -246,6 +259,46 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 		content.Should().Contain("reportPath=\"reports/violations.md\"");
 		content.Should().Contain("enableDocumentation=\"true\"");
 		content.Should().Contain("documentationPath=\"docs/architecture.md\"");
+		content.Should().Contain("<ExceptionPolicy");
+		content.Should().Contain("requireReason=\"true\"");
+		content.Should().Contain("requireOwner=\"true\"");
+		content.Should().Contain("requireExpiresOn=\"true\"");
+		content.Should().Contain("warnBeforeDays=\"30\"");
+		content.Should().Contain("description=\"Temporary exceptions need ownership.\"");
+	}
+
+	[Fact]
+	public void SetRootSettings_WhenExceptionPolicyDisabled_RemovesExceptionPolicy()
+	{
+		using var directory = new TemporaryDirectory();
+		var path = directory.WriteFile(
+			"Architecture.anl",
+			"""
+			<ArchitecturalLevels>
+			  <ExceptionPolicy requireReason="true" requireOwner="true" />
+			</ArchitecturalLevels>
+			""");
+		var source = new ArchitectureConfigurationSource(ArchitectureConfigurationSourceKind.XmlFile, path);
+
+		var result = ArchitectureConfigurationEditService.SetRootSettings(
+			source,
+			null,
+			null,
+			false,
+			false,
+			null,
+			false,
+			null,
+			false,
+			false,
+			false,
+			false,
+			14,
+			null);
+
+		var content = File.ReadAllText(path);
+		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
+		content.Should().NotContain("ExceptionPolicy");
 	}
 
 	[Fact]

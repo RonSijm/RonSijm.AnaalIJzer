@@ -1,0 +1,11 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd">
+  <Layer name="AspEndpoints">
+    <Class endsWith="Endpoint" />
+    <NameRules>
+      <RequireDeclarationNameMatchesType allowedSites="Method">
+        <Type implements="IHonestType" />
+      </RequireDeclarationNameMatchesType>
+    </NameRules>
+  </Layer>
+</ArchitecturalLevels>

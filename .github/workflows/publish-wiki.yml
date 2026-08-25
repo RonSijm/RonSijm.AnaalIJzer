@@ -1,0 +1,106 @@
+name: publish-wiki
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "docs/**"
+      - "README.md"
+      - "build/Scripts/Docs/**"
+      - ".github/workflows/publish-wiki.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-wiki-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Regenerate README
+        shell: pwsh
+        run: ./docs/build-readme.ps1
+
+      - name: Export docs to wiki pages
+        shell: pwsh
+        run: ./build/Scripts/Docs/export-docs-to-wiki.ps1 -OutputPath ./build/Artifacts/Wiki -Repository "${{ github.repository }}" -RefName "${{ github.ref_name }}"
+
+      - name: Clone wiki repository
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          WIKI_PUSH_TOKEN: ${{ secrets.WIKI_PUSH_TOKEN }}
+        run: |
+          set -euo pipefail
+          token="${WIKI_PUSH_TOKEN:-$GITHUB_TOKEN}"
+          clone_log="$(mktemp)"
+          wiki_url="https://x-access-token:${token}@github.com/${GITHUB_REPOSITORY}.wiki.git"
+
+          if git clone "$wiki_url" wiki >"$clone_log" 2>&1; then
+            cat "$clone_log"
+            rm -f "$clone_log"
+            exit 0
+          fi
+
+          clone_output="$(cat "$clone_log")"
+          rm -f "$clone_log"
+          echo "$clone_output"
+
+          if [[ -z "${WIKI_PUSH_TOKEN:-}" ]]; then
+            echo "::error::Could not access ${GITHUB_REPOSITORY}.wiki.git with the default GITHUB_TOKEN. Add a repository secret named WIKI_PUSH_TOKEN with GitHub wiki write access, and make sure the repository wiki is enabled and initialized by creating the first wiki page once."
+            exit 1
+          fi
+
+          echo "::error::Could not access ${GITHUB_REPOSITORY}.wiki.git with WIKI_PUSH_TOKEN. Make sure the repository wiki is enabled, the wiki has been initialized with a first page, and the token has read/write access to the repository wiki."
+          exit 1
+
+      - name: Replace generated wiki pages
+        shell: pwsh
+        run: |
+          $wikiPath = Resolve-Path -LiteralPath wiki
+          $generatedSource = Resolve-Path -LiteralPath build/Artifacts/Wiki
+          $generatedList = Join-Path $wikiPath ".anaalijzer-generated-files"
+
+          if (Test-Path -LiteralPath $generatedList) {
+              $previousFiles = Get-Content -LiteralPath $generatedList -Encoding UTF8
+              foreach ($previousFile in $previousFiles) {
+                  if ([string]::IsNullOrWhiteSpace($previousFile)) {
+                      continue
+                  }
+
+                  $target = Join-Path $wikiPath $previousFile
+                  if (Test-Path -LiteralPath $target) {
+                      Remove-Item -LiteralPath $target -Force
+                  }
+              }
+          }
+
+          Get-ChildItem -LiteralPath $generatedSource -Force | ForEach-Object {
+              Copy-Item -LiteralPath $_.FullName -Destination $wikiPath -Recurse -Force
+          }
+
+      - name: Commit and push wiki changes
+        shell: pwsh
+        run: |
+          git -C wiki config user.name "github-actions[bot]"
+          git -C wiki config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C wiki add .
+
+          $status = git -C wiki status --porcelain
+          if ([string]::IsNullOrWhiteSpace($status)) {
+              Write-Host "Wiki is already up to date."
+              exit 0
+          }
+
+          git -C wiki commit -m "Publish documentation wiki"
+          git -C wiki push

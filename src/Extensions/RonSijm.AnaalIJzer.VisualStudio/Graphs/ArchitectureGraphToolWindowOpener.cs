@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 using RonSijm.AnaalIJzer.Graphing.Loading;
 using RonSijm.AnaalIJzer.VisualStudio.Diagnostics;
 
-namespace RonSijm.AnaalIJzer.VisualStudio;
+namespace RonSijm.AnaalIJzer.VisualStudio.Graphs;
 
 internal static class ArchitectureGraphToolWindowOpener
 {

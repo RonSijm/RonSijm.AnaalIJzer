@@ -170,4 +170,7 @@ $RECYCLE.BIN/
 artifacts/
 build/Artifacts/*
 !build/Artifacts/.gitkeep
+/src/**/[Bb]uild/
+/Examples/**/[Bb]uild/
 
+tmp/

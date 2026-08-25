@@ -11,8 +11,13 @@ public sealed class ArchitectureLayerInspectionResult
 		string? description,
 		string? requireRecognizedDependencies,
 		ImmutableArray<ArchitectureConfigurationElementDetails> matchers,
+		ImmutableArray<ArchitectureConfigurationElementDetails> exceptionMatchers,
 		ImmutableArray<ArchitectureConfigurationElementDetails> allowedPolicies,
-		ImmutableArray<ArchitectureConfigurationElementDetails> forbiddenPolicies)
+		ImmutableArray<ArchitectureConfigurationElementDetails> forbiddenPolicies,
+		ImmutableArray<ArchitectureConfigurationElementDetails> nameRules,
+		ImmutableArray<ArchitectureConfigurationElementDetails> inheritancePolicies,
+		ImmutableArray<ArchitectureConfigurationElementDetails> visibilityPolicies,
+		ImmutableArray<ArchitectureConfigurationElementDetails> apiSurfacePolicies)
 	{
 		Succeeded = succeeded;
 		Message = message;
@@ -20,8 +25,13 @@ public sealed class ArchitectureLayerInspectionResult
 		Description = description;
 		RequireRecognizedDependencies = requireRecognizedDependencies;
 		Matchers = matchers;
+		ExceptionMatchers = exceptionMatchers;
 		AllowedPolicies = allowedPolicies;
 		ForbiddenPolicies = forbiddenPolicies;
+		NameRules = nameRules;
+		InheritancePolicies = inheritancePolicies;
+		VisibilityPolicies = visibilityPolicies;
+		ApiSurfacePolicies = apiSurfacePolicies;
 	}
 
 	public bool Succeeded { get; }
@@ -36,17 +46,32 @@ public sealed class ArchitectureLayerInspectionResult
 
 	public ImmutableArray<ArchitectureConfigurationElementDetails> Matchers { get; }
 
+	public ImmutableArray<ArchitectureConfigurationElementDetails> ExceptionMatchers { get; }
+
 	public ImmutableArray<ArchitectureConfigurationElementDetails> AllowedPolicies { get; }
 
 	public ImmutableArray<ArchitectureConfigurationElementDetails> ForbiddenPolicies { get; }
+
+	public ImmutableArray<ArchitectureConfigurationElementDetails> NameRules { get; }
+
+	public ImmutableArray<ArchitectureConfigurationElementDetails> InheritancePolicies { get; }
+
+	public ImmutableArray<ArchitectureConfigurationElementDetails> VisibilityPolicies { get; }
+
+	public ImmutableArray<ArchitectureConfigurationElementDetails> ApiSurfacePolicies { get; }
 
 	public static ArchitectureLayerInspectionResult Success(
 		string name,
 		string? description,
 		string? requireRecognizedDependencies,
 		ImmutableArray<ArchitectureConfigurationElementDetails> matchers,
+		ImmutableArray<ArchitectureConfigurationElementDetails> exceptionMatchers,
 		ImmutableArray<ArchitectureConfigurationElementDetails> allowedPolicies,
-		ImmutableArray<ArchitectureConfigurationElementDetails> forbiddenPolicies)
+		ImmutableArray<ArchitectureConfigurationElementDetails> forbiddenPolicies,
+		ImmutableArray<ArchitectureConfigurationElementDetails> nameRules,
+		ImmutableArray<ArchitectureConfigurationElementDetails> inheritancePolicies,
+		ImmutableArray<ArchitectureConfigurationElementDetails> visibilityPolicies,
+		ImmutableArray<ArchitectureConfigurationElementDetails> apiSurfacePolicies)
 	{
 		var result = new ArchitectureLayerInspectionResult(
 			true,
@@ -55,8 +80,13 @@ public sealed class ArchitectureLayerInspectionResult
 			description,
 			requireRecognizedDependencies,
 			matchers,
+			exceptionMatchers,
 			allowedPolicies,
-			forbiddenPolicies);
+			forbiddenPolicies,
+			nameRules,
+			inheritancePolicies,
+			visibilityPolicies,
+			apiSurfacePolicies);
 
 		return result;
 	}
@@ -69,6 +99,11 @@ public sealed class ArchitectureLayerInspectionResult
 			string.Empty,
 			null,
 			null,
+			ImmutableArray<ArchitectureConfigurationElementDetails>.Empty,
+			ImmutableArray<ArchitectureConfigurationElementDetails>.Empty,
+			ImmutableArray<ArchitectureConfigurationElementDetails>.Empty,
+			ImmutableArray<ArchitectureConfigurationElementDetails>.Empty,
+			ImmutableArray<ArchitectureConfigurationElementDetails>.Empty,
 			ImmutableArray<ArchitectureConfigurationElementDetails>.Empty,
 			ImmutableArray<ArchitectureConfigurationElementDetails>.Empty,
 			ImmutableArray<ArchitectureConfigurationElementDetails>.Empty);

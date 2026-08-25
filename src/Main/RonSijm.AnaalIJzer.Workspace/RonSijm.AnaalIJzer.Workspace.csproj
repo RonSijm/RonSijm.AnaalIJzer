@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="../../../build/Settings/NuGetVersioning.props" />
+  <Import Project="../../../build/Settings/MSBuildWorkspacePackageReferences.props" />
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <EnableArchitecturalLevelAnalyzer>false</EnableArchitecturalLevelAnalyzer>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Engine\RonSijm.AnaalIJzer.Engine.csproj" />
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.RuntimeConfig\RonSijm.AnaalIJzer.Core.RuntimeConfig.csproj" />
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.BuildMetadata\RonSijm.AnaalIJzer.Core.BuildMetadata.csproj" />
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.ConfigurationEditing\RonSijm.AnaalIJzer.ConfigurationEditing.csproj"
+                      SetTargetFramework="TargetFramework=netstandard2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="RonSijm.AnaalIJzer.Application" />
+    <InternalsVisibleTo Include="RonSijm.AnaalIJzer.Application.Tests" />
+    <InternalsVisibleTo Include="RonSijm.AnaalIJzer.GraphWorkspace" />
+    <InternalsVisibleTo Include="RonSijm.AnaalIJzer.GraphWorkspace.Tests" />
+    <InternalsVisibleTo Include="RonSijm.AnaalIJzer.IntegrationTests" />
+    <InternalsVisibleTo Include="RonSijm.AnaalIJzer.Workspace.Tests" />
+  </ItemGroup>
+
+</Project>

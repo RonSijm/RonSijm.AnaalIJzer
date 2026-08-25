@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <Import Project="../../../build/Settings/NuGetVersioning.props" />
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+        <EnableArchitecturalLevelAnalyzer>false</EnableArchitecturalLevelAnalyzer>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.ConfigurationEditing\RonSijm.AnaalIJzer.ConfigurationEditing.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Exceptions\RonSijm.AnaalIJzer.Core.Exceptions.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Observations\RonSijm.AnaalIJzer.Core.Observations.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.RuntimeConfig\RonSijm.AnaalIJzer.Core.RuntimeConfig.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Engine\RonSijm.AnaalIJzer.Engine.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Graphing\RonSijm.AnaalIJzer.Graphing.csproj"
+                          SetTargetFramework="TargetFramework=netstandard2.0" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.GraphModel\RonSijm.AnaalIJzer.GraphModel.csproj"
+                          SetTargetFramework="TargetFramework=netstandard2.0" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Workspace\RonSijm.AnaalIJzer.Workspace.csproj" />
+    </ItemGroup>
+
+</Project>

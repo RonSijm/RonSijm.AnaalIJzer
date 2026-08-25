@@ -1,36 +1,40 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
+using System.Reflection;
 
 namespace RonSijm.AnaalIJzer.VisualStudio.Diagnostics;
 
 internal static class ArchitectureVisualStudioLog
 {
+	private const string ActivityLogServiceTypeName = "Microsoft.VisualStudio.Shell.Interop.SVsActivityLog, Microsoft.VisualStudio.Interop";
+	private const string OutputWindowServiceTypeName = "Microsoft.VisualStudio.Shell.Interop.SVsOutputWindow, Microsoft.VisualStudio.Interop";
+	private const uint InformationEntryType = 0;
+	private const uint WarningEntryType = 1;
+	private const uint ErrorEntryType = 2;
 	private static readonly Guid PaneGuid = new("1e6f27a0-7148-4ea5-b8f3-6d6e9b86f00f");
 	private static readonly ConcurrentQueue<LogEntry> PendingEntries = new();
-	private static AsyncPackage? package;
+	private static object? package;
 
-	internal static void Initialize(AsyncPackage packageInstance)
+	internal static void Initialize(object packageInstance)
 	{
 		package = packageInstance;
 		Info("Logger initialized.");
-		_ = packageInstance.JoinableTaskFactory.RunAsync(FlushPendingEntriesAsync);
+		RunFireAndForget(FlushPendingEntriesAsync);
 	}
 
 	internal static void Info(string message)
 	{
-		Write(__ACTIVITYLOG_ENTRYTYPE.ALE_INFORMATION, message);
+		Write(InformationEntryType, message);
 	}
 
 	internal static void Warning(string message)
 	{
-		Write(__ACTIVITYLOG_ENTRYTYPE.ALE_WARNING, message);
+		Write(WarningEntryType, message);
 	}
 
 	internal static void Error(string message)
 	{
-		Write(__ACTIVITYLOG_ENTRYTYPE.ALE_ERROR, message);
+		Write(ErrorEntryType, message);
 	}
 
 	internal static void Exception(string context, Exception exception)
@@ -38,7 +42,7 @@ internal static class ArchitectureVisualStudioLog
 		Error(context + Environment.NewLine + exception);
 	}
 
-	private static void Write(__ACTIVITYLOG_ENTRYTYPE entryType, string message)
+	private static void Write(uint entryType, string message)
 	{
 		var entry = new LogEntry(entryType, FormatMessage(message));
 		Trace.WriteLine("[AnaalIJzer] " + entry.Message);
@@ -49,7 +53,7 @@ internal static class ArchitectureVisualStudioLog
 			return;
 		}
 
-		_ = package.JoinableTaskFactory.RunAsync(async () => await WriteAsync(entry));
+		RunFireAndForget(() => WriteAsync(entry));
 	}
 
 	private static async Task FlushPendingEntriesAsync()
@@ -70,24 +74,109 @@ internal static class ArchitectureVisualStudioLog
 
 		try
 		{
-			await package.JoinableTaskFactory.SwitchToMainThreadAsync(package.DisposalToken);
-			if (await package.GetServiceAsync(typeof(SVsActivityLog)) is IVsActivityLog activityLog)
-			{
-				activityLog.LogEntry((uint)entry.EntryType, "AnaalIJzer", entry.Message);
-			}
-
-			if (await package.GetServiceAsync(typeof(SVsOutputWindow)) is IVsOutputWindow outputWindow)
-			{
-				var paneGuid = PaneGuid;
-				outputWindow.CreatePane(ref paneGuid, "AnaalIJzer", 1, 1);
-				outputWindow.GetPane(ref paneGuid, out var pane);
-				pane?.OutputStringThreadSafe(entry.Message + Environment.NewLine);
-			}
+			await WriteActivityLogAsync(entry);
+			await WriteOutputWindowAsync(entry);
 		}
 		catch (Exception exception) when (exception is not OperationCanceledException)
 		{
 			Trace.WriteLine("[AnaalIJzer] Failed to write Visual Studio log entry: " + exception);
 		}
+	}
+
+	private static async Task WriteActivityLogAsync(LogEntry entry)
+	{
+		var serviceType = Type.GetType(ActivityLogServiceTypeName, throwOnError: false);
+		if (package is null || serviceType is null)
+		{
+			return;
+		}
+
+		var service = await GetServiceAsync(package, serviceType);
+		if (service is null)
+		{
+			return;
+		}
+
+		var logMethod = service.GetType().GetMethod("LogEntry", BindingFlags.Instance | BindingFlags.Public);
+		if (logMethod is null)
+		{
+			return;
+		}
+
+		var arguments = new object[] { entry.EntryType, "AnaalIJzer", entry.Message };
+		logMethod.Invoke(service, arguments);
+	}
+
+	private static async Task WriteOutputWindowAsync(LogEntry entry)
+	{
+		var serviceType = Type.GetType(OutputWindowServiceTypeName, throwOnError: false);
+		if (package is null || serviceType is null)
+		{
+			return;
+		}
+
+		var service = await GetServiceAsync(package, serviceType);
+		if (service is null)
+		{
+			return;
+		}
+
+		var serviceRuntimeType = service.GetType();
+		var createPaneMethod = serviceRuntimeType.GetMethod("CreatePane", BindingFlags.Instance | BindingFlags.Public);
+		var getPaneMethod = serviceRuntimeType.GetMethod("GetPane", BindingFlags.Instance | BindingFlags.Public);
+		if (createPaneMethod is null || getPaneMethod is null)
+		{
+			return;
+		}
+
+		var paneGuid = PaneGuid;
+		var createArguments = new object[] { paneGuid, "AnaalIJzer", 1, 1 };
+		createPaneMethod.Invoke(service, createArguments);
+		paneGuid = createArguments[0] is Guid updatedGuid ? updatedGuid : PaneGuid;
+
+		var getPaneArguments = new object?[] { paneGuid, null };
+		getPaneMethod.Invoke(service, getPaneArguments);
+		var pane = getPaneArguments[1];
+		if (pane is null)
+		{
+			return;
+		}
+
+		var outputMethod = pane.GetType().GetMethod("OutputStringThreadSafe", BindingFlags.Instance | BindingFlags.Public);
+		if (outputMethod is null)
+		{
+			return;
+		}
+
+		var outputArguments = new object[] { entry.Message + Environment.NewLine };
+		outputMethod.Invoke(pane, outputArguments);
+	}
+
+	private static void RunFireAndForget(Func<Task> action)
+	{
+		var result = Task.Run(action);
+	}
+
+	private static async Task<object?> GetServiceAsync(object packageInstance, Type serviceType)
+	{
+		var method = packageInstance.GetType().GetMethod("GetServiceAsync", [typeof(Type)]);
+		if (method is null)
+		{
+			return null;
+		}
+
+		var invocationResult = method.Invoke(packageInstance, [serviceType]);
+		if (invocationResult is not Task task)
+		{
+			return null;
+		}
+
+		await task.ConfigureAwait(false);
+
+		var resultProperty = task.GetType().GetProperty("Result", BindingFlags.Instance | BindingFlags.Public);
+		var result = resultProperty?.GetValue(task);
+
+		return result;
 	}
 
 	private static string FormatMessage(string message)
@@ -97,9 +186,9 @@ internal static class ArchitectureVisualStudioLog
 		return result;
 	}
 
-	private readonly struct LogEntry(__ACTIVITYLOG_ENTRYTYPE entryType, string message)
+	private readonly struct LogEntry(uint entryType, string message)
     {
-        public __ACTIVITYLOG_ENTRYTYPE EntryType { get; } = entryType;
+        public uint EntryType { get; } = entryType;
 
         public string Message { get; } = message;
     }

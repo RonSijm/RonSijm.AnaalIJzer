@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="../../../build/Settings/NuGetVersioning.props" />
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <EnableArchitecturalLevelAnalyzer>false</EnableArchitecturalLevelAnalyzer>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Visibility\RonSijm.AnaalIJzer.Core.Visibility.csproj" />
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Exceptions\RonSijm.AnaalIJzer.Core.Exceptions.csproj" />
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.LayerModel\RonSijm.AnaalIJzer.Core.LayerModel.csproj" />
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.RuntimeConfig\RonSijm.AnaalIJzer.Core.RuntimeConfig.csproj" />
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Findings\RonSijm.AnaalIJzer.Core.Findings.csproj" />
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Observations\RonSijm.AnaalIJzer.Core.Observations.csproj" />
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Engine\RonSijm.AnaalIJzer.Engine.csproj" />
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Outputs\RonSijm.AnaalIJzer.Outputs.csproj" />
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Workspace\RonSijm.AnaalIJzer.Workspace.csproj" />
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.ConfigurationEditing\RonSijm.AnaalIJzer.ConfigurationEditing.csproj"
+                      SetTargetFramework="TargetFramework=netstandard2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="RonSijm.AnaalIJzer.Application.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\RonSijm.AnaalIJzer\Scheme\AnaalIJzer.xsd"
+                      LogicalName="RonSijm.AnaalIJzer.Application.AnaalIJzer.xsd" />
+  </ItemGroup>
+
+</Project>

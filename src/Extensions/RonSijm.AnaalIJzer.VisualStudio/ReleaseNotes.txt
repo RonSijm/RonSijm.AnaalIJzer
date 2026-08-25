@@ -7,5 +7,5 @@ AnaalIJzer Visual Studio Companion
 - Adds the AnaalIJzer: Show Status command for active-document troubleshooting.
 - Adds Activity Log and Output window diagnostics for package loading, command registration, editor taggers, config discovery, and snapshot results.
 - Adds graph focus modes to show all graphs, highlight the active graph, or filter to the active graph.
-- Reads the same Architecture.anl, Architecture.anl, or AssemblyMetadata("AnaalIJzerSettings", ...) configuration as the analyzer.
+- Reads the same Architecture.anl or AssemblyMetadata("AnaalIJzerSettings", ...) configuration as the analyzer.
 - Targets Visual Studio 2026 and registers the options page for the modern Settings experience.
