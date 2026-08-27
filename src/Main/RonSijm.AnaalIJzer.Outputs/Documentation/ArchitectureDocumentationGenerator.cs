@@ -1,6 +1,6 @@
-using RonSijm.AnaalIJzer.Model;
+using RonSijm.AnaalIJzer.Core.RuntimeConfig.Config.Model;
 
-namespace RonSijm.AnaalIJzer.Documentation;
+namespace RonSijm.AnaalIJzer.Outputs.Documentation;
 
 /// <summary>
 ///     Facade for architecture documentation generation.

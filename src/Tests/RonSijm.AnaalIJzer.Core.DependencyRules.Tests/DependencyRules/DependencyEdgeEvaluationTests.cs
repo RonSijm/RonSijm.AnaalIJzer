@@ -1,5 +1,3 @@
-using RonSijm.AnaalIJzer.Engine.DependencyRules;
-
 namespace RonSijm.AnaalIJzer.Core.DependencyRules.Tests.DependencyRules;
 
 public sealed class DependencyEdgeEvaluationTests

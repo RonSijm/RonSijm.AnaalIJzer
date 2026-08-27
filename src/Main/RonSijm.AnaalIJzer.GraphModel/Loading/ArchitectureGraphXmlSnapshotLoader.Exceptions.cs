@@ -1,9 +1,9 @@
 using System.Collections.Immutable;
 using System.Xml;
 using System.Xml.Linq;
-using RonSijm.AnaalIJzer.Graphing.Model;
+using RonSijm.AnaalIJzer.GraphModel.Model;
 
-namespace RonSijm.AnaalIJzer.Graphing.Loading;
+namespace RonSijm.AnaalIJzer.GraphModel.Loading;
 
 public static partial class ArchitectureGraphXmlSnapshotLoader
 {
@@ -31,7 +31,7 @@ public static partial class ArchitectureGraphXmlSnapshotLoader
 
 		foreach (var layer in container.Elements().Where(element => IsElement(element, LayerElementName)))
 		{
-			var name = layer.Attribute("name")?.Value?.Trim();
+			var name = layer.Attribute("name")?.Value.Trim();
 			if (string.IsNullOrWhiteSpace(name))
 			{
 				continue;
@@ -86,15 +86,15 @@ public static partial class ArchitectureGraphXmlSnapshotLoader
 		}
 
 		var line = (IXmlLineInfo)matcher;
-		var expiresOn = matcher.Attribute("expiresOn")?.Value?.Trim();
+		var expiresOn = matcher.Attribute("expiresOn")?.Value.Trim();
 		reviews.Add(new ArchitectureGraphExceptionReview(
 			ownerLayerPath,
 			matcher.Name.LocalName,
 			FormatMatcherLabel(matcher),
 			status.Value.Status,
 			status.Value.Message,
-			matcher.Attribute("reason")?.Value?.Trim(),
-			matcher.Attribute("owner")?.Value?.Trim(),
+			matcher.Attribute("reason")?.Value.Trim(),
+			matcher.Attribute("owner")?.Value.Trim(),
 			string.IsNullOrWhiteSpace(expiresOn) ? null : expiresOn,
 			sourcePath,
 			line.HasLineInfo() ? line.LineNumber : 0,

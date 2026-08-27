@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer.Engine.LayerModel;
+namespace RonSijm.AnaalIJzer.Core.LayerModel;
 
 /// <summary>Describes why a dependency type failed an Allowed or Forbidden type policy.</summary>
 public readonly struct TypePolicyViolation(

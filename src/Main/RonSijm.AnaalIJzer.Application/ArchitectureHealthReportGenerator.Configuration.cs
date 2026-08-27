@@ -1,10 +1,9 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.Config.Parsing;
-using RonSijm.AnaalIJzer.Engine.DependencyRules;
-using RonSijm.AnaalIJzer;
-using RonSijm.AnaalIJzer.Exceptions;
-using RonSijm.AnaalIJzer.Findings;
-using AnalyzerConfiguration = RonSijm.AnaalIJzer.Model.AnalyzerConfig;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+using RonSijm.AnaalIJzer.Core.Findings;
+using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.DependencyRules;
+using RonSijm.AnaalIJzer.Workspace.Analysis;
+using AnalyzerConfiguration = RonSijm.AnaalIJzer.Core.RuntimeConfig.Config.Model.AnalyzerConfig;
 
 namespace RonSijm.AnaalIJzer.Application;
 
@@ -40,10 +39,12 @@ internal static partial class ArchitectureHealthReportGenerator
 
 	private static IReadOnlyList<ProjectConfigurationGroup> GroupByConfiguration(ImmutableArray<ProjectAnalysisResult> projects)
 	{
-		var groups = projects
-			.GroupBy(GetConfigurationKey, StringComparer.OrdinalIgnoreCase)
-			.Select(group => new ProjectConfigurationGroup(group.ToImmutableArray()))
-			.ToArray();
+		ProjectConfigurationGroup[] groups =
+		[
+			..projects
+				.GroupBy(GetConfigurationKey, StringComparer.OrdinalIgnoreCase)
+				.Select(group => new ProjectConfigurationGroup([..group]))
+		];
 		var result = (IReadOnlyList<ProjectConfigurationGroup>)groups;
 
 		return result;

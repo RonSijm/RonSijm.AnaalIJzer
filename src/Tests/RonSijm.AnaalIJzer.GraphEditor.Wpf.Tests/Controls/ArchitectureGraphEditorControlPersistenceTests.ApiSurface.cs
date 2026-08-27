@@ -1,8 +1,8 @@
 using System.IO;
 using System.Windows;
 using AwesomeAssertions;
-using RonSijm.AnaalIJzer.Graphing.Loading;
 using RonSijm.AnaalIJzer.GraphApplication.Selection;
+using RonSijm.AnaalIJzer.GraphModel.Loading;
 using Xunit;
 
 namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests.Controls;
@@ -32,7 +32,7 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 			var control = CreateControl(snapshot, _ => ArchitectureGraphXmlSnapshotLoader.Load(path));
 			var application = snapshot.Layers.Single(layer => layer.Path == "Application");
 			control.Select(ArchitectureGraphSelection.ForLayer(application.EditHandle));
-			var policy = FindVisualDescendants<System.Windows.Controls.Expander>(control).Single(expander => expander.Header?.ToString()?.StartsWith("<ApiSurface", StringComparison.Ordinal) == true);
+			var policy = FindVisualDescendants<System.Windows.Controls.Expander>(control).Single(expander => GetText(expander.Header)?.StartsWith("<ApiSurface", StringComparison.Ordinal) == true);
 			policy.IsExpanded = true;
 			DrainDispatcher();
 
@@ -69,7 +69,7 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 			var control = CreateControl(snapshot, _ => LoadInlineSnapshot(path));
 			var application = snapshot.Layers.Single(layer => layer.Path == "CandyService");
 			control.Select(ArchitectureGraphSelection.ForLayer(application.EditHandle));
-			var policy = FindVisualDescendants<System.Windows.Controls.Expander>(control).Single(expander => expander.Header?.ToString()?.StartsWith("<ApiSurface", StringComparison.Ordinal) == true);
+			var policy = FindVisualDescendants<System.Windows.Controls.Expander>(control).Single(expander => GetText(expander.Header)?.StartsWith("<ApiSurface", StringComparison.Ordinal) == true);
 			policy.IsExpanded = true;
 			DrainDispatcher();
 
@@ -108,7 +108,7 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 			var control = CreateControl(snapshot, _ => LoadInlineSnapshot(path));
 			var application = snapshot.Layers.Single(layer => layer.Path == "CandyService");
 			control.Select(ArchitectureGraphSelection.ForLayer(application.EditHandle));
-			var policy = FindVisualDescendants<System.Windows.Controls.Expander>(control).Single(expander => expander.Header?.ToString()?.StartsWith("<ApiSurface", StringComparison.Ordinal) == true);
+			var policy = FindVisualDescendants<System.Windows.Controls.Expander>(control).Single(expander => GetText(expander.Header)?.StartsWith("<ApiSurface", StringComparison.Ordinal) == true);
 			policy.IsExpanded = true;
 			DrainDispatcher();
 

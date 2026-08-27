@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer.Contracts;
+namespace RonSijm.AnaalIJzer.Core.Contracts.Contracts;
 
 public readonly struct ContractPolicyEvaluation(
 	ContractPolicy policy,

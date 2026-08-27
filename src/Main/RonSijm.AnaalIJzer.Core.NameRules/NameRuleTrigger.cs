@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer.Engine.NameRules;
+namespace RonSijm.AnaalIJzer.Core.NameRules;
 
 public enum NameRuleTrigger
 {

@@ -1,6 +1,7 @@
 using System.Text;
 using RonSijm.AnaalIJzer.ConfigurationEditing.Document;
 using AwesomeAssertions;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
 using Xunit;
 
 namespace RonSijm.AnaalIJzer.ConfigurationEditing.Tests.Document;
@@ -10,6 +11,7 @@ public sealed class ArchitectureConfigurationFileServiceTests
 	[Fact]
 	public async Task FormatAsync_RewritesConfigurationToUtf8WithoutBom()
 	{
+		var cancellationToken = TestContext.Current.CancellationToken;
 		using var directory = new TemporaryDirectory();
 		var inputPath = directory.WriteFile(
 			"Architecture.anl",
@@ -20,17 +22,18 @@ public sealed class ArchitectureConfigurationFileServiceTests
 			new UTF8Encoding(true));
 		var outputPath = directory.GetPath("Formatted.anl");
 
-		await ArchitectureConfigurationFileService.FormatAsync(inputPath, outputPath, force: false, CancellationToken.None);
+		await ArchitectureConfigurationFileService.FormatAsync(inputPath, outputPath, force: false, cancellationToken);
 
-		var bytes = File.ReadAllBytes(outputPath);
+		var bytes = await File.ReadAllBytesAsync(outputPath, cancellationToken);
 		bytes.Take(3).Should().NotEqual([0xEF, 0xBB, 0xBF]);
-		File.ReadAllText(outputPath).Should().Contain("encoding=\"utf-8\"");
-		File.ReadAllText(outputPath).Should().Contain("<Layer name=\"Customer\">");
+		(await File.ReadAllTextAsync(outputPath, cancellationToken)).Should().Contain("encoding=\"utf-8\"");
+		(await File.ReadAllTextAsync(outputPath, cancellationToken)).Should().Contain("<Layer name=\"Customer\">");
 	}
 
 	[Fact]
 	public async Task MergeAsync_WritesSingleConfigurationContainingAllLayers()
 	{
+		var cancellationToken = TestContext.Current.CancellationToken;
 		using var directory = new TemporaryDirectory();
 		var customerPath = directory.WriteFile(
 			"Customers.anl",
@@ -48,9 +51,9 @@ public sealed class ArchitectureConfigurationFileServiceTests
 			""");
 		var outputPath = directory.GetPath("Merged.anl");
 
-		await ArchitectureConfigurationFileService.MergeAsync([customerPath, waiterPath], outputPath, force: false, CancellationToken.None);
+		await ArchitectureConfigurationFileService.MergeAsync([customerPath, waiterPath], outputPath, force: false, cancellationToken);
 
-		var content = File.ReadAllText(outputPath);
+		var content = await File.ReadAllTextAsync(outputPath, cancellationToken);
 		content.Should().Contain("<ArchitecturalLevels");
 		content.Should().Contain("description=\"Restaurant rules\"");
 		content.Should().Contain("requireRecognizedDependencies=\"Constructor\"");
@@ -61,6 +64,7 @@ public sealed class ArchitectureConfigurationFileServiceTests
 	[Fact]
 	public async Task SplitAsync_WritesManifestSharedRulesAndGraphFiles()
 	{
+		var cancellationToken = TestContext.Current.CancellationToken;
 		using var directory = new TemporaryDirectory();
 		var inputPath = directory.WriteFile(
 			"Architecture.anl",
@@ -79,7 +83,7 @@ public sealed class ArchitectureConfigurationFileServiceTests
 			""");
 		var outputDirectory = directory.GetPath("Split");
 
-		var graphCount = await ArchitectureConfigurationFileService.SplitAsync(inputPath, outputDirectory, force: false, CancellationToken.None);
+		var graphCount = await ArchitectureConfigurationFileService.SplitAsync(inputPath, outputDirectory, force: false, cancellationToken);
 
 		graphCount.Should().Be(2);
 
@@ -90,12 +94,13 @@ public sealed class ArchitectureConfigurationFileServiceTests
 		var graphFiles = Directory.GetFiles(outputDirectory, "Graph.*.anl");
 		graphFiles.Should().HaveCount(2);
 
-		var manifestContent = File.ReadAllText(manifestPath);
+		var manifestContent = await File.ReadAllTextAsync(manifestPath, cancellationToken);
 		manifestContent.Should().Contain("<Include path=\"Shared.anl\" />");
 		manifestContent.Should().Contain("Graph.01");
 		manifestContent.Should().Contain("Graph.02");
 
-		var combinedGraphContent = string.Join(Environment.NewLine, graphFiles.Select(File.ReadAllText));
+		var graphContents = await Task.WhenAll(graphFiles.Select(path => File.ReadAllTextAsync(path, cancellationToken)));
+		var combinedGraphContent = string.Join(Environment.NewLine, graphContents);
 		combinedGraphContent.Should().Contain("<Layer name=\"Customer\">");
 		combinedGraphContent.Should().Contain("<Layer name=\"Waiter\">");
 		combinedGraphContent.Should().Contain("<Layer name=\"Chef\">");
@@ -104,12 +109,12 @@ public sealed class ArchitectureConfigurationFileServiceTests
 
 	private sealed class TemporaryDirectory : IDisposable
 	{
-		private readonly string path = Path.Combine(Path.GetTempPath(), "AnaalIJzerConfigFileServiceTests", Guid.NewGuid().ToString("N"));
+		private readonly string _path = Path.Combine(Path.GetTempPath(), "AnaalIJzerConfigFileServiceTests", Guid.NewGuid().ToString("N"));
 
 		public string WriteFile(string fileName, string content, Encoding? encoding = null)
 		{
-			Directory.CreateDirectory(path);
-			var filePath = Path.Combine(path, fileName);
+			Directory.CreateDirectory(_path);
+			var filePath = Path.Combine(_path, fileName);
 			File.WriteAllText(filePath, content, encoding ?? new UTF8Encoding(false));
 
 			return filePath;
@@ -117,17 +122,17 @@ public sealed class ArchitectureConfigurationFileServiceTests
 
 		public string GetPath(string fileNameOrDirectoryName)
 		{
-			Directory.CreateDirectory(path);
-			var result = Path.Combine(path, fileNameOrDirectoryName);
+			Directory.CreateDirectory(_path);
+			var result = Path.Combine(_path, fileNameOrDirectoryName);
 
 			return result;
 		}
 
 		public void Dispose()
 		{
-			if (Directory.Exists(path))
+			if (Directory.Exists(_path))
 			{
-				Directory.Delete(path, true);
+				Directory.Delete(_path, true);
 			}
 		}
 	}

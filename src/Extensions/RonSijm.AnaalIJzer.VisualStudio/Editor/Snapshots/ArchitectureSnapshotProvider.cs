@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.Text;
 using Microsoft.VisualStudio.LanguageServices;
 using Microsoft.VisualStudio.Text;
 using RonSijm.AnaalIJzer.Core.Editor.Snapshots;
-using RonSijm.AnaalIJzer.EditorRuntime.Snapshots;
+using RonSijm.AnaalIJzer.EditorRuntime.Editor.Snapshots;
 using RonSijm.AnaalIJzer.VisualStudio.Diagnostics;
 using RonSijm.AnaalIJzer.VisualStudio.Options;
 
@@ -15,19 +15,19 @@ namespace RonSijm.AnaalIJzer.VisualStudio.Editor.Snapshots;
 [Export]
 internal sealed partial class ArchitectureSnapshotProvider
 {
-	private readonly VisualStudioWorkspace workspace;
-	private readonly ITextDocumentFactoryService textDocumentFactory;
-	private readonly ConcurrentDictionary<SnapshotCacheKey, Task<ArchitectureEditorSnapshot>> cache = new();
+	private readonly VisualStudioWorkspace _workspace;
+	private readonly ITextDocumentFactoryService _textDocumentFactory;
+	private readonly ConcurrentDictionary<SnapshotCacheKey, Task<ArchitectureEditorSnapshot>> _cache = new();
 	private const int MaximumCachedSnapshots = 128;
 
-	[System.ComponentModel.Composition.ImportingConstructor]
+	[ImportingConstructor]
 	public ArchitectureSnapshotProvider(VisualStudioWorkspace workspace, ITextDocumentFactoryService textDocumentFactory)
 	{
-		this.workspace = workspace;
-		this.textDocumentFactory = textDocumentFactory;
-		this.workspace.WorkspaceChanged += (_, args) =>
+		this._workspace = workspace;
+		this._textDocumentFactory = textDocumentFactory;
+		this._workspace.WorkspaceChanged += (_, args) =>
 		{
-			cache.Clear();
+			_cache.Clear();
 			ArchitectureVisualStudioLog.Info("Workspace changed: " + args.Kind + ". Snapshot cache cleared.");
 		};
 		ArchitectureVisualStudioLog.Info("ArchitectureSnapshotProvider created.");
@@ -35,7 +35,7 @@ internal sealed partial class ArchitectureSnapshotProvider
 
 	internal async Task<ArchitectureEditorSnapshot> CreateSnapshotAsync(ITextBuffer buffer, CancellationToken cancellationToken)
 	{
-		if (!textDocumentFactory.TryGetTextDocument(buffer, out var textDocument))
+		if (!_textDocumentFactory.TryGetTextDocument(buffer, out var textDocument))
 		{
 			ArchitectureVisualStudioDiagnostics.Publish("AnaalIJzer did not analyze the active buffer because Visual Studio did not expose it as a text document.");
 			return ArchitectureEditorSnapshot.Empty;
@@ -50,7 +50,7 @@ internal sealed partial class ArchitectureSnapshotProvider
 			return ArchitectureEditorSnapshot.Empty;
 		}
 
-		var document = workspace.CurrentSolution.GetDocument(documentId);
+		var document = _workspace.CurrentSolution.GetDocument(documentId);
 		if (document is null)
 		{
 			ArchitectureVisualStudioDiagnostics.Publish($"AnaalIJzer did not analyze '{textDocument.FilePath}' because Visual Studio could not resolve the Roslyn document.");
@@ -72,14 +72,14 @@ internal sealed partial class ArchitectureSnapshotProvider
 		var additionalFiles = await ResolveAdditionalFilesAsync(document, textDocument.FilePath, cancellationToken);
 		var configFingerprint = CreateConfigFingerprint(document.Project, additionalFiles);
 		var key = new SnapshotCacheKey(documentId.Id, versionNumber, projectVersion, configFingerprint, includeCodeEvidence);
-		if (cache.Count > MaximumCachedSnapshots)
+		if (_cache.Count > MaximumCachedSnapshots)
 		{
-			cache.Clear();
+			_cache.Clear();
 			ArchitectureVisualStudioLog.Info("Snapshot cache exceeded " + MaximumCachedSnapshots + " entries and was cleared.");
 		}
 
 		var createdTask = false;
-		var task = cache.GetOrAdd(key, _ =>
+		var task = _cache.GetOrAdd(key, _ =>
 		{
 			createdTask = true;
 			return CreateSnapshotCoreAsync(documentId, buffer.CurrentSnapshot, includeCodeEvidence, additionalFiles, cancellationToken);
@@ -106,14 +106,14 @@ internal sealed partial class ArchitectureSnapshotProvider
 		}
 		catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
 		{
-			cache.TryRemove(key, out _);
+			_cache.TryRemove(key, out _);
 			throw;
 		}
 	}
 
 	private async Task<ArchitectureEditorSnapshot> CreateSnapshotCoreAsync(DocumentId documentId, ITextSnapshot snapshot, bool includeCodeEvidence, ImmutableArray<AdditionalText> additionalFiles, CancellationToken cancellationToken)
 	{
-		var document = workspace.CurrentSolution.GetDocument(documentId);
+		var document = _workspace.CurrentSolution.GetDocument(documentId);
 		if (document is null)
 		{
 			ArchitectureVisualStudioLog.Warning("CreateSnapshotCoreAsync could not resolve Roslyn document id '" + documentId.Id + "'.");

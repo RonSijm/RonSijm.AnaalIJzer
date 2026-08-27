@@ -1,9 +1,5 @@
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Text;
-using RonSijm.AnaalIJzer.Config.Parsing;
-using RonSijm.AnaalIJzer.Testing;
-using AnalyzerConfiguration = RonSijm.AnaalIJzer.Model.AnalyzerConfig;
+using RonSijm.AnaalIJzer.Analyzer.Tests.Testing;
+using RonSijm.AnaalIJzer.Core.Findings;
 
 namespace RonSijm.AnaalIJzer.Analyzer.Tests.Config;
 
@@ -236,6 +232,56 @@ public sealed class ConfigurationTests
 			("SharedPizzeriaEdges.xml", sharedEdgesConfig));
 
 		diagnostics.Should().BeEmpty();
+	}
+
+	[Fact]
+	public async Task IncludeElement_Wildcard_MergesMatchingAdditionalSettingsFiles()
+	{
+		const string parentConfig = """
+		                            <ArchitecturalLevels>
+		                              <Include path="*.anl" />
+		                            </ArchitecturalLevels>
+		                            """;
+
+		const string sharedLayersConfig = """
+		                                  <ArchitecturalLevels>
+		                                    <Layer name="Waiter">
+		                                      <Class endsWith="Waiter" />
+		                                    </Layer>
+		                                    <Layer name="Chef">
+		                                      <Class endsWith="Chef" />
+		                                    </Layer>
+		                                    <Layer name="Pantry">
+		                                      <Class endsWith="Pantry" />
+		                                    </Layer>
+		                                  </ArchitecturalLevels>
+		                                  """;
+
+		const string sharedEdgesConfig = """
+		                                 <ArchitecturalLevels>
+		                                   <AllowedDependency from="Waiter" to="Chef" />
+		                                   <AllowedDependency from="Chef" to="Pantry" />
+		                                 </ArchitecturalLevels>
+		                                 """;
+
+		const string source = """
+		                      public interface IPizzaChef { }
+		                      public interface IIngredientPantry { }
+		                      public class TableWaiter(IPizzaChef chef) { }
+		                      public class PizzaChef(IIngredientPantry pantry) { }
+		                      public class CuriousWaiter(IIngredientPantry pantry) { }
+		                      """;
+
+		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(
+			source,
+			("Architecture.anl", parentConfig),
+			(@"RulePlugins\RestaurantLayers.anl", sharedLayersConfig),
+			(@"RulePlugins\RestaurantFlow.anl", sharedEdgesConfig));
+
+		diagnostics
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency)
+			.Should().ContainSingle()
+			.Which.GetMessage(CultureInfo.InvariantCulture).Should().Contain("CuriousWaiter");
 	}
 
 	[Fact]

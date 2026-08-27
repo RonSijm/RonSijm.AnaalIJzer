@@ -1,4 +1,5 @@
 using AwesomeAssertions;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 using Xunit;
 
 namespace RonSijm.AnaalIJzer.ConfigurationEditing.Tests.Editing;
@@ -30,11 +31,11 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 				("blockedAccessibilities", "Public, Protected"),
 				("description", "Do not expose stored query state.")));
 
-		AssertionExtensions.Should((bool)edit.Succeeded).BeTrue(edit.Message);
+		edit.Succeeded.Should().BeTrue(edit.Message);
 		var updatedPolicy = ArchitectureConfigurationEditService.GetLayerDetails(handle).VisibilityPolicies.Should().ContainSingle().Which;
 		updatedPolicy.Attributes["blockedAccessibilities"].Should().Be("Public, Protected");
 		updatedPolicy.Attributes.Should().NotContainKey("allowedAccessibilities");
-		AssertionExtensions.Should((bool)ArchitectureConfigurationEditService.RemoveConfigurationElement(updatedPolicy.Handle).Succeeded).BeTrue();
+		ArchitectureConfigurationEditService.RemoveConfigurationElement(updatedPolicy.Handle).Succeeded.Should().BeTrue();
 		File.ReadAllText(path).Should().NotContain("VisibilityPolicy");
 	}
 
@@ -66,7 +67,7 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 				("allowedAccessibilities", "Internal, File"),
 				("description", "Repository-owned query surface.")));
 
-		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
+		result.Succeeded.Should().BeTrue(result.Message);
 		var content = File.ReadAllText(path);
 		content.Should().Contain("<VisibilityPolicy");
 		content.Should().Contain("allowedAccessibilities=\"Internal, File\"");

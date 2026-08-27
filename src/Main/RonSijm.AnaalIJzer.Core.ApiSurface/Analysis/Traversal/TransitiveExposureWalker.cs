@@ -1,11 +1,10 @@
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.Engine.ApiSurface;
+using RonSijm.AnaalIJzer.Core.ApiSurface.Analysis.Model;
+using RonSijm.AnaalIJzer.Core.ApiSurface.Engine.Policies;
 
-using RonSijm.AnaalIJzer.Analysis.ApiSurface.Model;
-
-namespace RonSijm.AnaalIJzer.Analysis.ApiSurface.Traversal;
+namespace RonSijm.AnaalIJzer.Core.ApiSurface.Analysis.Traversal;
 
 internal static class TransitiveExposureWalker
 {

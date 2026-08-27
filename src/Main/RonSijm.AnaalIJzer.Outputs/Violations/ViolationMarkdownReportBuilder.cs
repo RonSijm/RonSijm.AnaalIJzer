@@ -1,7 +1,9 @@
 using System.Text;
-using AnalyzerConfiguration = RonSijm.AnaalIJzer.Model.AnalyzerConfig;
+using RonSijm.AnaalIJzer.Core.Findings;
+using RonSijm.AnaalIJzer.Core.Violations;
+using AnalyzerConfiguration = RonSijm.AnaalIJzer.Core.RuntimeConfig.Config.Model.AnalyzerConfig;
 
-namespace RonSijm.AnaalIJzer.Violations;
+namespace RonSijm.AnaalIJzer.Outputs.Violations;
 
 internal static partial class ViolationMarkdownReportBuilder
 {

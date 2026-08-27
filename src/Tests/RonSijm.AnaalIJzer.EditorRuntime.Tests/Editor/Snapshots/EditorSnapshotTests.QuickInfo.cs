@@ -1,6 +1,6 @@
-using RonSijm.AnaalIJzer.Graphing.Model;
 using RonSijm.AnaalIJzer.Core.Editor.QuickInfo;
 using RonSijm.AnaalIJzer.Core.Editor.Snapshots;
+using RonSijm.AnaalIJzer.GraphModel.Model;
 
 namespace RonSijm.AnaalIJzer.EditorRuntime.Tests.Editor.Snapshots;
 public sealed partial class EditorSnapshotTests

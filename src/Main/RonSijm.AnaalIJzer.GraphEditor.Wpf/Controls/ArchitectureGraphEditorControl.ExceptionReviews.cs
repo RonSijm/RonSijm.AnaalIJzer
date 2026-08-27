@@ -2,17 +2,17 @@ using System.Collections.Immutable;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using RonSijm.AnaalIJzer.Graphing.Model;
+using RonSijm.AnaalIJzer.GraphModel.Model;
 
 namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
 
 public sealed partial class ArchitectureGraphEditorControl
 {
-	private bool showActiveExceptionReviews = true;
-	private bool showInvalidExceptionReviews = true;
-	private bool showExpiringSoonExceptionReviews = true;
-	private bool showExpiredExceptionReviews = true;
-	private bool showStaleExceptionReviews = true;
+	private bool _showActiveExceptionReviews = true;
+	private bool _showInvalidExceptionReviews = true;
+	private bool _showExpiringSoonExceptionReviews = true;
+	private bool _showExpiredExceptionReviews = true;
+	private bool _showStaleExceptionReviews = true;
 
 	private void AddExceptionReviewSection(StackPanel panel, string? ownerLayerPath)
 	{
@@ -35,11 +35,11 @@ public sealed partial class ArchitectureGraphEditorControl
 	private UIElement CreateExceptionReviewFilterPanel()
 	{
 		var panel = new WrapPanel { Margin = new Thickness(0, 0, 0, 4) };
-		panel.Children.Add(CreateExceptionStatusCheckBox("Active", showActiveExceptionReviews, value => showActiveExceptionReviews = value));
-		panel.Children.Add(CreateExceptionStatusCheckBox("Invalid", showInvalidExceptionReviews, value => showInvalidExceptionReviews = value));
-		panel.Children.Add(CreateExceptionStatusCheckBox("ExpiringSoon", showExpiringSoonExceptionReviews, value => showExpiringSoonExceptionReviews = value));
-		panel.Children.Add(CreateExceptionStatusCheckBox("Expired", showExpiredExceptionReviews, value => showExpiredExceptionReviews = value));
-		panel.Children.Add(CreateExceptionStatusCheckBox("Stale", showStaleExceptionReviews, value => showStaleExceptionReviews = value));
+		panel.Children.Add(CreateExceptionStatusCheckBox("Active", _showActiveExceptionReviews, value => _showActiveExceptionReviews = value));
+		panel.Children.Add(CreateExceptionStatusCheckBox("Invalid", _showInvalidExceptionReviews, value => _showInvalidExceptionReviews = value));
+		panel.Children.Add(CreateExceptionStatusCheckBox("ExpiringSoon", _showExpiringSoonExceptionReviews, value => _showExpiringSoonExceptionReviews = value));
+		panel.Children.Add(CreateExceptionStatusCheckBox("Expired", _showExpiredExceptionReviews, value => _showExpiredExceptionReviews = value));
+		panel.Children.Add(CreateExceptionStatusCheckBox("Stale", _showStaleExceptionReviews, value => _showStaleExceptionReviews = value));
 
 		return panel;
 	}
@@ -55,12 +55,12 @@ public sealed partial class ArchitectureGraphEditorControl
 		checkBox.Checked += (_, _) =>
 		{
 			setter(true);
-			RenderSelection(currentSelection);
+			RenderSelection(_currentSelection);
 		};
 		checkBox.Unchecked += (_, _) =>
 		{
 			setter(false);
-			RenderSelection(currentSelection);
+			RenderSelection(_currentSelection);
 		};
 
 		return checkBox;
@@ -97,19 +97,19 @@ public sealed partial class ArchitectureGraphEditorControl
 	{
 		var result = status switch
 		{
-			"Invalid" => theme.ErrorForeground,
-			"Expired" => theme.ErrorForeground,
+			"Invalid" => _theme.ErrorForeground,
+			"Expired" => _theme.ErrorForeground,
 			"ExpiringSoon" => Brushes.DarkOrange,
 			"Stale" => Brushes.DarkOrange,
-			_ => theme.SuccessForeground
+			_ => _theme.SuccessForeground
 		};
 
 		return result;
 	}
 
-	private System.Collections.Immutable.ImmutableArray<ArchitectureGraphExceptionReview> GetVisibleExceptionReviews(string? ownerLayerPath)
+	private ImmutableArray<ArchitectureGraphExceptionReview> GetVisibleExceptionReviews(string? ownerLayerPath)
 	{
-		var result = snapshot.ExceptionReviews
+		var result = _snapshot.ExceptionReviews
 			.Where(review => MatchesExceptionReviewOwner(review.OwnerLayerPath, ownerLayerPath))
 			.Where(IsExceptionReviewVisible)
 			.OrderBy(review => GetExceptionStatusSortOrder(review.Status))
@@ -124,11 +124,11 @@ public sealed partial class ArchitectureGraphEditorControl
 	{
 		var result = review.Status switch
 		{
-			"Active" => showActiveExceptionReviews,
-			"Invalid" => showInvalidExceptionReviews,
-			"ExpiringSoon" => showExpiringSoonExceptionReviews,
-			"Expired" => showExpiredExceptionReviews,
-			"Stale" => showStaleExceptionReviews,
+			"Active" => _showActiveExceptionReviews,
+			"Invalid" => _showInvalidExceptionReviews,
+			"ExpiringSoon" => _showExpiringSoonExceptionReviews,
+			"Expired" => _showExpiredExceptionReviews,
+			"Stale" => _showStaleExceptionReviews,
 			_ => true
 		};
 

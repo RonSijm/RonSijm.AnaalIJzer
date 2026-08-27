@@ -1,5 +1,5 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.Graphing.Model;
+using RonSijm.AnaalIJzer.GraphModel.Model;
 
 namespace RonSijm.AnaalIJzer.Graphing.Building;
 
@@ -14,7 +14,7 @@ internal static partial class ArchitectureGraphViewModelBuilder
 
 	private sealed class LayoutRow
 	{
-		private readonly List<(double Left, double Right, int MinimumLevel)> spans = [];
+		private readonly List<(double Left, double Right, int MinimumLevel)> _spans = [];
 
 		public List<LayoutItem> Items { get; } = [];
 
@@ -28,7 +28,7 @@ internal static partial class ArchitectureGraphViewModelBuilder
 				placed = item.ShiftX(shift);
 				var placedLeft = placed.Left;
 				var placedRight = placed.Right;
-				var overlaps = spans.Where(span => SpansOverlap(placedLeft, placedRight, span.Left, span.Right)).ToImmutableArray();
+				var overlaps = _spans.Where(span => SpansOverlap(placedLeft, placedRight, span.Left, span.Right)).ToImmutableArray();
 				if (overlaps.Length == 0)
 				{
 					return true;
@@ -51,7 +51,7 @@ internal static partial class ArchitectureGraphViewModelBuilder
 			}
 
 			Items.Add(placed);
-			spans.Add((placed.Left, placed.Right, placed.MinimumLevel));
+			_spans.Add((placed.Left, placed.Right, placed.MinimumLevel));
 			Height = Math.Max(Height, placed.Height);
 
 			return placed;
@@ -68,20 +68,11 @@ internal static partial class ArchitectureGraphViewModelBuilder
 
 		public int PreferredLane { get; } = preferredLane;
 
-		public double Left
-		{
-			get { return Result.Left; }
-		}
+		public double Left => Result.Left;
 
-		public double Right
-		{
-			get { return Result.Right; }
-		}
+		public double Right => Result.Right;
 
-		public double Height
-		{
-			get { return Result.Height; }
-		}
+		public double Height => Result.Height;
 
 		public static LayoutItem FromResult(LayoutResult result, int minimumLevel, int minimumOrder, int preferredLane)
 		{

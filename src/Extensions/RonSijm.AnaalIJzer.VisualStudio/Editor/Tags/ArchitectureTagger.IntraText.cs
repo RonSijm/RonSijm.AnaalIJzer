@@ -2,9 +2,8 @@ using System.Globalization;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Tagging;
-using RonSijm.AnaalIJzer.Indicators;
 using RonSijm.AnaalIJzer.Core.Editor.Snapshots;
-using RonSijm.AnaalIJzer.VisualStudio.Editor.LayerIndicators;
+using RonSijm.AnaalIJzer.Core.Indicators;
 using RonSijm.AnaalIJzer.VisualStudio.Options;
 
 namespace RonSijm.AnaalIJzer.VisualStudio.Editor.Tags;
@@ -13,7 +12,7 @@ internal sealed partial class ArchitectureTagger
 {
 	IEnumerable<ITagSpan<IntraTextAdornmentTag>> ITagger<IntraTextAdornmentTag>.GetTags(NormalizedSnapshotSpanCollection spans)
 	{
-		if (spans.Count == 0 || !snapshot.HasConfiguration || snapshot.HasConfigurationIssues)
+		if (spans.Count == 0 || !_snapshot.HasConfiguration || _snapshot.HasConfigurationIssues)
 		{
 			yield break;
 		}
@@ -21,7 +20,7 @@ internal sealed partial class ArchitectureTagger
 		var options = ArchitectureVisualStudioOptions.Current;
 		if (options.EnableInlineLayerBadges)
 		{
-			foreach (var indicator in GetLayerBadgeIndicators(snapshot, options))
+			foreach (var indicator in GetLayerBadgeIndicators(_snapshot, options))
 			{
 				if (TryCreatePointSpan(spans[0].Snapshot, indicator.IdentifierSpan.End, out var span))
 				{
@@ -31,12 +30,12 @@ internal sealed partial class ArchitectureTagger
 			}
 		}
 
-		if (!options.EnableSitesDiagnostics && !options.EnableSiteLayerInformation)
+		if (options is { EnableSitesDiagnostics: false, EnableSiteLayerInformation: false })
 		{
 			yield break;
 		}
 
-		foreach (var indicator in GetDistinctSiteIndicators(snapshot))
+		foreach (var indicator in GetDistinctSiteIndicators(_snapshot))
 		{
 			if (options.EnableSitesDiagnostics && options.IsSiteDiagnosticEnabled(indicator.Site))
 			{
@@ -56,7 +55,7 @@ internal sealed partial class ArchitectureTagger
 
 		if (options.EnableSitesDiagnostics)
 		{
-			foreach (var indicator in snapshot.ApiSurfaceIndicators)
+			foreach (var indicator in _snapshot.ApiSurfaceIndicators)
 			{
 				if (TryCreatePointSpan(spans[0].Snapshot, indicator.Span.End, out var span))
 				{
@@ -65,7 +64,7 @@ internal sealed partial class ArchitectureTagger
 				}
 			}
 
-			foreach (var indicator in snapshot.VisibilityPolicyIndicators)
+			foreach (var indicator in _snapshot.VisibilityPolicyIndicators)
 			{
 				if (TryCreatePointSpan(spans[0].Snapshot, indicator.Span.End, out var span))
 				{
@@ -74,7 +73,7 @@ internal sealed partial class ArchitectureTagger
 				}
 			}
 
-			foreach (var indicator in snapshot.NameRuleIndicators)
+			foreach (var indicator in _snapshot.NameRuleIndicators)
 			{
 				if (options.IsSiteDiagnosticEnabled(indicator.Site)
 				    && TryCreatePointSpan(spans[0].Snapshot, indicator.Span.End, out var span))

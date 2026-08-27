@@ -1,9 +1,9 @@
 using System.Collections.Immutable;
 using System.Text;
-using RonSijm.AnaalIJzer.Exceptions;
-using RonSijm.AnaalIJzer.Model;
+using RonSijm.AnaalIJzer.Core.Exceptions;
+using RonSijm.AnaalIJzer.Core.RuntimeConfig.Config.Model;
 
-namespace RonSijm.AnaalIJzer.Documentation;
+namespace RonSijm.AnaalIJzer.Outputs.Documentation;
 
 internal static partial class ArchitectureDocumentationMarkdownBuilder
 {

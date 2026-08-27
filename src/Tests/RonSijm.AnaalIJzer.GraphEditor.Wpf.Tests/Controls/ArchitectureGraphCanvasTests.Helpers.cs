@@ -8,8 +8,8 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using AwesomeAssertions;
 using Nodify;
-using RonSijm.AnaalIJzer.Graphing.Model;
 using RonSijm.AnaalIJzer.Graphing.ViewModels;
+using RonSijm.AnaalIJzer.GraphModel.Model;
 
 namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests.Controls;
 
@@ -95,25 +95,25 @@ public sealed partial class ArchitectureGraphCanvasTests
 		instance.GetType().GetProperty(propertyName)!.SetValue(instance, value);
 	}
 
-	private static T? FindVisualDescendant<T>(DependencyObject root) where T : DependencyObject
+	private static T FindVisualDescendant<T>(DependencyObject root) where T : DependencyObject
 	{
-		if (root is T match)
+		var pending = new Stack<DependencyObject>();
+		pending.Push(root);
+		while (pending.Count > 0)
 		{
-			return match;
-		}
-
-		var childCount = VisualTreeHelper.GetChildrenCount(root);
-		for (var index = 0; index < childCount; index++)
-		{
-			var child = VisualTreeHelper.GetChild(root, index);
-			var result = FindVisualDescendant<T>(child);
-			if (result is not null)
+			var current = pending.Pop();
+			if (current is T match)
 			{
-				return result;
+				return match;
+			}
+
+			for (var index = VisualTreeHelper.GetChildrenCount(current) - 1; index >= 0; index--)
+			{
+				pending.Push(VisualTreeHelper.GetChild(current, index));
 			}
 		}
 
-		return null;
+		throw new InvalidOperationException("Expected to find a visual descendant of type '" + typeof(T).Name + "'.");
 	}
 
 	private static IEnumerable<T> FindVisualDescendants<T>(DependencyObject root) where T : DependencyObject
@@ -184,7 +184,7 @@ public sealed partial class ArchitectureGraphCanvasTests
 		var rules = ImmutableArray.Create(
 			new ArchitectureGraphRule("Customer", "Waiter", string.Empty, "AllowedDependency", "all sites", false, false, true),
 			new ArchitectureGraphRule("Waiter", "Chef", string.Empty, "AllowedDependency", "all sites", false, false, true));
-		var result = new ArchitectureGraphSnapshot(true, false, layers, rules, ImmutableArray.Create("Waiter"), ImmutableArray<string>.Empty);
+		var result = new ArchitectureGraphSnapshot(true, false, layers, rules, ["Waiter"], ImmutableArray<string>.Empty);
 
 		return result;
 	}
@@ -211,7 +211,7 @@ public sealed partial class ArchitectureGraphCanvasTests
 			false,
 			layers,
 			rules,
-			ImmutableArray.Create("Application/Contracts", "Crosscutting"),
+            ["Application/Contracts", "Crosscutting"],
 			ImmutableArray<string>.Empty);
 
 		return result;
@@ -229,7 +229,7 @@ public sealed partial class ArchitectureGraphCanvasTests
 			false,
 			layers,
 			rules,
-			ImmutableArray.Create("Application/Contracts"),
+            ["Application/Contracts"],
 			ImmutableArray<string>.Empty);
 
 		return result;

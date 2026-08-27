@@ -5,12 +5,12 @@ namespace RonSijm.AnaalIJzer.ConfigurationEditing.Editing.Xml;
 
 internal static partial class ArchitectureConfigurationXmlNavigator
 {
-	internal static IEnumerable<XElement> GetConfigurationElementCandidates(XDocument document, ArchitectureConfigurationElementEditHandle handle)
+	private static IEnumerable<XElement> GetConfigurationElementCandidates(XDocument document, ArchitectureConfigurationElementEditHandle handle)
 	{
 		var containerRoot = GetConfigurationElementContainerRoot(document, handle);
 		if (containerRoot is null)
 		{
-			return Enumerable.Empty<XElement>();
+			return [];
 		}
 
 		if (handle.ContainerKind == ArchitectureConfigurationXmlNames.IncludeElementName)
@@ -86,10 +86,10 @@ internal static partial class ArchitectureConfigurationXmlNavigator
 			return result;
 		}
 
-		return Enumerable.Empty<XElement>();
+		return [];
 	}
 
-	internal static XElement? GetConfigurationElementContainerRoot(XDocument document, ArchitectureConfigurationElementEditHandle handle)
+	private static XElement? GetConfigurationElementContainerRoot(XDocument document, ArchitectureConfigurationElementEditHandle handle)
 	{
 		if (string.IsNullOrWhiteSpace(handle.LayerPath))
 		{

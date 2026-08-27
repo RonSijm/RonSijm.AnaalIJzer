@@ -1,10 +1,10 @@
-using RonSijm.AnaalIJzer.Model;
+using RonSijm.AnaalIJzer.Core.RuntimeConfig.Config.Model;
 
-namespace RonSijm.AnaalIJzer.Workspace;
+namespace RonSijm.AnaalIJzer.Workspace.Analysis;
 
 internal sealed class WorkspaceAnalysisService(string configuration)
 {
-	private readonly string configuration = string.IsNullOrWhiteSpace(configuration) ? "Release" : configuration;
+	private readonly string _configuration = string.IsNullOrWhiteSpace(configuration) ? "Release" : configuration;
 
 	public async Task<ProjectAnalysisResult> AnalyzeProjectAsync(string projectPath, CancellationToken cancellationToken)
 	{
@@ -14,7 +14,7 @@ internal sealed class WorkspaceAnalysisService(string configuration)
 			throw new InvalidOperationException($"Project file not found: {fullProjectPath}");
 		}
 
-		using var host = new ProjectAnalysisHost(configuration);
+		using var host = new ProjectAnalysisHost(_configuration);
 		var result = await host.AnalyzeAsync(fullProjectPath, cancellationToken);
 		EnsureWorkspaceLoaded(result.WorkspaceFailures, "project");
 		EnsureCompilerErrorsAbsent(result.CompilerErrors, "Project");
@@ -30,7 +30,7 @@ internal sealed class WorkspaceAnalysisService(string configuration)
 			throw new InvalidOperationException($"Solution file not found: {fullSolutionPath}");
 		}
 
-		using var host = new ProjectAnalysisHost(configuration);
+		using var host = new ProjectAnalysisHost(_configuration);
 		var result = await host.AnalyzeSolutionAsync(fullSolutionPath, cancellationToken);
 		if (result.Projects.Length == 0)
 		{

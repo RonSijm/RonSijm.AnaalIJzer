@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer.Engine.EntryPoints;
+namespace RonSijm.AnaalIJzer.Core.EntryPoints;
 
 public readonly struct BoundaryEntryPointEvaluation(
 	bool isAllowed,

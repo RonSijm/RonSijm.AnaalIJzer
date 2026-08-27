@@ -1,6 +1,6 @@
 using System.Text;
 using System.Xml.Linq;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Persistence;
 
 namespace RonSijm.AnaalIJzer.ConfigurationEditing.Document;
 

@@ -1,6 +1,4 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.Engine.Visibility;
-using RonSijm.AnaalIJzer.SymbolFacts;
 
 namespace RonSijm.AnaalIJzer.Core.Visibility.Tests;
 
@@ -43,7 +41,7 @@ public sealed class VisibilityPolicyEvaluationTests
 		var result = policy.Evaluate(VisibilityPolicyTarget.Property, ArchitectureAccessibility.Public);
 
 		result.Should().NotBeNull();
-		result!.Value.Policy.OwnerLayerPath.Should().Be("Ordering/QuerySurface");
+		result.Value.Policy.OwnerLayerPath.Should().Be("Ordering/QuerySurface");
 		result.Value.Target.Should().Be(VisibilityPolicyTarget.Property);
 		result.Value.Accessibility.Should().Be(ArchitectureAccessibility.Public);
 		result.Value.Reason.Should().Be("the VisibilityPolicy for Property in layer 'Ordering/QuerySurface' allows only Internal, File");
@@ -60,7 +58,7 @@ public sealed class VisibilityPolicyEvaluationTests
 		var result = policy.Evaluate(VisibilityPolicyTarget.Type, ArchitectureAccessibility.Public);
 
 		result.Should().NotBeNull();
-		result!.Value.Reason.Should().Be("the VisibilityPolicy for Type in layer 'Ordering/QuerySurface' blocks Public, Protected");
+		result.Value.Reason.Should().Be("the VisibilityPolicy for Type in layer 'Ordering/QuerySurface' blocks Public, Protected");
 	}
 
 	private static VisibilityPolicy CreatePolicy(

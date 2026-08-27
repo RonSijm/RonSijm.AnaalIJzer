@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis;
 
-namespace RonSijm.AnaalIJzer.SymbolFacts;
+namespace RonSijm.AnaalIJzer.Core.Visibility;
 
 public static class SymbolAccessibilityExtensions
 {

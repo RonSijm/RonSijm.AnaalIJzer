@@ -1,3 +1,12 @@
+using RonSijm.AnaalIJzer.Core.Configuration.Compilation.Compilation;
+using RonSijm.AnaalIJzer.Core.Configuration.Compilation.Parsing;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+using RonSijm.AnaalIJzer.Core.DependencyRules;
+using RonSijm.AnaalIJzer.Core.Exceptions;
+using RonSijm.AnaalIJzer.Core.LayerModel;
+using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Config.Model;
+using RonSijm.AnaalIJzer.Core.ProjectArchitecture;
+
 namespace RonSijm.AnaalIJzer.Core.Configuration.Compilation.Tests.Compilation;
 
 public sealed class ArchitectureAnalyzerConfigFactoryTests

@@ -1,8 +1,7 @@
 using System.Globalization;
 using System.IO;
-using System.Windows;
 using System.Xml.Linq;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 
 namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Layout;
 
@@ -61,7 +60,7 @@ public sealed partial class ArchitectureGraphLayoutState
 
 	public void Save()
 	{
-		if (!isDirty || string.IsNullOrWhiteSpace(UserSettingsPath))
+		if (!_isDirty || string.IsNullOrWhiteSpace(UserSettingsPath))
 		{
 			return;
 		}
@@ -80,22 +79,22 @@ public sealed partial class ArchitectureGraphLayoutState
 					new XAttribute("version", "1"),
 					new XElement(
 						"GraphLayout",
-						items.Values
+						_items.Values
 							.Where(item => item.Location is not null || item.Size is not null)
 							.OrderBy(item => item.Path, StringComparer.Ordinal)
 							.Select(CreateElement)),
 					new XElement(
 						"GraphGroups",
-						groups.Values
+						_groups.Values
 							.Where(group => group.Height is not null || group.IsCollapsed is not null)
 							.OrderBy(group => group.Key, StringComparer.Ordinal)
 							.Select(CreateGroupElement))));
 			document.Save(UserSettingsPath);
-			isDirty = false;
+			_isDirty = false;
 		}
 		catch (Exception exception)
 		{
-			warningLogger?.Invoke("Could not save graph layout user settings to " + UserSettingsPath + ". " + exception.Message);
+			_warningLogger?.Invoke("Could not save graph layout user settings to " + UserSettingsPath + ". " + exception.Message);
 		}
 	}
 

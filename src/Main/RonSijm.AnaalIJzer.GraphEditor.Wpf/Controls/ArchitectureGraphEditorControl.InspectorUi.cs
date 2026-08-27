@@ -22,7 +22,7 @@ public sealed partial class ArchitectureGraphEditorControl
 	private TextBlock CreateHintTextBlock(string text, Thickness margin)
 	{
 		var result = new TextBlock { Text = text, TextWrapping = TextWrapping.Wrap, Margin = margin };
-		theme.ApplyHintForeground(result);
+		_theme.ApplyHintForeground(result);
 
 		return result;
 	}

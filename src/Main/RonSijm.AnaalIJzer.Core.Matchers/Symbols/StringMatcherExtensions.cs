@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
 
-namespace RonSijm.AnaalIJzer.Symbols;
+namespace RonSijm.AnaalIJzer.Core.Matchers.Symbols;
 
 internal static class StringMatcherExtensions
 {

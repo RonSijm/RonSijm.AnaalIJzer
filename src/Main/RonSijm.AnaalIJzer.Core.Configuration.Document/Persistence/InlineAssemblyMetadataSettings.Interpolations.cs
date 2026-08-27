@@ -5,11 +5,11 @@ using System.Xml.Linq;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
+namespace RonSijm.AnaalIJzer.Core.Configuration.Document.Persistence;
 
 public static partial class InlineAssemblyMetadataSettings
 {
-	public static bool TryReadInterpolatedXmlLiteral(InterpolatedStringExpressionSyntax interpolated, out InlineSettingsLiteral settings, out string message)
+	private static bool TryReadInterpolatedXmlLiteral(InterpolatedStringExpressionSyntax interpolated, out InlineSettingsLiteral settings, out string message)
 	{
 		var xml = new StringBuilder();
 		var placeholderXml = new StringBuilder();
@@ -47,7 +47,7 @@ public static partial class InlineAssemblyMetadataSettings
 		return true;
 	}
 
-	public static bool TryEvaluateInlineInterpolation(InterpolationSyntax interpolation, out string value, out string message)
+	private static bool TryEvaluateInlineInterpolation(InterpolationSyntax interpolation, out string value, out string message)
 	{
 		if (interpolation.AlignmentClause is not null || interpolation.FormatClause is not null)
 		{
@@ -74,7 +74,7 @@ public static partial class InlineAssemblyMetadataSettings
 		return false;
 	}
 
-	public static bool TryEvaluateNameof(ExpressionSyntax expression, out string value)
+	private static bool TryEvaluateNameof(ExpressionSyntax expression, out string value)
 	{
 		if (expression is not InvocationExpressionSyntax invocation
 		    || invocation.Expression is not IdentifierNameSyntax { Identifier.ValueText: "nameof" }
@@ -90,7 +90,7 @@ public static partial class InlineAssemblyMetadataSettings
 		return result;
 	}
 
-	public static string GetNameofValue(ExpressionSyntax expression)
+	private static string GetNameofValue(ExpressionSyntax expression)
 	{
 		var result = expression switch
 		{
@@ -105,7 +105,7 @@ public static partial class InlineAssemblyMetadataSettings
 		return result;
 	}
 
-	public static bool TryRestoreInterpolatedXml(InlineSettingsLiteral settings, string updatedXml, out string interpolatedXml, out string message)
+	private static bool TryRestoreInterpolatedXml(InlineSettingsLiteral settings, string updatedXml, out string interpolatedXml, out string message)
 	{
 		string normalizedTemplate;
 		try
@@ -158,7 +158,7 @@ public static partial class InlineAssemblyMetadataSettings
 		return true;
 	}
 
-	public static string GetInterpolationPrefix(string template, int markerIndex)
+	private static string GetInterpolationPrefix(string template, int markerIndex)
 	{
 		var quoteStart = markerIndex > 0 ? template.LastIndexOf('"', markerIndex - 1) : -1;
 		var quoteEnd = template.IndexOf('"', markerIndex);
@@ -179,7 +179,7 @@ public static partial class InlineAssemblyMetadataSettings
 		return result;
 	}
 
-	public static int LastIndexOfAny(string value, char[] characters, int startIndex)
+	private static int LastIndexOfAny(string value, char[] characters, int startIndex)
 	{
 		if (startIndex < 0)
 		{

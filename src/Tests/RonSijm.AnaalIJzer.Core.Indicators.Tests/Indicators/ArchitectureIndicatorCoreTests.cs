@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis.Text;
-using RonSijm.AnaalIJzer.Indicators;
 
 namespace RonSijm.AnaalIJzer.Core.Indicators.Tests.Indicators;
 

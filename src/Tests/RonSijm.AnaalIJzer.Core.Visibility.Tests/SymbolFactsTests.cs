@@ -1,8 +1,6 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using RonSijm.AnaalIJzer.Engine.Visibility;
-using RonSijm.AnaalIJzer.SymbolFacts;
 
 namespace RonSijm.AnaalIJzer.Core.Visibility.Tests;
 
@@ -145,7 +143,7 @@ public sealed class SymbolFactsTests
 		var declaration = root.DescendantNodes()
 			.OfType<TypeDeclarationSyntax>()
 			.Single(node => node.Identifier.ValueText == identifier);
-		var result = (INamedTypeSymbol)model.GetDeclaredSymbol(declaration)!;
+		var result = model.GetDeclaredSymbol(declaration)!;
 
 		return result;
 	}
@@ -155,7 +153,7 @@ public sealed class SymbolFactsTests
 		var declaration = root.DescendantNodes()
 			.OfType<MethodDeclarationSyntax>()
 			.Single(node => node.Identifier.ValueText == identifier);
-		var result = (IMethodSymbol)model.GetDeclaredSymbol(declaration)!;
+		var result = model.GetDeclaredSymbol(declaration)!;
 
 		return result;
 	}
@@ -165,7 +163,7 @@ public sealed class SymbolFactsTests
 		var declaration = root.DescendantNodes()
 			.OfType<ConstructorDeclarationSyntax>()
 			.Single(node => node.Identifier.ValueText == identifier);
-		var result = (IMethodSymbol)model.GetDeclaredSymbol(declaration)!;
+		var result = model.GetDeclaredSymbol(declaration)!;
 
 		return result;
 	}
@@ -175,7 +173,7 @@ public sealed class SymbolFactsTests
 		var declaration = root.DescendantNodes()
 			.OfType<PropertyDeclarationSyntax>()
 			.Single(node => node.Identifier.ValueText == identifier);
-		var result = (IPropertySymbol)model.GetDeclaredSymbol(declaration)!;
+		var result = model.GetDeclaredSymbol(declaration)!;
 
 		return result;
 	}
@@ -206,7 +204,7 @@ public sealed class SymbolFactsTests
 		var declaration = root.DescendantNodes()
 			.OfType<OperatorDeclarationSyntax>()
 			.Single();
-		var result = (IMethodSymbol)model.GetDeclaredSymbol(declaration)!;
+		var result = model.GetDeclaredSymbol(declaration)!;
 
 		return result;
 	}
@@ -216,7 +214,7 @@ public sealed class SymbolFactsTests
 		var declaration = root.DescendantNodes()
 			.OfType<ConversionOperatorDeclarationSyntax>()
 			.Single();
-		var result = (IMethodSymbol)model.GetDeclaredSymbol(declaration)!;
+		var result = model.GetDeclaredSymbol(declaration)!;
 
 		return result;
 	}

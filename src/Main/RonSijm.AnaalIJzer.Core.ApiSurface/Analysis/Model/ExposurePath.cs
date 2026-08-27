@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 
-namespace RonSijm.AnaalIJzer.Analysis.ApiSurface.Model;
+namespace RonSijm.AnaalIJzer.Core.ApiSurface.Analysis.Model;
 
 public readonly struct ExposurePath(string rootMember, ImmutableArray<ExposurePathSegment> segments)
 {

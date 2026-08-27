@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis;
 
-namespace RonSijm.AnaalIJzer.Conditions;
+namespace RonSijm.AnaalIJzer.Core.Matchers.Conditions;
 
 internal static class MatchTargetExtensions
 {

@@ -14,9 +14,9 @@ public sealed partial class ArchitectureGraphEditorControl
 			throw new InvalidOperationException("There are no rendered dependency graphs to export.");
 		}
 
-		ArchitectureGraphImageExporter.SavePng(contentPanel, path, theme.Background);
-		infoLogger?.Invoke("Exported dependency graph image to " + path + ".");
-		logger?.LogInformation("Exported dependency graph image to {Path}", path);
+		ArchitectureGraphImageExporter.SavePng(_contentPanel, path, _theme.Background);
+		_infoLogger?.Invoke("Exported dependency graph image to " + path + ".");
+		_logger?.LogInformation("Exported dependency graph image to {Path}", path);
 	}
 
 	private void PromptExportGraphsAsPng()
@@ -45,17 +45,17 @@ public sealed partial class ArchitectureGraphEditorControl
 		}
 		catch (Exception exception)
 		{
-			warningLogger?.Invoke(exception.Message);
-			logger?.LogError(exception, "Failed to export dependency graph image to {Path}", dialog.FileName);
+			_warningLogger?.Invoke(exception.Message);
+			_logger?.LogError(exception, "Failed to export dependency graph image to {Path}", dialog.FileName);
 			MessageBox.Show(exception.Message, "AnaalIJzer Dependency Graphs", MessageBoxButton.OK, MessageBoxImage.Warning);
 		}
 	}
 
 	private bool CanExportGraphs()
 	{
-		var result = snapshot.HasConfiguration
-		             && !snapshot.HasConfigurationIssues
-		             && contentPanel.Children.Count > 0;
+		var result = _snapshot.HasConfiguration
+		             && !_snapshot.HasConfigurationIssues
+		             && _contentPanel.Children.Count > 0;
 
 		return result;
 	}

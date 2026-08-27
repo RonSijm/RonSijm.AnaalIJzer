@@ -23,14 +23,14 @@ public sealed partial class ArchitectureGraphEditorControl
 		kindBox.Items.Add("BlockedDependency");
 		kindBox.SelectedItem = handle.ElementKind;
 		panel.Children.Add(kindBox);
-		AutoSaveOnSelectionChanged(kindBox, () => editService.SetDependencyKind(handle, kindBox.SelectedItem?.ToString() ?? handle.ElementKind), handle.CanEdit, refresh: false);
+		AutoSaveOnSelectionChanged(kindBox, () => _editService.SetDependencyKind(handle, kindBox.SelectedItem as string ?? handle.ElementKind), handle.CanEdit, refresh: false);
 		var cascade = new CheckBox { Content = "appliesToDescendants", IsChecked = handle.AppliesToDescendants, Margin = new Thickness(0, 10, 0, 0), IsEnabled = handle.CanEdit };
 		panel.Children.Add(cascade);
-		AutoSaveOnCheckChanged(cascade, () => editService.SetDependencyAppliesToDescendants(handle, cascade.IsChecked == true), handle.CanEdit, refresh: false);
+		AutoSaveOnCheckChanged(cascade, () => _editService.SetDependencyAppliesToDescendants(handle, cascade.IsChecked == true), handle.CanEdit, refresh: false);
 		var description = CreateDescriptionBox(handle.Description, handle.CanEdit);
 		panel.Children.Add(CreateSectionTitle("Description"));
 		panel.Children.Add(description);
-		AutoSaveOnLostFocus(description, () => editService.SetDependencyDescription(handle, description.Text), handle.CanEdit, refreshOnLostFocus: false);
+		AutoSaveOnLostFocus(description, () => _editService.SetDependencyDescription(handle, description.Text), handle.CanEdit, refreshOnLostFocus: false);
 		AddSiteEditor(panel, handle, selection);
 
 		return panel;
@@ -42,13 +42,13 @@ public sealed partial class ArchitectureGraphEditorControl
 		var allowedChecks = CreateSiteChecks(selection.AllowedSites, handle.CanEdit);
 		var blockedChecks = CreateSiteChecks(selection.BlockedSites, handle.CanEdit);
 		var allSites = new Button { Content = "Allow all sites", Margin = new Thickness(0, 4, 0, 0), IsEnabled = handle.CanEdit };
-		allSites.Click += (_, _) => HandleEditResult(editService.SetDependencySites(handle, ArchitectureSiteFilterEditMode.All, ImmutableArray<string>.Empty));
+		allSites.Click += (_, _) => HandleEditResult(_editService.SetDependencySites(handle, ArchitectureSiteFilterEditMode.All, ImmutableArray<string>.Empty));
 		panel.Children.Add(allSites);
 		panel.Children.Add(new TextBlock { Text = "allowedSites", FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 8, 0, 2) });
 		panel.Children.Add(allowedChecks.Panel);
-		AutoSaveOnSiteChecks(allowedChecks.Checks, () => editService.SetDependencySites(handle, ArchitectureSiteFilterEditMode.AllowedSites, GetCheckedSites(allowedChecks.Checks)), handle.CanEdit, refresh: false);
+		AutoSaveOnSiteChecks(allowedChecks.Checks, () => _editService.SetDependencySites(handle, ArchitectureSiteFilterEditMode.AllowedSites, GetCheckedSites(allowedChecks.Checks)), handle.CanEdit, refresh: false);
 		panel.Children.Add(new TextBlock { Text = "blockedSites", FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 8, 0, 2) });
 		panel.Children.Add(blockedChecks.Panel);
-		AutoSaveOnSiteChecks(blockedChecks.Checks, () => editService.SetDependencySites(handle, ArchitectureSiteFilterEditMode.BlockedSites, GetCheckedSites(blockedChecks.Checks)), handle.CanEdit, refresh: false);
+		AutoSaveOnSiteChecks(blockedChecks.Checks, () => _editService.SetDependencySites(handle, ArchitectureSiteFilterEditMode.BlockedSites, GetCheckedSites(blockedChecks.Checks)), handle.CanEdit, refresh: false);
 	}
 }

@@ -1,5 +1,5 @@
 using System.Globalization;
-using RonSijm.AnaalIJzer.Graphing.Model;
+using RonSijm.AnaalIJzer.GraphModel.Model;
 
 namespace RonSijm.AnaalIJzer.VisualStudio.Options;
 

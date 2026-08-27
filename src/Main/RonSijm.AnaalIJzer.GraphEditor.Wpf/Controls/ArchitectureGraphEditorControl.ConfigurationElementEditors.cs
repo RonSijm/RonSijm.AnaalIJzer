@@ -48,10 +48,10 @@ public sealed partial class ArchitectureGraphEditorControl
 				return;
 			}
 
-			var elementKind = kind.SelectedItem?.ToString() ?? "Class";
+			var elementKind = kind.SelectedItem as string ?? "Class";
 			var result = containerKind == "LayerMatcher"
-				? editService.AddLayerMatcher(layerHandle, elementKind, parsedAttributes)
-				: editService.AddTypePolicyMatcher(layerHandle, containerKind, elementKind, parsedAttributes);
+				? _editService.AddLayerMatcher(layerHandle, elementKind, parsedAttributes)
+				: _editService.AddTypePolicyMatcher(layerHandle, containerKind, elementKind, parsedAttributes);
 			HandleEditResult(result);
 		};
 		addPanel.Children.Add(add);

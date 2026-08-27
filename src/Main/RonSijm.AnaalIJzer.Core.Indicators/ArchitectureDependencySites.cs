@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer;
 
-namespace RonSijm.AnaalIJzer.Indicators;
+namespace RonSijm.AnaalIJzer.Core.Indicators;
 
 public static class ArchitectureDependencySites
 {

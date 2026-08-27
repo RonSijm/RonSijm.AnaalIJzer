@@ -1,27 +1,28 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.Config.Parsing;
-using RonSijm.AnaalIJzer.Contracts;
-using RonSijm.AnaalIJzer.Engine.ApiSurface;
-using RonSijm.AnaalIJzer.Engine.DependencyRules;
-using RonSijm.AnaalIJzer.Engine.EntryPoints;
-using RonSijm.AnaalIJzer.Engine.LayerModel;
-using RonSijm.AnaalIJzer.Engine.NameRules;
-using RonSijm.AnaalIJzer.Engine.Policies;
-using RonSijm.AnaalIJzer.Engine.PolicyEvaluation;
-using RonSijm.AnaalIJzer.Engine.Visibility;
-using RonSijm.AnaalIJzer.Inheritance;
-using RonSijm.AnaalIJzer.Exceptions;
-using RonSijm.AnaalIJzer.ProjectArchitecture;
-using RonSijm.AnaalIJzer.SourceLocations;
-using RonSijm.AnaalIJzer.SymbolFacts;
+using RonSijm.AnaalIJzer.Core.ApiSurface.Engine.Policies;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+using RonSijm.AnaalIJzer.Core.Contracts.Contracts;
+using RonSijm.AnaalIJzer.Core.DependencyRules;
+using RonSijm.AnaalIJzer.Core.EntryPoints;
+using RonSijm.AnaalIJzer.Core.Exceptions;
+using RonSijm.AnaalIJzer.Core.Inheritance.Policies;
+using RonSijm.AnaalIJzer.Core.LayerModel;
+using RonSijm.AnaalIJzer.Core.NameRules;
+using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Config.Model;
+using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.DependencyRules;
+using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.Policies;
+using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.PolicyEvaluation;
+using RonSijm.AnaalIJzer.Core.ProjectArchitecture;
+using RonSijm.AnaalIJzer.Core.SourceLocations;
+using RonSijm.AnaalIJzer.Core.Visibility;
 
-namespace RonSijm.AnaalIJzer.Model;
+namespace RonSijm.AnaalIJzer.Core.RuntimeConfig.Config.Model;
 
 public readonly struct AnalyzerConfig(
 	CompiledArchitectureConfig compiledConfig)
 {
-	private readonly ArchitecturePolicyEngine engine = new(compiledConfig.LayerCatalog);
+	private readonly ArchitecturePolicyEngine _engine = new(compiledConfig.LayerCatalog);
 
 	public static readonly AnalyzerConfig Empty = new(CompiledArchitectureConfig.Empty);
 
@@ -74,7 +75,7 @@ public readonly struct AnalyzerConfig(
 	public bool EnableDocumentation => CompiledConfig.Output.EnableDocumentation;
 	public string DocumentationPath => CompiledConfig.Output.DocumentationPath;
 
-	public ArchitecturePolicyEngine Engine => engine;
+	public ArchitecturePolicyEngine Engine => _engine;
 
 	public bool HasLayers => Engine.HasLayers;
 	public bool HasExceptionReviews => !ExceptionReviews.IsDefaultOrEmpty;

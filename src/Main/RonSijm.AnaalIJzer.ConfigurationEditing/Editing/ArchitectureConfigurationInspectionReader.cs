@@ -1,5 +1,6 @@
 using RonSijm.AnaalIJzer.ConfigurationEditing.Editing.Inspection;
 using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 
 namespace RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
 

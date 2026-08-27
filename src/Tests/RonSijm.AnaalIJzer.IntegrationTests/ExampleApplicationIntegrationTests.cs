@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using RonSijm.AnaalIJzer.Application;
+using RonSijm.AnaalIJzer.IntegrationTests.Support;
 using Xunit;
 
 namespace RonSijm.AnaalIJzer.IntegrationTests;

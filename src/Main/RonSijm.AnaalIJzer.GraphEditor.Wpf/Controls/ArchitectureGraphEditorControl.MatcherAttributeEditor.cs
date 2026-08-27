@@ -6,12 +6,12 @@ namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
 public sealed partial class ArchitectureGraphEditorControl
 {
 	private sealed class MatcherAttributeEditor(StackPanel panel, ComboBox attributeName, TextBox attributeValue)
-    {
-        public StackPanel Panel { get; } = panel;
+	{
+		public StackPanel Panel { get; } = panel;
 
-        public void SetAttributeNames(ImmutableArray<string> attributeNames)
+		public void SetAttributeNames(ImmutableArray<string> attributeNames)
 		{
-			var current = attributeName.SelectedItem?.ToString();
+			var current = attributeName.SelectedItem as string;
 			attributeName.Items.Clear();
 			foreach (var name in attributeNames)
 			{
@@ -23,7 +23,7 @@ public sealed partial class ArchitectureGraphEditorControl
 
 		public bool TryGetAttributes(out ImmutableDictionary<string, string> attributes, out string message)
 		{
-			var name = attributeName.SelectedItem?.ToString()?.Trim();
+			var name = (attributeName.SelectedItem as string)?.Trim();
 			var value = attributeValue.Text.Trim();
 			if (string.IsNullOrWhiteSpace(name))
 			{
@@ -39,7 +39,8 @@ public sealed partial class ArchitectureGraphEditorControl
 				return false;
 			}
 
-			attributes = ImmutableDictionary.CreateRange(StringComparer.Ordinal, new[] { new KeyValuePair<string, string>(name!, value) });
+			var validatedName = name;
+			attributes = ImmutableDictionary.CreateRange(StringComparer.Ordinal, [new KeyValuePair<string, string>(validatedName, value)]);
 			message = string.Empty;
 			return true;
 		}

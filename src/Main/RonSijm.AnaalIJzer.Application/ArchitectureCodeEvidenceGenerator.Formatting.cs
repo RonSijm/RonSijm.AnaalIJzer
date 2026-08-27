@@ -19,7 +19,13 @@ internal static partial class ArchitectureCodeEvidenceGenerator
 			{
 				path = Path.GetRelativePath(projectDirectory, path);
 			}
-			catch
+			catch (ArgumentException)
+			{
+			}
+			catch (NotSupportedException)
+			{
+			}
+			catch (PathTooLongException)
 			{
 			}
 		}
@@ -44,7 +50,15 @@ internal static partial class ArchitectureCodeEvidenceGenerator
 
 			return result;
 		}
-		catch
+		catch (ArgumentException)
+		{
+			return path;
+		}
+		catch (NotSupportedException)
+		{
+			return path;
+		}
+		catch (PathTooLongException)
 		{
 			return path;
 		}

@@ -1,7 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
-namespace RonSijm.AnaalIJzer.Workspace;
+namespace RonSijm.AnaalIJzer.Workspace.Support;
 
 internal sealed class WorkspaceAdditionalText(string path, SourceText text) : AdditionalText
 {

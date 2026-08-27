@@ -6,7 +6,7 @@ namespace RonSijm.AnaalIJzer.VisualStudio.Shell;
 
 internal sealed partial class AnlSettingsFileDocumentWatcher
 {
-	public int OnAfterFirstDocumentLock(uint docCookie, uint dwRDTLockType, uint dwReadLocksRemaining, uint dwEditLocksRemaining)
+	public int OnAfterFirstDocumentLock(uint docCookie, uint dwRdtLockType, uint dwReadLocksRemaining, uint dwEditLocksRemaining)
 	{
 		ThreadHelper.ThrowIfNotOnUIThread();
 		TryOpenDocumentCookie(docCookie);
@@ -35,12 +35,12 @@ internal sealed partial class AnlSettingsFileDocumentWatcher
 	public int OnSelectionChanged(
 		IVsHierarchy pHierOld,
 		uint itemidOld,
-		IVsMultiItemSelect pMISOld,
-		ISelectionContainer pSCOld,
+		IVsMultiItemSelect pMisOld,
+		ISelectionContainer pScOld,
 		IVsHierarchy pHierNew,
 		uint itemidNew,
-		IVsMultiItemSelect pMISNew,
-		ISelectionContainer pSCNew)
+		IVsMultiItemSelect pMisNew,
+		ISelectionContainer pScNew)
 	{
 		return VSConstants.S_OK;
 	}
@@ -60,12 +60,12 @@ internal sealed partial class AnlSettingsFileDocumentWatcher
 		return VSConstants.S_OK;
 	}
 
-	public int OnBeforeLastDocumentUnlock(uint docCookie, uint dwRDTLockType, uint dwReadLocksRemaining, uint dwEditLocksRemaining)
+	public int OnBeforeLastDocumentUnlock(uint docCookie, uint dwRdtLockType, uint dwReadLocksRemaining, uint dwEditLocksRemaining)
 	{
 		return VSConstants.S_OK;
 	}
 
-	public int OnCmdUIContextChanged(uint dwCmdUICookie, int fActive)
+	public int OnCmdUIContextChanged(uint dwCmdUiCookie, int fActive)
 	{
 		return VSConstants.S_OK;
 	}

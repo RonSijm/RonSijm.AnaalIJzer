@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.Engine.ApiSurface;
-using RonSijm.AnaalIJzer.Engine.DependencyRules;
+using RonSijm.AnaalIJzer.Core.ApiSurface.Engine.Policies;
+using RonSijm.AnaalIJzer.Core.DependencyRules;
 
 namespace RonSijm.AnaalIJzer.Core.ApiSurface.Tests.ApiSurface;
 
@@ -24,7 +24,7 @@ public sealed class ApiSurfacePolicyTests
 		var result = policy.Evaluate(ApiSurfaceLayerSelection.Unrecognized, "CustomerDto", "MethodReturn");
 
 		result.Should().NotBeNull();
-		result!.Value.Rule.Should().BeNull();
+		result.Value.Rule.Should().BeNull();
 		result.Value.Reason.Should().Contain("requires exposed types to belong to a configured layer");
 	}
 
@@ -32,13 +32,13 @@ public sealed class ApiSurfacePolicyTests
 	public void Evaluate_BlockedRuleWinsWhenAncestorPathMatches()
 	{
 		var policy = CreatePolicy(
-			blockedLayers: ImmutableArray.Create(CreateRule("Application", allowedSites: "MethodReturn")));
+			blockedLayers: [CreateRule("Application", allowedSites: "MethodReturn")]);
 		var exposedLayer = CreateLayer("Application/Contracts", "Application", "Application/Contracts");
 
 		var result = policy.Evaluate(exposedLayer, "CustomerDto", "MethodReturn");
 
 		result.Should().NotBeNull();
-		result!.Value.Rule.Should().NotBeNull();
+		result.Value.Rule.Should().NotBeNull();
 		result.Value.Rule!.Value.LayerPath.Should().Be("Application");
 		result.Value.Reason.Should().Contain("blocks layer '/Application' at MethodReturn");
 	}
@@ -47,7 +47,7 @@ public sealed class ApiSurfacePolicyTests
 	public void Evaluate_AllowsMatchingAllowedAncestorPath()
 	{
 		var policy = CreatePolicy(
-			allowedLayers: ImmutableArray.Create(CreateRule("Application", allowedSites: "MethodReturn")));
+			allowedLayers: [CreateRule("Application", allowedSites: "MethodReturn")]);
 		var exposedLayer = CreateLayer("Application/Contracts", "Application", "Application/Contracts");
 
 		var result = policy.Evaluate(exposedLayer, "CustomerDto", "MethodReturn");
@@ -59,7 +59,7 @@ public sealed class ApiSurfacePolicyTests
 	public void Evaluate_IgnoresAllowedRulesThatDoNotApplyToTheCurrentSite()
 	{
 		var policy = CreatePolicy(
-			allowedLayers: ImmutableArray.Create(CreateRule("Contracts", allowedSites: "Method")));
+			allowedLayers: [CreateRule("Contracts", allowedSites: "Method")]);
 		var exposedLayer = CreateLayer("Repository/Contracts", "Repository", "Repository/Contracts");
 
 		var result = policy.Evaluate(exposedLayer, "CustomerDto", "MethodReturn");
@@ -71,15 +71,17 @@ public sealed class ApiSurfacePolicyTests
 	public void Evaluate_RejectsRecognizedTypeWhenApplicableAllowedRulesDoNotMatch()
 	{
 		var policy = CreatePolicy(
-			allowedLayers: ImmutableArray.Create(
-				CreateRule("Contracts", allowedSites: "MethodReturn"),
-				CreateRule("Contracts/Public", allowedSites: "MethodReturn")));
+			allowedLayers:
+            [
+                CreateRule("Contracts", allowedSites: "MethodReturn"),
+				CreateRule("Contracts/Public", allowedSites: "MethodReturn")
+            ]);
 		var exposedLayer = CreateLayer("Repository/Contracts", "Repository", "Repository/Contracts");
 
 		var result = policy.Evaluate(exposedLayer, "CustomerDto", "MethodReturn");
 
 		result.Should().NotBeNull();
-		result!.Value.Rule.Should().BeNull();
+		result.Value.Rule.Should().BeNull();
 		result.Value.Reason.Should().Contain("allows only '/Contracts', '/Contracts/Public' at MethodReturn");
 		result.Value.Reason.Should().Contain("belongs to 'Repository/Contracts'");
 	}
@@ -88,7 +90,7 @@ public sealed class ApiSurfacePolicyTests
 	public void Evaluate_StopsCheckingTransitiveExposureBeyondMaxDepth()
 	{
 		var policy = CreatePolicy(
-			blockedLayers: ImmutableArray.Create(CreateRule("Contracts")),
+			blockedLayers: [CreateRule("Contracts")],
 			transitiveExposure: new TransitiveExposureOptions(1, null, "Architecture.anl", 12, 3));
 		var exposedLayer = CreateLayer("Contracts", "Contracts");
 
@@ -136,7 +138,7 @@ public sealed class ApiSurfacePolicyTests
 
 	private static ApiSurfaceLayerSelection CreateLayer(string layerPath, params string[] layerPaths)
 	{
-		var result = new ApiSurfaceLayerSelection(layerPath, ImmutableArray.Create(layerPaths));
+		var result = new ApiSurfaceLayerSelection(layerPath, [.. layerPaths]);
 
 		return result;
 	}

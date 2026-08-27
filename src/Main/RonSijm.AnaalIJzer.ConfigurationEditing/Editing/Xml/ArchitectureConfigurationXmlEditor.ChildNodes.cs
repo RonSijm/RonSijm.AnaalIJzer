@@ -18,7 +18,7 @@ internal static partial class ArchitectureConfigurationXmlEditor
 		try
 		{
 			var wrapper = XElement.Parse("<AnaalIJzerChildren>" + childXml + "</AnaalIJzerChildren>", LoadOptions.PreserveWhitespace);
-			childNodes = wrapper.Nodes().Select(CloneNode).ToImmutableArray();
+			childNodes = [..wrapper.Nodes().Select(CloneNode)];
 			message = string.Empty;
 			return true;
 		}
@@ -30,7 +30,7 @@ internal static partial class ArchitectureConfigurationXmlEditor
 		}
 	}
 
-	internal static XNode CloneNode(XNode node)
+	private static XNode CloneNode(XNode node)
 	{
 		XNode result = node switch
 		{

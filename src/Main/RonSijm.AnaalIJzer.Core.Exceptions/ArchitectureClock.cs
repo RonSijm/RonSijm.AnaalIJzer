@@ -1,14 +1,14 @@
-namespace RonSijm.AnaalIJzer.Exceptions;
+namespace RonSijm.AnaalIJzer.Core.Exceptions;
 
 public static class ArchitectureClock
 {
-	private static Func<DateTime> utcNowProvider = () => DateTime.UtcNow;
+	private static Func<DateTime> _utcNowProvider = () => DateTime.UtcNow;
 
 	public static DateTime UtcNow
 	{
 		get
 		{
-			var result = utcNowProvider();
+			var result = _utcNowProvider();
 
 			return result;
 		}
@@ -26,10 +26,10 @@ public static class ArchitectureClock
 
 	public static IDisposable Freeze(DateTime utcNow)
 	{
-		var previous = utcNowProvider;
-		utcNowProvider = () => utcNow;
+		var previous = _utcNowProvider;
+		_utcNowProvider = () => utcNow;
 
-		var result = new FrozenClock(() => utcNowProvider = previous);
+		var result = new FrozenClock(() => _utcNowProvider = previous);
 
 		return result;
 	}

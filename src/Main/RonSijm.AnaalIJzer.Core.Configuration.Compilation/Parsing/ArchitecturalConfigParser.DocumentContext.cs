@@ -1,12 +1,13 @@
 using System.Collections.Immutable;
-using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Document;
-using RonSijm.AnaalIJzer.Config.Compilation;
-using RonSijm.AnaalIJzer.Exceptions;
-using RonSijm.AnaalIJzer.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Compilation.Compilation;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Sources;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Validation;
+using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Config.Model;
 
-namespace RonSijm.AnaalIJzer.Config.Parsing;
+namespace RonSijm.AnaalIJzer.Core.Configuration.Compilation.Parsing;
 
 public static partial class ArchitecturalConfigParser
 {
@@ -22,6 +23,7 @@ public static partial class ArchitecturalConfigParser
 		var collected = ArchitectureConfigurationDocumentCollector.Collect(
 			content,
 			configPath,
+			additionalFiles,
 			additionalFileLookup,
 			cancellationToken,
 			ArchitectureConfigurationValidator.Validate,
@@ -30,8 +32,8 @@ public static partial class ArchitecturalConfigParser
 		issues.AddRange(collected.Issues);
 
 		var result = new ArchitectureConfigurationDocumentParseContext(
-			collected.Documents.Select(document => new ArchitectureConfigurationDocumentInput(document.Root, document.Path, document.IsInlineConfiguration)).ToImmutableArray(),
-			collected.Elements.Select(element => new ArchitectureConfigurationElementInput(element.Element, element.Path, element.IsInlineConfiguration)).ToImmutableArray(),
+			[..collected.Documents.Select(document => new ArchitectureConfigurationDocumentInput(document.Root, document.Path, document.IsInlineConfiguration))],
+			[..collected.Elements.Select(element => new ArchitectureConfigurationElementInput(element.Element, element.Path, element.IsInlineConfiguration))],
 			collected.DocumentationItems);
 
 		return result;

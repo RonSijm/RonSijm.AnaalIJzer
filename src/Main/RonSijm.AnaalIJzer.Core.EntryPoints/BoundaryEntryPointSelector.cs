@@ -1,9 +1,9 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.Conditions;
-using RonSijm.AnaalIJzer.Definitions;
+using RonSijm.AnaalIJzer.Core.Exceptions;
+using RonSijm.AnaalIJzer.Core.Matchers;
 
-namespace RonSijm.AnaalIJzer.Engine.EntryPoints;
+namespace RonSijm.AnaalIJzer.Core.EntryPoints;
 
 public readonly struct BoundaryEntryPointSelector(string? layerPath, ImmutableArray<BoundaryEntryPointMatcher> matchers)
 {
@@ -11,10 +11,7 @@ public readonly struct BoundaryEntryPointSelector(string? layerPath, ImmutableAr
 
 	public ImmutableArray<BoundaryEntryPointMatcher> Matchers { get; } = matchers;
 
-	public bool IsLayerSelector
-	{
-		get { return LayerPath is not null; }
-	}
+	public bool IsLayerSelector => LayerPath is not null;
 
 	public bool Matches(string dependencyLayerPath, string dependencyTypeName, string dependencyNamespace, ITypeSymbol dependencyType)
 	{

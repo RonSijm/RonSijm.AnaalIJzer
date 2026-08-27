@@ -1,9 +1,9 @@
 using System.Text;
 using System.Xml.Linq;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Persistence;
 
-namespace RonSijm.AnaalIJzer.ConfigurationEditing.Document;
+namespace RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
 
 public static class ArchitectureConfigurationDocumentPersistence
 {
@@ -23,7 +23,7 @@ public static class ArchitectureConfigurationDocumentPersistence
 		var directory = Path.GetDirectoryName(fullPath);
 		if (!string.IsNullOrWhiteSpace(directory))
 		{
-			Directory.CreateDirectory(directory!);
+			Directory.CreateDirectory(directory);
 		}
 
 		var document = new XDocument(

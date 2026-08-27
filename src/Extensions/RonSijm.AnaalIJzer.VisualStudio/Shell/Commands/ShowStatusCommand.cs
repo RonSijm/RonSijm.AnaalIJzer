@@ -12,11 +12,11 @@ namespace RonSijm.AnaalIJzer.VisualStudio.Shell.Commands;
 
 internal sealed class ShowStatusCommand
 {
-	private readonly AsyncPackage package;
+	private readonly AsyncPackage _package;
 
 	private ShowStatusCommand(AsyncPackage package, OleMenuCommandService commandService)
 	{
-		this.package = package;
+		this._package = package;
 		var commandId = new CommandID(PackageIds.CommandSet, PackageIds.ShowStatusCommandId);
 		commandService.AddCommand(new OleMenuCommand(Execute, commandId));
 		ArchitectureVisualStudioLog.Info("Registered command: AnaalIJzer.ShowStatus.");
@@ -38,16 +38,16 @@ internal sealed class ShowStatusCommand
 	private void Execute(object sender, EventArgs e)
 	{
 		ThreadHelper.ThrowIfNotOnUIThread();
-		_ = package.JoinableTaskFactory.RunAsync(async () =>
+		_ = _package.JoinableTaskFactory.RunAsync(async () =>
 		{
 			try
 			{
 				ArchitectureVisualStudioLog.Info("Show Status command executed.");
 				var message = await CreateStatusMessageAsync();
 				ArchitectureVisualStudioLog.Info("Show Status result: " + message.Replace(Environment.NewLine, " | "));
-				await package.JoinableTaskFactory.SwitchToMainThreadAsync(package.DisposalToken);
+				await _package.JoinableTaskFactory.SwitchToMainThreadAsync(_package.DisposalToken);
 				VsShellUtilities.ShowMessageBox(
-					package,
+					_package,
 					message,
 					"AnaalIJzer Status",
 					OLEMSGICON.OLEMSGICON_INFO,
@@ -63,8 +63,8 @@ internal sealed class ShowStatusCommand
 
 	private async Task<string> CreateStatusMessageAsync()
 	{
-		await package.JoinableTaskFactory.SwitchToMainThreadAsync(package.DisposalToken);
-		var textManager = await package.GetServiceAsync(typeof(SVsTextManager)) as IVsTextManager;
+		await _package.JoinableTaskFactory.SwitchToMainThreadAsync(_package.DisposalToken);
+		var textManager = await _package.GetServiceAsync(typeof(SVsTextManager)) as IVsTextManager;
 		if (textManager is null)
 		{
 			return ArchitectureVisualStudioDiagnostics.Current + "\r\n\r\nVisual Studio did not provide IVsTextManager.";
@@ -83,13 +83,13 @@ internal sealed class ShowStatusCommand
 			return ArchitectureVisualStudioDiagnostics.Current + "\r\n\r\nThe active editor view is not a WPF text view.";
 		}
 
-		if (await package.GetServiceAsync(typeof(SComponentModel)) is not IComponentModel componentModel)
+		if (await _package.GetServiceAsync(typeof(SComponentModel)) is not IComponentModel componentModel)
 		{
 			return ArchitectureVisualStudioDiagnostics.Current + "\r\n\r\nVisual Studio did not provide the MEF component model.";
 		}
 
 		var snapshotProvider = componentModel.GetService<ArchitectureSnapshotProvider>();
-		await snapshotProvider.CreateSnapshotAsync(viewHost.TextView.TextBuffer, package.DisposalToken);
+		await snapshotProvider.CreateSnapshotAsync(viewHost.TextView.TextBuffer, _package.DisposalToken);
 		var result = ArchitectureVisualStudioDiagnostics.Current;
 
 		return result;

@@ -113,10 +113,10 @@ flowchart LR
 
 The integration points are:
 
-1. [`ArchitecturalLevelAnalyzer`](src/Main/RonSijm.AnaalIJzer/ArchitecturalLevelAnalyzer.cs) is marked with `[DiagnosticAnalyzer(LanguageNames.CSharp)]`, which makes it discoverable as a C# analyzer.
+1. [`ArchitecturalLevelAnalyzer`](src/Main/RonSijm.AnaalIJzer.Engine/ArchitecturalLevelAnalyzer.cs) is marked with `[DiagnosticAnalyzer(LanguageNames.CSharp)]`, which makes it discoverable as a C# analyzer.
 2. For each compilation snapshot, its `CompilationStartAction` reads `Architecture.anl` from Roslyn's `AdditionalFiles`, or reads inline `AssemblyMetadata("AnaalIJzerSettings", ...)`. The parsed configuration is then reused by every callback registered for that compilation.
 3. It registers `SyntaxNodeAction` callbacks only for syntax that can introduce an architectural dependency: type and constructor declarations, methods, fields, properties, locals, object creation, invocations, attributes, inheritance, and static member access. Generated code is ignored, and callbacks may run concurrently.
-4. [`LayerDependencyAnalyzer`](src/Main/RonSijm.AnaalIJzer/Analysis/BoundaryRules/LayerDependencies/LayerDependencyAnalyzer.cs) uses the callback's `SemanticModel` to resolve syntax to real Roslyn symbols such as `ITypeSymbol`. This is why aliases, inferred local types, generic type arguments, implemented interfaces, and referenced types can be evaluated by their actual type identity instead of by source text alone.
+4. [`LayerDependencyAnalyzer`](src/Main/RonSijm.AnaalIJzer.Engine/Analysis/BoundaryRules/LayerDependencies/LayerDependencyAnalyzer.cs) uses the callback's `SemanticModel` to resolve syntax to real Roslyn symbols such as `ITypeSymbol`. This is why aliases, inferred local types, generic type arguments, implemented interfaces, and referenced types can be evaluated by their actual type identity instead of by source text alone.
 5. The resolved caller and dependency symbols are matched to configured layer paths. The dependency graph evaluates the relevant boundary gates, blocked rules, site filters, recognized-dependency requirements, and forbidden patterns. A failure is returned to Roslyn with `ReportDiagnostic`, including the source location and diagnostic properties such as `Site`.
 6. Configuration failures and configured cycles are reported at the end of the compilation as ARCH006 or ARCH007. If there is no configuration source, no dependency callbacks are registered and the analyzer remains silent.
 
@@ -683,7 +683,7 @@ The XML root element is `<ArchitecturalLevels>`. It supports the child elements 
 
 Merges another architecture settings file into the current config. Use this when a project has a small local config but shares layer definitions or common edges from another file. The top-level config can be either `Architecture.anl` or `AssemblyMetadata("AnaalIJzerSettings", ...)`; included settings files must still be passed to Roslyn as `AdditionalFiles`.
 
-**Example project:** [`Example.IncludeSettings`](Examples/Features/Example.IncludeSettings)
+**Example projects:** [`Example.IncludeSettings`](Examples/Features/Example.IncludeSettings), [`Example.IncludeWildcardSettings`](Examples/Features/Example.IncludeWildcardSettings)
 
 <details>
 <summary>Dependency graph</summary>
@@ -743,6 +743,22 @@ public class AdminEndpoint(IOrderRepository repository) { }
 
 `path` is resolved relative to the settings file that declares the include. Included files can include other files; files already seen during the current parse are skipped so accidental cycles do not loop forever.
 
+Wildcard patterns are also supported. A bare file-name wildcard such as `<Include path="*.anl" />` loads every visible `.anl` file that was passed to the analyzer as an `AdditionalFile`, so a project can keep drop-in rule packs in a local folder. A path wildcard such as `<Include path="RulePlugins/*.anl" />` is resolved relative to the declaring config file.
+
+```xml
+<ArchitecturalLevels>
+  <Include path="*.anl" />
+</ArchitecturalLevels>
+```
+
+That is most useful when the project or solution registers a rule-pack folder, for example:
+
+```xml
+<ItemGroup>
+  <AdditionalFiles Include="RulePlugins\**\*.anl" />
+</ItemGroup>
+```
+
 Root attributes such as `requireRecognizedDependencies`, `enforceAcyclic`, `enableReport` and `enableDocumentation` are honored from included files. Root site lists from included files are combined. Layer-scoped `requireRecognizedDependencies` attributes remain on the layer elements that declare them. Report and documentation paths are resolved relative to the file that enables them.
 
 ### `<Layer>`
@@ -760,6 +776,23 @@ Defines a named group of types. The `name` attribute is referenced by `<AllowedD
 ```
 
 Each `<Class>`, `<Namespace>`, or `<Assembly>` child is a matcher. Attributes on one element are combined with **AND**; separate elements are alternatives combined with **OR**. A type is assigned to a layer when every condition on any one matcher element succeeds. Exact class-name matchers take precedence; remaining matchers are evaluated in configuration order.
+
+For `<Class>`, you can also add inner declaration matchers when the type itself is not enough and you want to describe a recognizable shape:
+
+```xml
+<Layer name="PizzaProviderRequests">
+  <Class endsWith="Request">
+    <Property exactName="PizzaId" typeName="PizzaId" />
+    <Field exactName="_tenantId" typeName="TenantId" />
+  </Class>
+</Layer>
+```
+
+That means:
+
+- the outer `<Class>` still matches the type itself;
+- each inner declaration element must be satisfied by at least one owned declaration of that kind;
+- sibling declaration elements are combined with **AND**.
 
 A `<Layer>` may also set `requireRecognizedDependencies`. That requirement applies only to callers classified into that layer or one of its nested layers:
 
@@ -894,9 +927,41 @@ One or more matcher attributes are allowed per element. Every attribute on that 
 
 The first rule matches only interfaces whose names start with `I` and end with `Repository`. To express alternatives, add another `<Class>` element. Missing matchers, unsupported attributes, unknown `typeKind` values, and invalid regular expressions report ARCH006.
 
+#### Structural declaration matchers
+
+Inner declaration elements on `<Class>` reuse the same matcher attributes, but they split the meaning slightly:
+
+- name-style attributes such as `exactName`, `startsWith`, `endsWith`, `contains`, and `regex` apply to the declaration name;
+- semantic type attributes such as `typeName`, `exactFullName`, `inherits`, `implements`, and `typeKind` apply to that declaration's associated type;
+- `withAttribute` and `withAccessModifier` apply to the declaration symbol itself.
+
+Supported declaration matcher elements are:
+
+| Element | Matches |
+|---|---|
+| `<Type>` | The type declaration itself |
+| `<NestedType>` | A nested class, interface, struct, record, enum, or delegate |
+| `<Constructor>` | An explicit instance or static constructor |
+| `<Method>` | An ordinary method or explicit interface implementation |
+| `<Property>` | A property or indexer |
+| `<Field>` | A field |
+| `<Event>` | An event |
+| `<Operator>` | A user-defined operator |
+| `<Conversion>` | An implicit or explicit conversion operator |
+
+This makes "shape" rules possible without inventing a special-purpose matcher per scenario:
+
+```xml
+<Class endsWith="Request">
+  <Property exactName="PizzaId" typeName="PizzaId" />
+</Class>
+```
+
+That matches request types that own a `PizzaId` property of type `PizzaId`. It does not match requests that only have `DrinkId`, and it does not match requests that expose `PizzaId` through a differently named property.
+
 String matches are **case-sensitive** and applied to the full declared name (so `IOrderRepository` matches `endsWith="Repository"`). `regex` uses `Regex.IsMatch` semantics, so it matches anywhere in the subject unless the pattern is anchored with `^` / `$`; invalid patterns report ARCH006. Patterns are compiled once and cached, so the cost is paid only on first use.
 
-**Example projects:** [`Example.AssemblyMatcher`](Examples/Features/Example.AssemblyMatcher), [`Example.CombinedMatchers`](Examples/Features/Example.CombinedMatchers)
+**Example projects:** [`Example.AssemblyMatcher`](Examples/Features/Example.AssemblyMatcher), [`Example.CombinedMatchers`](Examples/Features/Example.CombinedMatchers), [`Example.StructuralDeclarationMatchers`](Examples/Features/Example.StructuralDeclarationMatchers)
 
 
 ```xml
@@ -1702,6 +1767,24 @@ Both attributes accept comma-separated simple or fully qualified type names.
 <InheritancePolicy typeKinds="Class" requiredBaseTypes="AggregateRoot" requiredInterfaces="IAuditedEntity" />
 ```
 
+#### Combining with structural class matchers
+
+`<InheritancePolicy>` becomes especially useful when the layer itself is defined by a structural class matcher:
+
+```xml
+<Layer name="PizzaProviderRequests">
+  <Class endsWith="Request">
+    <Property exactName="PizzaId" typeName="PizzaId" />
+  </Class>
+
+  <InheritancePolicy
+    typeKinds="Class"
+    requiredInterfaces="IPizzaProvider" />
+</Layer>
+```
+
+That reads as: request types that own a `PizzaId` property must implement `IPizzaProvider`. A `DrinkRequest` does not match the layer just because it ends with `Request`, so the inheritance rule never applies to it. This is useful for drop-in rule packs where a recognizable request shape should imply another contract.
+
 #### Nested layers
 
 Inheritance policies apply to the owning layer and all descendants. Parent and child policies are cumulative:
@@ -1729,7 +1812,7 @@ The child policy cannot override an outer denial. The first failure is reported 
 
 Arse includes inheritance-policy findings in `inspect`, `report`, generated documentation, and code evidence. The standalone WPF editor and Visual Studio graph inspector expose the same settings at layer scope.
 
-**Example project:** [`Example.Arch019.InheritancePolicy`](Examples/Diagnostics/Example.Arch019.InheritancePolicy)
+**Example projects:** [`Example.Arch019.InheritancePolicy`](Examples/Diagnostics/Example.Arch019.InheritancePolicy), [`Example.StructuralDeclarationMatchers`](Examples/Features/Example.StructuralDeclarationMatchers)
 
 ### Contract purity
 
@@ -2325,7 +2408,7 @@ When `enableDocumentation="true"` is set, Arse uses `documentationPath` as the d
 
 ### `description` attributes
 
-Every XML element that participates in the ruleset can carry a `description` attribute: `<ArchitecturalLevels>`, `<Include>`, `<Layer>`, `<Class>`, `<Namespace>`, `<Assembly>`, `<Allowed>`, `<Forbidden>`, `<Exceptions>`, `<Fix>`, `<AllowedDependency>`, `<BlockedDependency>`, `<NameRules>`, `<RequireMatchingNames>`, `<RequireDeclarationNameMatchesType>`, `<VisibilityPolicy>`, `<InheritancePolicy>`, `<ApiSurface>`, `<AllowedLayer>`, `<BlockedLayer>`, `<Type>`, `<Name>`, `<Source>`, `<Target>` and `<Allow>`. Descriptions do not affect diagnostics. They exist so generated documentation can explain why a rule exists while preserving the same order as the XML.
+Every XML element that participates in the ruleset can carry a `description` attribute: `<ArchitecturalLevels>`, `<Include>`, `<Layer>`, `<Class>`, `<Namespace>`, `<Assembly>`, `<Allowed>`, `<Forbidden>`, `<Exceptions>`, `<Fix>`, `<AllowedDependency>`, `<BlockedDependency>`, `<NameRules>`, `<RequireMatchingNames>`, `<RequireDeclarationNameMatchesType>`, `<VisibilityPolicy>`, `<InheritancePolicy>`, `<ApiSurface>`, `<AllowedLayer>`, `<BlockedLayer>`, `<Type>`, `<NestedType>`, `<Constructor>`, `<Method>`, `<Property>`, `<Field>`, `<Event>`, `<Operator>`, `<Conversion>`, `<Name>`, `<Source>`, `<Target>` and `<Allow>`. Descriptions do not affect diagnostics. They exist so generated documentation can explain why a rule exists while preserving the same order as the XML.
 
 ```xml
 <Layer name="QuerySurface"

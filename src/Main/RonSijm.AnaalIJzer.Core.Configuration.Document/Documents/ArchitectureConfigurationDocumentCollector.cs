@@ -2,16 +2,17 @@ using System.Collections.Immutable;
 using System.Xml;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.Config.Parsing;
-using RonSijm.AnaalIJzer.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Sources;
 
-namespace RonSijm.AnaalIJzer.ConfigurationEditing.Document;
+namespace RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
 
 public static class ArchitectureConfigurationDocumentCollector
 {
 	public static ArchitectureConfigurationCollectionResult Collect(
 		string content,
 		string configPath,
+		ImmutableArray<AdditionalText> additionalFiles,
 		IReadOnlyDictionary<string, AdditionalText> additionalFileLookup,
 		CancellationToken cancellationToken,
 		Func<XDocument, string, ImmutableArray<ConfigurationIssue>> validateDocument,
@@ -26,6 +27,7 @@ public static class ArchitectureConfigurationDocumentCollector
 		CollectCore(
 			content,
 			configPath,
+			additionalFiles,
 			additionalFileLookup,
 			cancellationToken,
 			validateDocument,
@@ -50,6 +52,7 @@ public static class ArchitectureConfigurationDocumentCollector
 	private static void CollectCore(
 		string content,
 		string configPath,
+		ImmutableArray<AdditionalText> additionalFiles,
 		IReadOnlyDictionary<string, AdditionalText> additionalFileLookup,
 		CancellationToken cancellationToken,
 		Func<XDocument, string, ImmutableArray<ConfigurationIssue>> validateDocument,
@@ -104,39 +107,43 @@ public static class ArchitectureConfigurationDocumentCollector
 				continue;
 			}
 
-			var resolvedPath = ArchitectureConfigurationSourceLookup.ResolveRelativePath(includePath, configPath);
 			var allowFileNameFallback = isInlineConfiguration || string.Equals(configPath, inlineSettingsMetadataKey, StringComparison.Ordinal)
 			                            || string.IsNullOrEmpty(Path.GetDirectoryName(configPath));
-			if (!ArchitectureConfigurationSourceLookup.TryFindIncludedFile(additionalFileLookup, resolvedPath, includePath, allowFileNameFallback, out var includeFile))
+			var includedFiles = ArchitectureConfigurationIncludeResolver.ResolveAdditionalFiles(additionalFiles, additionalFileLookup, configPath, includePath, allowFileNameFallback);
+			if (includedFiles.Length == 0)
 			{
-				AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, $"Included architecture configuration was not provided as an AdditionalFile: {includePath}.", child, configPath);
+				AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, ArchitectureConfigurationIncludeResolver.CreateMissingIncludeMessage(includePath), child, configPath);
 
 				continue;
 			}
 
-			var includeText = includeFile.GetText(cancellationToken);
-			var includeContent = includeText?.ToString();
-			if (string.IsNullOrWhiteSpace(includeContent))
+			foreach (var includeFile in includedFiles)
 			{
-				AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, $"Included architecture configuration is empty: {includePath}.", child, configPath);
+				var includeText = includeFile.GetText(cancellationToken);
+				var includeContent = includeText?.ToString();
+				if (string.IsNullOrWhiteSpace(includeContent))
+				{
+					AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, $"Included architecture configuration is empty: {includeFile.Path}.", child, configPath);
 
-				continue;
+					continue;
+				}
+
+				CollectCore(
+					includeContent!,
+					includeFile.Path,
+					additionalFiles,
+					additionalFileLookup,
+					cancellationToken,
+					validateDocument,
+					inlineSettingsMetadataKey,
+					false,
+					documents,
+					elements,
+					documentationItems,
+					issues,
+					activePaths,
+					visitedPaths);
 			}
-
-			CollectCore(
-				includeContent!,
-				includeFile.Path,
-				additionalFileLookup,
-				cancellationToken,
-				validateDocument,
-				inlineSettingsMetadataKey,
-				false,
-				documents,
-				elements,
-				documentationItems,
-				issues,
-				activePaths,
-				visitedPaths);
 		}
 
 		activePaths.Remove(normalizedPath);

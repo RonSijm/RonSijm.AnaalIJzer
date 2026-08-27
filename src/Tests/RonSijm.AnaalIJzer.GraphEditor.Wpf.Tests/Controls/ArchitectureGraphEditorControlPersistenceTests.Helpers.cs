@@ -7,10 +7,10 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using AwesomeAssertions;
 using Nodify;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
-using RonSijm.AnaalIJzer.Graphing.Loading;
-using RonSijm.AnaalIJzer.Graphing.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 using RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
+using RonSijm.AnaalIJzer.GraphModel.Loading;
+using RonSijm.AnaalIJzer.GraphModel.Model;
 
 namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests.Controls;
 
@@ -122,9 +122,9 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 		var result = FindVisualDescendants<Node>(root)
 			.Select(node => node.DataContext)
 			.Concat(FindVisualDescendants<GroupingNode>(root).Select(boundary => boundary.DataContext))
-			.Single(item => string.Equals(GetObjectProperty(item, "Path")?.ToString(), path, StringComparison.Ordinal));
+			.Single(item => string.Equals(GetText(GetObjectProperty(item, "Path")), path, StringComparison.Ordinal));
 
-		return result!;
+		return result;
 	}
 
 	private static TextBox FindTextBoxByText(DependencyObject root, string text)
@@ -132,7 +132,7 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 		var result = FindVisualDescendants<TextBox>(root).FirstOrDefault(textBox => textBox.Text == text);
 		result.Should().NotBeNull("the graph editor should render an editable textbox containing '" + text + "'");
 
-		return result!;
+		return result;
 	}
 
 	private static string? GetDataContextProperty(FrameworkElement element, string propertyName)
@@ -142,9 +142,9 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 		return result;
 	}
 
-	private static void SetObjectProperty(object? instance, string propertyName, object value)
+	private static void SetObjectProperty(object instance, string propertyName, object value)
 	{
-		instance!.GetType().GetProperty(propertyName)!.SetValue(instance, value);
+		instance.GetType().GetProperty(propertyName)!.SetValue(instance, value);
 	}
 
 	private static object? GetObjectProperty(object? instance, string propertyName)
@@ -154,27 +154,41 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 		return result;
 	}
 
-	private static T? FindVisualDescendant<T>(DependencyObject root) where T : DependencyObject
+	private static T FindVisualDescendant<T>(DependencyObject root) where T : DependencyObject
 	{
-		var result = FindVisualDescendants<T>(root).FirstOrDefault();
+		var result = FindVisualDescendants<T>(root).First();
 
 		return result;
 	}
 
 	private static CheckBox FindCheckBoxByContent(DependencyObject root, string content)
 	{
-		var result = FindVisualDescendants<CheckBox>(root).FirstOrDefault(checkBox => string.Equals(checkBox.Content?.ToString(), content, StringComparison.Ordinal));
+		var result = FindVisualDescendants<CheckBox>(root).FirstOrDefault(checkBox => string.Equals(GetText(checkBox.Content), content, StringComparison.Ordinal));
 		result.Should().NotBeNull("the graph editor should render a checkbox named '" + content + "'");
 
-		return result!;
+		return result;
 	}
 
 	private static Expander FindExpanderByHeader(DependencyObject root, string header)
 	{
-		var result = FindVisualDescendants<Expander>(root).FirstOrDefault(expander => string.Equals(expander.Header?.ToString(), header, StringComparison.Ordinal));
+		var result = FindVisualDescendants<Expander>(root).FirstOrDefault(expander => string.Equals(GetText(expander.Header), header, StringComparison.Ordinal));
 		result.Should().NotBeNull("the graph editor should render an expander named '" + header + "'");
 
-		return result!;
+		return result;
+	}
+
+	private static MenuItem FindMenuItemByHeader(ItemCollection items, string header)
+	{
+		var result = items.OfType<MenuItem>().Single(item => string.Equals(GetText(item.Header), header, StringComparison.Ordinal));
+
+		return result;
+	}
+
+	private static string? GetText(object? value)
+	{
+		var result = value as string ?? value?.ToString();
+
+		return result;
 	}
 
 	private static IEnumerable<T> FindVisualDescendants<T>(DependencyObject root) where T : DependencyObject

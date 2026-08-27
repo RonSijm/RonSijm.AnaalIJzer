@@ -1,21 +1,19 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Document;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+using RonSijm.AnaalIJzer.Core.Indicators;
 using RonSijm.AnaalIJzer.GraphModel.Building;
-using RonSijm.AnaalIJzer.Graphing.Model;
-using RonSijm.AnaalIJzer.Indicators;
-using ProjectAnalyzerConfig = RonSijm.AnaalIJzer.Model.AnalyzerConfig;
-using RonSijm.AnaalIJzer.Core.Editor.Snapshots;
+using RonSijm.AnaalIJzer.GraphModel.Model;
+using ProjectAnalyzerConfig = RonSijm.AnaalIJzer.Core.RuntimeConfig.Config.Model.AnalyzerConfig;
 
-namespace RonSijm.AnaalIJzer.EditorRuntime.Snapshots;
+namespace RonSijm.AnaalIJzer.EditorRuntime.Editor.Snapshots;
 
 public static partial class ArchitectureEditorSnapshotService
 {
 	private static ArchitectureGraphSnapshot CreateEmptyGraphSnapshot(Document document, ArchitectureConfigurationSource configurationSource, bool hasConfiguration)
 	{
-		var creationTargets = hasConfiguration
-			? ImmutableArray<ArchitectureConfigurationCreationTarget>.Empty
+		ImmutableArray<ArchitectureConfigurationCreationTarget> creationTargets = hasConfiguration
+			? []
 			: CreateConfigurationCreationTargets(document);
 		var input = new ArchitectureGraphSnapshotInput(
 			hasConfiguration,
@@ -56,8 +54,8 @@ public static partial class ArchitectureEditorSnapshotService
 				GetEditableRuleSourceKind(edge, configurationSource, inlineConfigPath),
 				edge.XmlLineNumber,
 				edge.XmlLinePosition,
-				ArchitectureDependencySites.All.Where(edge.SiteFilter.AllowedSites.Contains).ToImmutableArray(),
-				ArchitectureDependencySites.All.Where(edge.SiteFilter.BlockedSites.Contains).ToImmutableArray(),
+				[..ArchitectureDependencySites.All.Where(edge.SiteFilter.AllowedSites.Contains)],
+				[..ArchitectureDependencySites.All.Where(edge.SiteFilter.BlockedSites.Contains)],
 				FindDependencyRuleDescription(config, edge)))
 			.ToImmutableArray();
 		var input = new ArchitectureGraphSnapshotInput(
@@ -66,7 +64,7 @@ public static partial class ArchitectureEditorSnapshotService
 			layers.ToImmutable(),
 			rules,
 			activeLayerPaths,
-			config.ConfigurationIssues.Select(issue => issue.Message).ToImmutableArray(),
+			[..config.ConfigurationIssues.Select(issue => issue.Message)],
 			configurationSource);
 		var result = ArchitectureGraphSnapshotFactory.CreateSnapshot(input, evidence, exceptionReviews);
 

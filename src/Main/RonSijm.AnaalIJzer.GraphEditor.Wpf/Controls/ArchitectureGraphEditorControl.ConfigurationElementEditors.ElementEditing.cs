@@ -35,7 +35,7 @@ public sealed partial class ArchitectureGraphEditorControl
 				return ArchitectureConfigurationEditResult.Failure(message);
 			}
 
-			return editService.SetConfigurationElementAttributes(element.Handle, parsedAttributes);
+			return _editService.SetConfigurationElementAttributes(element.Handle, parsedAttributes);
 		}, element.Handle.CanEdit, true);
 		panel.Children.Add(new TextBlock { Text = "Child XML (Exceptions/Fix)", FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 8, 0, 2) });
 		panel.Children.Add(CreateHintTextBlock("Use this for scoped child elements such as Exceptions or Fix.", new Thickness(0, 0, 0, 2)));
@@ -48,14 +48,14 @@ public sealed partial class ArchitectureGraphEditorControl
 			IsEnabled = element.Handle.CanEdit
 		};
 		panel.Children.Add(childXml);
-		AutoSaveOnLostFocus(childXml, () => editService.SetConfigurationElementChildren(element.Handle, childXml.Text), element.Handle.CanEdit, true);
+		AutoSaveOnLostFocus(childXml, () => _editService.SetConfigurationElementChildren(element.Handle, childXml.Text), element.Handle.CanEdit, true);
 		var remove = CreateDangerButton("Remove", element.Handle.CanEdit);
 		remove.Margin = new Thickness(0, 4, 0, 0);
 		remove.Click += (_, _) =>
 		{
-			if (confirmationHandler("Remove '" + element.Summary + "'?"))
+			if (_confirmationHandler("Remove '" + element.Summary + "'?"))
 			{
-				HandleEditResult(editService.RemoveConfigurationElement(element.Handle), true);
+				HandleEditResult(_editService.RemoveConfigurationElement(element.Handle), true);
 			}
 		};
 		panel.Children.Add(remove);
@@ -74,7 +74,7 @@ public sealed partial class ArchitectureGraphEditorControl
 	private static bool TryParseAttributes(string text, out ImmutableDictionary<string, string> attributes, out string message)
 	{
 		var builder = ImmutableDictionary.CreateBuilder<string, string>(StringComparer.Ordinal);
-		foreach (var rawLine in text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None))
+		foreach (var rawLine in text.Split(["\r\n", "\n"], StringSplitOptions.None))
 		{
 			var line = rawLine.Trim();
 			if (line.Length == 0)

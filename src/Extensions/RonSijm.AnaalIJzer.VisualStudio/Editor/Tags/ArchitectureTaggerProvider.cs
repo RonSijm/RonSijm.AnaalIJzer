@@ -18,12 +18,12 @@ namespace RonSijm.AnaalIJzer.VisualStudio.Editor.Tags;
 [TagType(typeof(ArchitectureLayerGlyphTag))]
 internal sealed class ArchitectureTaggerProvider : IViewTaggerProvider
 {
-	private readonly ArchitectureSnapshotProvider snapshotProvider;
+	private readonly ArchitectureSnapshotProvider _snapshotProvider;
 
 	[ImportingConstructor]
 	public ArchitectureTaggerProvider(ArchitectureSnapshotProvider snapshotProvider)
 	{
-		this.snapshotProvider = snapshotProvider;
+		this._snapshotProvider = snapshotProvider;
 		ArchitectureVisualStudioLog.Info("ArchitectureTaggerProvider created.");
 	}
 
@@ -36,7 +36,7 @@ internal sealed class ArchitectureTaggerProvider : IViewTaggerProvider
 		}
 
 		ArchitectureVisualStudioLog.Info("ArchitectureTaggerProvider creating tagger for content type '" + buffer.ContentType.TypeName + "'.");
-		var tagger = textView.Properties.GetOrCreateSingletonProperty(() => new ArchitectureTagger(textView, buffer, snapshotProvider));
+		var tagger = textView.Properties.GetOrCreateSingletonProperty(() => new ArchitectureTagger(textView, buffer, _snapshotProvider));
 		var result = tagger as ITagger<T>;
 
 		return result;

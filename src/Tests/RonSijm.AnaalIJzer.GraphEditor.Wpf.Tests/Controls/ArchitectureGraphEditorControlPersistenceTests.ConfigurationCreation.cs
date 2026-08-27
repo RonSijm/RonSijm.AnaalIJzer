@@ -4,8 +4,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using AwesomeAssertions;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
-using RonSijm.AnaalIJzer.Graphing.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+using RonSijm.AnaalIJzer.GraphModel.Model;
 using Xunit;
 
 namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests.Controls;
@@ -37,7 +37,7 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 				ImmutableArray<string>.Empty,
 				ArchitectureConfigurationSource.None,
 				ArchitectureGraphEvidence.Empty,
-				ImmutableArray.Create(target));
+                [target]);
 			var control = CreateControl(snapshot);
 			var createButton = FindVisualDescendants<Button>(control)
 				.First(button => GetVisualText(button).Contains("Create in Project folder", StringComparison.Ordinal));

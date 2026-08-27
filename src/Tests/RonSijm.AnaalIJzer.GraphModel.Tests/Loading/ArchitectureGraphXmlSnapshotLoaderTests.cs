@@ -1,6 +1,8 @@
 using System.Globalization;
 using System.Text;
 using AwesomeAssertions;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+using RonSijm.AnaalIJzer.GraphModel.Loading;
 using Xunit;
 
 namespace RonSijm.AnaalIJzer.GraphModel.Tests.Loading;
@@ -66,13 +68,12 @@ public sealed class ArchitectureGraphXmlSnapshotLoaderTests
 
 		var snapshot = ArchitectureGraphXmlSnapshotLoader.Load(path);
 
-		ImmutableArrayExtensions.Select(snapshot.Layers, layer => layer.Path).Should().Contain(new[]
-		{
+		snapshot.Layers.Select(layer => layer.Path).Should().Contain([
 			"Application/ApplicationInterfaces",
 			"Application/ApplicationImplementation",
 			"Ports/PortInterfaces",
 			"Ports/PortImplementation"
-		});
+		]);
 		snapshot.Rules.Should().Contain(rule =>
 			rule.ScopePath == "Application"
 			&& rule.From == "Application/ApplicationImplementation"
@@ -96,8 +97,7 @@ public sealed class ArchitectureGraphXmlSnapshotLoaderTests
 
 		var snapshot = ArchitectureGraphXmlSnapshotLoader.Load(path);
 
-		AssertionExtensions.Should((string)snapshot.Layers.Should().ContainSingle()
-        .Which.Path).Be("Controller");
+		snapshot.Layers.Should().ContainSingle().Which.Path.Should().Be("Controller");
 	}
 
 	[Fact]
@@ -136,10 +136,64 @@ public sealed class ArchitectureGraphXmlSnapshotLoaderTests
 
 		var snapshot = ArchitectureGraphXmlSnapshotLoader.Load(rootPath);
 
-		ImmutableArrayExtensions.Select(snapshot.Layers, layer => layer.Path).Should().Contain(new[] { "Presentation", "Application", "Persistence" });
+		snapshot.Layers.Select(layer => layer.Path).Should().Contain(["Presentation", "Application", "Persistence"]);
 		snapshot.Layers.Single(layer => layer.Path == "Application").SourcePath.Should().Be(Path.GetFullPath(includedPath));
 		snapshot.Rules.Should().Contain(rule => rule.From == "Application" && rule.To == "Persistence");
 		snapshot.Rules.Should().Contain(rule => rule.From == "Presentation" && rule.To == "Application");
+	}
+
+	[Fact]
+	public void Load_ExpandsWildcardIncludedAnlFilesIntoGraphSnapshot()
+	{
+		var directory = Path.Combine(Path.GetTempPath(), "AnaalIJzerGraphXmlSnapshotLoaderTests", Guid.NewGuid().ToString("N"));
+		var pluginsDirectory = Path.Combine(directory, "RulePlugins");
+		Directory.CreateDirectory(pluginsDirectory);
+
+		var layersPath = Path.Combine(pluginsDirectory, "RestaurantLayers.anl");
+		File.WriteAllText(
+			layersPath,
+			"""
+			<ArchitecturalLevels>
+			  <Layer name="Waiter">
+			    <Class endsWith="Waiter" />
+			  </Layer>
+			  <Layer name="Chef">
+			    <Class endsWith="Chef" />
+			  </Layer>
+			  <Layer name="Pantry">
+			    <Class endsWith="Pantry" />
+			  </Layer>
+			</ArchitecturalLevels>
+			""",
+			Encoding.Unicode);
+
+		var flowPath = Path.Combine(pluginsDirectory, "RestaurantFlow.anl");
+		File.WriteAllText(
+			flowPath,
+			"""
+			<ArchitecturalLevels>
+			  <AllowedDependency from="Waiter" to="Chef" />
+			  <AllowedDependency from="Chef" to="Pantry" />
+			</ArchitecturalLevels>
+			""",
+			Encoding.Unicode);
+
+		var rootPath = Path.Combine(directory, "Architecture.anl");
+		File.WriteAllText(
+			rootPath,
+			"""
+			<ArchitecturalLevels>
+			  <Include path="*.anl" />
+			</ArchitecturalLevels>
+			""",
+			Encoding.Unicode);
+
+		var snapshot = ArchitectureGraphXmlSnapshotLoader.Load(rootPath);
+
+		snapshot.Layers.Select(layer => layer.Path).Should().Contain(["Waiter", "Chef", "Pantry"]);
+		snapshot.Layers.Single(layer => layer.Path == "Waiter").SourcePath.Should().Be(Path.GetFullPath(layersPath));
+		snapshot.Rules.Should().Contain(rule => rule.From == "Waiter" && rule.To == "Chef");
+		snapshot.Rules.Should().Contain(rule => rule.From == "Chef" && rule.To == "Pantry");
 	}
 
 	[Fact]
@@ -168,7 +222,7 @@ public sealed class ArchitectureGraphXmlSnapshotLoaderTests
 		var snapshot = ArchitectureGraphXmlSnapshotLoader.Load(source);
 
 		snapshot.ConfigurationSource.Kind.Should().Be(ArchitectureConfigurationSourceKind.InlineAssemblyMetadata);
-		ImmutableArrayExtensions.Select(snapshot.Layers, layer => layer.Path).Should().Contain(new[] { "Controller", "Application" });
+		snapshot.Layers.Select(layer => layer.Path).Should().Contain(["Controller", "Application"]);
 		snapshot.Rules.Should().ContainSingle(rule => rule.From == "Controller" && rule.To == "Application");
 	}
 

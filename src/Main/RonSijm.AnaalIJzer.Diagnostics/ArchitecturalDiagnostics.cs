@@ -1,6 +1,7 @@
 using Microsoft.CodeAnalysis;
+using RonSijm.AnaalIJzer.Core.Findings;
 
-namespace RonSijm.AnaalIJzer;
+namespace RonSijm.AnaalIJzer.Diagnostics;
 
 internal static class ArchitecturalDiagnostics
 {

@@ -1,4 +1,6 @@
-namespace RonSijm.AnaalIJzer.ProjectArchitecture;
+using RonSijm.AnaalIJzer.Core.Matchers.ProjectArchitecture;
+
+namespace RonSijm.AnaalIJzer.Core.ProjectArchitecture;
 
 public readonly struct PackageReferenceEvaluation(
 	bool isAllowed,

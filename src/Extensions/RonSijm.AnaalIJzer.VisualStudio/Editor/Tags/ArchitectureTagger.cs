@@ -16,17 +16,17 @@ internal sealed partial class ArchitectureTagger :
 	ITagger<ArchitectureLayerGlyphTag>,
 	IDisposable
 {
-	private readonly ITextView view;
-	private readonly ITextBuffer buffer;
-	private readonly ArchitectureSnapshotProvider snapshotProvider;
-	private CancellationTokenSource? refreshCancellation;
-	private ArchitectureEditorSnapshot snapshot = ArchitectureEditorSnapshot.Empty;
+	private readonly ITextView _view;
+	private readonly ITextBuffer _buffer;
+	private readonly ArchitectureSnapshotProvider _snapshotProvider;
+	private CancellationTokenSource? _refreshCancellation;
+	private ArchitectureEditorSnapshot _snapshot = ArchitectureEditorSnapshot.Empty;
 
 	public ArchitectureTagger(ITextView view, ITextBuffer buffer, ArchitectureSnapshotProvider snapshotProvider)
 	{
-		this.view = view;
-		this.buffer = buffer;
-		this.snapshotProvider = snapshotProvider;
+		this._view = view;
+		this._buffer = buffer;
+		this._snapshotProvider = snapshotProvider;
 		buffer.Changed += BufferChanged;
 		view.LayoutChanged += ViewLayoutChanged;
 		view.GotAggregateFocus += ViewGotAggregateFocus;
@@ -40,11 +40,11 @@ internal sealed partial class ArchitectureTagger :
 
 	public void Dispose()
 	{
-		refreshCancellation?.Cancel();
-		buffer.Changed -= BufferChanged;
-		view.LayoutChanged -= ViewLayoutChanged;
-		view.GotAggregateFocus -= ViewGotAggregateFocus;
-		view.Closed -= ViewClosed;
+		_refreshCancellation?.Cancel();
+		_buffer.Changed -= BufferChanged;
+		_view.LayoutChanged -= ViewLayoutChanged;
+		_view.GotAggregateFocus -= ViewGotAggregateFocus;
+		_view.Closed -= ViewClosed;
 		ArchitectureVisualStudioOptions.Changed -= OptionsChanged;
 	}
 }

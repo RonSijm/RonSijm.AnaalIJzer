@@ -24,7 +24,7 @@ public sealed partial class ArchitectureGraphEditorControl
 		var editor = new MatcherAttributeEditor(panel, attributeName, attributeValue);
 		void UpdateAttributes()
 		{
-			editor.SetAttributeNames(GetMatcherAttributeNames(elementKind.SelectedItem?.ToString()));
+			editor.SetAttributeNames(GetMatcherAttributeNames(elementKind.SelectedItem as string));
 		}
 
 		elementKind.SelectionChanged += (_, _) => UpdateAttributes();

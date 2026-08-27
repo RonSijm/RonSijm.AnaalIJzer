@@ -1,10 +1,10 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.Engine.DependencyRules;
-using RonSijm.AnaalIJzer.Engine.Policies;
-using RonSijm.AnaalIJzer.Exceptions;
-using RonSijm.AnaalIJzer.ProjectArchitecture;
+using RonSijm.AnaalIJzer.Core.DependencyRules;
+using RonSijm.AnaalIJzer.Core.Exceptions;
+using RonSijm.AnaalIJzer.Core.LayerModel;
+using RonSijm.AnaalIJzer.Core.ProjectArchitecture;
 
-namespace RonSijm.AnaalIJzer.Config.Compilation;
+namespace RonSijm.AnaalIJzer.Core.Configuration.Compilation.Compilation;
 
 internal readonly struct ArchitectureConfigurationMaterializationResult
 {

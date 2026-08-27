@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.Conditions;
-using RonSijm.AnaalIJzer.Definitions;
-using RonSijm.AnaalIJzer.Engine.DependencyRules;
-using RonSijm.AnaalIJzer.Engine.EntryPoints;
+using RonSijm.AnaalIJzer.Core.DependencyRules;
+using RonSijm.AnaalIJzer.Core.Exceptions;
+using RonSijm.AnaalIJzer.Core.Matchers;
+using RonSijm.AnaalIJzer.Core.Matchers.Conditions;
 
 namespace RonSijm.AnaalIJzer.Core.EntryPoints.Tests.EntryPoints;
 

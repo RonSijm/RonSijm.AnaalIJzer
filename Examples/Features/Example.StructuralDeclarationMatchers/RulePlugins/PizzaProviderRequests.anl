@@ -1,0 +1,14 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIjzer.xsd">
+  <Layer name="PizzaProviderRequests" description="Requests that can provide pizza identity to downstream handlers.">
+    <Class endsWith="Request" description="Pizza-related requests have a recognizable request shape.">
+      <Property exactName="PizzaId" typeName="PizzaId" description="The request exposes the pizza identifier." />
+      <Field exactName="_tenantId" typeName="TenantId" description="The request also carries tenant scope for multi-tenant routing." />
+    </Class>
+
+    <InheritancePolicy
+      typeKinds="Class"
+      requiredInterfaces="IPizzaProvider"
+      description="Requests with that shape must implement the provider interface expected by handlers." />
+  </Layer>
+</ArchitecturalLevels>

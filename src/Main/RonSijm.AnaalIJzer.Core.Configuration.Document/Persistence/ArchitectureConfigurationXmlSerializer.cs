@@ -2,7 +2,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
+namespace RonSijm.AnaalIJzer.Core.Configuration.Document.Persistence;
 
 public static class ArchitectureConfigurationXmlSerializer
 {

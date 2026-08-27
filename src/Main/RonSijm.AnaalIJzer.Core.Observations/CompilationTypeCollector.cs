@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis;
 
-namespace RonSijm.AnaalIJzer.ObservedDependencies;
+namespace RonSijm.AnaalIJzer.Core.Observations;
 
 public static class CompilationTypeCollector
 {

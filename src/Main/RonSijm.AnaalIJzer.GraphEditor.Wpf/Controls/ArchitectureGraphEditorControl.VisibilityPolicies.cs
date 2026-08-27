@@ -83,7 +83,7 @@ public sealed partial class ArchitectureGraphEditorControl
 				return ArchitectureConfigurationEditResult.Failure("Select at least one target and one accessibility.");
 			}
 
-			var result = editService.SetConfigurationElementAttributes(policy.Handle, attributes);
+			var result = _editService.SetConfigurationElementAttributes(policy.Handle, attributes);
 
 			return result;
 		}
@@ -97,9 +97,9 @@ public sealed partial class ArchitectureGraphEditorControl
 		remove.Margin = new Thickness(0, 8, 0, 0);
 		remove.Click += (_, _) =>
 		{
-			if (confirmationHandler("Remove '" + policy.Summary + "'?"))
+			if (_confirmationHandler("Remove '" + policy.Summary + "'?"))
 			{
-				HandleEditResult(editService.RemoveConfigurationElement(policy.Handle), true);
+				HandleEditResult(_editService.RemoveConfigurationElement(policy.Handle), true);
 			}
 		};
 		panel.Children.Add(remove);
@@ -135,7 +135,7 @@ public sealed partial class ArchitectureGraphEditorControl
 			var attributes = CreateVisibilityPolicyAttributes(mode, targetChecks.Checks, accessibilityChecks.Checks, description.Text);
 			var result = attributes is null
 				? ArchitectureConfigurationEditResult.Failure("Select at least one target and one accessibility.")
-				: editService.AddVisibilityPolicy(handle, attributes);
+				: _editService.AddVisibilityPolicy(handle, attributes);
 			HandleEditResult(result, true);
 		};
 		panel.Children.Add(add);

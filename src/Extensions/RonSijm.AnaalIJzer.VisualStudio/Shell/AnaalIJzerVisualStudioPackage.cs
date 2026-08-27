@@ -30,7 +30,7 @@ namespace RonSijm.AnaalIJzer.VisualStudio.Shell;
 [Guid(PackageIds.PackageGuidString)]
 public sealed class AnaalIJzerVisualStudioPackage : AsyncPackage
 {
-	private AnlSettingsFileDocumentWatcher? anlSettingsFileDocumentWatcher;
+	private AnlSettingsFileDocumentWatcher? _anlSettingsFileDocumentWatcher;
 
 	protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
 	{
@@ -49,7 +49,7 @@ public sealed class AnaalIJzerVisualStudioPackage : AsyncPackage
 			await ToggleSitesDiagnosticsCommand.InitializeAsync(this);
 			await ShowDependencyGraphsCommand.InitializeAsync(this);
 			await ShowStatusCommand.InitializeAsync(this);
-			anlSettingsFileDocumentWatcher = await AnlSettingsFileDocumentWatcher.InitializeAsync(this);
+			_anlSettingsFileDocumentWatcher = await AnlSettingsFileDocumentWatcher.InitializeAsync(this);
 			ArchitectureVisualStudioLog.Info("Package initialization completed.");
 		}
 		catch (Exception exception)
@@ -65,8 +65,8 @@ public sealed class AnaalIJzerVisualStudioPackage : AsyncPackage
 
 		if (disposing)
 		{
-			anlSettingsFileDocumentWatcher?.Dispose();
-			anlSettingsFileDocumentWatcher = null;
+			_anlSettingsFileDocumentWatcher?.Dispose();
+			_anlSettingsFileDocumentWatcher = null;
 		}
 
 		base.Dispose(disposing);

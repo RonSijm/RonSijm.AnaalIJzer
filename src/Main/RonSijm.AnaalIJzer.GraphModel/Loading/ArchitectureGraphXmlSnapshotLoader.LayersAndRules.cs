@@ -1,11 +1,11 @@
 using System.Collections.Immutable;
 using System.Xml;
 using System.Xml.Linq;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
 using RonSijm.AnaalIJzer.ConfigurationEditing.Sites;
-using RonSijm.AnaalIJzer.Graphing.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+using RonSijm.AnaalIJzer.GraphModel.Model;
 
-namespace RonSijm.AnaalIJzer.Graphing.Loading;
+namespace RonSijm.AnaalIJzer.GraphModel.Loading;
 
 public static partial class ArchitectureGraphXmlSnapshotLoader
 {
@@ -16,9 +16,9 @@ public static partial class ArchitectureGraphXmlSnapshotLoader
 		ArchitectureConfigurationSourceKind sourceKind,
 		ImmutableArray<ArchitectureGraphLayer>.Builder layers)
 	{
-		foreach (var layer in container.Elements().Where(element => IsElement(element, LayerElementName)))
+		foreach (var layer in container.Elements().Where(IsLayerElement))
 		{
-			var name = layer.Attribute("name")?.Value?.Trim();
+			var name = layer.Attribute("name")?.Value.Trim();
 			if (string.IsNullOrWhiteSpace(name))
 			{
 				continue;
@@ -53,9 +53,9 @@ public static partial class ArchitectureGraphXmlSnapshotLoader
 			rules.Add(CreateRule(rule, scopePath, sourcePath, sourceKind, layerPaths));
 		}
 
-		foreach (var layer in container.Elements().Where(element => IsElement(element, LayerElementName)))
+		foreach (var layer in container.Elements().Where(IsLayerElement))
 		{
-			var name = layer.Attribute("name")?.Value?.Trim();
+			var name = layer.Attribute("name")?.Value.Trim();
 			if (string.IsNullOrWhiteSpace(name))
 			{
 				continue;
@@ -73,8 +73,8 @@ public static partial class ArchitectureGraphXmlSnapshotLoader
 		ArchitectureConfigurationSourceKind sourceKind,
 		ImmutableHashSet<string> layerPaths)
 	{
-		var from = element.Attribute("from")?.Value?.Trim() ?? string.Empty;
-		var to = element.Attribute("to")?.Value?.Trim() ?? string.Empty;
+		var from = element.Attribute("from")?.Value.Trim() ?? string.Empty;
+		var to = element.Attribute("to")?.Value.Trim() ?? string.Empty;
 		var allowedSites = ParseSites(element.Attribute("allowedSites")?.Value);
 		var blockedSites = ParseSites(element.Attribute("blockedSites")?.Value);
 		var line = (IXmlLineInfo)element;
@@ -96,6 +96,13 @@ public static partial class ArchitectureGraphXmlSnapshotLoader
 			allowedSites,
 			blockedSites,
 			element.Attribute("description")?.Value);
+
+		return result;
+	}
+
+	private static bool IsLayerElement(XElement element)
+	{
+		var result = IsElement(element, LayerElementName);
 
 		return result;
 	}

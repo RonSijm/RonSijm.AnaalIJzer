@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.BuildMetadata;
+using RonSijm.AnaalIJzer.Core.BuildMetadata;
 
-namespace RonSijm.AnaalIJzer.ProjectArchitecture;
+namespace RonSijm.AnaalIJzer.Core.ProjectArchitecture;
 
 public static class ProjectArchitectureAnalysisService
 {

@@ -47,10 +47,7 @@ public sealed record ApplicationOperationDefinition(
 		return result;
 	}
 
-	public bool SupportsMultipleInputs
-	{
-		get { return MaximumInputCount is null || MaximumInputCount > 1; }
-	}
+	public bool SupportsMultipleInputs => MaximumInputCount is null || MaximumInputCount > 1;
 }
 
 public sealed record ApplicationInputDefinition(

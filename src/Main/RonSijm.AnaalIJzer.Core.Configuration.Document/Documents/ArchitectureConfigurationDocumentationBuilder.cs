@@ -1,9 +1,9 @@
 using System.Collections.Immutable;
 using System.Xml;
 using System.Xml.Linq;
-using RonSijm.AnaalIJzer.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 
-namespace RonSijm.AnaalIJzer.ConfigurationEditing.Document;
+namespace RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
 
 public static class ArchitectureConfigurationDocumentationBuilder
 {
@@ -79,6 +79,20 @@ public static class ArchitectureConfigurationDocumentationBuilder
 				: "Entry via matcher",
 			"Name" => "Name " + (GetMatcherDisplayName(element) ?? "(all names)"),
 			"Type" => "Type " + (GetMatcherDisplayName(element) ?? "(all types)"),
+			"NestedType" => "NestedType " + (GetMatcherDisplayName(element) ?? "(all nested types)"),
+			"Constructor" => "Constructor " + (GetMatcherDisplayName(element) ?? "(all constructors)"),
+			"Method" => "Method " + (GetMatcherDisplayName(element) ?? "(all methods)"),
+			"Property" => "Property " + (GetMatcherDisplayName(element) ?? "(all properties)"),
+			"Field" => "Field " + (GetMatcherDisplayName(element) ?? "(all fields)"),
+			"Event" => "Event " + (GetMatcherDisplayName(element) ?? "(all events)"),
+			"Operator" => "Operator " + (GetMatcherDisplayName(element) ?? "(all operators)"),
+			"Conversion" => "Conversion " + (GetMatcherDisplayName(element) ?? "(all conversions)"),
+			"Throw" => "Throw " + (GetMatcherDisplayName(element) ?? "(any throw)"),
+			"Invocation" => "Invocation " + (GetMatcherDisplayName(element) ?? "(any invocation)"),
+			"New" => "New " + (GetMatcherDisplayName(element) ?? "(any object creation)"),
+			"Identifier" => "Identifier " + (GetMatcherDisplayName(element) ?? "(any identifier)"),
+			"MemberAccess" => "MemberAccess " + (GetMatcherDisplayName(element) ?? "(any member access)"),
+			"Literal" => "Literal " + (GetMatcherDisplayName(element) ?? "(any literal)"),
 			"Source" => "Source " + (GetMatcherDisplayName(element) ?? "(no matcher)"),
 			"Target" => "Target " + (GetMatcherDisplayName(element) ?? "(no matcher)"),
 			"Allow" => $"Allow {element.Attribute("from")?.Value ?? GetChildMatcherDisplayName(element, "Source") ?? GetChildMatcherDisplayName(element, "Type") ?? "?"} -> {element.Attribute("to")?.Value ?? GetChildMatcherDisplayName(element, "Target") ?? GetChildMatcherDisplayName(element, "Name") ?? "?"}",

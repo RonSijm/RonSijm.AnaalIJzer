@@ -1,7 +1,8 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Document;
 using RonSijm.AnaalIJzer.ConfigurationEditing.Editing.Dependencies;
 using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 
 namespace RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
 

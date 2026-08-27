@@ -1,7 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using RonSijm.AnaalIJzer.Conditions;
+using RonSijm.AnaalIJzer.Core.Matchers.Conditions;
 
 namespace RonSijm.AnaalIJzer.Core.Matchers.Tests.Matching;
 
@@ -172,9 +172,7 @@ public sealed class PatternMatcherSemanticTests
 	private static INamedTypeSymbol GetDeclaredTypeSymbol(string source, string typeName)
 	{
 		var syntaxTree = CSharpSyntaxTree.ParseText(source);
-		var references = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)
-			.Split(Path.PathSeparator)
-			.Select(path => MetadataReference.CreateFromFile(path));
+		var references = TrustedPlatformReferences.Value;
 		var compilation = CSharpCompilation.Create(
 			"MatcherTests",
 			[syntaxTree],
@@ -197,4 +195,14 @@ public sealed class PatternMatcherSemanticTests
 
 		return result;
 	}
+
+	private static readonly Lazy<MetadataReference[]> TrustedPlatformReferences = new(() =>
+	{
+		var result = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)
+			.Split(Path.PathSeparator)
+			.Select(path => MetadataReference.CreateFromFile(path))
+			.ToArray();
+
+		return result;
+	});
 }

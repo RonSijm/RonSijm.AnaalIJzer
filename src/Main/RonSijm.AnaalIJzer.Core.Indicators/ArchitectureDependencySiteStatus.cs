@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer.Indicators;
+namespace RonSijm.AnaalIJzer.Core.Indicators;
 
 public enum ArchitectureDependencySiteStatus
 {

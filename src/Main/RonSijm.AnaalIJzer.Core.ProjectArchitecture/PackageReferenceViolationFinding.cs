@@ -1,8 +1,9 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.BuildMetadata;
-using RonSijm.AnaalIJzer.Findings;
+using RonSijm.AnaalIJzer.Core.BuildMetadata;
+using RonSijm.AnaalIJzer.Core.Findings;
+using RonSijm.AnaalIJzer.Core.Matchers.ProjectArchitecture;
 
-namespace RonSijm.AnaalIJzer.ProjectArchitecture;
+namespace RonSijm.AnaalIJzer.Core.ProjectArchitecture;
 
 public readonly struct PackageReferenceViolationFinding(
 	string sourceProjectPath,

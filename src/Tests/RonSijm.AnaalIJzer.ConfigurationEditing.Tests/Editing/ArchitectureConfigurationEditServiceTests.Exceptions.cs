@@ -1,4 +1,5 @@
 using AwesomeAssertions;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 using Xunit;
 
 namespace RonSijm.AnaalIJzer.ConfigurationEditing.Tests.Editing;
@@ -44,8 +45,8 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 
 		var result = ArchitectureConfigurationEditService.GetLayerDetails(handle);
 
-		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
-		ImmutableArrayExtensions.Select(result.ExceptionMatchers, item => item.Summary).Should().Contain([
+		result.Succeeded.Should().BeTrue(result.Message);
+		result.ExceptionMatchers.Select(item => item.Summary).Should().Contain([
 			"<Class typeName=\"OutdoorKitchen\" />",
 			"<Class typeName=\"PizzaTruckKitchen\" />",
 			"<Class typeName=\"TempChef\" />",
@@ -84,8 +85,8 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 
 		var result = ArchitectureConfigurationEditService.GetRootDetails(source);
 
-		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
-		ImmutableArrayExtensions.Select(result.ExceptionMatchers, item => item.Summary).Should().Contain([
+		result.Succeeded.Should().BeTrue(result.Message);
+		result.ExceptionMatchers.Select(item => item.Summary).Should().Contain([
 			"<Class typeName=\"LegacyContract\" />",
 			"<Namespace exactName=\"Legacy.Allowed\" />",
 			"<Namespace exactName=\"Legacy.Allowed.Internal\" />"]);
@@ -113,7 +114,7 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 
 		var result = ArchitectureConfigurationEditService.RemoveConfigurationElement(exceptionMatcher.Handle);
 
-		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
+		result.Succeeded.Should().BeTrue(result.Message);
 		var content = File.ReadAllText(path);
 		content.Should().NotContain("<Exceptions>");
 		ArchitectureConfigurationEditService.GetLayerDetails(handle).ExceptionMatchers.Should().BeEmpty();

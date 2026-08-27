@@ -1,19 +1,13 @@
 using System.Collections.Immutable;
 using System.Xml;
-using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.Config.Compilation;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Document;
-using RonSijm.AnaalIJzer.Conditions;
-using RonSijm.AnaalIJzer.Definitions;
-using RonSijm.AnaalIJzer.Engine.DependencyRules;
-using RonSijm.AnaalIJzer.Exceptions;
-using RonSijm.AnaalIJzer.Model;
-using RonSijm.AnaalIJzer.ProjectArchitecture;
-using AnalyzerConfig = RonSijm.AnaalIJzer.Model.AnalyzerConfig;
+using RonSijm.AnaalIJzer.Core.Configuration.Compilation.Compilation;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+using AnalyzerConfig = RonSijm.AnaalIJzer.Core.RuntimeConfig.Config.Model.AnalyzerConfig;
 using RoslynCompilation = Microsoft.CodeAnalysis.Compilation;
 
-namespace RonSijm.AnaalIJzer.Config.Parsing;
+namespace RonSijm.AnaalIJzer.Core.Configuration.Compilation.Parsing;
 
 /// <summary>
 ///     Parses an <c>Architecture.anl</c> additional file or inline

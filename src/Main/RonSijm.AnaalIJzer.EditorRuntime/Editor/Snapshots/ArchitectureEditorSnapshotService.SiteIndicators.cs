@@ -1,12 +1,10 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using RonSijm.AnaalIJzer.Definitions;
-using RonSijm.AnaalIJzer.Indicators;
-using ProjectAnalyzerConfig = RonSijm.AnaalIJzer.Model.AnalyzerConfig;
-using RonSijm.AnaalIJzer.Core.Editor.Snapshots;
+using RonSijm.AnaalIJzer.Core.Indicators;
+using ProjectAnalyzerConfig = RonSijm.AnaalIJzer.Core.RuntimeConfig.Config.Model.AnalyzerConfig;
 
-namespace RonSijm.AnaalIJzer.EditorRuntime.Snapshots;
+namespace RonSijm.AnaalIJzer.EditorRuntime.Editor.Snapshots;
 
 public static partial class ArchitectureEditorSnapshotService
 {
@@ -14,7 +12,7 @@ public static partial class ArchitectureEditorSnapshotService
 	{
 		switch (node)
 		{
-			case ConstructorDeclarationSyntax constructor when constructor.Parent is TypeDeclarationSyntax:
+			case ConstructorDeclarationSyntax { Parent: TypeDeclarationSyntax } constructor:
 				foreach (var parameter in constructor.ParameterList.Parameters)
 				{
 					AddParameterDependency(parameter, constructor, DependencySites.Constructor, semanticModel, config, paletteSlots, indicators, cancellationToken);
@@ -24,7 +22,7 @@ public static partial class ArchitectureEditorSnapshotService
 				AddPrimaryConstructorDependencies(typeDeclaration, semanticModel, config, paletteSlots, indicators, cancellationToken);
 				AddBaseListDependencies(typeDeclaration, semanticModel, config, paletteSlots, indicators, cancellationToken);
 				break;
-			case MethodDeclarationSyntax method when method.Parent is TypeDeclarationSyntax:
+			case MethodDeclarationSyntax { Parent: TypeDeclarationSyntax } method:
 				AddTypeDependency(method, method.ReturnType.Span, semanticModel.GetTypeInfo(method.ReturnType, cancellationToken).Type, DependencySites.MethodReturn, semanticModel, config, paletteSlots, indicators, cancellationToken);
 				foreach (var parameter in method.ParameterList.Parameters)
 				{

@@ -4,8 +4,8 @@ using System.Windows;
 using System.Windows.Controls;
 using AwesomeAssertions;
 using Nodify;
-using RonSijm.AnaalIJzer.Graphing.Loading;
 using RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
+using RonSijm.AnaalIJzer.GraphModel.Loading;
 using Xunit;
 
 namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests.Controls;
@@ -36,7 +36,7 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 			menu.PlacementTarget = connection;
 			menu.DataContext = connection.DataContext;
 			DrainDispatcher();
-			var remove = menu.Items.OfType<MenuItem>().Single(item => string.Equals(item.Header?.ToString(), "Remove connection", StringComparison.Ordinal));
+			var remove = FindMenuItemByHeader(menu.Items, "Remove connection");
 
 			remove.Command.Should().NotBeNull();
 			remove.Command!.Execute(null);
@@ -70,7 +70,7 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 			menu.PlacementTarget = connection;
 			menu.DataContext = connection.DataContext;
 			DrainDispatcher();
-			var remove = menu.Items.OfType<MenuItem>().Single(item => string.Equals(item.Header?.ToString(), "Remove connection", StringComparison.Ordinal));
+			var remove = FindMenuItemByHeader(menu.Items, "Remove connection");
 
 			remove.Command.Should().NotBeNull();
 			remove.Command!.Execute(null);
@@ -105,7 +105,7 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 			menu.PlacementTarget = node;
 			menu.DataContext = node.DataContext;
 			DrainDispatcher();
-			var remove = menu.Items.OfType<MenuItem>().Single(item => string.Equals(item.Header?.ToString(), "Remove layer", StringComparison.Ordinal));
+			var remove = FindMenuItemByHeader(menu.Items, "Remove layer");
 
 			remove.Command.Should().NotBeNull();
 			remove.Command!.Execute(null);
@@ -139,7 +139,7 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 			menu.PlacementTarget = node;
 			menu.DataContext = node.DataContext;
 			DrainDispatcher();
-			var remove = menu.Items.OfType<MenuItem>().Single(item => string.Equals(item.Header?.ToString(), "Remove layer", StringComparison.Ordinal));
+			var remove = FindMenuItemByHeader(menu.Items, "Remove layer");
 
 			remove.Command.Should().NotBeNull();
 			remove.Command!.Execute(null);
@@ -170,9 +170,8 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 				_ => true,
 				() => new ArchitectureLayerCreationRequest("Chef", "Class", ImmutableDictionary<string, string>.Empty.Add("endsWith", "Chef")));
 			var editor = FindVisualDescendant<NodifyEditor>(control);
-			editor.Should().NotBeNull();
-			var menu = editor!.ContextMenu!;
-			var addLayer = menu.Items.OfType<MenuItem>().Single(item => string.Equals(item.Header?.ToString(), "Add root layer...", StringComparison.Ordinal));
+			var menu = editor.ContextMenu!;
+			var addLayer = FindMenuItemByHeader(menu.Items, "Add root layer...");
 
 			addLayer.Command.Should().NotBeNull();
 			addLayer.Command!.Execute(null);
@@ -203,9 +202,8 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 				_ => true,
 				() => new ArchitectureLayerCreationRequest("Chef", "Class", ImmutableDictionary<string, string>.Empty.Add("endsWith", "Chef")));
 			var editor = FindVisualDescendant<NodifyEditor>(control);
-			editor.Should().NotBeNull();
-			var menu = editor!.ContextMenu!;
-			var addLayer = menu.Items.OfType<MenuItem>().Single(item => string.Equals(item.Header?.ToString(), "Add root layer...", StringComparison.Ordinal));
+			var menu = editor.ContextMenu!;
+			var addLayer = FindMenuItemByHeader(menu.Items, "Add root layer...");
 
 			addLayer.Command.Should().NotBeNull();
 			addLayer.Command!.Execute(null);
@@ -240,7 +238,7 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 			menu.PlacementTarget = node;
 			menu.DataContext = node.DataContext;
 			DrainDispatcher();
-			var addChild = menu.Items.OfType<MenuItem>().Single(item => string.Equals(item.Header?.ToString(), "Add child layer...", StringComparison.Ordinal));
+			var addChild = FindMenuItemByHeader(menu.Items, "Add child layer...");
 
 			addChild.Command.Should().NotBeNull();
 			addChild.Command!.Execute(null);
@@ -275,7 +273,7 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 			menu.PlacementTarget = node;
 			menu.DataContext = node.DataContext;
 			DrainDispatcher();
-			var addChild = menu.Items.OfType<MenuItem>().Single(item => string.Equals(item.Header?.ToString(), "Add child layer...", StringComparison.Ordinal));
+			var addChild = FindMenuItemByHeader(menu.Items, "Add child layer...");
 
 			addChild.Command.Should().NotBeNull();
 			addChild.Command!.Execute(null);
@@ -307,8 +305,7 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 				_ => ArchitectureGraphXmlSnapshotLoader.Load(path),
 				_ => true);
 			var editor = FindVisualDescendant<NodifyEditor>(control);
-			editor.Should().NotBeNull();
-			var nodes = editor!.ItemsSource!.Cast<object>().ToDictionary(item => GetObjectProperty(item, "Path")!.ToString()!, StringComparer.Ordinal);
+			var nodes = editor.ItemsSource!.Cast<object>().ToDictionary(item => GetText(GetObjectProperty(item, "Path"))!, StringComparer.Ordinal);
 			var waiterOutput = GetObjectProperty(nodes["Waiter"], "Output");
 			var customerInput = GetObjectProperty(nodes["Customer"], "Input");
 
@@ -339,8 +336,7 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 				_ => LoadInlineSnapshot(path),
 				_ => true);
 			var editor = FindVisualDescendant<NodifyEditor>(control);
-			editor.Should().NotBeNull();
-			var nodes = editor!.ItemsSource!.Cast<object>().ToDictionary(item => GetObjectProperty(item, "Path")!.ToString()!, StringComparer.Ordinal);
+			var nodes = editor.ItemsSource!.Cast<object>().ToDictionary(item => GetText(GetObjectProperty(item, "Path"))!, StringComparer.Ordinal);
 			var waiterOutput = GetObjectProperty(nodes["Waiter"], "Output");
 			var customerInput = GetObjectProperty(nodes["Customer"], "Input");
 

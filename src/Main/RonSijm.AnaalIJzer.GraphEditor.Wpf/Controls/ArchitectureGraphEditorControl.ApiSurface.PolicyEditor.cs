@@ -50,7 +50,7 @@ public sealed partial class ArchitectureGraphEditorControl
 			}
 
 			var attributes = CreateApiSurfaceAttributes(requireRecognized.IsChecked == true, description.Text);
-			var attributeResult = editService.SetConfigurationElementAttributes(policy.Handle, attributes);
+			var attributeResult = _editService.SetConfigurationElementAttributes(policy.Handle, attributes);
 			if (!attributeResult.Succeeded)
 			{
 				return attributeResult;
@@ -63,7 +63,7 @@ public sealed partial class ArchitectureGraphEditorControl
 			}
 
 			var childXml = string.Join(Environment.NewLine, children.Select(element => element.ToString(SaveOptions.DisableFormatting)));
-			var result = editService.SetConfigurationElementChildren(policy.Handle, childXml);
+			var result = _editService.SetConfigurationElementChildren(policy.Handle, childXml);
 
 			return result;
 		}
@@ -96,9 +96,9 @@ public sealed partial class ArchitectureGraphEditorControl
 		remove.Margin = new Thickness(0, 8, 0, 0);
 		remove.Click += (_, _) =>
 		{
-			if (confirmationHandler("Remove '" + policy.Summary + "'?"))
+			if (_confirmationHandler("Remove '" + policy.Summary + "'?"))
 			{
-				HandleEditResult(editService.RemoveConfigurationElement(policy.Handle), true);
+				HandleEditResult(_editService.RemoveConfigurationElement(policy.Handle), true);
 			}
 		};
 		panel.Children.Add(remove);

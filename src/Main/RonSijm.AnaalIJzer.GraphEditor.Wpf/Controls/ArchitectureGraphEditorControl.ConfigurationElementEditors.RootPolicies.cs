@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
 using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 
 namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
 
@@ -44,7 +45,7 @@ public sealed partial class ArchitectureGraphEditorControl
 				return;
 			}
 
-			HandleEditResult(editService.AddGlobalTypePolicyMatcher(source, policyKind, kind.SelectedItem?.ToString() ?? "Class", parsedAttributes));
+			HandleEditResult(_editService.AddGlobalTypePolicyMatcher(source, policyKind, kind.SelectedItem?.ToString() ?? "Class", parsedAttributes));
 		};
 		addPanel.Children.Add(add);
 		panel.Children.Add(addPanel);
@@ -66,7 +67,7 @@ public sealed partial class ArchitectureGraphEditorControl
 		var path = new TextBox { Text = string.Empty, TextWrapping = TextWrapping.Wrap, IsEnabled = source.CanEdit };
 		panel.Children.Add(path);
 		var add = new Button { Content = "Add Include", Margin = new Thickness(0, 4, 0, 0), IsEnabled = source.CanEdit };
-		add.Click += (_, _) => HandleEditResult(editService.AddInclude(source, path.Text));
+		add.Click += (_, _) => HandleEditResult(_editService.AddInclude(source, path.Text));
 		panel.Children.Add(add);
 	}
 }

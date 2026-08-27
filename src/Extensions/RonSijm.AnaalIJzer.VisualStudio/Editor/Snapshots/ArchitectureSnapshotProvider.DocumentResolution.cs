@@ -1,8 +1,7 @@
 using System.Collections.Immutable;
-using System.IO;
 using Microsoft.CodeAnalysis;
-using Microsoft.VisualStudio.Text;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Document;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Sources;
 using RonSijm.AnaalIJzer.VisualStudio.Diagnostics;
 
 namespace RonSijm.AnaalIJzer.VisualStudio.Editor.Snapshots;
@@ -47,13 +46,13 @@ internal sealed partial class ArchitectureSnapshotProvider
 
 	private DocumentId? FindDocumentId(string filePath)
 	{
-		var result = workspace.CurrentSolution.GetDocumentIdsWithFilePath(filePath).FirstOrDefault();
+		var result = _workspace.CurrentSolution.GetDocumentIdsWithFilePath(filePath).FirstOrDefault();
 		if (result is not null)
 		{
 			return result;
 		}
 
-		result = workspace.CurrentSolution.Projects
+		result = _workspace.CurrentSolution.Projects
 			.SelectMany(project => project.Documents)
 			.Where(document => string.Equals(document.FilePath, filePath, StringComparison.OrdinalIgnoreCase))
 			.Select(document => document.Id)

@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 
-namespace RonSijm.AnaalIJzer.Engine.ApiSurface;
+namespace RonSijm.AnaalIJzer.Core.ApiSurface.Engine.Policies;
 
 public readonly struct ApiSurfacePolicy(
 	string ownerLayerPath,

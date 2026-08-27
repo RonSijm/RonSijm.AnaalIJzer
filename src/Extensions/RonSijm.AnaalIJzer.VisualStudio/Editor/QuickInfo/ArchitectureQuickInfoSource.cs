@@ -1,8 +1,8 @@
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Text;
-using RonSijm.AnaalIJzer.Indicators;
 using RonSijm.AnaalIJzer.Core.Editor.QuickInfo;
 using RonSijm.AnaalIJzer.Core.Editor.Snapshots;
+using RonSijm.AnaalIJzer.Core.Indicators;
 using RonSijm.AnaalIJzer.VisualStudio.Diagnostics;
 using RonSijm.AnaalIJzer.VisualStudio.Options;
 using RonSijm.AnaalIJzer.VisualStudio.Editor.Snapshots;
@@ -11,13 +11,13 @@ namespace RonSijm.AnaalIJzer.VisualStudio.Editor.QuickInfo;
 
 internal sealed class ArchitectureQuickInfoSource : IAsyncQuickInfoSource
 {
-	private readonly ITextBuffer buffer;
-	private readonly ArchitectureSnapshotProvider snapshotProvider;
+	private readonly ITextBuffer _buffer;
+	private readonly ArchitectureSnapshotProvider _snapshotProvider;
 
 	public ArchitectureQuickInfoSource(ITextBuffer buffer, ArchitectureSnapshotProvider snapshotProvider)
 	{
-		this.buffer = buffer;
-		this.snapshotProvider = snapshotProvider;
+		this._buffer = buffer;
+		this._snapshotProvider = snapshotProvider;
 		ArchitectureVisualStudioLog.Info("ArchitectureQuickInfoSource created for content type '" + buffer.ContentType.TypeName + "'.");
 	}
 
@@ -27,14 +27,14 @@ internal sealed class ArchitectureQuickInfoSource : IAsyncQuickInfoSource
 
 	public async Task<QuickInfoItem?> GetQuickInfoItemAsync(IAsyncQuickInfoSession session, CancellationToken cancellationToken)
 	{
-		var triggerPoint = session.GetTriggerPoint(buffer.CurrentSnapshot);
+		var triggerPoint = session.GetTriggerPoint(_buffer.CurrentSnapshot);
 		if (!triggerPoint.HasValue)
 		{
 			ArchitectureVisualStudioLog.Info("QuickInfo requested without a trigger point.");
 			return null;
 		}
 
-		var snapshot = await snapshotProvider.CreateSnapshotAsync(buffer, cancellationToken);
+		var snapshot = await _snapshotProvider.CreateSnapshotAsync(_buffer, cancellationToken);
 		if (!snapshot.HasConfiguration || snapshot.HasConfigurationIssues)
 		{
 			ArchitectureVisualStudioLog.Info("QuickInfo suppressed because snapshot has no valid configuration.");
@@ -42,11 +42,11 @@ internal sealed class ArchitectureQuickInfoSource : IAsyncQuickInfoSource
 		}
 
 		var position = triggerPoint.Value.Position;
-		var item = TryCreateApiSurfaceQuickInfo(snapshot, buffer.CurrentSnapshot, position)
-		           ?? TryCreateVisibilityPolicyQuickInfo(snapshot, buffer.CurrentSnapshot, position)
-		           ?? TryCreateNameRuleQuickInfo(snapshot, buffer.CurrentSnapshot, position)
-		           ?? TryCreateSiteQuickInfo(snapshot, buffer.CurrentSnapshot, position)
-		           ?? TryCreateLayerQuickInfo(snapshot, buffer.CurrentSnapshot, position);
+		var item = TryCreateApiSurfaceQuickInfo(snapshot, _buffer.CurrentSnapshot, position)
+		           ?? TryCreateVisibilityPolicyQuickInfo(snapshot, _buffer.CurrentSnapshot, position)
+		           ?? TryCreateNameRuleQuickInfo(snapshot, _buffer.CurrentSnapshot, position)
+		           ?? TryCreateSiteQuickInfo(snapshot, _buffer.CurrentSnapshot, position)
+		           ?? TryCreateLayerQuickInfo(snapshot, _buffer.CurrentSnapshot, position);
 		ArchitectureVisualStudioLog.Info(item is null
 			? "QuickInfo found no AnaalIJzer item at position " + position + "."
 			: "QuickInfo created AnaalIJzer item at position " + position + ".");

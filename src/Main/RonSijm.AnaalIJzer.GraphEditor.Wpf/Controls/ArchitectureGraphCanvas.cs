@@ -21,16 +21,16 @@ internal sealed partial class ArchitectureGraphCanvas : UserControl
 	private const double BoundaryPaddingBottom = 24;
 	private const uint GridCellSize = 16;
 
-	private readonly ArchitectureGraphGroupViewModel group;
-	private readonly Action<ArchitectureConfigurationEditResult, bool>? editResultHandler;
-	private readonly Action<ArchitectureGraphSelection>? selectionHandler;
-	private readonly Func<string, bool>? confirmationHandler;
-	private readonly Func<ArchitectureLayerCreationRequest?> layerCreationHandler;
-	private readonly ArchitectureGraphCanvasTheme theme;
-	private readonly ILogger? logger;
-	private readonly ArchitectureGraphLayoutState layoutState;
-	private readonly IArchitectureGraphEditService editService;
-	private readonly bool useExportMode;
+	private readonly ArchitectureGraphGroupViewModel _group;
+	private readonly Action<ArchitectureConfigurationEditResult, bool>? _editResultHandler;
+	private readonly Action<ArchitectureGraphSelection>? _selectionHandler;
+	private readonly Func<string, bool>? _confirmationHandler;
+	private readonly Func<ArchitectureLayerCreationRequest?> _layerCreationHandler;
+	private readonly ArchitectureGraphCanvasTheme _theme;
+	private readonly ILogger? _logger;
+	private readonly ArchitectureGraphLayoutState _layoutState;
+	private readonly IArchitectureGraphEditService _editService;
+	private readonly bool _useExportMode;
 
 	public ArchitectureGraphCanvas(
 		ArchitectureGraphGroupViewModel group,
@@ -44,18 +44,18 @@ internal sealed partial class ArchitectureGraphCanvas : UserControl
 		IArchitectureGraphEditService? editService = null,
 		bool useExportMode = false)
 	{
-		this.group = group;
-		this.editResultHandler = editResultHandler;
-		this.selectionHandler = selectionHandler;
-		this.confirmationHandler = confirmationHandler;
-		this.theme = theme ?? ArchitectureGraphCanvasTheme.Default;
-		this.logger = logger;
-		this.layerCreationHandler = layerCreationHandler ?? PromptForLayerCreation;
-		this.layoutState = layoutState ?? ArchitectureGraphLayoutState.Load(group.ConfigurationSource);
-		this.editService = editService ?? new ArchitectureGraphEditService();
-		this.useExportMode = useExportMode;
-		PreviewMouseLeftButtonUp += (_, _) => this.layoutState.Save();
-		Unloaded += (_, _) => this.layoutState.Save();
+		this._group = group;
+		this._editResultHandler = editResultHandler;
+		this._selectionHandler = selectionHandler;
+		this._confirmationHandler = confirmationHandler;
+		this._theme = theme ?? ArchitectureGraphCanvasTheme.Default;
+		this._logger = logger;
+		this._layerCreationHandler = layerCreationHandler ?? PromptForLayerCreation;
+		this._layoutState = layoutState ?? ArchitectureGraphLayoutState.Load(group.ConfigurationSource);
+		this._editService = editService ?? new ArchitectureGraphEditService();
+		this._useExportMode = useExportMode;
+		PreviewMouseLeftButtonUp += (_, _) => this._layoutState.Save();
+		Unloaded += (_, _) => this._layoutState.Save();
 		BuildSurface();
 	}
 
@@ -63,10 +63,10 @@ internal sealed partial class ArchitectureGraphCanvas : UserControl
 	{
 		try
 		{
-			var graph = NodifyGraphViewModel.Create(group, editService, editResultHandler, confirmationHandler, layerCreationHandler, layoutState, theme);
-			logger?.LogDebug(
+			var graph = NodifyGraphViewModel.Create(_group, _editService, _editResultHandler, _confirmationHandler, _layerCreationHandler, _layoutState, _theme);
+			_logger?.LogDebug(
 				"Building Nodify canvas for '{Title}'. Nodes: {NodeCount}. Connections: {ConnectionCount}.",
-				group.Title,
+				_group.Title,
 				graph.Nodes.Length,
 				graph.Connections.Length);
 			var editor = new NodifyEditor
@@ -76,7 +76,7 @@ internal sealed partial class ArchitectureGraphCanvas : UserControl
 				ItemTemplateSelector = new NodifyGraphItemTemplateSelector(CreateBoundaryTemplate(), CreateNodeTemplate()),
 				ItemContainerStyle = CreateItemContainerStyle(),
 				ConnectionTemplate = CreateConnectionTemplate(),
-				Background = CreateGridBrush(theme),
+				Background = CreateGridBrush(_theme),
 				GridCellSize = GridCellSize,
 				MinViewportZoom = 0.35,
 				MaxViewportZoom = 2.5,
@@ -92,9 +92,9 @@ internal sealed partial class ArchitectureGraphCanvas : UserControl
 				VerticalAlignment = VerticalAlignment.Stretch
 			};
 
-			var root = new Grid { Background = theme.SurfaceBackground };
+			var root = new Grid { Background = _theme.SurfaceBackground };
 			root.Children.Add(editor);
-			if (!useExportMode)
+			if (!_useExportMode)
 			{
 				root.Children.Add(CreateMinimap(editor));
 			}
@@ -103,7 +103,7 @@ internal sealed partial class ArchitectureGraphCanvas : UserControl
 		}
 		catch (Exception exception)
 		{
-			logger?.LogError(exception, "Failed to build Nodify canvas for '{Title}'.", group.Title);
+			_logger?.LogError(exception, "Failed to build Nodify canvas for '{Title}'.", _group.Title);
 			throw;
 		}
 	}

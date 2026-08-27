@@ -1,5 +1,5 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.Findings;
+using RonSijm.AnaalIJzer.Core.Findings;
 
 namespace RonSijm.AnaalIJzer.Application;
 

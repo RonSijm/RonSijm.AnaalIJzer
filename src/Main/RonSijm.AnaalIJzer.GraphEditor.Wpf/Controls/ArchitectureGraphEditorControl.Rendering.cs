@@ -19,57 +19,57 @@ public sealed partial class ArchitectureGraphEditorControl
 		}
 		catch (Exception exception)
 		{
-			logger?.LogError(exception, "Failed to render architecture graph editor.");
+			_logger?.LogError(exception, "Failed to render architecture graph editor.");
 			throw;
 		}
 	}
 
 	private void RenderCore()
 	{
-		logger?.LogDebug(
+		_logger?.LogDebug(
 			"Rendering architecture graph editor. Has configuration: {HasConfiguration}. Has issues: {HasIssues}. Layers: {LayerCount}. Rules: {RuleCount}.",
-			snapshot.HasConfiguration,
-			snapshot.HasConfigurationIssues,
-			snapshot.Layers.Length,
-			snapshot.Rules.Length);
-		EnsureLayoutState(snapshot.ConfigurationSource);
-		contentPanel.Children.Clear();
-		exportImageButton.IsEnabled = false;
-		showCodeEvidence.IsEnabled = snapshot.Evidence.HasEvidence;
-		statusText.Foreground = theme.HintForeground;
-		if (!snapshot.HasConfiguration)
+			_snapshot.HasConfiguration,
+			_snapshot.HasConfigurationIssues,
+			_snapshot.Layers.Length,
+			_snapshot.Rules.Length);
+		EnsureLayoutState(_snapshot.ConfigurationSource);
+		_contentPanel.Children.Clear();
+		_exportImageButton.IsEnabled = false;
+		_showCodeEvidence.IsEnabled = _snapshot.Evidence.HasEvidence;
+		_statusText.Foreground = _theme.HintForeground;
+		if (!_snapshot.HasConfiguration)
 		{
-			statusText.Text = "No AnaalIJzer settings were found for the current context.";
-			contentPanel.Children.Add(CreateNoConfigurationPanel());
+			_statusText.Text = "No AnaalIJzer settings were found for the current context.";
+			_contentPanel.Children.Add(CreateNoConfigurationPanel());
 			RenderSelection(ArchitectureGraphSelection.None);
 			return;
 		}
 
-		if (snapshot.HasConfigurationIssues)
+		if (_snapshot.HasConfigurationIssues)
 		{
-			statusText.Text = "AnaalIJzer configuration has issues. Fix ARCH006 diagnostics before graph rendering.";
+			_statusText.Text = "AnaalIJzer configuration has issues. Fix ARCH006 diagnostics before graph rendering.";
 			RenderSelection(ArchitectureGraphSelection.None);
 			return;
 		}
 
-		var evidenceText = snapshot.Evidence.HasEvidence
-			? ". Code evidence: " + snapshot.Evidence.Types.Length + " types, " + snapshot.Evidence.Dependencies.Count(dependency => dependency.IsViolation) + " violation observations"
+		var evidenceText = _snapshot.Evidence.HasEvidence
+			? ". Code evidence: " + _snapshot.Evidence.Types.Length + " types, " + _snapshot.Evidence.Dependencies.Count(dependency => dependency.IsViolation) + " violation observations"
 			: ". Code evidence is not loaded";
-		statusText.Text = "Focus mode: " + focusMode + ". Current layers: " + FormatActiveLayers(snapshot) + evidenceText + ".";
-		var groups = ArchitectureGraphViewModelBuilder.Build(snapshot, focusMode, showCodeEvidence.IsChecked == true && snapshot.Evidence.HasEvidence);
-		logger?.LogInformation("Architecture graph rendered as {GroupCount} group(s).", groups.Length);
+		_statusText.Text = "Focus mode: " + _focusMode + ". Current layers: " + FormatActiveLayers(_snapshot) + evidenceText + ".";
+		var groups = ArchitectureGraphViewModelBuilder.Build(_snapshot, _focusMode, _showCodeEvidence.IsChecked == true && _snapshot.Evidence.HasEvidence);
+		_logger?.LogInformation("Architecture graph rendered as {GroupCount} group(s).", groups.Length);
 		if (groups.Length == 0)
 		{
-			contentPanel.Children.Add(CreateEmptyConfigurationPanel());
+			_contentPanel.Children.Add(CreateEmptyConfigurationPanel());
 			return;
 		}
 
 		foreach (var group in groups)
 		{
-			contentPanel.Children.Add(CreateGroup(group));
+			_contentPanel.Children.Add(CreateGroup(group));
 		}
 
-		exportImageButton.IsEnabled = CanExportGraphs();
+		_exportImageButton.IsEnabled = CanExportGraphs();
 	}
 
 	private UIElement CreateGroup(ArchitectureGraphGroupViewModel group)
@@ -84,26 +84,26 @@ public sealed partial class ArchitectureGraphEditorControl
 			Margin = new Thickness(8, 4, 8, 8),
 			Padding = new Thickness(6)
 		};
-		theme.ApplyBackground(border);
-		theme.ApplyBorder(border, group.IsHighlighted);
+		_theme.ApplyBackground(border);
+		_theme.ApplyBorder(border, group.IsHighlighted);
 
 		var panel = new StackPanel();
 		if (group.Nodes.Length > 0)
 		{
-			var graphHeight = useExportSizing
+			var graphHeight = _useExportSizing
 				? CalculateExportGraphHeight(group, minimumGraphHeight)
-				: Math.Max(minimumGraphHeight, layoutState.GetGroupHeight(groupKey, defaultGraphHeight));
+				: Math.Max(minimumGraphHeight, _layoutState.GetGroupHeight(groupKey, defaultGraphHeight));
 			var canvas = new ArchitectureGraphCanvas(
 				group,
 				(result, clearSelection) => HandleEditResult(result, clearSelection),
 				RenderSelection,
-				confirmationHandler,
-				theme.CanvasTheme,
-				logger,
-				layerCreationHandler,
-				layoutState,
-				editService,
-				useExportSizing)
+				_confirmationHandler,
+				_theme.CanvasTheme,
+				_logger,
+				_layerCreationHandler,
+				_layoutState,
+				_editService,
+				_useExportSizing)
 			{
 				Height = graphHeight,
 				MinHeight = minimumGraphHeight,
@@ -132,19 +132,19 @@ public sealed partial class ArchitectureGraphEditorControl
 		var groupExpander = new Expander
 		{
 			Header = group.Title,
-			IsExpanded = !layoutState.GetGroupIsCollapsed(groupKey, false),
-			Foreground = theme.Foreground,
+			IsExpanded = !_layoutState.GetGroupIsCollapsed(groupKey, false),
+			Foreground = _theme.Foreground,
 			Content = panel
 		};
 		groupExpander.Expanded += (_, _) =>
 		{
-			layoutState.SetGroupIsCollapsed(groupKey, false);
-			layoutState.Save();
+			_layoutState.SetGroupIsCollapsed(groupKey, false);
+			_layoutState.Save();
 		};
 		groupExpander.Collapsed += (_, _) =>
 		{
-			layoutState.SetGroupIsCollapsed(groupKey, true);
-			layoutState.Save();
+			_layoutState.SetGroupIsCollapsed(groupKey, true);
+			_layoutState.Save();
 		};
 		border.Child = groupExpander;
 
@@ -174,7 +174,7 @@ public sealed partial class ArchitectureGraphEditorControl
 			Cursor = Cursors.SizeNS,
 			HorizontalAlignment = HorizontalAlignment.Stretch,
 			Margin = new Thickness(0, 0, 0, 4),
-			Background = theme.Border,
+			Background = _theme.Border,
 			Opacity = 0.42,
 			ToolTip = "Drag to resize this graph."
 		};
@@ -183,10 +183,10 @@ public sealed partial class ArchitectureGraphEditorControl
 			var currentHeight = double.IsNaN(canvas.Height) || canvas.Height <= 0 ? canvas.ActualHeight : canvas.Height;
 			var nextHeight = Math.Max(canvas.MinHeight, currentHeight + args.VerticalChange);
 			canvas.Height = nextHeight;
-			layoutState.SetGroupHeight(groupKey, nextHeight);
+			_layoutState.SetGroupHeight(groupKey, nextHeight);
 			args.Handled = true;
 		};
-		thumb.DragCompleted += (_, _) => layoutState.Save();
+		thumb.DragCompleted += (_, _) => _layoutState.Save();
 
 		return thumb;
 	}

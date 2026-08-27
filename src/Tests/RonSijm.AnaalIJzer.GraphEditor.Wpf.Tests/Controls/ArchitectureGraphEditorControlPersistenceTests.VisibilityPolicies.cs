@@ -1,8 +1,8 @@
 using System.IO;
 using System.Windows.Controls;
 using AwesomeAssertions;
-using RonSijm.AnaalIJzer.Graphing.Loading;
 using RonSijm.AnaalIJzer.GraphApplication.Selection;
+using RonSijm.AnaalIJzer.GraphModel.Loading;
 using Xunit;
 
 namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests.Controls;
@@ -38,8 +38,8 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 			File.ReadAllText(path).Should().Contain("allowedAccessibilities=\"Public, Internal, File\"");
 			var reloadedSnapshot = ArchitectureGraphXmlSnapshotLoader.Load(path);
 			control.Select(ArchitectureGraphSelection.ForLayer(reloadedSnapshot.Layers.Single().EditHandle));
-			var reloadedPolicy = FindVisualDescendants<Expander>(control).Single(expander => expander.Header?.ToString()?.StartsWith("<VisibilityPolicy", StringComparison.Ordinal) == true);
-			reloadedPolicy.Header!.ToString().Should().Contain("Public, Internal, File");
+			var reloadedPolicy = FindVisualDescendants<Expander>(control).Single(expander => GetText(expander.Header)?.StartsWith("<VisibilityPolicy", StringComparison.Ordinal) == true);
+			GetText(reloadedPolicy.Header).Should().Contain("Public, Internal, File");
 		});
 	}
 

@@ -37,7 +37,7 @@ If you want to *see* the squiggles while editing — for example, you're working
 3. `EnableAnalyzerOnDebug == true` → `true`.
 4. Otherwise → `false`.
 
-When `true`, the props file adds the analyzer `ProjectReference` (with `OutputItemType="Analyzer"`) and registers project-local settings files as `AdditionalFiles` so inline configs can still use `<Include>`.
+When `true`, the props file adds the analyzer `ProjectReference` (with `OutputItemType="Analyzer"`) and registers project-local settings files, including project-local `.anl` subfolders, as `AdditionalFiles` so inline configs can still use `<Include>`.
 
 ---
 
@@ -89,10 +89,12 @@ The main [`README.md`](../README.md) explains each feature inline. The folders h
 | [`Example.CascadingDependencyRules`](Features/Example.CascadingDependencyRules) | [`<AllowedDependency>`](../README.md#alloweddependency) |
 | [`Example.CombinedMatchers`](Features/Example.CombinedMatchers) | [`Matcher types`](../README.md#matcher-types) |
 | [`Example.DeclarationNameMatchesType`](Features/Example.DeclarationNameMatchesType) | [`NameRules`](../README.md#namerules) |
+| [`Example.StructuralDeclarationMatchers`](Features/Example.StructuralDeclarationMatchers) | [`Matcher types`](../README.md#matcher-types) and [`InheritancePolicy`](../README.md#inheritance-policies) working together to describe a recognizable request shape. |
 | [`Example.ExceptionPolicy`](Features/Example.ExceptionPolicy) | `ExceptionPolicy` and temporary architecture exception review warnings (`ARCH017`). |
 | [`Example.WildcardTo`](Features/Example.WildcardTo) | [`<AllowedDependency>`](../README.md#alloweddependency) |
 | [`Example.Exceptions`](Features/Example.Exceptions) | [`<Exceptions>`](../README.md#exceptions) |
 | [`Example.IncludeSettings`](Features/Example.IncludeSettings) | [`<Include>`](../README.md#include) |
+| [`Example.IncludeWildcardSettings`](Features/Example.IncludeWildcardSettings) | [`<Include>`](../README.md#include) |
 | [`Example.InlineXml`](Features/Example.InlineXml) | [`Optional: inline settings with AssemblyMetadata`](../README.md#5-optional-inline-settings-with-assemblymetadata) |
 | [`Example.LayerScopedRecognizedDependencies`](Features/Example.LayerScopedRecognizedDependencies) | [`requireRecognizedDependencies`](../README.md#requirerecognizeddependencies-attribute) |
 | [`Example.NameRules`](Features/Example.NameRules) | [`NameRules`](../README.md#namerules) |

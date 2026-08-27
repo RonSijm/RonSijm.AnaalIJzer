@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer.Violations;
+namespace RonSijm.AnaalIJzer.Core.Violations;
 
 public sealed class ViolationRecord(
 	string diagnosticId,

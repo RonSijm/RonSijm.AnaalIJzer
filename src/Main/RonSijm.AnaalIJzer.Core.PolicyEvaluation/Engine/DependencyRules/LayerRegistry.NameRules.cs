@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.Engine.LayerModel;
-using RonSijm.AnaalIJzer.Engine.NameRules;
+using RonSijm.AnaalIJzer.Core.LayerModel;
+using RonSijm.AnaalIJzer.Core.NameRules;
 
-namespace RonSijm.AnaalIJzer.Engine.DependencyRules;
+namespace RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.DependencyRules;
 
 public readonly partial struct LayerRegistry
 {
@@ -20,7 +20,7 @@ public readonly partial struct LayerRegistry
 
 		foreach (var layer in layerMatch.Layers)
 		{
-			if (!catalog.NodesByPath.TryGetValue(layer.Name, out var node) || node.NameRules.IsDefaultOrEmpty)
+			if (!_catalog.NodesByPath.TryGetValue(layer.Name, out var node) || node.NameRules.IsDefaultOrEmpty)
 			{
 				continue;
 			}

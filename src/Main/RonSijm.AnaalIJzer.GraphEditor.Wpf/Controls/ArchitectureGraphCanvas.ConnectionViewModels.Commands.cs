@@ -1,7 +1,5 @@
 using System.Collections.Immutable;
 using RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Sites;
 
 namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
 
@@ -16,24 +14,24 @@ internal sealed partial class ArchitectureGraphCanvas
 				return;
 			}
 
-			if (confirmationHandler is not null && !confirmationHandler("Remove " + Kind + " from '" + From + "' to '" + To + "'?"))
+			if (_confirmationHandler is not null && !_confirmationHandler("Remove " + Kind + " from '" + From + "' to '" + To + "'?"))
 			{
 				return;
 			}
 
-			var result = editService.RemoveDependency(EditHandle);
+			var result = _editService.RemoveDependency(EditHandle);
 			ReportEditResult(result, true);
 		}
 
 		private void ToggleAllowedSite(string site)
 		{
-			var sites = ToggleSite(allowedSites, site);
+			var sites = ToggleSite(_allowedSites, site);
 			SetSites(sites.Length == 0 ? ArchitectureSiteFilterEditMode.All : ArchitectureSiteFilterEditMode.AllowedSites, sites);
 		}
 
 		private void ToggleBlockedSite(string site)
 		{
-			var sites = ToggleSite(blockedSites, site);
+			var sites = ToggleSite(_blockedSites, site);
 			SetSites(sites.Length == 0 ? ArchitectureSiteFilterEditMode.All : ArchitectureSiteFilterEditMode.BlockedSites, sites);
 		}
 
@@ -44,11 +42,11 @@ internal sealed partial class ArchitectureGraphCanvas
 				return;
 			}
 
-			var result = editService.SetDependencySites(EditHandle, mode, sites);
+			var result = _editService.SetDependencySites(EditHandle, mode, sites);
 			if (result.Succeeded)
 			{
-				allowedSites = mode == ArchitectureSiteFilterEditMode.AllowedSites ? sites : ImmutableArray<string>.Empty;
-				blockedSites = mode == ArchitectureSiteFilterEditMode.BlockedSites ? sites : ImmutableArray<string>.Empty;
+				_allowedSites = mode == ArchitectureSiteFilterEditMode.AllowedSites ? sites : ImmutableArray<string>.Empty;
+				_blockedSites = mode == ArchitectureSiteFilterEditMode.BlockedSites ? sites : ImmutableArray<string>.Empty;
 				RefreshSitePresentation();
 			}
 
@@ -57,7 +55,7 @@ internal sealed partial class ArchitectureGraphCanvas
 
 		private void ReportEditResult(ArchitectureConfigurationEditResult result, bool clearSelection = false)
 		{
-			editResultHandler?.Invoke(result, clearSelection);
+			_editResultHandler?.Invoke(result, clearSelection);
 		}
 	}
 }

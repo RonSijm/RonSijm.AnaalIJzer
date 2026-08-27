@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer.VisualStudio.Styling;
+namespace RonSijm.AnaalIJzer.VisualStudio.Editor.Styling;
 
 internal static class ArchitectureClassificationNames
 {

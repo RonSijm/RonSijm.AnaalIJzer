@@ -1,6 +1,7 @@
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.Model;
-using RonSijm.AnaalIJzer.ObservedDependencies;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+using RonSijm.AnaalIJzer.Core.Observations;
+using RonSijm.AnaalIJzer.Workspace.Analysis;
 
 namespace RonSijm.AnaalIJzer.Application;
 

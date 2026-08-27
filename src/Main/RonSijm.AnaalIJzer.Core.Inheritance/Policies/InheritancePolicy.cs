@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.Symbols;
+using RonSijm.AnaalIJzer.Core.Matchers.Symbols;
 
-namespace RonSijm.AnaalIJzer.Inheritance;
+namespace RonSijm.AnaalIJzer.Core.Inheritance.Policies;
 
 public readonly struct InheritancePolicy(
 	string ownerLayerPath,

@@ -49,7 +49,7 @@ internal static class ApplicationRequestValidator
 
 		if (request.IncludeDocumentationInput
 		    && request.Operation != ApplicationOperationKind.Documentation
-		    && !(request.Operation == ApplicationOperationKind.GenerateConfig && request.GenerateDocumentation))
+		    && request is not { Operation: ApplicationOperationKind.GenerateConfig, GenerateDocumentation: true })
 		{
 			throw new ApplicationOperationException("Input XML can be included only in generated documentation.");
 		}

@@ -1,5 +1,4 @@
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -18,7 +17,7 @@ internal sealed partial class ArchitectureGraphCanvas
 		factory.SetValue(BaseConnection.TextPaddingProperty, new Thickness(4, 1, 4, 2));
 		factory.SetValue(BaseConnection.TextCornerRadiusProperty, 3d);
 		factory.SetValue(BaseConnection.FontSizeProperty, 10d);
-		factory.SetValue(BaseConnection.ForegroundProperty, theme.ConnectionText);
+		factory.SetValue(BaseConnection.ForegroundProperty, _theme.ConnectionText);
 		factory.SetValue(BaseConnection.SourceOffsetProperty, new Size(10, 0));
 		factory.SetValue(BaseConnection.TargetOffsetProperty, new Size(10, 0));
 		factory.SetBinding(BaseConnection.SourceProperty, new Binding(nameof(NodifyGraphConnectionViewModel.Output) + "." + nameof(NodifyGraphConnectorViewModel.Anchor)));
@@ -39,7 +38,7 @@ internal sealed partial class ArchitectureGraphCanvas
 	{
 		PendingConnection.EnableHitTesting = true;
 		var factory = new FrameworkElementFactory(typeof(PendingConnection));
-		factory.SetValue(PendingConnection.StrokeProperty, theme.ActiveConnection);
+		factory.SetValue(PendingConnection.StrokeProperty, _theme.ActiveConnection);
 		factory.SetValue(PendingConnection.StrokeThicknessProperty, 2.3d);
 		factory.SetValue(PendingConnection.StrokeDashArrayProperty, new DoubleCollection([5, 3]));
 		factory.SetValue(PendingConnection.AllowOnlyConnectorsProperty, true);

@@ -2,7 +2,7 @@ using System.Reflection;
 using System.Xml;
 using System.Xml.Schema;
 
-namespace RonSijm.AnaalIJzer.ConfigurationEditing.Document;
+namespace RonSijm.AnaalIJzer.Core.Configuration.Document.Validation;
 
 public static class ArchitectureConfigurationSchemaProvider
 {

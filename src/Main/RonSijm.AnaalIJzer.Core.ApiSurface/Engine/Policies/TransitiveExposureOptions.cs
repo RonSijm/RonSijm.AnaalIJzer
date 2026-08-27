@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer.Engine.ApiSurface;
+namespace RonSijm.AnaalIJzer.Core.ApiSurface.Engine.Policies;
 
 public readonly struct TransitiveExposureOptions(
 	int maxDepth,

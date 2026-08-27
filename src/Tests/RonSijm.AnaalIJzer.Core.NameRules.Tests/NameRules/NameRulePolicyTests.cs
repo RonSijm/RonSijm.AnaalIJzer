@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.Conditions;
-using RonSijm.AnaalIJzer.Engine.DependencyRules;
-using RonSijm.AnaalIJzer.Engine.NameRules;
+using RonSijm.AnaalIJzer.Core.DependencyRules;
+using RonSijm.AnaalIJzer.Core.Indicators;
+using RonSijm.AnaalIJzer.Core.Matchers;
 
 namespace RonSijm.AnaalIJzer.Core.NameRules.Tests.NameRules;
 
@@ -25,7 +25,7 @@ public sealed class NameRulePolicyTests
 		var result = policy.Evaluate(NameRuleTrigger.ValueMovement, source, target, DependencySites.Method);
 
 		result.Should().NotBeNull();
-		result!.Value.LayerName.Should().Be("Application");
+		result.Value.LayerName.Should().Be("Application");
 	}
 
 	[Fact]

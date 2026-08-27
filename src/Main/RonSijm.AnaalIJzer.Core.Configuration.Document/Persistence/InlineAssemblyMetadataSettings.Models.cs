@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis.Text;
 
-namespace RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
+namespace RonSijm.AnaalIJzer.Core.Configuration.Document.Persistence;
 
 public static partial class InlineAssemblyMetadataSettings
 {

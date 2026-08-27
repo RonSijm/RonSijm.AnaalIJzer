@@ -1,11 +1,9 @@
 using System.Collections.Immutable;
 using System.Text;
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.Definitions;
-using RonSijm.AnaalIJzer.Engine.LayerModel;
-using RonSijm.AnaalIJzer.Engine.Visibility;
-using RonSijm.AnaalIJzer.SymbolFacts;
-using AnalyzerConfiguration = RonSijm.AnaalIJzer.Model.AnalyzerConfig;
+using RonSijm.AnaalIJzer.Core.LayerModel;
+using RonSijm.AnaalIJzer.Core.Visibility;
+using AnalyzerConfiguration = RonSijm.AnaalIJzer.Core.RuntimeConfig.Config.Model.AnalyzerConfig;
 
 namespace RonSijm.AnaalIJzer.Application;
 
@@ -80,7 +78,8 @@ internal static partial class ArchitectureCodeEvidenceGenerator
 
 			foreach (var member in type.GetMembers())
 			{
-				if (!member.IsImplicitlyDeclared && member.DeclaringSyntaxReferences.Length > 0 && seen.Add(member))
+				if (member is { IsImplicitlyDeclared: false, DeclaringSyntaxReferences: { Length: > 0 } }
+				    && seen.Add(member))
 				{
 					yield return member;
 				}

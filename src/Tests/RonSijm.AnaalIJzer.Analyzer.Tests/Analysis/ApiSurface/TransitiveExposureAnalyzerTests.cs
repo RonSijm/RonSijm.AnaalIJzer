@@ -1,4 +1,6 @@
-using RonSijm.AnaalIJzer.Testing;
+using RonSijm.AnaalIJzer.Analyzer.Tests.Testing;
+using RonSijm.AnaalIJzer.Core.Findings;
+using RonSijm.AnaalIJzer.Core.Indicators;
 
 namespace RonSijm.AnaalIJzer.Analyzer.Tests.Analysis.ApiSurface;
 
@@ -272,7 +274,7 @@ public sealed class TransitiveExposureAnalyzerTests
 		bool includeAllowedLayer = true)
 	{
 		var transitive = includeTransitive
-			? $"<TransitiveExposure maxDepth=\"{transitiveValue ?? maxDepth.ToString(System.Globalization.CultureInfo.InvariantCulture)}\" />"
+			? $"<TransitiveExposure maxDepth=\"{transitiveValue ?? maxDepth.ToString(CultureInfo.InvariantCulture)}\" />"
 			: string.Empty;
 		var recognition = requireRecognizedTypes ? " requireRecognizedTypes=\"true\"" : string.Empty;
 		var blockedAttributes = string.IsNullOrWhiteSpace(blockedRuleAttributes) ? string.Empty : " " + blockedRuleAttributes;

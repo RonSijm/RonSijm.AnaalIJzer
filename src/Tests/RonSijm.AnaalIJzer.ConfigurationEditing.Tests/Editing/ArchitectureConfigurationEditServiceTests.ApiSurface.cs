@@ -1,4 +1,5 @@
 using AwesomeAssertions;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 using Xunit;
 
 namespace RonSijm.AnaalIJzer.ConfigurationEditing.Tests.Editing;

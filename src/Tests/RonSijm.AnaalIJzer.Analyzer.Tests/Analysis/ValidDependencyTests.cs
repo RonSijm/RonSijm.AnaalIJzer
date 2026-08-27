@@ -1,4 +1,4 @@
-using RonSijm.AnaalIJzer.Testing;
+using RonSijm.AnaalIJzer.Analyzer.Tests.Testing;
 
 namespace RonSijm.AnaalIJzer.Analyzer.Tests.Analysis;
 

@@ -2,7 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 
 namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
 
@@ -13,7 +13,7 @@ public sealed partial class ArchitectureGraphEditorControl
 		panel.Children.Add(CreateSectionTitle("Configuration"));
 		AddReadOnlyRow(panel, "Source", source.CanEdit ? source.Path : "Not editable");
 		panel.Children.Add(CreateHintTextBlock("Edit the selected XML or inline settings from here. Changes are saved immediately to the configuration source.", new Thickness(0, 6, 0, 0)));
-		var details = editService.GetRootDetails(source);
+		var details = _editService.GetRootDetails(source);
 		if (!details.Succeeded)
 		{
 			panel.Children.Add(new TextBlock { Text = details.Message, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 0), Foreground = Brushes.IndianRed });
@@ -55,7 +55,7 @@ public sealed partial class ArchitectureGraphEditorControl
 		ArchitectureConfigurationEditResult SaveRootSettings()
 		{
 			var parsedWarnBeforeDays = int.TryParse(exceptionWarnBeforeDays.Text, out var warnBeforeDays) ? warnBeforeDays : 14;
-			return editService.SetRootSettings(
+			return _editService.SetRootSettings(
 			source,
 			description.Text,
 			requireRecognized.Text,

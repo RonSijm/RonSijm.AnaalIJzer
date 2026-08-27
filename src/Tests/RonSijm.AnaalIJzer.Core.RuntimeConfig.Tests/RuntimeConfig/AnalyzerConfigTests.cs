@@ -1,20 +1,28 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using RonSijm.AnaalIJzer;
-using RonSijm.AnaalIJzer.Conditions;
-using RonSijm.AnaalIJzer.Config.Parsing;
-using RonSijm.AnaalIJzer.Definitions;
-using RonSijm.AnaalIJzer.Engine.DependencyRules;
-using RonSijm.AnaalIJzer.Engine.LayerModel;
-using RonSijm.AnaalIJzer.Engine.Policies;
-using RonSijm.AnaalIJzer.Exceptions;
-using RonSijm.AnaalIJzer.Indicators;
-using RonSijm.AnaalIJzer.Inheritance;
-using RonSijm.AnaalIJzer.ProjectArchitecture;
-using AnalyzerConfiguration = RonSijm.AnaalIJzer.Model.AnalyzerConfig;
-using OutputConfiguration = RonSijm.AnaalIJzer.Model.OutputConfig;
-using ArchitectureDoc = RonSijm.AnaalIJzer.Model.ArchitectureDocumentation;
-using ArchitectureDocItem = RonSijm.AnaalIJzer.Model.ArchitectureDocumentationItem;
+using RonSijm.AnaalIJzer.Core.ApiSurface.Engine.Policies;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+using RonSijm.AnaalIJzer.Core.Contracts.Contracts;
+using RonSijm.AnaalIJzer.Core.DependencyRules;
+using RonSijm.AnaalIJzer.Core.EntryPoints;
+using RonSijm.AnaalIJzer.Core.Exceptions;
+using RonSijm.AnaalIJzer.Core.Findings;
+using RonSijm.AnaalIJzer.Core.Indicators;
+using RonSijm.AnaalIJzer.Core.Inheritance.Policies;
+using RonSijm.AnaalIJzer.Core.LayerModel;
+using RonSijm.AnaalIJzer.Core.Matchers;
+using RonSijm.AnaalIJzer.Core.Matchers.Conditions;
+using RonSijm.AnaalIJzer.Core.NameRules;
+using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.DependencyRules;
+using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.Policies;
+using RonSijm.AnaalIJzer.Core.ProjectArchitecture;
+using RonSijm.AnaalIJzer.Core.RuntimeConfig.Engine.DependencyRules;
+using RonSijm.AnaalIJzer.Core.SourceLocations;
+using RonSijm.AnaalIJzer.Core.Visibility;
+using AnalyzerConfiguration = RonSijm.AnaalIJzer.Core.RuntimeConfig.Config.Model.AnalyzerConfig;
+using OutputConfiguration = RonSijm.AnaalIJzer.Core.PolicyEvaluation.Config.Model.OutputConfig;
+using ArchitectureDoc = RonSijm.AnaalIJzer.Core.Configuration.Document.Model.ArchitectureDocumentation;
+using ArchitectureDocItem = RonSijm.AnaalIJzer.Core.Configuration.Document.Model.ArchitectureDocumentationItem;
 
 namespace RonSijm.AnaalIJzer.Core.RuntimeConfig.Tests.RuntimeConfig;
 
@@ -69,7 +77,7 @@ public sealed class AnalyzerConfigTests
 		var match = config.FindLayer("OrderService", "Demo.Application");
 
 		match.Should().NotBeNull();
-		match!.Value.Layer.Name.Should().Be("Service");
+		match.Value.Layer.Name.Should().Be("Service");
 		match.Value.MatchedSuffix.Should().Be("Service");
 		config.EnableDocumentation.Should().BeTrue();
 		config.DocumentationPath.Should().Be("docs\\architecture.md");
@@ -210,13 +218,13 @@ public sealed class AnalyzerConfigTests
 			ImmutableArray<LayerNode>.Empty,
 			ImmutableArray<(PatternMatcher Matcher, MatcherRule Rule)>.Empty,
 			ImmutableArray<(PatternMatcher Matcher, MatcherRule Rule)>.Empty,
-			ImmutableArray<RonSijm.AnaalIJzer.Engine.NameRules.NameMatchingRule>.Empty,
-			ImmutableArray<RonSijm.AnaalIJzer.Contracts.ContractPolicy>.Empty,
+			ImmutableArray<NameMatchingRule>.Empty,
+			ImmutableArray<ContractPolicy>.Empty,
 			ImmutableArray<InheritancePolicy>.Empty,
-			ImmutableArray<RonSijm.AnaalIJzer.Engine.Visibility.VisibilityPolicy>.Empty,
-			ImmutableArray<RonSijm.AnaalIJzer.Engine.ApiSurface.ApiSurfacePolicy>.Empty,
-			ImmutableArray<RonSijm.AnaalIJzer.Engine.EntryPoints.BoundaryEntryPointPolicy>.Empty,
-			ImmutableArray<RonSijm.AnaalIJzer.SourceLocations.SourceLocationPolicy>.Empty);
+			ImmutableArray<VisibilityPolicy>.Empty,
+			ImmutableArray<ApiSurfacePolicy>.Empty,
+			ImmutableArray<BoundaryEntryPointPolicy>.Empty,
+			ImmutableArray<SourceLocationPolicy>.Empty);
 
 		return node;
 	}
@@ -246,6 +254,6 @@ public class {{typeName}}
 
 		symbol.Should().NotBeNull();
 
-		return symbol!;
+		return symbol;
 	}
 }

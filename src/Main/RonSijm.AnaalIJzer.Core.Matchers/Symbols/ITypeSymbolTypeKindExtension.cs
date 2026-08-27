@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis;
 
-namespace RonSijm.AnaalIJzer.Symbols;
+namespace RonSijm.AnaalIJzer.Core.Matchers.Symbols;
 
 // ReSharper disable once InconsistentNaming - Justification: Extension for ITypeSymbol
 public static class ITypeSymbolTypeKindExtension
@@ -9,13 +9,13 @@ public static class ITypeSymbolTypeKindExtension
 	{
 		var result = value.Trim().ToLowerInvariant() switch
 		{
-			"class" => symbol.TypeKind == TypeKind.Class && !symbol.IsRecord,
-			"interface" => symbol.TypeKind == TypeKind.Interface,
-			"struct" => symbol.TypeKind == TypeKind.Struct && !symbol.IsRecord,
-			"record" => symbol.TypeKind == TypeKind.Class && symbol.IsRecord,
-			"recordstruct" => symbol.TypeKind == TypeKind.Struct && symbol.IsRecord,
-			"enum" => symbol.TypeKind == TypeKind.Enum,
-			"delegate" => symbol.TypeKind == TypeKind.Delegate,
+			"class" => symbol is { TypeKind: TypeKind.Class, IsRecord: false },
+			"interface" => symbol is { TypeKind: TypeKind.Interface },
+			"struct" => symbol is { TypeKind: TypeKind.Struct, IsRecord: false },
+			"record" => symbol is { TypeKind: TypeKind.Class, IsRecord: true },
+			"recordstruct" => symbol is { TypeKind: TypeKind.Struct, IsRecord: true },
+			"enum" => symbol is { TypeKind: TypeKind.Enum },
+			"delegate" => symbol is { TypeKind: TypeKind.Delegate },
 			_ => false
 		};
 

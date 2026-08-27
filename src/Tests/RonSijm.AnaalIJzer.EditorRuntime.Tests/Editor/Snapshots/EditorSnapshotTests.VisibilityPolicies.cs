@@ -1,4 +1,5 @@
 using RonSijm.AnaalIJzer.Core.Editor.QuickInfo;
+using RonSijm.AnaalIJzer.Core.Findings;
 
 namespace RonSijm.AnaalIJzer.EditorRuntime.Tests.Editor.Snapshots;
 

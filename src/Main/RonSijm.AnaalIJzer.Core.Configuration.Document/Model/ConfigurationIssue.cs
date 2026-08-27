@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer.Config.Parsing;
+namespace RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 
 public enum ConfigurationIssueKind
 {

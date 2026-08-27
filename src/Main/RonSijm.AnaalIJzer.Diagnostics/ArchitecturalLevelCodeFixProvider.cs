@@ -5,9 +5,9 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Rename;
-using RonSijm.AnaalIJzer.Diagnostics;
+using RonSijm.AnaalIJzer.Core.Findings;
 
-namespace RonSijm.AnaalIJzer;
+namespace RonSijm.AnaalIJzer.Diagnostics;
 
 /// <summary>
 ///     Registers two kinds of code fix for architectural diagnostics:

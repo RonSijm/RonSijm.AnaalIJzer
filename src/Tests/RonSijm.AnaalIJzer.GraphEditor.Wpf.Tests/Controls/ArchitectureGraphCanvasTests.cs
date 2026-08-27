@@ -6,10 +6,10 @@ using System.Windows.Data;
 using AwesomeAssertions;
 using Nodify;
 using RonSijm.AnaalIJzer.Graphing.Building;
-using RonSijm.AnaalIJzer.Graphing.Model;
 using RonSijm.AnaalIJzer.Graphing.ViewModels;
 using RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
 using RonSijm.AnaalIJzer.Graphing.Wpf.Styling;
+using RonSijm.AnaalIJzer.GraphModel.Model;
 using Xunit;
 
 namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests.Controls;
@@ -83,7 +83,7 @@ public sealed partial class ArchitectureGraphCanvasTests
 			connection.ContextMenu.Should().NotBeNull();
 			connection.ContextMenu!.PlacementTarget = connection;
 			connection.ContextMenu.DataContext = connection.DataContext;
-			var allSites = connection.ContextMenu.Items.OfType<MenuItem>().Single(item => string.Equals(item.Header?.ToString(), "Allow all sites", StringComparison.Ordinal));
+			var allSites = connection.ContextMenu.Items.OfType<MenuItem>().Single(item => string.Equals(item.Header as string ?? item.Header?.ToString(), "Allow all sites", StringComparison.Ordinal));
 			BindingOperations.GetBinding(allSites, MenuItem.IsCheckedProperty)!.Mode.Should().Be(BindingMode.OneWay);
 
 			connection.ContextMenu.IsOpen = true;
@@ -131,8 +131,7 @@ public sealed partial class ArchitectureGraphCanvasTests
 			DrainDispatcher();
 			var toggle = FindVisualDescendant<ToggleButton>(comboBox);
 
-			toggle.Should().NotBeNull("the custom ComboBox template needs a clickable dropdown toggle");
-			toggle!.TemplatedParent.Should().BeSameAs(comboBox);
+			toggle.TemplatedParent.Should().BeSameAs(comboBox);
 			BindingOperations.GetBinding(toggle, ToggleButton.IsCheckedProperty).Should().NotBeNull();
 			RaiseComboBoxClick(comboBox);
 
@@ -156,7 +155,7 @@ public sealed partial class ArchitectureGraphCanvasTests
 			control.UpdateLayout();
 			var editor = FindVisualDescendant<NodifyEditor>(control);
 
-			editor!.ContextMenu.Should().NotBeNull();
+			editor.ContextMenu.Should().NotBeNull();
 			editor.ContextMenu!.ItemContainerStyle.Should().NotBeNull();
 			editor.ContextMenu.Resources[typeof(MenuItem)].Should().BeOfType<Style>();
 			editor.ContextMenu.Resources[typeof(Separator)].Should().BeOfType<Style>();
@@ -171,8 +170,7 @@ public sealed partial class ArchitectureGraphCanvasTests
 		control.UpdateLayout();
 
 		var editor = FindVisualDescendant<NodifyEditor>(control);
-		editor.Should().NotBeNull("the graph surface should contain a Nodify editor");
-		editor!.ItemsSource.Should().NotBeNull();
+		editor.ItemsSource.Should().NotBeNull();
 		editor.Connections.Should().NotBeNull();
 		editor.ItemTemplateSelector.Should().NotBeNull();
 		editor.ConnectionTemplate.Should().NotBeNull();
@@ -196,7 +194,7 @@ public sealed partial class ArchitectureGraphCanvasTests
 			control.Measure(new Size(960, 640));
 			control.Arrange(new Rect(0, 0, 960, 640));
 			control.UpdateLayout();
-			var editor = FindVisualDescendant<NodifyEditor>(control)!;
+			var editor = FindVisualDescendant<NodifyEditor>(control);
 			var items = editor.ItemsSource.Cast<object>().ToImmutableArray();
 			var boundary = FindGraphItem(items, "Application", "Boundary");
 			var child = FindGraphItem(items, "Application/Contracts", "Node");
@@ -231,7 +229,7 @@ public sealed partial class ArchitectureGraphCanvasTests
 			control.Measure(new Size(960, 640));
 			control.Arrange(new Rect(0, 0, 960, 640));
 			control.UpdateLayout();
-			var editor = FindVisualDescendant<NodifyEditor>(control)!;
+			var editor = FindVisualDescendant<NodifyEditor>(control);
 			var items = editor.ItemsSource.Cast<object>().ToImmutableArray();
 			var boundary = FindGraphItem(items, "Application", "Boundary");
 			var child = FindGraphItem(items, "Application/Contracts", "Node");
@@ -274,7 +272,7 @@ public sealed partial class ArchitectureGraphCanvasTests
 			control.Measure(new Size(960, 640));
 			control.Arrange(new Rect(0, 0, 960, 640));
 			control.UpdateLayout();
-			var editor = FindVisualDescendant<NodifyEditor>(control)!;
+			var editor = FindVisualDescendant<NodifyEditor>(control);
 			var items = editor.ItemsSource!.Cast<object>().ToImmutableArray();
 
 			items.Where(item => string.Equals(GetProperty<string>(item, "Path"), "Application", StringComparison.Ordinal)).Should().ContainSingle();

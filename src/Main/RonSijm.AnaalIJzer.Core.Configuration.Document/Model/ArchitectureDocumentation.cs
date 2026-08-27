@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 
-namespace RonSijm.AnaalIJzer.Model;
+namespace RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 
 public readonly struct ArchitectureDocumentation(
 	string? description,

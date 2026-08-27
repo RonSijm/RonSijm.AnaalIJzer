@@ -37,7 +37,7 @@ public sealed class ArchitectureGraphImageExportService
 			exitCode: 0,
 			successCount: 1,
 			placeholderCount: 0,
-			ImmutableArray.Create(file));
+            [file]);
 
 		return result;
 	}

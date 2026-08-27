@@ -1,6 +1,6 @@
-using RonSijm.AnaalIJzer.Engine.DependencyRules;
+using RonSijm.AnaalIJzer.Core.DependencyRules;
 
-namespace RonSijm.AnaalIJzer.Engine.EntryPoints;
+namespace RonSijm.AnaalIJzer.Core.EntryPoints;
 
 public readonly struct BoundaryEntryPointRule(
 	BoundaryEntryPointSelector selector,

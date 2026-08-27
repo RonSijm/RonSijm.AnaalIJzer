@@ -1,11 +1,41 @@
 using System.Xml.Linq;
-using RonSijm.AnaalIJzer.Conditions;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Document;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
+using RonSijm.AnaalIJzer.Core.Matchers.Conditions;
+using RonSijm.AnaalIJzer.Core.Matchers.Declarations;
+using RonSijm.AnaalIJzer.Core.Matchers.Observations;
 
 namespace RonSijm.AnaalIJzer.Core.Configuration.Document.Tests.Document;
 
 public sealed class ArchitectureConfigurationMatcherReaderTests
 {
+	[Theory]
+	[InlineData("Type", DeclarationMatchTarget.Type)]
+	[InlineData("NestedType", DeclarationMatchTarget.NestedType)]
+	[InlineData("Constructor", DeclarationMatchTarget.Constructor)]
+	[InlineData("Method", DeclarationMatchTarget.Method)]
+	[InlineData("Property", DeclarationMatchTarget.Property)]
+	[InlineData("Field", DeclarationMatchTarget.Field)]
+	[InlineData("Event", DeclarationMatchTarget.Event)]
+	[InlineData("Operator", DeclarationMatchTarget.Operator)]
+	[InlineData("Conversion", DeclarationMatchTarget.Conversion)]
+	public void TryReadDeclarationMatcher_SupportsEveryDeclarationTarget(string elementName, DeclarationMatchTarget expectedTarget)
+	{
+		var element = XElement.Parse($$"""
+		                               <{{elementName}} exactName="PizzaId" typeName="PizzaId" />
+		                               """);
+
+		var success = ArchitectureConfigurationMatcherReader.TryReadDeclarationMatcher(element, out var matcher);
+
+		success.Should().BeTrue();
+		matcher.Target.Should().Be(expectedTarget);
+		matcher.Conditions.Should().BeEquivalentTo(
+		[
+			new MatchCondition(MatchKind.Equals, "PizzaId", MatchOperand.AssociatedType),
+			new MatchCondition(MatchKind.Equals, "PizzaId", MatchOperand.Declaration)
+		],
+		options => options.WithStrictOrdering());
+	}
+
 	[Fact]
 	public void TryReadMatcher_ClassMatcher_ReadsAllConfiguredConditions()
 	{
@@ -26,6 +56,84 @@ public sealed class ArchitectureConfigurationMatcherReaderTests
 			new MatchCondition(MatchKind.HasAccessModifier, "public"),
 			new MatchCondition(MatchKind.HasTypeKind, "Class"),
 			new MatchCondition(MatchKind.EndsWith, "Kitchen")
+		],
+		options => options.WithStrictOrdering());
+	}
+
+	[Fact]
+	public void TryReadMatcher_ClassMatcher_ReadsRequiredDeclarationMatchers()
+	{
+		var element = XElement.Parse("""
+		                             <Class endsWith="Request">
+		                               <Property exactName="PizzaId" typeName="PizzaId" />
+		                               <Field exactName="_tenantId" typeName="TenantId" />
+		                             </Class>
+		                             """);
+
+		var success = ArchitectureConfigurationMatcherReader.TryReadMatcher(element, MatchTarget.TypeName, out var matcher);
+
+		success.Should().BeTrue();
+		matcher.RequiredDeclarations.Should().HaveCount(2);
+		matcher.RequiredDeclarations[0].Target.Should().Be(DeclarationMatchTarget.Property);
+		matcher.RequiredDeclarations[0].Conditions.Should().BeEquivalentTo(
+		[
+			new MatchCondition(MatchKind.Equals, "PizzaId", MatchOperand.AssociatedType),
+			new MatchCondition(MatchKind.Equals, "PizzaId", MatchOperand.Declaration)
+		],
+		options => options.WithStrictOrdering());
+		matcher.RequiredDeclarations[1].Target.Should().Be(DeclarationMatchTarget.Field);
+		matcher.RequiredDeclarations[1].Conditions.Should().BeEquivalentTo(
+		[
+			new MatchCondition(MatchKind.Equals, "TenantId", MatchOperand.AssociatedType),
+			new MatchCondition(MatchKind.Equals, "_tenantId", MatchOperand.Declaration)
+		],
+		options => options.WithStrictOrdering());
+	}
+
+	[Fact]
+	public void TryReadDeclarationMatcher_MethodMatcher_ReadsRequiredObservationMatchers()
+	{
+		var element = XElement.Parse("""
+		                             <Method exactName="PizzaDelivery">
+		                               <Throw />
+		                               <Invocation exactName="LogFailure" />
+		                             </Method>
+		                             """);
+
+		var success = ArchitectureConfigurationMatcherReader.TryReadDeclarationMatcher(element, out var matcher);
+
+		success.Should().BeTrue();
+		matcher.RequiredObservations.Should().HaveCount(2);
+		matcher.RequiredObservations[0].Target.Should().Be(CodeObservationMatchTarget.Throw);
+		matcher.RequiredObservations[0].Conditions.Should().BeEmpty();
+		matcher.RequiredObservations[1].Target.Should().Be(CodeObservationMatchTarget.Invocation);
+		matcher.RequiredObservations[1].Conditions.Should().BeEquivalentTo(
+		[
+			new MatchCondition(MatchKind.Equals, "LogFailure", MatchOperand.Declaration)
+		],
+		options => options.WithStrictOrdering());
+	}
+
+	[Theory]
+	[InlineData("Throw", CodeObservationMatchTarget.Throw)]
+	[InlineData("Invocation", CodeObservationMatchTarget.Invocation)]
+	[InlineData("New", CodeObservationMatchTarget.New)]
+	[InlineData("Identifier", CodeObservationMatchTarget.Identifier)]
+	[InlineData("MemberAccess", CodeObservationMatchTarget.MemberAccess)]
+	[InlineData("Literal", CodeObservationMatchTarget.Literal)]
+	public void TryReadCodeObservationMatcher_SupportsEveryObservationTarget(string elementName, CodeObservationMatchTarget expectedTarget)
+	{
+		var element = XElement.Parse($$"""
+		                               <{{elementName}} exactName="PizzaDelivery" />
+		                               """);
+
+		var success = ArchitectureConfigurationMatcherReader.TryReadCodeObservationMatcher(element, out var matcher);
+
+		success.Should().BeTrue();
+		matcher.Target.Should().Be(expectedTarget);
+		matcher.Conditions.Should().BeEquivalentTo(
+		[
+			new MatchCondition(MatchKind.Equals, "PizzaDelivery", MatchOperand.Declaration)
 		],
 		options => options.WithStrictOrdering());
 	}

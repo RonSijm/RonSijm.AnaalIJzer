@@ -1,8 +1,6 @@
 using System.Collections.Immutable;
 using System.Windows;
 using System.Windows.Controls;
-using System.Xml.Linq;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
 using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
 
 namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;

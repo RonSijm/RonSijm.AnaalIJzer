@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using RonSijm.AnaalIJzer.Core.Contracts.Contracts;
 
 namespace RonSijm.AnaalIJzer.Core.Contracts.Tests.Contracts;
 
@@ -62,7 +63,7 @@ public sealed class ContractPolicyTests
 		var result = policy.Evaluate(shape);
 
 		result.Should().NotBeNull();
-		result!.Value.ViolationKind.Should().Be(ContractViolationKind.DisallowedPropertyAccessor);
+		result.Value.ViolationKind.Should().Be(ContractViolationKind.DisallowedPropertyAccessor);
 		result.Value.Reason.Should().Contain("allows only property accessors");
 	}
 

@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.Definitions;
+using RonSijm.AnaalIJzer.Core.DependencyRules;
 
-namespace RonSijm.AnaalIJzer.Engine.DependencyRules;
+namespace RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.DependencyRules;
 
 /// <summary>
 ///     Owns the allowed-dependency edge rules: explicit directed edges,
@@ -18,49 +18,31 @@ public readonly partial struct DependencyGraph(ImmutableArray<DependencyEdge> de
 	///     Explicit directed edges declared via <c>&lt;AllowedDependency from="A" to="B"/&gt;</c>.
 	///     Exposed for tests and the ARCH004 reverse-direction check.
 	/// </summary>
-	public ImmutableHashSet<(string From, string To)> AllowedEdges
-    {
-        get
-        {
-            return DependencyEdges.Where(edge => edge.IsAllowed && edge.IsExplicit).Select(edge => (edge.From, edge.To))
-                .ToImmutableHashSet();
-        }
-    }
+	public ImmutableHashSet<(string From, string To)> AllowedEdges =>
+		DependencyEdges.Where(edge => edge.IsAllowed && edge.IsExplicit).Select(edge => (edge.From, edge.To))
+			.ToImmutableHashSet();
 
     /// <summary>
 	///     Layer names reachable via <c>&lt;AllowedDependency from="*" to="..."&gt;</c>.
 	///     Any layer may depend on these when the matching edge allows the current dependency site.
 	/// </summary>
-	public ImmutableHashSet<string> WildcardTargets
-    {
-        get
-        {
-            return DependencyEdges.Where(edge => edge.IsAllowed && edge.IsWildcardTarget).Select(edge => edge.To)
-                .ToImmutableHashSet();
-        }
-    }
+	public ImmutableHashSet<string> WildcardTargets =>
+		DependencyEdges.Where(edge => edge.IsAllowed && edge.IsWildcardTarget).Select(edge => edge.To)
+			.ToImmutableHashSet();
 
     /// <summary>
 	///     Layer names declared via <c>&lt;AllowedDependency from="..." to="*"&gt;</c>.
 	///     Types in these layers may depend on any other configured layer when the matching edge
 	///     allows the current dependency site.
 	/// </summary>
-	public ImmutableHashSet<string> WildcardSources
-    {
-        get
-        {
-            return DependencyEdges.Where(edge => edge.IsAllowed && edge.IsWildcardSource).Select(edge => edge.From)
-                .ToImmutableHashSet();
-        }
-    }
+	public ImmutableHashSet<string> WildcardSources =>
+		DependencyEdges.Where(edge => edge.IsAllowed && edge.IsWildcardSource).Select(edge => edge.From)
+			.ToImmutableHashSet();
 
     /// <summary>
 	///     When <see langword="true" /> the config declared <c>&lt;AllowedDependency from="*" to="*"/&gt;</c>.
 	/// </summary>
-	public bool AllowAnyDependency
-    {
-        get { return DependencyEdges.Any(edge => edge.IsAllowed && edge.IsAllowAny); }
-    }
+	public bool AllowAnyDependency => DependencyEdges.Any(edge => edge.IsAllowed && edge.IsAllowAny);
 
 	/// <summary>
 	///     Returns <see langword="true" /> when an explicit directed edge from
@@ -74,11 +56,13 @@ public readonly partial struct DependencyGraph(ImmutableArray<DependencyEdge> de
 		return result;
 	}
 
-    public bool HasEdge(string scopePath, string from, string to)
-    {
-        return DependencyEdges.Any(edge =>
-            EdgeAppliesAtScope(edge, scopePath) && edge.IsAllowed && EdgeMatches(edge, from, to));
-    }
+	public bool HasEdge(string scopePath, string from, string to)
+	{
+		var result = DependencyEdges.Any(edge =>
+			EdgeAppliesAtScope(edge, scopePath) && edge.IsAllowed && EdgeMatches(edge, from, to));
+
+		return result;
+	}
 
 	public bool Matches(DependencyEdge edge, string from, string to)
 	{

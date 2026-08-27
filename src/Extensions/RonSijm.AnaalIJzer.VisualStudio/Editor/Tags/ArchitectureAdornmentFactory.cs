@@ -1,11 +1,10 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using RonSijm.AnaalIJzer.Indicators;
 using RonSijm.AnaalIJzer.Core.Editor.QuickInfo;
+using RonSijm.AnaalIJzer.Core.Indicators;
 using RonSijm.AnaalIJzer.VisualStudio.Options;
-using RonSijm.AnaalIJzer.VisualStudio.Styling;
-using RonSijm.AnaalIJzer.Engine.LayerModel;
+using RonSijm.AnaalIJzer.VisualStudio.Editor.Styling;
 
 namespace RonSijm.AnaalIJzer.VisualStudio.Editor.Tags;
 

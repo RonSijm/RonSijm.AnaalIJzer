@@ -1,5 +1,5 @@
 using Microsoft.VisualStudio.Text.Editor;
-using RonSijm.AnaalIJzer.Indicators;
+using RonSijm.AnaalIJzer.Core.Indicators;
 
 namespace RonSijm.AnaalIJzer.VisualStudio.Editor.LayerIndicators;
 

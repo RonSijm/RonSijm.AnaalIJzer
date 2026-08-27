@@ -1,5 +1,5 @@
-using System.Collections.Immutable;
 using AwesomeAssertions;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 using Xunit;
 
 namespace RonSijm.AnaalIJzer.ConfigurationEditing.Tests.Editing;
@@ -19,8 +19,8 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 			""");
 		var source = new ArchitectureConfigurationSource(ArchitectureConfigurationSourceKind.XmlFile, path);
 
-		AssertionExtensions.Should((bool)ArchitectureConfigurationEditService.AddLayer(source, string.Empty, "Kitchen", "Class", Attributes(("endsWith", "Kitchen"))).Succeeded).BeTrue();
-		AssertionExtensions.Should((bool)ArchitectureConfigurationEditService.AddLayer(source, "Kitchen", "Chef", "Class", Attributes(("endsWith", "Chef"))).Succeeded).BeTrue();
+		ArchitectureConfigurationEditService.AddLayer(source, string.Empty, "Kitchen", "Class", Attributes(("endsWith", "Kitchen"))).Succeeded.Should().BeTrue();
+		ArchitectureConfigurationEditService.AddLayer(source, "Kitchen", "Chef", "Class", Attributes(("endsWith", "Chef"))).Succeeded.Should().BeTrue();
 
 		var content = File.ReadAllText(path);
 		content.Should().Contain("<Layer name=\"Kitchen\">");
@@ -45,9 +45,9 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 
 		var result = ArchitectureConfigurationEditService.MoveLayer(handle, "Kitchen");
 
-		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
+		result.Succeeded.Should().BeTrue(result.Message);
 		File.ReadAllText(path).Should().Contain("<Layer name=\"Kitchen\">");
-		AssertionExtensions.Should((bool)ArchitectureConfigurationEditService.GetLayerDetails(new ArchitectureLayerEditHandle(ArchitectureConfigurationSourceKind.XmlFile, path, 0, "Kitchen/Chef", "Chef", "Kitchen", null)).Succeeded).BeTrue();
+		ArchitectureConfigurationEditService.GetLayerDetails(new ArchitectureLayerEditHandle(ArchitectureConfigurationSourceKind.XmlFile, path, 0, "Kitchen/Chef", "Chef", "Kitchen", null)).Succeeded.Should().BeTrue();
 	}
 
 	[Fact]
@@ -68,7 +68,7 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 
 		var result = ArchitectureConfigurationEditService.RemoveLayer(handle);
 
-		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
+		result.Succeeded.Should().BeTrue(result.Message);
 		var content = File.ReadAllText(path);
 		content.Should().NotContain("Kitchen");
 		content.Should().NotContain("Chef");
@@ -96,9 +96,9 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 		var result = ArchitectureConfigurationEditService.SetDependencySites(
 			handle,
 			ArchitectureSiteFilterEditMode.BlockedSites,
-			ImmutableArray.Create(ArchitectureDependencySiteNames.Local));
+			[ArchitectureDependencySiteNames.Local]);
 
-		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
+		result.Succeeded.Should().BeTrue(result.Message);
 		File.ReadAllText(path).Should().Contain("blockedSites=\"Local\"");
 	}
 
@@ -125,9 +125,9 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 		var result = ArchitectureConfigurationEditService.SetDependencySites(
 			handle,
 			ArchitectureSiteFilterEditMode.BlockedSites,
-			ImmutableArray.Create(ArchitectureDependencySiteNames.Local));
+			[ArchitectureDependencySiteNames.Local]);
 
-		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
+		result.Succeeded.Should().BeTrue(result.Message);
 		var content = File.ReadAllText(path);
 		content.Should().Contain("from=\"{nameof(Customer)}\"");
 		content.Should().Contain("blockedSites=\"Local\"");
@@ -156,7 +156,7 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 
 		var result = ArchitectureConfigurationEditService.AddLayerMatcher(handle, "Class", Attributes(("typeName", "SauceChef")));
 
-		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
+		result.Succeeded.Should().BeTrue(result.Message);
 		var content = File.ReadAllText(path);
 		content.Should().Contain("name=\"{nameof(Chef)}\"");
 		content.Should().Contain("typeName=\"{nameof(Chef)}\"");

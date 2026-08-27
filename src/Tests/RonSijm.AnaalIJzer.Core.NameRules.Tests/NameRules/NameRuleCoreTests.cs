@@ -2,9 +2,10 @@ using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using RonSijm.AnaalIJzer.Conditions;
-using RonSijm.AnaalIJzer.Engine.DependencyRules;
-using RonSijm.AnaalIJzer.Engine.NameRules;
+using RonSijm.AnaalIJzer.Core.DependencyRules;
+using RonSijm.AnaalIJzer.Core.Indicators;
+using RonSijm.AnaalIJzer.Core.Matchers;
+using RonSijm.AnaalIJzer.Core.Matchers.Conditions;
 
 namespace RonSijm.AnaalIJzer.Core.NameRules.Tests.NameRules;
 
@@ -28,9 +29,10 @@ public sealed class NameRuleCoreTests
 		var result = rule.Evaluate(source, target, DependencySites.Method);
 
 		result.Should().NotBeNull();
-		result!.Value.RuleKind.Should().Be(NameRuleKind.RequireMatchingNames);
-		result.Value.Reason.Should().Contain("source 'patientId' normalizes to 'patient.id'");
-		result.Value.Reason.Should().Contain("target 'doctorId' normalizes to 'doctor.id'");
+		var violation = result.Value;
+		violation.RuleKind.Should().Be(NameRuleKind.RequireMatchingNames);
+		violation.Reason.Should().Contain("source 'patientId' normalizes to 'patient.id'");
+		violation.Reason.Should().Contain("target 'doctorId' normalizes to 'doctor.id'");
 	}
 
 	[Fact]
@@ -65,8 +67,9 @@ public sealed class NameRuleCoreTests
 		var result = rule.Evaluate(source, target, DependencySites.Constructor);
 
 		result.Should().NotBeNull();
-		result!.Value.Reason.Should().Contain("a matching <Allow> mapping is configured");
-		result.Value.Reason.Should().Contain("allowedSites does not include Constructor");
+		var violation = result.Value;
+		violation.Reason.Should().Contain("a matching <Allow> mapping is configured");
+		violation.Reason.Should().Contain("allowedSites does not include Constructor");
 	}
 
 	[Fact]
@@ -89,9 +92,9 @@ public sealed class NameRuleCoreTests
 		var optionalCountResult = NameRuleSubjectFactory.CreateType(optionalCountType);
 
 		patientsResult.Should().NotBeNull();
-		patientsResult!.Value.DisplayName.Should().Be("PatientId[]");
+		patientsResult.Value.DisplayName.Should().Be("PatientId[]");
 		optionalCountResult.Should().NotBeNull();
-		optionalCountResult!.Value.DisplayName.Should().Be("Int32");
+		optionalCountResult.Value.DisplayName.Should().Be("Int32");
 	}
 
 	[Fact]
@@ -118,9 +121,10 @@ public sealed class NameRuleCoreTests
 		var result = NameRuleSemanticSubjectResolver.CreateExpressionSubject(memberAccess, model, CancellationToken.None);
 
 		result.Should().NotBeNull();
-		result!.Value.DisplayName.Should().Be("Request.PatientId");
-		result.Value.CandidateNames.Should().Contain("PatientId");
-		result.Value.CandidateNames.Should().Contain("request.PatientId");
+		var subject = result.Value;
+		subject.DisplayName.Should().Be("Request.PatientId");
+		subject.CandidateNames.Should().Contain("PatientId");
+		subject.CandidateNames.Should().Contain("request.PatientId");
 	}
 
 	[Fact]
@@ -149,8 +153,8 @@ public sealed class NameRuleCoreTests
 				}
 			}
 			""", "patientId = 42");
-		var propertyTarget = (ExpressionSyntax)propertyAssignment.Left;
-		var localTarget = (ExpressionSyntax)localAssignment.Left;
+		var propertyTarget = propertyAssignment.Left;
+		var localTarget = localAssignment.Left;
 
 		var propertyResult = NameRuleSemanticSubjectResolver.GetAssignmentSite(propertyTarget, propertyModel, CancellationToken.None);
 		var localResult = NameRuleSemanticSubjectResolver.GetAssignmentSite(localTarget, localModel, CancellationToken.None);

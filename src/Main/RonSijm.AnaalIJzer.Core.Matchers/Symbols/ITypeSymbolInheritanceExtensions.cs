@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis;
 
-namespace RonSijm.AnaalIJzer.Symbols;
+namespace RonSijm.AnaalIJzer.Core.Matchers.Symbols;
 
 // ReSharper disable once InconsistentNaming - Justification: Extension for ITypeSymbol
 public static class ITypeSymbolInheritanceExtensions

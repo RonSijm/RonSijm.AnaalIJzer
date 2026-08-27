@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer.SymbolFacts;
+namespace RonSijm.AnaalIJzer.Core.Visibility;
 
 public enum ArchitectureAccessibility
 {

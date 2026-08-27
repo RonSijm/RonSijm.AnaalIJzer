@@ -7,8 +7,8 @@ namespace RonSijm.AnaalIJzer.Arse.FileExtension;
 
 public static class FileAssociationExtension
 {
-	private const int SHCNE_ASSOCCHANGED = 0x8000000;
-	private const int SHCNF_FLUSH = 0x1000;
+	private const int ShcneAssocchanged = 0x8000000;
+	private const int ShcnfFlush = 0x1000;
 
 	[DllImport("Shell32.dll")]
 	private static extern int SHChangeNotify(int eventId, int flags, IntPtr item1, IntPtr item2);
@@ -34,7 +34,7 @@ public static class FileAssociationExtension
 
 		if (madeChanges)
 		{
-			SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_FLUSH, IntPtr.Zero, IntPtr.Zero);
+			SHChangeNotify(ShcneAssocchanged, ShcnfFlush, IntPtr.Zero, IntPtr.Zero);
 		}
 
 		return madeChanges;
@@ -68,7 +68,7 @@ public static class FileAssociationExtension
 
 		if (madeChanges)
 		{
-			SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_FLUSH, IntPtr.Zero, IntPtr.Zero);
+			SHChangeNotify(ShcneAssocchanged, ShcnfFlush, IntPtr.Zero, IntPtr.Zero);
 		}
 
 		return madeChanges;

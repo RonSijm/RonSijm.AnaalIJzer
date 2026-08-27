@@ -1,10 +1,10 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using RonSijm.AnaalIJzer.Core.ApiSurface.Analysis.Model;
+using RonSijm.AnaalIJzer.Core.Indicators;
 
-using RonSijm.AnaalIJzer.Analysis.ApiSurface.Model;
-
-namespace RonSijm.AnaalIJzer.Analysis.ApiSurface.Declarations;
+namespace RonSijm.AnaalIJzer.Core.ApiSurface.Analysis.Declarations;
 
 internal static partial class ApiSurfaceDeclarationWalker
 {
@@ -86,7 +86,7 @@ internal static partial class ApiSurfaceDeclarationWalker
 			}
 		}
 
-		if (namedType.TypeKind == TypeKind.Delegate && namedType.DelegateInvokeMethod is { } invokeMethod)
+		if (namedType is { TypeKind: TypeKind.Delegate, DelegateInvokeMethod: { } invokeMethod })
 		{
 			foreach (var reference in ExpandType(invokeMethod.ReturnType, syntax.GetLocation(), DependencySites.GenericArgument, seen))
 			{
@@ -166,7 +166,7 @@ internal static partial class ApiSurfaceDeclarationWalker
 			}
 		}
 
-		if (namedType.TypeKind == TypeKind.Delegate && namedType.DelegateInvokeMethod is { } invokeMethod)
+		if (namedType is { TypeKind: TypeKind.Delegate, DelegateInvokeMethod: { } invokeMethod })
 		{
 			foreach (var reference in ExpandType(invokeMethod.ReturnType, location, DependencySites.GenericArgument, seen))
 			{

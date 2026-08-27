@@ -1,5 +1,3 @@
-using System.Globalization;
-using RonSijm.AnaalIJzer.Arse.FileExtension;
 using RonSijm.AnaalIJzer.Application;
 
 namespace RonSijm.AnaalIJzer.Arse;
@@ -23,7 +21,7 @@ internal static partial class ArseCommandLine
 			}
 
 			var operation = ApplicationOperationCatalog.Find(args[0]) ?? throw new CommandLineException($"Unknown command: {args[0]}");
-			var options = CommandOptions.Parse(args.Skip(1).ToArray());
+			var options = CommandOptions.Parse([.. args.Skip(1)]);
 			var request = options.ToRequest(operation.Kind);
 			var result = await new ApplicationRunner().ExecuteAsync(request);
 			Console.WriteLine(result.Message);
@@ -31,18 +29,18 @@ internal static partial class ArseCommandLine
 		}
 		catch (CommandLineException ex)
 		{
-			Console.Error.WriteLine(ex.Message);
+			await Console.Error.WriteLineAsync(ex.Message);
 			PrintHelp();
 			return 2;
 		}
 		catch (ApplicationOperationException ex)
 		{
-			Console.Error.WriteLine(ex.Message);
+			await Console.Error.WriteLineAsync(ex.Message);
 			return 2;
 		}
 		catch (Exception ex)
 		{
-			Console.Error.WriteLine(ex.Message);
+			await Console.Error.WriteLineAsync(ex.Message);
 			return 1;
 		}
 	}

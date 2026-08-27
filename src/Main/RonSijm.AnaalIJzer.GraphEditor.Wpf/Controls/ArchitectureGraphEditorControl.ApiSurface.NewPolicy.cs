@@ -56,7 +56,7 @@ public sealed partial class ArchitectureGraphEditorControl
 			? ArchitectureConfigurationEditResult.Failure("Enter a canonical layer path.")
 			: enableTransitive && transitiveElement is null
 				? ArchitectureConfigurationEditResult.Failure("Transitive exposure depth must be a whole number from 1 through 10.")
-				: editService.AddApiSurfacePolicy(
+				: _editService.AddApiSurfacePolicy(
 					handle,
 					CreateApiSurfaceAttributes(requireRecognized, description),
 					childXml);

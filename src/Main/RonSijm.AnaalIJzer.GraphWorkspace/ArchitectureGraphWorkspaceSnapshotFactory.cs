@@ -1,10 +1,10 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Document;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Sources;
 using RonSijm.AnaalIJzer.GraphModel.Building;
-using RonSijm.AnaalIJzer.Graphing.Loading;
-using RonSijm.AnaalIJzer.Graphing.Model;
-using RonSijm.AnaalIJzer.Workspace;
+using RonSijm.AnaalIJzer.GraphModel.Loading;
+using RonSijm.AnaalIJzer.GraphModel.Model;
+using RonSijm.AnaalIJzer.Workspace.Analysis;
 
 namespace RonSijm.AnaalIJzer.GraphWorkspace;
 

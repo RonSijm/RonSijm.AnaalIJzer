@@ -4,7 +4,7 @@ internal static class ArchitectureConfigurationLayerPaths
 {
 	internal static string[] SplitLayerPath(string layerPath)
 	{
-		var result = layerPath.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+		var result = layerPath.Split(['/'], StringSplitOptions.RemoveEmptyEntries);
 
 		return result;
 	}

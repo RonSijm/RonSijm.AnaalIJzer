@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 
-namespace RonSijm.AnaalIJzer.Graphing.Model;
+namespace RonSijm.AnaalIJzer.GraphModel.Model;
 
 public sealed class ArchitectureGraphEvidence(
 	ImmutableArray<ArchitectureGraphTypeEvidence> types,

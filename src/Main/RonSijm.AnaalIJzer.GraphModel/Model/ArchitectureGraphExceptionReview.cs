@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer.Graphing.Model;
+namespace RonSijm.AnaalIJzer.GraphModel.Model;
 
 public sealed class ArchitectureGraphExceptionReview(
 	string ownerLayerPath,

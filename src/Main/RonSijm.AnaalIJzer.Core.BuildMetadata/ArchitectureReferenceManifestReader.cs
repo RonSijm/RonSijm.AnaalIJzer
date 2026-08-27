@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.Config.Parsing;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 
-namespace RonSijm.AnaalIJzer.BuildMetadata;
+namespace RonSijm.AnaalIJzer.Core.BuildMetadata;
 
 internal static class ArchitectureReferenceManifestReader
 {
@@ -9,7 +9,7 @@ internal static class ArchitectureReferenceManifestReader
     {
         var normalizedContent = content.Replace("\r\n", "\n").Replace('\r', '\n');
         var lines = normalizedContent
-            .Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)
+            .Split(['\n'], StringSplitOptions.RemoveEmptyEntries)
             .ToArray();
         if (lines.Length == 0)
         {

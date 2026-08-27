@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
 using System.Text.RegularExpressions;
-using RonSijm.AnaalIJzer.Conditions;
+using RonSijm.AnaalIJzer.Core.Matchers.Conditions;
 
-namespace RonSijm.AnaalIJzer.ProjectArchitecture;
+namespace RonSijm.AnaalIJzer.Core.Matchers.ProjectArchitecture;
 
 public readonly struct PackageMatcher(
 	ImmutableArray<MatchCondition> conditions,

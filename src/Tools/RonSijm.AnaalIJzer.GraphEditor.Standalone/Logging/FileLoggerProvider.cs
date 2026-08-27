@@ -5,13 +5,13 @@ namespace RonSijm.AnaalIJzer.GraphEditor.Standalone.Logging;
 
 internal sealed class FileLoggerProvider : ILoggerProvider
 {
-	private readonly object syncRoot = new();
-	private readonly StreamWriter writer;
+	private readonly object _syncRoot = new();
+	private readonly StreamWriter _writer;
 
 	public FileLoggerProvider(string path)
 	{
 		Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-		writer = new StreamWriter(new FileStream(path, FileMode.Append, FileAccess.Write, FileShare.ReadWrite))
+		_writer = new StreamWriter(new FileStream(path, FileMode.Append, FileAccess.Write, FileShare.ReadWrite))
 		{
 			AutoFlush = true
 		};
@@ -26,37 +26,37 @@ internal sealed class FileLoggerProvider : ILoggerProvider
 
 	public void Dispose()
 	{
-		lock (syncRoot)
+		lock (_syncRoot)
 		{
-			writer.Dispose();
+			_writer.Dispose();
 		}
 	}
 
 	private void Write(string categoryName, LogLevel logLevel, EventId eventId, string message, Exception? exception)
 	{
-		lock (syncRoot)
+		lock (_syncRoot)
 		{
-			writer.Write(DateTimeOffset.Now.ToString("yyyy-MM-dd HH:mm:ss.fff zzz"));
-			writer.Write(" [");
-			writer.Write(logLevel);
-			writer.Write("] ");
-			writer.Write(categoryName);
+			_writer.Write(DateTimeOffset.Now.ToString("yyyy-MM-dd HH:mm:ss.fff zzz"));
+			_writer.Write(" [");
+			_writer.Write(logLevel);
+			_writer.Write("] ");
+			_writer.Write(categoryName);
 			if (eventId.Id != 0 || !string.IsNullOrWhiteSpace(eventId.Name))
 			{
-				writer.Write(" ");
-				writer.Write(eventId.Id);
+				_writer.Write(" ");
+				_writer.Write(eventId.Id);
 				if (!string.IsNullOrWhiteSpace(eventId.Name))
 				{
-					writer.Write(":");
-					writer.Write(eventId.Name);
+					_writer.Write(":");
+					_writer.Write(eventId.Name);
 				}
 			}
 
-			writer.Write(" - ");
-			writer.WriteLine(message);
+			_writer.Write(" - ");
+			_writer.WriteLine(message);
 			if (exception is not null)
 			{
-				writer.WriteLine(exception);
+				_writer.WriteLine(exception);
 			}
 		}
 	}

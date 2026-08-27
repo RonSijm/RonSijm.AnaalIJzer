@@ -1,12 +1,11 @@
 using System.Collections.Immutable;
 using System.Xml.Linq;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
 
 namespace RonSijm.AnaalIJzer.ConfigurationEditing.Editing.Xml;
 
 internal static partial class ArchitectureConfigurationXmlNavigator
 {
-	internal static string GetParentPath(string path)
+	private static string GetParentPath(string path)
 	{
 		var slashIndex = path.LastIndexOf('/');
 		var result = slashIndex <= 0 ? string.Empty : path.Substring(0, slashIndex);
@@ -14,7 +13,7 @@ internal static partial class ArchitectureConfigurationXmlNavigator
 		return result;
 	}
 
-	internal static bool AttributesMatch(XElement element, ImmutableDictionary<string, string> expectedAttributes)
+	private static bool AttributesMatch(XElement element, ImmutableDictionary<string, string> expectedAttributes)
 	{
 		foreach (var attribute in expectedAttributes)
 		{
@@ -27,7 +26,7 @@ internal static partial class ArchitectureConfigurationXmlNavigator
 		return true;
 	}
 
-	internal static string BuildLayerPath(XElement layerElement)
+	private static string BuildLayerPath(XElement layerElement)
 	{
 		var parts = new Stack<string>();
 		var current = layerElement;

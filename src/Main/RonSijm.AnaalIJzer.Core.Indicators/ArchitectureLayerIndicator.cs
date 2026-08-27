@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis.Text;
 
-namespace RonSijm.AnaalIJzer.Indicators;
+namespace RonSijm.AnaalIJzer.Core.Indicators;
 
 public sealed class ArchitectureLayerIndicator(
     TextSpan declarationSpan,

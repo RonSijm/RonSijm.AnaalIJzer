@@ -1,8 +1,7 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.Conditions;
-using RonSijm.AnaalIJzer.Engine.LayerModel;
+using RonSijm.AnaalIJzer.Core.Matchers;
 
-namespace RonSijm.AnaalIJzer.Engine.Policies;
+namespace RonSijm.AnaalIJzer.Core.LayerModel;
 
 public readonly struct CompiledLayerCatalog(
 	ImmutableArray<LayerNode> roots,

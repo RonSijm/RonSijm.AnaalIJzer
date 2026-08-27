@@ -1,6 +1,5 @@
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Documents;
 
 namespace RonSijm.AnaalIJzer.Graphing.Wpf.Styling;
@@ -17,9 +16,9 @@ public static partial class ArchitectureGraphThemeStyles
 		chrome.SetValue(UIElement.SnapsToDevicePixelsProperty, true);
 
 		var content = new FrameworkElementFactory(typeof(ContentPresenter));
-		content.SetValue(ContentPresenter.HorizontalAlignmentProperty, HorizontalAlignment.Center);
-		content.SetValue(ContentPresenter.VerticalAlignmentProperty, VerticalAlignment.Center);
-		content.SetValue(ContentPresenter.MarginProperty, new TemplateBindingExtension(Control.PaddingProperty));
+		content.SetValue(FrameworkElement.HorizontalAlignmentProperty, HorizontalAlignment.Center);
+		content.SetValue(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Center);
+		content.SetValue(FrameworkElement.MarginProperty, new TemplateBindingExtension(Control.PaddingProperty));
 		content.SetValue(ContentPresenter.RecognizesAccessKeyProperty, true);
 		chrome.AppendChild(content);
 

@@ -1,9 +1,7 @@
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using Microsoft.AspNetCore.Components;
-using RonSijm.AnaalIJzer.Arse.FileExtension;
-using RonSijm.AnaalIJzer.Findings;
 using RonSijm.AnaalIJzer.Application;
+using RonSijm.AnaalIJzer.Core.Findings;
 using Spectre.Console;
 
 namespace RonSijm.AnaalIJzer.Arse.Components;

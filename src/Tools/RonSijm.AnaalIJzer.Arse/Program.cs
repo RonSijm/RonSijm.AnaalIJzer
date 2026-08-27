@@ -20,7 +20,7 @@ internal static class Program
 			return await ArseCommandLine.RunAsync(["--help"]);
 		}
 
-		var builder = Host.CreateDefaultBuilder(args.Skip(1).ToArray())
+		var builder = Host.CreateDefaultBuilder([.. args.Skip(1)])
 			.UseRazorConsole<App>(configure: configuration =>
 			{
 				configuration.ConfigureServices(services => services.AddSingleton<ApplicationRunner>());

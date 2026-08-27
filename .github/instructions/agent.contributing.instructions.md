@@ -50,6 +50,7 @@ README.md
 - **Use Primary constructors** on classes or structs. Records may keep their parameter list.
 - **No pass-through interfaces** — do not create `IFoo` unless there are (or imminently will be) ≥2 implementations or the seam is genuinely needed for testing.
 - **Feature-based folders** — new files go in the folder whose concern they belong to (`Analysis/`, `Config/`, `Diagnostics/`, `Matching/`, `Reporting/`). Do not add files to the project root unless they are top-level entry points.
+- **`GlobalUsings.cs` lives in `Properties/`** — keep global using files in a `Properties` folder instead of the project root.
 
 ## Arse tool modes
 

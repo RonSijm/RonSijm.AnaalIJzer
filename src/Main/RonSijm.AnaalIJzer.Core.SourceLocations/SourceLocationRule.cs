@@ -1,7 +1,8 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.Conditions;
+using RonSijm.AnaalIJzer.Core.Matchers;
+using RonSijm.AnaalIJzer.Core.Matchers.Conditions;
 
-namespace RonSijm.AnaalIJzer.SourceLocations;
+namespace RonSijm.AnaalIJzer.Core.SourceLocations;
 
 public readonly struct SourceLocationRule(
 	ImmutableArray<MatchCondition> conditions,

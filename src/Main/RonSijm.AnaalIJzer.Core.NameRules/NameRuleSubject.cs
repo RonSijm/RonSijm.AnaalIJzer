@@ -1,31 +1,26 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.Conditions;
+using RonSijm.AnaalIJzer.Core.Matchers;
 
-namespace RonSijm.AnaalIJzer.Engine.NameRules;
+namespace RonSijm.AnaalIJzer.Core.NameRules;
 
-public readonly struct NameRuleSubject
+public readonly struct NameRuleSubject(
+	NameRuleSubjectKind kind,
+	string displayName,
+	ImmutableArray<string> candidateNames,
+	string namespaceName,
+	ITypeSymbol? symbol)
 {
 	public NameRuleSubject(string displayName, ImmutableArray<string> candidateNames, ITypeSymbol? symbol) : this(NameRuleSubjectKind.ValueName, displayName, candidateNames, string.Empty, symbol)
 	{
 	}
 
-	public NameRuleSubject(NameRuleSubjectKind kind, string displayName, ImmutableArray<string> candidateNames, string namespaceName, ITypeSymbol? symbol)
-	{
-		Kind = kind;
-		DisplayName = displayName;
-		CandidateNames = candidateNames.IsDefaultOrEmpty ? [displayName] : candidateNames;
-		NamespaceName = namespaceName;
-		Symbol = symbol;
-		NormalizedName = NameRuleNameNormalizer.Normalize(displayName);
-	}
-
-	public NameRuleSubjectKind Kind { get; }
-	public string DisplayName { get; }
-	public ImmutableArray<string> CandidateNames { get; }
-	public string NamespaceName { get; }
-	public ITypeSymbol? Symbol { get; }
-	public string NormalizedName { get; }
+	public NameRuleSubjectKind Kind { get; } = kind;
+	public string DisplayName { get; } = displayName;
+	public ImmutableArray<string> CandidateNames { get; } = candidateNames.IsDefaultOrEmpty ? [displayName] : candidateNames;
+	public string NamespaceName { get; } = namespaceName;
+	public ITypeSymbol? Symbol { get; } = symbol;
+	public string NormalizedName { get; } = NameRuleNameNormalizer.Normalize(displayName);
 
 	public bool Matches(PatternMatcher matcher)
 	{

@@ -1,10 +1,9 @@
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.Contracts;
-using RonSijm.AnaalIJzer.Definitions;
-using RonSijm.AnaalIJzer.Engine.LayerModel;
-using RonSijm.AnaalIJzer.Inheritance;
+using RonSijm.AnaalIJzer.Core.Contracts.Contracts;
+using RonSijm.AnaalIJzer.Core.Inheritance.Policies;
+using RonSijm.AnaalIJzer.Core.LayerModel;
 
-namespace RonSijm.AnaalIJzer.Engine.DependencyRules;
+namespace RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.DependencyRules;
 
 public readonly partial struct LayerRegistry
 {
@@ -22,22 +21,22 @@ public readonly partial struct LayerRegistry
 
 		foreach (var layer in layerMatch.Layers)
 		{
-			if (catalog.NodesByPath.TryGetValue(layer.Name, out var node)
+			if (_catalog.NodesByPath.TryGetValue(layer.Name, out var node)
 			    && TryFindPolicyMatch(node.ForbiddenTypeMatchers, typeName, namespaceName, symbol, out var rule, out var suffix))
 			{
 				return CreateForbiddenViolation(rule, suffix, layerMatch.Layer.Name, $"layer '{layer.Name}'");
 			}
 		}
 
-		if (!catalog.AllowedTypeMatchers.IsDefaultOrEmpty
-		    && !MatchesAnyPolicy(catalog.AllowedTypeMatchers, typeName, namespaceName, symbol))
+		if (!_catalog.AllowedTypeMatchers.IsDefaultOrEmpty
+		    && !MatchesAnyPolicy(_catalog.AllowedTypeMatchers, typeName, namespaceName, symbol))
 		{
 			return new TypePolicyViolation("the global <Allowed> list has no matching rule", layerMatch.Layer.Name, null, null, null);
 		}
 
 		foreach (var layer in layerMatch.Layers)
 		{
-			if (catalog.NodesByPath.TryGetValue(layer.Name, out var node)
+			if (_catalog.NodesByPath.TryGetValue(layer.Name, out var node)
 			    && !node.AllowedTypeMatchers.IsDefaultOrEmpty
 			    && !MatchesAnyPolicy(node.AllowedTypeMatchers, typeName, namespaceName, symbol))
 			{
@@ -52,7 +51,7 @@ public readonly partial struct LayerRegistry
 	{
 		foreach (var layer in layerMatch.Layers)
 		{
-			if (!catalog.NodesByPath.TryGetValue(layer.Name, out var node))
+			if (!_catalog.NodesByPath.TryGetValue(layer.Name, out var node))
 			{
 				continue;
 			}
@@ -74,7 +73,7 @@ public readonly partial struct LayerRegistry
 	{
 		foreach (var layer in layerMatch.Layers)
 		{
-			if (!catalog.NodesByPath.TryGetValue(layer.Name, out var node))
+			if (!_catalog.NodesByPath.TryGetValue(layer.Name, out var node))
 			{
 				continue;
 			}

@@ -1,17 +1,15 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.Conditions;
-using RonSijm.AnaalIJzer.Definitions;
-using RonSijm.AnaalIJzer.Model;
-using RonSijm.AnaalIJzer.Engine.LayerModel;
+using RonSijm.AnaalIJzer.Core.Exceptions;
+using RonSijm.AnaalIJzer.Core.LayerModel;
 
-namespace RonSijm.AnaalIJzer.Engine.DependencyRules;
+namespace RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.DependencyRules;
 
 public readonly partial struct LayerRegistry
 {
 	private LayerMatch? FindFlatRootExact(string typeName, string namespaceName, ITypeSymbol? symbol)
 	{
-		foreach (var root in catalog.Roots)
+		foreach (var root in _catalog.Roots)
 		{
 			if (root.Children.Length > 0)
 			{
@@ -21,7 +19,7 @@ public readonly partial struct LayerRegistry
 			var exact = FindOwnMatch(root, typeName, namespaceName, symbol, exactOnly: true);
 			if (exact is { } match)
 			{
-				return CreateMatch(match.Rule, ImmutableArray.Create(root.Definition), ImmutableArray.Create(CreateMatcherMatch(match.Rule)), match.Result);
+				return CreateMatch(match.Rule, [root.Definition], [CreateMatcherMatch(match.Rule)], match.Result);
 			}
 		}
 
@@ -30,7 +28,7 @@ public readonly partial struct LayerRegistry
 
 	private LayerMatch? FindNormal(string typeName, string namespaceName, ITypeSymbol? symbol)
 	{
-		foreach (var root in catalog.Roots)
+		foreach (var root in _catalog.Roots)
 		{
 			var result = FindInNode(root, ImmutableArray<LayerDefinition>.Empty, typeName, namespaceName, symbol);
 			if (result is not null)
@@ -44,10 +42,10 @@ public readonly partial struct LayerRegistry
 
 	private LayerMatch? FindForbidden(string typeName, string namespaceName, ITypeSymbol? symbol, bool exactOnly)
 	{
-		if (exactOnly && catalog.ForbiddenTypeNames.TryGetValue(typeName, out var exact)
+		if (exactOnly && _catalog.ForbiddenTypeNames.TryGetValue(typeName, out var exact)
 		    && !IsExcepted(exact.Exceptions, typeName, namespaceName, symbol))
 		{
-			return CreateMatch(exact, ImmutableArray.Create(exact.Layer), ImmutableArray.Create(CreateMatcherMatch(exact)), null);
+			return CreateMatch(exact, [exact.Layer], [CreateMatcherMatch(exact)], null);
 		}
 
 		if (exactOnly)
@@ -55,12 +53,12 @@ public readonly partial struct LayerRegistry
 			return null;
 		}
 
-		foreach (var (matcher, rule) in catalog.ForbiddenMatchers)
+		foreach (var (matcher, rule) in _catalog.ForbiddenMatchers)
 		{
 			var result = matcher.TryMatch(typeName, namespaceName, symbol);
 			if (result is not null && !IsExcepted(rule.Exceptions, typeName, namespaceName, symbol))
 			{
-				return CreateMatch(rule, ImmutableArray.Create(rule.Layer), ImmutableArray.Create(CreateMatcherMatch(rule)), result);
+				return CreateMatch(rule, [rule.Layer], [CreateMatcherMatch(rule)], result);
 			}
 		}
 

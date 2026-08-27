@@ -1,5 +1,5 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.Graphing.Model;
+using RonSijm.AnaalIJzer.GraphModel.Model;
 
 namespace RonSijm.AnaalIJzer.Graphing.Building;
 
@@ -31,15 +31,12 @@ internal static partial class ArchitectureGraphViewModelBuilder
 
 		public int MinimumOrder { get; } = minimumOrder;
 
-		public double Height
-		{
-			get { return Bottom - Top; }
-		}
+		public double Height => Bottom - Top;
 
 		public static LayoutResult FromNode(ArchitectureGraphLayer layer, double x)
 		{
 			var node = new NodePlacement(layer, x, 0);
-			var result = new LayoutResult(ImmutableArray.Create(node), ImmutableArray<BoundaryPlacement>.Empty, x, 0, x + NodeVisualWidth, NodeVisualHeight, int.MaxValue, int.MaxValue);
+			var result = new LayoutResult([node], ImmutableArray<BoundaryPlacement>.Empty, x, 0, x + NodeVisualWidth, NodeVisualHeight, int.MaxValue, int.MaxValue);
 
 			return result;
 		}

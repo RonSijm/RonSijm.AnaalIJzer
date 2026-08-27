@@ -1,12 +1,7 @@
-using System.Collections.Immutable;
-using System.Text;
-using System.Xml;
-using System.Xml.Linq;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
 
-namespace RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
+namespace RonSijm.AnaalIJzer.Core.Configuration.Document.Persistence;
 
 public static partial class InlineAssemblyMetadataSettings
 {
@@ -57,7 +52,7 @@ public static partial class InlineAssemblyMetadataSettings
 		return result;
 	}
 
-	public static bool TryReadEditableXmlLiteral(ExpressionSyntax expression, out InlineSettingsLiteral settings, out string message)
+	private static bool TryReadEditableXmlLiteral(ExpressionSyntax expression, out InlineSettingsLiteral settings, out string message)
 	{
 		if (expression is LiteralExpressionSyntax literal)
 		{

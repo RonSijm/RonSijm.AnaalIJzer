@@ -63,7 +63,7 @@ public sealed partial class ArchitectureGraphEditorControl
 		builder[accessibilitiesAttribute] = string.Join(", ", accessibilities);
 		if (!string.IsNullOrWhiteSpace(description))
 		{
-			builder["description"] = description!.Trim();
+			builder["description"] = description.Trim();
 		}
 
 		return builder.ToImmutable();

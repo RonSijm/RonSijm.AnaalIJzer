@@ -1,36 +1,26 @@
 using Microsoft.CodeAnalysis;
 
-namespace RonSijm.AnaalIJzer.ObservedDependencies;
+namespace RonSijm.AnaalIJzer.Core.Observations;
 
-public sealed class ProjectDependencyObservation
+public sealed class ProjectDependencyObservation(
+	INamedTypeSymbol callerType,
+	string callerLayer,
+	INamedTypeSymbol dependencyType,
+	string dependencyLayer,
+	string site,
+	Location location)
 {
-	public ProjectDependencyObservation(
-		INamedTypeSymbol callerType,
-		string callerLayer,
-		INamedTypeSymbol dependencyType,
-		string dependencyLayer,
-		string site,
-		Location location)
-	{
-		CallerType = callerType;
-		CallerLayer = callerLayer;
-		DependencyType = dependencyType;
-		DependencyLayer = dependencyLayer;
-		Site = site;
-		Location = location;
-	}
+	public INamedTypeSymbol CallerType { get; } = callerType;
 
-	public INamedTypeSymbol CallerType { get; }
+	public string CallerLayer { get; } = callerLayer;
 
-	public string CallerLayer { get; }
+	public INamedTypeSymbol DependencyType { get; } = dependencyType;
 
-	public INamedTypeSymbol DependencyType { get; }
+	public string DependencyLayer { get; } = dependencyLayer;
 
-	public string DependencyLayer { get; }
+	public string Site { get; } = site;
 
-	public string Site { get; }
-
-	public Location Location { get; }
+	public Location Location { get; } = location;
 
 	public ObservedDependency ToObservedDependency(string? sourceProjectName = null)
 	{

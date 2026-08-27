@@ -1,6 +1,6 @@
 using System.Xml.Linq;
 
-namespace RonSijm.AnaalIJzer.Graphing.Loading;
+namespace RonSijm.AnaalIJzer.GraphModel.Loading;
 
 public static partial class ArchitectureGraphXmlSnapshotLoader
 {

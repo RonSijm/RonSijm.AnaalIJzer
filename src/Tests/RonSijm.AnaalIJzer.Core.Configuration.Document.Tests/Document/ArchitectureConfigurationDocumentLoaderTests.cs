@@ -4,8 +4,8 @@ using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Document;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 
 namespace RonSijm.AnaalIJzer.Core.Configuration.Document.Tests.Document;
 
@@ -21,7 +21,7 @@ public sealed class ArchitectureConfigurationDocumentLoaderTests
 		var result = ArchitectureConfigurationDocumentLoader.FindConfigurationFile(additionalFiles);
 
 		result.Should().NotBeNull();
-		result!.Path.Should().EndWith("Architecture.anl");
+		result.Path.Should().EndWith("Architecture.anl");
 	}
 
 	[Fact]
@@ -34,7 +34,7 @@ public sealed class ArchitectureConfigurationDocumentLoaderTests
 		var result = ArchitectureConfigurationDocumentLoader.FindConfigurationFile(additionalFiles);
 
 		result.Should().NotBeNull();
-		result!.Path.Should().Be(@"D:\repo\config\Architecture.anl");
+		result.Path.Should().Be(@"D:\repo\config\Architecture.anl");
 	}
 
 	[Fact]
@@ -52,7 +52,7 @@ public sealed class ArchitectureConfigurationDocumentLoaderTests
 		var result = ArchitectureConfigurationDocumentLoader.TryReadAnalyzerConfigurationText(additionalFiles, compilation, "Properties\\AnaalIJzerSettings.cs", TestContext.Current.CancellationToken);
 
 		result.Should().NotBeNull();
-		result!.Path.Should().Be("Architecture.anl");
+		result.Path.Should().Be("Architecture.anl");
 		result.Content.Should().Contain("Layer name=\"File\"");
 	}
 
@@ -107,7 +107,7 @@ public sealed class ArchitectureConfigurationDocumentLoaderTests
 
 			success.Should().BeTrue();
 			document.Should().NotBeNull();
-			document!.Root!.Name.LocalName.Should().Be("ArchitecturalLevels");
+			document.Root!.Name.LocalName.Should().Be("ArchitecturalLevels");
 			message.Should().Contain("Loaded inline architecture configuration.");
 		}
 		finally
@@ -131,13 +131,13 @@ public sealed class ArchitectureConfigurationDocumentLoaderTests
 
 	private sealed class TestAdditionalText(string path, string content) : AdditionalText
 	{
-		private readonly SourceText text = SourceText.From(content);
+		private readonly SourceText _text = SourceText.From(content);
 
 		public override string Path { get; } = path;
 
 		public override SourceText GetText(CancellationToken cancellationToken = default)
 		{
-			var result = text;
+			var result = _text;
 
 			return result;
 		}

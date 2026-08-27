@@ -6,14 +6,14 @@ public sealed partial class ArchitectureGraphLayoutState
 {
 	public Point GetLocation(string path, Point fallback)
 	{
-		var result = items.TryGetValue(path, out var item) && item.Location is not null ? item.Location.Value : fallback;
+		var result = _items.TryGetValue(path, out var item) && item.Location is not null ? item.Location.Value : fallback;
 
 		return result;
 	}
 
 	public Size GetSize(string path, Size fallback)
 	{
-		var result = items.TryGetValue(path, out var item) && item.Size is not null ? item.Size.Value : fallback;
+		var result = _items.TryGetValue(path, out var item) && item.Size is not null ? item.Size.Value : fallback;
 
 		return result;
 	}
@@ -27,7 +27,7 @@ public sealed partial class ArchitectureGraphLayoutState
 		}
 
 		item.Location = location;
-		isDirty = true;
+		_isDirty = true;
 	}
 
 	public void SetSize(string path, Size size)
@@ -39,19 +39,19 @@ public sealed partial class ArchitectureGraphLayoutState
 		}
 
 		item.Size = size;
-		isDirty = true;
+		_isDirty = true;
 	}
 
 	public double GetGroupHeight(string key, double fallback)
 	{
-		var result = groups.TryGetValue(key, out var group) && group.Height is not null ? group.Height.Value : fallback;
+		var result = _groups.TryGetValue(key, out var group) && group.Height is not null ? group.Height.Value : fallback;
 
 		return result;
 	}
 
 	public bool GetGroupIsCollapsed(string key, bool fallback)
 	{
-		var result = groups.TryGetValue(key, out var group) && group.IsCollapsed is not null ? group.IsCollapsed.Value : fallback;
+		var result = _groups.TryGetValue(key, out var group) && group.IsCollapsed is not null ? group.IsCollapsed.Value : fallback;
 
 		return result;
 	}
@@ -70,7 +70,7 @@ public sealed partial class ArchitectureGraphLayoutState
 		}
 
 		group.Height = height;
-		isDirty = true;
+		_isDirty = true;
 	}
 
 	public void SetGroupIsCollapsed(string key, bool isCollapsed)
@@ -82,31 +82,31 @@ public sealed partial class ArchitectureGraphLayoutState
 		}
 
 		group.IsCollapsed = isCollapsed;
-		isDirty = true;
+		_isDirty = true;
 	}
 
 	private GraphItemLayout GetOrCreate(string path)
 	{
-		if (items.TryGetValue(path, out var item))
+		if (_items.TryGetValue(path, out var item))
 		{
 			return item;
 		}
 
 		var result = new GraphItemLayout(path);
-		items.Add(path, result);
+		_items.Add(path, result);
 
 		return result;
 	}
 
 	private GraphGroupLayout GetOrCreateGroup(string key)
 	{
-		if (groups.TryGetValue(key, out var group))
+		if (_groups.TryGetValue(key, out var group))
 		{
 			return group;
 		}
 
 		var result = new GraphGroupLayout(key);
-		groups.Add(key, result);
+		_groups.Add(key, result);
 
 		return result;
 	}

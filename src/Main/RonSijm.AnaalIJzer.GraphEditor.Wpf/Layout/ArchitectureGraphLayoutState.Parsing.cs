@@ -14,7 +14,7 @@ public sealed partial class ArchitectureGraphLayoutState
 			return null;
 		}
 
-		var item = new GraphItemLayout(path!);
+		var item = new GraphItemLayout(path);
 		if (TryReadDouble(element, "x", out var x) && TryReadDouble(element, "y", out var y))
 		{
 			item.Location = new Point(x, y);
@@ -36,7 +36,7 @@ public sealed partial class ArchitectureGraphLayoutState
 			return null;
 		}
 
-		var group = new GraphGroupLayout(key!);
+		var group = new GraphGroupLayout(key);
 		if (TryReadDouble(element, "height", out var height) && IsUsableDimension(height))
 		{
 			group.Height = height;

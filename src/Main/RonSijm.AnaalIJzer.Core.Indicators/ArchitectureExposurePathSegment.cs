@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis.Text;
 
-namespace RonSijm.AnaalIJzer.Indicators;
+namespace RonSijm.AnaalIJzer.Core.Indicators;
 
 public sealed class ArchitectureExposurePathSegment(string displayName, string? sourcePath, TextSpan? sourceSpan)
 {

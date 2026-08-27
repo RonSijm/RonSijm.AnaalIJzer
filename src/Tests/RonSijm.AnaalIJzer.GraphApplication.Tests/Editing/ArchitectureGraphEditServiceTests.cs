@@ -1,4 +1,5 @@
 using System.Text;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 
 namespace RonSijm.AnaalIJzer.GraphApplication.Tests.Editing;
 
@@ -69,7 +70,7 @@ public sealed class ArchitectureGraphEditServiceTests
 		var result = service.SetDependencySites(
 			handle,
 			ArchitectureSiteFilterEditMode.AllowedSites,
-			ImmutableArray.Create(ArchitectureDependencySiteNames.MethodReturn, ArchitectureDependencySiteNames.New));
+            [ArchitectureDependencySiteNames.MethodReturn, ArchitectureDependencySiteNames.New]);
 
 		result.Succeeded.Should().BeTrue(result.Message);
 		File.ReadAllText(path).Should().Contain("allowedSites=\"MethodReturn, New\"");
@@ -77,12 +78,12 @@ public sealed class ArchitectureGraphEditServiceTests
 
 	private sealed class TemporaryDirectory : IDisposable
 	{
-		private readonly string path = Path.Combine(Path.GetTempPath(), "AnaalIJzerGraphEditingTests", Guid.NewGuid().ToString("N"));
+		private readonly string _path = Path.Combine(Path.GetTempPath(), "AnaalIJzerGraphEditingTests", Guid.NewGuid().ToString("N"));
 
 		public string WriteFile(string fileName, string content, Encoding? encoding = null)
 		{
-			Directory.CreateDirectory(path);
-			var filePath = Path.Combine(path, fileName);
+			Directory.CreateDirectory(_path);
+			var filePath = Path.Combine(_path, fileName);
 			File.WriteAllText(filePath, content, encoding ?? Encoding.UTF8);
 
 			return filePath;
@@ -90,17 +91,17 @@ public sealed class ArchitectureGraphEditServiceTests
 
 		public string GetPath(string fileName)
 		{
-			Directory.CreateDirectory(path);
-			var result = Path.Combine(path, fileName);
+			Directory.CreateDirectory(_path);
+			var result = Path.Combine(_path, fileName);
 
 			return result;
 		}
 
 		public void Dispose()
 		{
-			if (Directory.Exists(path))
+			if (Directory.Exists(_path))
 			{
-				Directory.Delete(path, true);
+				Directory.Delete(_path, true);
 			}
 		}
 	}

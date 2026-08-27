@@ -6,14 +6,12 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Utilities;
-using RonSijm.AnaalIJzer.Indicators;
 using RonSijm.AnaalIJzer.Core.Editor.Snapshots;
+using RonSijm.AnaalIJzer.Core.Indicators;
 using RonSijm.AnaalIJzer.VisualStudio.Diagnostics;
 using RonSijm.AnaalIJzer.VisualStudio.Options;
 using RonSijm.AnaalIJzer.VisualStudio.Editor.Snapshots;
-using RonSijm.AnaalIJzer.VisualStudio.Styling;
-
-using RonSijm.AnaalIJzer.Engine.LayerModel;
+using RonSijm.AnaalIJzer.VisualStudio.Editor.Styling;
 
 namespace RonSijm.AnaalIJzer.VisualStudio.Editor.LayerIndicators;
 
@@ -39,17 +37,17 @@ internal sealed class ArchitectureLayerBlockAdornmentProvider(ArchitectureSnapsh
 
 internal sealed class ArchitectureLayerBlockAdornmentManager : IDisposable
 {
-	private readonly IWpfTextView view;
-	private readonly ArchitectureSnapshotProvider snapshotProvider;
-	private readonly IAdornmentLayer adornmentLayer;
-	private CancellationTokenSource? refreshCancellation;
-	private ArchitectureEditorSnapshot snapshot = ArchitectureEditorSnapshot.Empty;
+	private readonly IWpfTextView _view;
+	private readonly ArchitectureSnapshotProvider _snapshotProvider;
+	private readonly IAdornmentLayer _adornmentLayer;
+	private CancellationTokenSource? _refreshCancellation;
+	private ArchitectureEditorSnapshot _snapshot = ArchitectureEditorSnapshot.Empty;
 
 	public ArchitectureLayerBlockAdornmentManager(IWpfTextView view, ArchitectureSnapshotProvider snapshotProvider)
 	{
-		this.view = view;
-		this.snapshotProvider = snapshotProvider;
-		adornmentLayer = view.GetAdornmentLayer(ArchitectureLayerBlockAdornmentProvider.LayerName);
+		this._view = view;
+		this._snapshotProvider = snapshotProvider;
+		_adornmentLayer = view.GetAdornmentLayer(ArchitectureLayerBlockAdornmentProvider.LayerName);
 		view.LayoutChanged += ViewLayoutChanged;
 		view.Closed += ViewClosed;
 		ArchitectureVisualStudioOptions.Changed += OptionsChanged;
@@ -59,11 +57,11 @@ internal sealed class ArchitectureLayerBlockAdornmentManager : IDisposable
 
 	public void Dispose()
 	{
-		refreshCancellation?.Cancel();
-		view.LayoutChanged -= ViewLayoutChanged;
-		view.Closed -= ViewClosed;
+		_refreshCancellation?.Cancel();
+		_view.LayoutChanged -= ViewLayoutChanged;
+		_view.Closed -= ViewClosed;
 		ArchitectureVisualStudioOptions.Changed -= OptionsChanged;
-		adornmentLayer.RemoveAllAdornments();
+		_adornmentLayer.RemoveAllAdornments();
 	}
 
 	private void ViewLayoutChanged(object sender, TextViewLayoutChangedEventArgs e)
@@ -89,9 +87,9 @@ internal sealed class ArchitectureLayerBlockAdornmentManager : IDisposable
 
 	private void QueueRefresh(TimeSpan delay)
 	{
-		refreshCancellation?.Cancel();
+		_refreshCancellation?.Cancel();
 		var cancellation = new CancellationTokenSource();
-		refreshCancellation = cancellation;
+		_refreshCancellation = cancellation;
 		_ = RefreshAsync(delay, cancellation.Token);
 	}
 
@@ -104,13 +102,13 @@ internal sealed class ArchitectureLayerBlockAdornmentManager : IDisposable
 				await Task.Delay(delay, cancellationToken);
 			}
 
-			var result = await snapshotProvider.CreateSnapshotAsync(view.TextBuffer, cancellationToken);
+			var result = await _snapshotProvider.CreateSnapshotAsync(_view.TextBuffer, cancellationToken);
 			if (cancellationToken.IsCancellationRequested)
 			{
 				return;
 			}
 
-			snapshot = result;
+			_snapshot = result;
 			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
 			if (!cancellationToken.IsCancellationRequested)
 			{
@@ -128,16 +126,16 @@ internal sealed class ArchitectureLayerBlockAdornmentManager : IDisposable
 
 	private void Redraw()
 	{
-		adornmentLayer.RemoveAllAdornments();
+		_adornmentLayer.RemoveAllAdornments();
 		var options = ArchitectureVisualStudioOptions.Current;
-		if (!options.EnableLayerBlockHighlight || !snapshot.HasConfiguration || snapshot.HasConfigurationIssues)
+		if (!options.EnableLayerBlockHighlight || !_snapshot.HasConfiguration || _snapshot.HasConfigurationIssues)
 		{
 			return;
 		}
 
-		foreach (var indicator in snapshot.LayerIndicators)
+		foreach (var indicator in _snapshot.LayerIndicators)
 		{
-			if (!indicator.IsInLayer || !TryCreateSnapshotSpan(view.TextSnapshot, indicator.DeclarationSpan, out var span))
+			if (!indicator.IsInLayer || !TryCreateSnapshotSpan(_view.TextSnapshot, indicator.DeclarationSpan, out var span))
 			{
 				continue;
 			}
@@ -148,7 +146,7 @@ internal sealed class ArchitectureLayerBlockAdornmentManager : IDisposable
 
 	private void AddAdornment(ArchitectureLayerIndicator indicator, SnapshotSpan span)
 	{
-		var textViewLines = view.TextViewLines.GetTextViewLinesIntersectingSpan(span).ToArray();
+		var textViewLines = _view.TextViewLines.GetTextViewLinesIntersectingSpan(span).ToArray();
 		if (textViewLines.Length == 0)
 		{
 			return;
@@ -158,7 +156,7 @@ internal sealed class ArchitectureLayerBlockAdornmentManager : IDisposable
 		var top = textViewLines.Min(line => line.Top);
 		var bottom = textViewLines.Max(line => line.Bottom);
 		var height = Math.Max(1, bottom - top);
-		var width = Math.Max(1, view.ViewportWidth);
+		var width = Math.Max(1, _view.ViewportWidth);
 		var border = new Border
 		{
 			Width = width,
@@ -170,9 +168,9 @@ internal sealed class ArchitectureLayerBlockAdornmentManager : IDisposable
 			SnapsToDevicePixels = true
 		};
 
-		Canvas.SetLeft(border, view.ViewportLeft);
+		Canvas.SetLeft(border, _view.ViewportLeft);
 		Canvas.SetTop(border, top);
-		adornmentLayer.AddAdornment(AdornmentPositioningBehavior.TextRelative, span, indicator, border, null);
+		_adornmentLayer.AddAdornment(AdornmentPositioningBehavior.TextRelative, span, indicator, border, null);
 	}
 
 	private static SolidColorBrush CreateBrush(Color color, byte alpha)

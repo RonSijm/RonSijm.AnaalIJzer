@@ -1,12 +1,6 @@
-using System.Collections.Immutable;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
-using RonSijm.AnaalIJzer;
-using AnalyzerConfiguration = RonSijm.AnaalIJzer.Model.AnalyzerConfig;
+using RonSijm.AnaalIJzer.Core.Observations;
 
 namespace RonSijm.AnaalIJzer.Application;
 
@@ -100,27 +94,24 @@ internal static partial class ApplicationConfigurationGenerator
 	}
 
 	private sealed class GeneratedLayer(string name, string description)
-    {
-        public string Name { get; } = name;
-        public string Description { get; } = description;
-        public List<string> AssemblyNames { get; } = [];
-        public List<string> NamespacePrefixes { get; } = [];
+	{
+		public string Name { get; } = name;
+		public string Description { get; } = description;
+		public List<string> AssemblyNames { get; } = [];
+		public List<string> NamespacePrefixes { get; } = [];
 		public List<INamedTypeSymbol> ExactTypes { get; } = [];
 		public HashSet<INamedTypeSymbol> ExceptionTypes { get; } = new(SymbolEqualityComparer.Default);
 	}
 
 	private sealed class GeneratedEdge(GeneratedLayer from, GeneratedLayer to)
-    {
-        public GeneratedLayer From { get; } = from;
-        public GeneratedLayer To { get; } = to;
-        public HashSet<string> Sites { get; } = new(StringComparer.Ordinal);
+	{
+		public GeneratedLayer From { get; } = from;
+		public GeneratedLayer To { get; } = to;
+		public HashSet<string> Sites { get; } = new(StringComparer.Ordinal);
 		public HashSet<INamedTypeSymbol> Callers { get; } = new(SymbolEqualityComparer.Default);
-		public int CallerCount
-        {
-            get { return Callers.Count; }
-        }
+		public int CallerCount => Callers.Count;
 
-        public int ActiveCallerCount { get; set; }
+		public int ActiveCallerCount { get; set; }
 		public EdgeDisposition Disposition { get; set; }
 
 		public void AddObservation(INamedTypeSymbol caller, string site)
@@ -132,16 +123,15 @@ internal static partial class ApplicationConfigurationGenerator
 
 	private enum EdgeDisposition
 	{
-		Snapshot,
 		Convention,
 		AmbiguousSnapshot
 	}
 
 	private sealed class GeneratedAdditionalText(string path, string content) : AdditionalText
-    {
+	{
 		private readonly SourceText _text = SourceText.From(content);
 
-        public override string Path { get; } = path;
+		public override string Path { get; } = path;
 
         public override SourceText GetText(CancellationToken cancellationToken = default)
 		{

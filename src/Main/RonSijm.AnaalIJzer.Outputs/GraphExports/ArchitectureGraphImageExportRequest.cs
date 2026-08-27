@@ -1,20 +1,12 @@
 namespace RonSijm.AnaalIJzer.Outputs.GraphExports;
 
-public sealed class ArchitectureGraphImageExportRequest
+public sealed class ArchitectureGraphImageExportRequest(ArchitectureGraphImageExportMode mode, string inputPath, string outputPath, bool failOnError)
 {
-	public ArchitectureGraphImageExportRequest(ArchitectureGraphImageExportMode mode, string inputPath, string outputPath, bool failOnError)
-	{
-		Mode = mode;
-		InputPath = inputPath;
-		OutputPath = outputPath;
-		FailOnError = failOnError;
-	}
+	public ArchitectureGraphImageExportMode Mode { get; } = mode;
 
-	public ArchitectureGraphImageExportMode Mode { get; }
+	public string InputPath { get; } = inputPath;
 
-	public string InputPath { get; }
+	public string OutputPath { get; } = outputPath;
 
-	public string OutputPath { get; }
-
-	public bool FailOnError { get; }
+	public bool FailOnError { get; } = failOnError;
 }

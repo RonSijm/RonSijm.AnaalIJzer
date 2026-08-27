@@ -5,16 +5,19 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
+using RonSijm.AnaalIJzer.Core.Findings;
+using RonSijm.AnaalIJzer.Engine;
 
-namespace RonSijm.AnaalIJzer.Testing;
+namespace RonSijm.AnaalIJzer.Analyzer.Tests.Testing;
 
 public static class AnalyzerTestHelper
 {
 	private static readonly MetadataReference[] BasicReferences =
-		((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)
-		.Split(Path.PathSeparator)
-		.Select(path => MetadataReference.CreateFromFile(path))
-		.ToArray<MetadataReference>();
+	[
+		..((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)
+			.Split(Path.PathSeparator)
+			.Select(path => MetadataReference.CreateFromFile(path))
+	];
 
 	public static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(string source, string? levelConfig = null)
 	{
@@ -23,7 +26,7 @@ public static class AnalyzerTestHelper
 		return result;
 	}
 
-	public static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(string source, string? levelConfig, string? configPath)
+	private static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(string source, string? levelConfig, string? configPath)
 	{
 		var result = await GetDiagnosticsAsync(source, levelConfig is null ? [] : [(configPath ?? "Architecture.anl", levelConfig)]);
 
@@ -188,13 +191,13 @@ public static class AnalyzerTestHelper
 
 	private sealed class TestAdditionalText(string path, string content) : AdditionalText
 	{
-		private readonly SourceText text = SourceText.From(content);
+		private readonly SourceText _text = SourceText.From(content);
 
 		public override string Path { get; } = path;
 
 		public override SourceText GetText(CancellationToken cancellationToken = default)
 		{
-			var result = text;
+			var result = _text;
 
 			return result;
 		}
@@ -202,19 +205,19 @@ public static class AnalyzerTestHelper
 
 	private sealed class TestAnalyzerConfigOptionsProvider(ImmutableDictionary<string, string>? globalOptions) : AnalyzerConfigOptionsProvider
 	{
-		private static readonly AnalyzerConfigOptions emptyOptions = new TestAnalyzerConfigOptions(ImmutableDictionary<string, string>.Empty);
-		private readonly AnalyzerConfigOptions globalOptions = new TestAnalyzerConfigOptions(globalOptions ?? ImmutableDictionary<string, string>.Empty);
+		private static readonly AnalyzerConfigOptions EmptyOptions = new TestAnalyzerConfigOptions(ImmutableDictionary<string, string>.Empty);
+		private readonly AnalyzerConfigOptions _globalOptions = new TestAnalyzerConfigOptions(globalOptions ?? ImmutableDictionary<string, string>.Empty);
 
-		public override AnalyzerConfigOptions GlobalOptions => globalOptions;
+		public override AnalyzerConfigOptions GlobalOptions => _globalOptions;
 
 		public override AnalyzerConfigOptions GetOptions(SyntaxTree tree)
 		{
-			return emptyOptions;
+			return EmptyOptions;
 		}
 
 		public override AnalyzerConfigOptions GetOptions(AdditionalText textFile)
 		{
-			return emptyOptions;
+			return EmptyOptions;
 		}
 	}
 

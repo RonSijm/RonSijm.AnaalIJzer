@@ -1,7 +1,8 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using RonSijm.AnaalIJzer.Core.Indicators;
 
-namespace RonSijm.AnaalIJzer.ObservedDependencies;
+namespace RonSijm.AnaalIJzer.Core.Observations;
 
 public static partial class ProjectDependencyScanner
 {
@@ -21,7 +22,7 @@ public static partial class ProjectDependencyScanner
 			{
 				switch (node)
 				{
-					case ConstructorDeclarationSyntax constructor when constructor.Parent is TypeDeclarationSyntax:
+					case ConstructorDeclarationSyntax { Parent: TypeDeclarationSyntax } constructor:
 						foreach (var parameter in constructor.ParameterList.Parameters)
 						{
 							AddParameterDependency(parameter, constructor, DependencySites.Constructor, semanticModel, resolveLayer, observations, cancellationToken);
@@ -46,7 +47,7 @@ public static partial class ProjectDependencyScanner
 							AddTypeDependency(typeDeclaration, type, site, semanticModel, resolveLayer, observations, cancellationToken);
 						}
 						break;
-					case MethodDeclarationSyntax method when method.Parent is TypeDeclarationSyntax:
+					case MethodDeclarationSyntax { Parent: TypeDeclarationSyntax } method:
 						AddTypeDependency(method, semanticModel.GetTypeInfo(method.ReturnType, cancellationToken).Type, DependencySites.MethodReturn, semanticModel, resolveLayer, observations, cancellationToken);
 						foreach (var parameter in method.ParameterList.Parameters)
 						{

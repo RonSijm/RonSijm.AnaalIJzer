@@ -1,16 +1,17 @@
-using RonSijm.AnaalIJzer.Conditions;
-using RonSijm.AnaalIJzer.Contracts;
-using RonSijm.AnaalIJzer.Definitions;
-using RonSijm.AnaalIJzer.Engine.ApiSurface;
-using RonSijm.AnaalIJzer.Engine.DependencyRules;
-using RonSijm.AnaalIJzer.Engine.EntryPoints;
-using RonSijm.AnaalIJzer.Engine.LayerModel;
-using RonSijm.AnaalIJzer.Engine.NameRules;
-using RonSijm.AnaalIJzer.Engine.Policies;
-using RonSijm.AnaalIJzer.Engine.PolicyEvaluation;
-using RonSijm.AnaalIJzer.Engine.Visibility;
-using RonSijm.AnaalIJzer.Inheritance;
-using RonSijm.AnaalIJzer.SourceLocations;
+using RonSijm.AnaalIJzer.Core.ApiSurface.Engine.Policies;
+using RonSijm.AnaalIJzer.Core.Contracts.Contracts;
+using RonSijm.AnaalIJzer.Core.DependencyRules;
+using RonSijm.AnaalIJzer.Core.EntryPoints;
+using RonSijm.AnaalIJzer.Core.Exceptions;
+using RonSijm.AnaalIJzer.Core.Inheritance.Policies;
+using RonSijm.AnaalIJzer.Core.LayerModel;
+using RonSijm.AnaalIJzer.Core.Matchers;
+using RonSijm.AnaalIJzer.Core.Matchers.Conditions;
+using RonSijm.AnaalIJzer.Core.NameRules;
+using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.DependencyRules;
+using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.PolicyEvaluation;
+using RonSijm.AnaalIJzer.Core.SourceLocations;
+using RonSijm.AnaalIJzer.Core.Visibility;
 
 namespace RonSijm.AnaalIJzer.Core.PolicyEvaluation.Tests.PolicyEvaluation;
 
@@ -23,7 +24,7 @@ public sealed class PolicyEvaluationCoreTests
 		var matcherRule = new MatcherRule(layer, ImmutableArray<ExceptionMatcher>.Empty, 1, 1, "Architecture.anl");
 		var serviceNode = new LayerNode(
 			layer,
-			ImmutableArray.Create((new PatternMatcher(MatchTarget.TypeName, MatchKind.EndsWith, "Service"), matcherRule)),
+            [(new PatternMatcher(MatchTarget.TypeName, MatchKind.EndsWith, "Service"), matcherRule)],
 			ImmutableArray<LayerNode>.Empty,
 			ImmutableArray<(PatternMatcher Matcher, MatcherRule Rule)>.Empty,
 			ImmutableArray<(PatternMatcher Matcher, MatcherRule Rule)>.Empty,
@@ -36,26 +37,27 @@ public sealed class PolicyEvaluationCoreTests
 			ImmutableArray<SourceLocationPolicy>.Empty);
 		var globalAllowedRule = new MatcherRule(LayerDefinition.Normal("AllowedType", null), ImmutableArray<ExceptionMatcher>.Empty, 2, 1, "Architecture.anl");
 		var catalog = new CompiledLayerCatalog(
-			ImmutableArray.Create(serviceNode),
+            [serviceNode],
 			ImmutableDictionary<string, LayerNode>.Empty.Add(layer.Name, serviceNode),
 			ImmutableDictionary<string, MatcherRule>.Empty,
 			ImmutableArray<(PatternMatcher Matcher, MatcherRule Rule)>.Empty,
-			ImmutableArray.Create((new PatternMatcher(MatchTarget.TypeName, MatchKind.EndsWith, "Pizza"), globalAllowedRule)));
+            [(new PatternMatcher(MatchTarget.TypeName, MatchKind.EndsWith, "Pizza"), globalAllowedRule)]);
 		var engine = new ArchitecturePolicyEngine(catalog);
 
 		var layerMatch = engine.FindLayer("OrderService", "Shop.Application");
 		var violation = engine.EvaluateTypePolicy(layerMatch!.Value, "Fork", "Shop.Tools");
 
-		layerMatch!.Value.Layer.Name.Should().Be("Service");
+		layerMatch.Value.Layer.Name.Should().Be("Service");
 		violation.Should().NotBeNull();
-		violation!.Value.Reason.Should().Contain("global <Allowed> list");
+		violation.Value.Reason.Should().Contain("global <Allowed> list");
 	}
 
 	[Fact]
 	public void DependencyGraph_EvaluateDependency_AllowsCascadingRootEdges()
 	{
 		var graph = new DependencyGraph(
-			ImmutableArray.Create(new DependencyEdge(
+        [
+            new DependencyEdge(
 				string.Empty,
 				"*",
 				"Framework",
@@ -66,7 +68,8 @@ public sealed class PolicyEvaluationCoreTests
 				DependencyRuleKind.Allowed,
 				"Architecture.anl",
 				1,
-				1)));
+				1)
+        ]);
 
 		var evaluation = graph.EvaluateDependency("Application/Contracts", "Framework", "Constructor");
 
@@ -77,7 +80,8 @@ public sealed class PolicyEvaluationCoreTests
 	public void DependencyGraph_EvaluateDependency_ReportsSiteFilterReason()
 	{
 		var graph = new DependencyGraph(
-			ImmutableArray.Create(new DependencyEdge(
+        [
+            new DependencyEdge(
 				string.Empty,
 				"*",
 				"Framework",
@@ -88,7 +92,8 @@ public sealed class PolicyEvaluationCoreTests
 				DependencyRuleKind.Allowed,
 				"Architecture.anl",
 				1,
-				1)));
+				1)
+        ]);
 
 		var evaluation = graph.EvaluateDependency("Application/Contracts", "Framework", "Method");
 

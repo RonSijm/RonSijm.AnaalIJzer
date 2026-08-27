@@ -1,5 +1,6 @@
 using System.Text;
 using AwesomeAssertions;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 using Xunit;
 
 namespace RonSijm.AnaalIJzer.ConfigurationEditing.Tests.Editing;
@@ -21,7 +22,7 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 
 		var result = ArchitectureConfigurationEditService.SetLayerDescription(handle, "People ordering food.");
 
-		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
+		result.Succeeded.Should().BeTrue(result.Message);
 		File.ReadAllText(path).Should().Contain("<Layer name=\"Customer\" description=\"People ordering food.\">");
 	}
 
@@ -43,8 +44,8 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 		var details = ArchitectureConfigurationEditService.GetLayerDetails(handle);
 		var edit = ArchitectureConfigurationEditService.SetLayerDescription(handle, "People ordering food.");
 
-		AssertionExtensions.Should((bool)details.Succeeded).BeTrue(details.Message);
-		AssertionExtensions.Should((bool)edit.Succeeded).BeTrue(edit.Message);
+		details.Succeeded.Should().BeTrue(details.Message);
+		edit.Succeeded.Should().BeTrue(edit.Message);
 		var content = File.ReadAllText(path);
 		content.Should().Contain("encoding=\"utf-8\"");
 		content.Should().Contain("description=\"People ordering food.\"");
@@ -74,14 +75,14 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 
 		var result = ArchitectureConfigurationEditService.GetLayerDetails(handle);
 
-		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
-		AssertionExtensions.Should((string)result.Name).Be("Kitchen");
-		AssertionExtensions.Should((string?)result.Description).Be("Makes food.");
-		AssertionExtensions.Should((string?)result.RequireRecognizedDependencies).Be("Constructor");
-		ImmutableArrayExtensions.Select(result.Matchers, item => item.Summary).Should().Contain("<Class endsWith=\"Kitchen\" />");
-		ImmutableArrayExtensions.Select(result.Matchers, item => item.Summary).Should().Contain("<Namespace contains=\"Restaurant.Kitchen\" />");
-		AssertionExtensions.Should((string)ImmutableArrayExtensions.Single(result.AllowedPolicies).Summary).Be("<Class typeKind=\"Class\" />");
-		AssertionExtensions.Should((string)ImmutableArrayExtensions.Single(result.ForbiddenPolicies).Summary).Be("<Class endsWith=\"Store\" />");
+		result.Succeeded.Should().BeTrue(result.Message);
+		result.Name.Should().Be("Kitchen");
+		result.Description.Should().Be("Makes food.");
+		result.RequireRecognizedDependencies.Should().Be("Constructor");
+		result.Matchers.Select(item => item.Summary).Should().Contain("<Class endsWith=\"Kitchen\" />");
+		result.Matchers.Select(item => item.Summary).Should().Contain("<Namespace contains=\"Restaurant.Kitchen\" />");
+		result.AllowedPolicies.Single().Summary.Should().Be("<Class typeKind=\"Class\" />");
+		result.ForbiddenPolicies.Single().Summary.Should().Be("<Class endsWith=\"Store\" />");
 	}
 
 	[Fact]
@@ -97,9 +98,9 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 			""");
 		var handle = new ArchitectureLayerEditHandle(ArchitectureConfigurationSourceKind.XmlFile, path, 0, "Kitchen", "Kitchen", string.Empty, null);
 
-		AssertionExtensions.Should((bool)ArchitectureConfigurationEditService.SetLayerName(handle, "Chef").Succeeded).BeTrue();
+		ArchitectureConfigurationEditService.SetLayerName(handle, "Chef").Succeeded.Should().BeTrue();
 		var renamedHandle = new ArchitectureLayerEditHandle(ArchitectureConfigurationSourceKind.XmlFile, path, 0, "Chef", "Chef", string.Empty, null);
-		AssertionExtensions.Should((bool)ArchitectureConfigurationEditService.SetLayerRequireRecognizedDependencies(renamedHandle, "Constructor, Local").Succeeded).BeTrue();
+		ArchitectureConfigurationEditService.SetLayerRequireRecognizedDependencies(renamedHandle, "Constructor, Local").Succeeded.Should().BeTrue();
 
 		var content = File.ReadAllText(path);
 		content.Should().Contain("<Layer name=\"Chef\" requireRecognizedDependencies=\"Constructor, Local\">");
@@ -118,16 +119,16 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 			""");
 		var handle = new ArchitectureLayerEditHandle(ArchitectureConfigurationSourceKind.XmlFile, path, 0, "Kitchen", "Kitchen", string.Empty, null);
 
-		AssertionExtensions.Should((bool)ArchitectureConfigurationEditService.AddLayerMatcher(handle, "Namespace", Attributes(("contains", "Restaurant.Kitchen"))).Succeeded).BeTrue();
+		ArchitectureConfigurationEditService.AddLayerMatcher(handle, "Namespace", Attributes(("contains", "Restaurant.Kitchen"))).Succeeded.Should().BeTrue();
 		var details = ArchitectureConfigurationEditService.GetLayerDetails(handle);
-		var namespaceMatcher = ImmutableArrayExtensions.Single(details.Matchers, item => item.ElementKind == "Namespace");
+		var namespaceMatcher = details.Matchers.Single(item => item.ElementKind == "Namespace");
 
-		AssertionExtensions.Should((bool)ArchitectureConfigurationEditService.SetConfigurationElementAttributes(namespaceMatcher.Handle, Attributes(("startsWith", "Restaurant.Kitchen"))).Succeeded).BeTrue();
+		ArchitectureConfigurationEditService.SetConfigurationElementAttributes(namespaceMatcher.Handle, Attributes(("startsWith", "Restaurant.Kitchen"))).Succeeded.Should().BeTrue();
 		File.ReadAllText(path).Should().Contain("<Namespace startsWith=\"Restaurant.Kitchen\" />");
 
 		var updatedDetails = ArchitectureConfigurationEditService.GetLayerDetails(handle);
-		var updatedNamespaceMatcher = ImmutableArrayExtensions.Single(updatedDetails.Matchers, item => item.ElementKind == "Namespace");
-		AssertionExtensions.Should((bool)ArchitectureConfigurationEditService.RemoveConfigurationElement(updatedNamespaceMatcher.Handle).Succeeded).BeTrue();
+		var updatedNamespaceMatcher = updatedDetails.Matchers.Single(item => item.ElementKind == "Namespace");
+		ArchitectureConfigurationEditService.RemoveConfigurationElement(updatedNamespaceMatcher.Handle).Succeeded.Should().BeTrue();
 		File.ReadAllText(path).Should().NotContain("Namespace");
 	}
 
@@ -143,7 +144,7 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 			</ArchitecturalLevels>
 			""");
 		var handle = new ArchitectureLayerEditHandle(ArchitectureConfigurationSourceKind.XmlFile, path, 0, "Kitchen", "Kitchen", string.Empty, null);
-		var matcher = ImmutableArrayExtensions.Single(ArchitectureConfigurationEditService.GetLayerDetails(handle).Matchers);
+		var matcher = ArchitectureConfigurationEditService.GetLayerDetails(handle).Matchers.Single();
 
 		var result = ArchitectureConfigurationEditService.SetConfigurationElementChildren(
 			matcher.Handle,
@@ -153,10 +154,10 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 			</Exceptions>
 			""");
 
-		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
+		result.Succeeded.Should().BeTrue(result.Message);
 		File.ReadAllText(path).Should().Contain("<Exceptions>");
 		File.ReadAllText(path).Should().Contain("<Class typeName=\"OutdoorKitchen\" />");
-		AssertionExtensions.Should((string)ImmutableArrayExtensions.Single(ArchitectureConfigurationEditService.GetLayerDetails(handle).Matchers).ChildXml).Contain("OutdoorKitchen");
+		ArchitectureConfigurationEditService.GetLayerDetails(handle).Matchers.Single().ChildXml.Should().Contain("OutdoorKitchen");
 	}
 
 	[Fact]
@@ -174,7 +175,7 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 
 		var result = ArchitectureConfigurationEditService.AddTypePolicyMatcher(handle, "Allowed", "Class", Attributes(("typeKind", "Class")));
 
-		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
+		result.Succeeded.Should().BeTrue(result.Message);
 		var content = File.ReadAllText(path);
 		content.Should().Contain("<Allowed>");
 		content.Should().Contain("<Class typeKind=\"Class\" />");
@@ -202,23 +203,23 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 
 		var result = ArchitectureConfigurationEditService.GetRootDetails(source);
 
-		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
-		AssertionExtensions.Should((string?)result.Description).Be("Rules");
-		AssertionExtensions.Should((string?)result.RequireRecognizedDependencies).Be("Constructor");
-		AssertionExtensions.Should((bool)result.EnforceAcyclic).BeTrue();
-		AssertionExtensions.Should((bool)result.EnableReport).BeTrue();
-		AssertionExtensions.Should((string?)result.ReportPath).Be("reports/violations.md");
-		AssertionExtensions.Should((bool)result.EnableDocumentation).BeTrue();
-		AssertionExtensions.Should((string?)result.DocumentationPath).Be("docs/architecture.md");
-		AssertionExtensions.Should((bool)result.EnableExceptionPolicy).BeTrue();
-		AssertionExtensions.Should((bool)result.RequireExceptionReason).BeTrue();
-		AssertionExtensions.Should((bool)result.RequireExceptionOwner).BeTrue();
-		AssertionExtensions.Should((bool)result.RequireExceptionExpiresOn).BeTrue();
-		AssertionExtensions.Should((int)result.ExceptionWarnBeforeDays).Be(21);
-		AssertionExtensions.Should((string?)result.ExceptionPolicyDescription).Be("Every exception must expire.");
-		AssertionExtensions.Should((string)ImmutableArrayExtensions.Single(result.Includes).Summary).Be("<Include path=\"Shared.anl\" />");
-		AssertionExtensions.Should((string)ImmutableArrayExtensions.Single(result.AllowedPolicies).Summary).Be("<Class typeKind=\"Class\" />");
-		AssertionExtensions.Should((string)ImmutableArrayExtensions.Single(result.ForbiddenPolicies).Summary).Be("<Namespace contains=\"Legacy\" />");
+		result.Succeeded.Should().BeTrue(result.Message);
+		result.Description.Should().Be("Rules");
+		result.RequireRecognizedDependencies.Should().Be("Constructor");
+		result.EnforceAcyclic.Should().BeTrue();
+		result.EnableReport.Should().BeTrue();
+		result.ReportPath.Should().Be("reports/violations.md");
+		result.EnableDocumentation.Should().BeTrue();
+		result.DocumentationPath.Should().Be("docs/architecture.md");
+		result.EnableExceptionPolicy.Should().BeTrue();
+		result.RequireExceptionReason.Should().BeTrue();
+		result.RequireExceptionOwner.Should().BeTrue();
+		result.RequireExceptionExpiresOn.Should().BeTrue();
+		result.ExceptionWarnBeforeDays.Should().Be(21);
+		result.ExceptionPolicyDescription.Should().Be("Every exception must expire.");
+		result.Includes.Single().Summary.Should().Be("<Include path=\"Shared.anl\" />");
+		result.AllowedPolicies.Single().Summary.Should().Be("<Class typeKind=\"Class\" />");
+		result.ForbiddenPolicies.Single().Summary.Should().Be("<Namespace contains=\"Legacy\" />");
 	}
 
 	[Fact]
@@ -251,7 +252,7 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 			"Temporary exceptions need ownership.");
 
 		var content = File.ReadAllText(path);
-		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
+		result.Succeeded.Should().BeTrue(result.Message);
 		content.Should().Contain("description=\"Restaurant rules\"");
 		content.Should().Contain("requireRecognizedDependencies=\"Constructor, Local\"");
 		content.Should().Contain("enforceAcyclic=\"true\"");
@@ -297,7 +298,7 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 			null);
 
 		var content = File.ReadAllText(path);
-		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
+		result.Succeeded.Should().BeTrue(result.Message);
 		content.Should().NotContain("ExceptionPolicy");
 	}
 
@@ -314,8 +315,8 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 			""");
 		var source = new ArchitectureConfigurationSource(ArchitectureConfigurationSourceKind.XmlFile, path);
 
-		AssertionExtensions.Should((bool)ArchitectureConfigurationEditService.AddInclude(source, "Shared.anl").Succeeded).BeTrue();
-		AssertionExtensions.Should((bool)ArchitectureConfigurationEditService.AddGlobalTypePolicyMatcher(source, "Forbidden", "Class", Attributes(("endsWith", "Store"))).Succeeded).BeTrue();
+		ArchitectureConfigurationEditService.AddInclude(source, "Shared.anl").Succeeded.Should().BeTrue();
+		ArchitectureConfigurationEditService.AddGlobalTypePolicyMatcher(source, "Forbidden", "Class", Attributes(("endsWith", "Store"))).Succeeded.Should().BeTrue();
 
 		var content = File.ReadAllText(path);
 		content.Should().Contain("<Include path=\"Shared.anl\" />");

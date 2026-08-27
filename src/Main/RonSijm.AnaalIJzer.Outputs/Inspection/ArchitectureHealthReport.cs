@@ -1,20 +1,13 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.Findings;
+using RonSijm.AnaalIJzer.Core.Findings;
 
 namespace RonSijm.AnaalIJzer.Outputs.Inspection;
 
-internal sealed class ArchitectureHealthReport
+internal sealed class ArchitectureHealthReport(string markdown, int findingCount, ImmutableArray<ArchitectureFinding> findings)
 {
-	public ArchitectureHealthReport(string markdown, int findingCount, ImmutableArray<ArchitectureFinding> findings)
-	{
-		Markdown = markdown;
-		FindingCount = findingCount;
-		Findings = findings;
-	}
+	public string Markdown { get; } = markdown;
 
-	public string Markdown { get; }
+	public int FindingCount { get; } = findingCount;
 
-	public int FindingCount { get; }
-
-	public ImmutableArray<ArchitectureFinding> Findings { get; }
+	public ImmutableArray<ArchitectureFinding> Findings { get; } = findings;
 }

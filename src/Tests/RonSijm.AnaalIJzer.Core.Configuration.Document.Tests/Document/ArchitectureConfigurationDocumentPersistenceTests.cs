@@ -1,23 +1,22 @@
 using System.Xml.Linq;
-using AwesomeAssertions;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Document;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 
 namespace RonSijm.AnaalIJzer.Core.Configuration.Document.Tests.Document;
 
 public sealed class ArchitectureConfigurationDocumentPersistenceTests : IDisposable
 {
-	private readonly string tempDirectory = Path.Combine(Path.GetTempPath(), "AnaalIJzer-CoreConfigDocTests", Guid.NewGuid().ToString("N"));
+	private readonly string _tempDirectory = Path.Combine(Path.GetTempPath(), "AnaalIJzer-CoreConfigDocTests", Guid.NewGuid().ToString("N"));
 
 	public ArchitectureConfigurationDocumentPersistenceTests()
 	{
-		Directory.CreateDirectory(tempDirectory);
+		Directory.CreateDirectory(_tempDirectory);
 	}
 
 	[Fact]
 	public void CreateXmlFile_CreatesArchitectureDocument()
 	{
-		var path = Path.Combine(tempDirectory, "Architecture.anl");
+		var path = Path.Combine(_tempDirectory, "Architecture.anl");
 
 		var result = ArchitectureConfigurationDocumentPersistence.CreateXmlFile(path);
 
@@ -31,7 +30,7 @@ public sealed class ArchitectureConfigurationDocumentPersistenceTests : IDisposa
 	[Fact]
 	public void ReadConfiguration_ReadsInlineAssemblyMetadataDocument()
 	{
-		var path = Path.Combine(tempDirectory, "AnaalIJzerSettings.cs");
+		var path = Path.Combine(_tempDirectory, "AnaalIJzerSettings.cs");
 		File.WriteAllText(
 			path,
 			""""
@@ -50,13 +49,13 @@ public sealed class ArchitectureConfigurationDocumentPersistenceTests : IDisposa
 
 		result.Succeeded.Should().BeTrue();
 		document.Should().NotBeNull();
-		document!.Root?.Element("Layer")?.Attribute("name")?.Value.Should().Be("Chef");
+		document.Root?.Element("Layer")?.Attribute("name")?.Value.Should().Be("Chef");
 	}
 
 	[Fact]
 	public void EditConfiguration_InlineAssemblyMetadata_PreservesNameofInterpolation()
 	{
-		var path = Path.Combine(tempDirectory, "AnaalIJzerSettings.cs");
+		var path = Path.Combine(_tempDirectory, "AnaalIJzerSettings.cs");
 		File.WriteAllText(
 			path,
 			""""
@@ -87,11 +86,11 @@ public sealed class ArchitectureConfigurationDocumentPersistenceTests : IDisposa
 
 	public void Dispose()
 	{
-		if (!Directory.Exists(tempDirectory))
+		if (!Directory.Exists(_tempDirectory))
 		{
 			return;
 		}
 
-		Directory.Delete(tempDirectory, recursive: true);
+		Directory.Delete(_tempDirectory, recursive: true);
 	}
 }

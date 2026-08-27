@@ -1,5 +1,5 @@
-using RonSijm.AnaalIJzer.Indicators;
-using RonSijm.AnaalIJzer.Engine.LayerModel;
+using RonSijm.AnaalIJzer.Core.Findings;
+using RonSijm.AnaalIJzer.Core.Indicators;
 
 namespace RonSijm.AnaalIJzer.EditorRuntime.Tests.Editor.Snapshots;
 public sealed partial class EditorSnapshotTests

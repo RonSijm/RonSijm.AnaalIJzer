@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer.SourceLocations;
+namespace RonSijm.AnaalIJzer.Core.SourceLocations;
 
 public readonly struct SourceLocationEvaluation(
 	SourceLocationPolicy policy,

@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 using RonSijm.AnaalIJzer.Core.Editor.Snapshots;
-using RonSijm.AnaalIJzer.EditorRuntime.Snapshots;
+using RonSijm.AnaalIJzer.EditorRuntime.Editor.Snapshots;
 
 namespace RonSijm.AnaalIJzer.EditorRuntime.Tests.Editor.Snapshots;
 public sealed partial class EditorSnapshotTests

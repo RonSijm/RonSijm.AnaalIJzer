@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer.Engine.Visibility;
+namespace RonSijm.AnaalIJzer.Core.Visibility;
 
 public enum VisibilityPolicyTarget
 {

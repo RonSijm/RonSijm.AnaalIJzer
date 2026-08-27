@@ -2,25 +2,17 @@ using System.Collections.Immutable;
 
 namespace RonSijm.AnaalIJzer.Outputs.GraphExports;
 
-public sealed class ArchitectureGraphImageExportResult
+public sealed class ArchitectureGraphImageExportResult(
+	int exitCode,
+	int successCount,
+	int placeholderCount,
+	ImmutableArray<ArchitectureGraphImageExportFileResult> files)
 {
-	public ArchitectureGraphImageExportResult(
-		int exitCode,
-		int successCount,
-		int placeholderCount,
-		ImmutableArray<ArchitectureGraphImageExportFileResult> files)
-	{
-		ExitCode = exitCode;
-		SuccessCount = successCount;
-		PlaceholderCount = placeholderCount;
-		Files = files.IsDefault ? ImmutableArray<ArchitectureGraphImageExportFileResult>.Empty : files;
-	}
+	public int ExitCode { get; } = exitCode;
 
-	public int ExitCode { get; }
+	public int SuccessCount { get; } = successCount;
 
-	public int SuccessCount { get; }
+	public int PlaceholderCount { get; } = placeholderCount;
 
-	public int PlaceholderCount { get; }
-
-	public ImmutableArray<ArchitectureGraphImageExportFileResult> Files { get; }
+	public ImmutableArray<ArchitectureGraphImageExportFileResult> Files { get; } = files.IsDefault ? ImmutableArray<ArchitectureGraphImageExportFileResult>.Empty : files;
 }

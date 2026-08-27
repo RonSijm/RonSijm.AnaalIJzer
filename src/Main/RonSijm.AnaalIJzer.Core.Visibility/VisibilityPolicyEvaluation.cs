@@ -1,6 +1,4 @@
-using RonSijm.AnaalIJzer.SymbolFacts;
-
-namespace RonSijm.AnaalIJzer.Engine.Visibility;
+namespace RonSijm.AnaalIJzer.Core.Visibility;
 
 public readonly struct VisibilityPolicyEvaluation(
 	VisibilityPolicy policy,

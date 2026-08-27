@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer;
+namespace RonSijm.AnaalIJzer.Core.Findings;
 
 public static class ArchitecturalDiagnosticIds
 {

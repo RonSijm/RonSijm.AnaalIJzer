@@ -1,9 +1,9 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using RonSijm.AnaalIJzer.Symbols;
+using RonSijm.AnaalIJzer.Core.Matchers.Symbols;
 
-namespace RonSijm.AnaalIJzer.Contracts;
+namespace RonSijm.AnaalIJzer.Core.Contracts.Contracts;
 
 public static class ContractDeclarationShapeFactory
 {

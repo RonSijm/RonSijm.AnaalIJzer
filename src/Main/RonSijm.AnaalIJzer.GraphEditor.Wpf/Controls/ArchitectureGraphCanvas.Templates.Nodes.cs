@@ -135,7 +135,7 @@ internal sealed partial class ArchitectureGraphCanvas
 		factory.SetBinding(headerProperty, new Binding(prefix + nameof(NodifyGraphConnectorViewModel.Title)));
 		factory.SetBinding(Connector.AnchorProperty, new Binding(prefix + nameof(NodifyGraphConnectorViewModel.Anchor)) { Mode = BindingMode.OneWayToSource });
 		factory.SetValue(Connector.IsConnectedProperty, true);
-		factory.SetValue(Control.ForegroundProperty, theme.Foreground);
+		factory.SetValue(Control.ForegroundProperty, _theme.Foreground);
 		factory.SetBinding(FrameworkElement.ToolTipProperty, new Binding(prefix + nameof(NodifyGraphConnectorViewModel.ToolTip)));
 
 		return factory;

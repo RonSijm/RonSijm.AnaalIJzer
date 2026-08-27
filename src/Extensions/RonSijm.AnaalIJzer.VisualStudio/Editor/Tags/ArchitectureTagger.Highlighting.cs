@@ -1,8 +1,8 @@
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Tagging;
 using RonSijm.AnaalIJzer.VisualStudio.Editor.LayerIndicators;
+using RonSijm.AnaalIJzer.VisualStudio.Editor.Styling;
 using RonSijm.AnaalIJzer.VisualStudio.Options;
-using RonSijm.AnaalIJzer.VisualStudio.Styling;
 
 namespace RonSijm.AnaalIJzer.VisualStudio.Editor.Tags;
 
@@ -10,12 +10,12 @@ internal sealed partial class ArchitectureTagger
 {
 	IEnumerable<ITagSpan<TextMarkerTag>> ITagger<TextMarkerTag>.GetTags(NormalizedSnapshotSpanCollection spans)
 	{
-		if (spans.Count == 0 || !ArchitectureVisualStudioOptions.Current.EnableLayerTextBackgroundTint || !snapshot.HasConfiguration || snapshot.HasConfigurationIssues)
+		if (spans.Count == 0 || !ArchitectureVisualStudioOptions.Current.EnableLayerTextBackgroundTint || !_snapshot.HasConfiguration || _snapshot.HasConfigurationIssues)
 		{
 			yield break;
 		}
 
-		foreach (var indicator in snapshot.LayerIndicators)
+		foreach (var indicator in _snapshot.LayerIndicators)
 		{
 			if (!indicator.IsInLayer)
 			{
@@ -31,12 +31,12 @@ internal sealed partial class ArchitectureTagger
 
 	IEnumerable<ITagSpan<ArchitectureLayerGlyphTag>> ITagger<ArchitectureLayerGlyphTag>.GetTags(NormalizedSnapshotSpanCollection spans)
 	{
-		if (spans.Count == 0 || !ArchitectureVisualStudioOptions.Current.EnableLayerGlyphs || !snapshot.HasConfiguration || snapshot.HasConfigurationIssues)
+		if (spans.Count == 0 || !ArchitectureVisualStudioOptions.Current.EnableLayerGlyphs || !_snapshot.HasConfiguration || _snapshot.HasConfigurationIssues)
 		{
 			yield break;
 		}
 
-		foreach (var indicator in snapshot.LayerIndicators)
+		foreach (var indicator in _snapshot.LayerIndicators)
 		{
 			if (!indicator.IsInLayer)
 			{

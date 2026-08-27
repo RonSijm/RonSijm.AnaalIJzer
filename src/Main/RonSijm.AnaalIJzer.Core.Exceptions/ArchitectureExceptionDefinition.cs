@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.Conditions;
+using RonSijm.AnaalIJzer.Core.Matchers;
 
-namespace RonSijm.AnaalIJzer.Exceptions;
+namespace RonSijm.AnaalIJzer.Core.Exceptions;
 
 public sealed class ArchitectureExceptionDefinition(
 	string matcherKind,

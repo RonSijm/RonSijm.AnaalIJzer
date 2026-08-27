@@ -2,7 +2,7 @@ using System.Diagnostics;
 using Microsoft.Build.Execution;
 using Microsoft.Build.Locator;
 
-namespace RonSijm.AnaalIJzer.Workspace;
+namespace RonSijm.AnaalIJzer.Workspace.Analysis;
 
 internal sealed partial class ProjectAnalysisHost
 {

@@ -57,7 +57,7 @@ internal sealed partial class ArchitectureSnapshotProvider
 	{
 		public override string Path { get; } = path;
 
-		public override SourceText? GetText(CancellationToken cancellationToken = default)
+		public override SourceText GetText(CancellationToken cancellationToken = default)
 		{
 			var result = SourceText.From(File.ReadAllText(Path), Encoding.UTF8);
 

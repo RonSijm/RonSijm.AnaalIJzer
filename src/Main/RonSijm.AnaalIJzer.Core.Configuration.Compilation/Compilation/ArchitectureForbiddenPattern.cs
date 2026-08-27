@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer.Config.Compilation;
+namespace RonSijm.AnaalIJzer.Core.Configuration.Compilation.Compilation;
 
 internal readonly struct ArchitectureForbiddenPattern
 {

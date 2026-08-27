@@ -645,15 +645,92 @@
 
   <!-- ── Class matching ────────────────────────────────────────────────── -->
 
+  <xs:complexType name="DeclarationMatcherType">
+    <xs:annotation>
+      <xs:documentation>
+        Matches a declaration owned by the surrounding Class matcher. Textual matcher
+        attributes (exactName, startsWith, endsWith, contains, regex) apply to the
+        declaration name itself. Semantic type matcher attributes (typeName,
+        exactFullName, inherits, implements, typeKind) apply to the declaration's
+        associated type, such as a property's type or a method's return type.
+        withAttribute and withAccessModifier apply to the declaration symbol itself.
+        Each declaration matcher must be satisfied by at least one declaration of that
+        kind, and all sibling declaration matcher elements under one Class are
+        conjunctive. Declaration matchers may also contain nested code-observation
+        matchers such as Throw, Invocation, New, Identifier, MemberAccess, or Literal.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="Throw" type="CodeObservationMatcherType" />
+        <xs:element name="Invocation" type="CodeObservationMatcherType" />
+        <xs:element name="New" type="CodeObservationMatcherType" />
+        <xs:element name="Identifier" type="CodeObservationMatcherType" />
+        <xs:element name="MemberAccess" type="CodeObservationMatcherType" />
+        <xs:element name="Literal" type="CodeObservationMatcherType" />
+      </xs:choice>
+    </xs:sequence>
+    <xs:attributeGroup ref="MatchAttributes" />
+    <xs:attribute name="typeName" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          Exact simple-name match against the declaration's associated type.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="typeKind" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          Optional case-insensitive associated-type constraint. Supported values: Class,
+          Interface, Struct, Record, RecordStruct, Enum, Delegate.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="CodeObservationMatcherType">
+    <xs:annotation>
+      <xs:documentation>
+        Matches a code observation inside the surrounding declaration matcher. No
+        attributes means the observation only needs to exist, such as any Throw. Name
+        matchers apply to the observed token or member name. typeName and exactFullName
+        apply only when the observation exposes an obvious type name, such as Throw new
+        SomeException() or New SomeType().
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attributeGroup ref="MatchAttributes" />
+    <xs:attribute name="typeName" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          Exact simple-name match against an associated observed type when one is
+          available.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
   <xs:complexType name="ClassMatchType">
     <xs:annotation>
       <xs:documentation>
         Matches types by one or more conjunctive name, fully-qualified name, base type,
         implemented interface, decorating attribute, declaration modifier, or declared-kind
-        conditions. See MatchAttributes for the full list.
+        conditions. Optional declaration matcher children let one Class matcher require
+        specific owned declarations such as Property, Field, Method, or NestedType.
+        See MatchAttributes for the full list.
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="Type" type="DeclarationMatcherType" />
+        <xs:element name="NestedType" type="DeclarationMatcherType" />
+        <xs:element name="Constructor" type="DeclarationMatcherType" />
+        <xs:element name="Method" type="DeclarationMatcherType" />
+        <xs:element name="Property" type="DeclarationMatcherType" />
+        <xs:element name="Field" type="DeclarationMatcherType" />
+        <xs:element name="Event" type="DeclarationMatcherType" />
+        <xs:element name="Operator" type="DeclarationMatcherType" />
+        <xs:element name="Conversion" type="DeclarationMatcherType" />
+      </xs:choice>
       <xs:element name="Exceptions" type="ExceptionsType" minOccurs="0" maxOccurs="1" />
     </xs:sequence>
     <xs:attributeGroup ref="MatchAttributes" />
@@ -681,6 +758,7 @@
       <xs:documentation>
         A forbidden type pattern. Any type matching the rule will trigger ARCH003.
         Add a Fix child element to offer an automatic rename quick-fix in Visual Studio.
+        Declaration matcher children work the same way as on a normal Class matcher.
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>
@@ -694,6 +772,17 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="Type" type="DeclarationMatcherType" />
+        <xs:element name="NestedType" type="DeclarationMatcherType" />
+        <xs:element name="Constructor" type="DeclarationMatcherType" />
+        <xs:element name="Method" type="DeclarationMatcherType" />
+        <xs:element name="Property" type="DeclarationMatcherType" />
+        <xs:element name="Field" type="DeclarationMatcherType" />
+        <xs:element name="Event" type="DeclarationMatcherType" />
+        <xs:element name="Operator" type="DeclarationMatcherType" />
+        <xs:element name="Conversion" type="DeclarationMatcherType" />
+      </xs:choice>
       <xs:element name="Exceptions" type="ExceptionsType" minOccurs="0" maxOccurs="1" />
     </xs:sequence>
     <xs:attributeGroup ref="MatchAttributes" />

@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 
-namespace RonSijm.AnaalIJzer.ProjectArchitecture;
+namespace RonSijm.AnaalIJzer.Core.ProjectArchitecture;
 
 public readonly struct ProjectArchitectureConfig(
 	ImmutableArray<ProjectGroup> projectGroups,

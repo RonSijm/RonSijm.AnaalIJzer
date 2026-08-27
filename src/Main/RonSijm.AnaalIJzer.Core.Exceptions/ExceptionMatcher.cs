@@ -1,9 +1,7 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.Conditions;
-using RonSijm.AnaalIJzer.Exceptions;
 
-namespace RonSijm.AnaalIJzer.Definitions;
+namespace RonSijm.AnaalIJzer.Core.Exceptions;
 
 /// <summary>
 ///     A matcher inside an <c>&lt;Exceptions&gt;</c> tree. Matching depth determines whether the

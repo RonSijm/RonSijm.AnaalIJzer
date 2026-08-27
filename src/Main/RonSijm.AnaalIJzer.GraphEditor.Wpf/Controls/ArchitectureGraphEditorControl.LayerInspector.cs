@@ -2,9 +2,8 @@ using System.Collections.Immutable;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
-using RonSijm.AnaalIJzer.Graphing.Model;
 using RonSijm.AnaalIJzer.GraphApplication.Selection;
+using RonSijm.AnaalIJzer.GraphModel.Model;
 
 namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
 
@@ -14,7 +13,7 @@ public sealed partial class ArchitectureGraphEditorControl
 	{
 		var handle = selection.LayerHandle;
 		var panel = CreateInspectorShell(selection);
-		var details = editService.GetLayerDetails(handle);
+		var details = _editService.GetLayerDetails(handle);
 		if (!details.Succeeded)
 		{
 			panel.Children.Add(new TextBlock { Text = details.Message, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 0), Foreground = Brushes.IndianRed });
@@ -27,21 +26,24 @@ public sealed partial class ArchitectureGraphEditorControl
 		panel.Children.Add(CreateSectionTitle("Name"));
 		var name = new TextBox { Text = details.Name, IsEnabled = handle.CanEdit };
 		panel.Children.Add(name);
-		AutoSaveOnLostFocus(name, () => editService.SetLayerName(handle, name.Text), handle.CanEdit, true);
+		AutoSaveOnLostFocus(name, () => _editService.SetLayerName(handle, name.Text), handle.CanEdit, true);
 		AddLayerStructureEditor(panel, handle);
 		var description = CreateDescriptionBox(details.Description, handle.CanEdit);
 		panel.Children.Add(CreateSectionTitle("Description"));
 		panel.Children.Add(description);
-		AutoSaveOnLostFocus(description, () => editService.SetLayerDescription(handle, description.Text), handle.CanEdit);
+		AutoSaveOnLostFocus(description, () => _editService.SetLayerDescription(handle, description.Text), handle.CanEdit);
 		panel.Children.Add(CreateSectionTitle("Recognized dependencies"));
 		var requiredSites = new TextBox { Text = details.RequireRecognizedDependencies ?? string.Empty, TextWrapping = TextWrapping.Wrap, IsEnabled = handle.CanEdit };
 		panel.Children.Add(requiredSites);
-		AutoSaveOnLostFocus(requiredSites, () => editService.SetLayerRequireRecognizedDependencies(handle, requiredSites.Text), handle.CanEdit);
+		AutoSaveOnLostFocus(requiredSites, () => _editService.SetLayerRequireRecognizedDependencies(handle, requiredSites.Text), handle.CanEdit);
 		AddReadOnlyConfigurationElementEditors(panel, "Exception matchers", details.ExceptionMatchers);
 		AddExceptionReviewSection(panel, handle.LayerPath);
-		AddConfigurationElementEditors(panel, "Layer matchers", details.Matchers, handle, "LayerMatcher", ImmutableArray.Create("Class", "Namespace", "Assembly"));
-		AddConfigurationElementEditors(panel, "Allowed type policy", details.AllowedPolicies, handle, "Allowed", ImmutableArray.Create("Class", "Namespace"));
-		AddConfigurationElementEditors(panel, "Forbidden type policy", details.ForbiddenPolicies, handle, "Forbidden", ImmutableArray.Create("Class", "Namespace"));
+		AddConfigurationElementEditors(panel, "Layer matchers", details.Matchers, handle, "LayerMatcher", ["Class", "Namespace", "Assembly"
+        ]);
+		AddConfigurationElementEditors(panel, "Allowed type policy", details.AllowedPolicies, handle, "Allowed",
+            ["Class", "Namespace"]);
+		AddConfigurationElementEditors(panel, "Forbidden type policy", details.ForbiddenPolicies, handle, "Forbidden",
+            ["Class", "Namespace"]);
 		AddNameRuleEditors(panel, details.NameRules, handle);
 		AddInheritancePolicyEditors(panel, details.InheritancePolicies, handle);
 		AddVisibilityPolicyEditors(panel, details.VisibilityPolicies, handle);
@@ -52,22 +54,22 @@ public sealed partial class ArchitectureGraphEditorControl
 
 	private void AddLayerCodeEvidence(StackPanel panel, string layerPath)
 	{
-		if (!snapshot.Evidence.HasEvidence || string.IsNullOrWhiteSpace(layerPath))
+		if (!_snapshot.Evidence.HasEvidence || string.IsNullOrWhiteSpace(layerPath))
 		{
 			return;
 		}
 
-		var types = snapshot.Evidence.Types
+		var types = _snapshot.Evidence.Types
 			.Where(type => LayerEvidenceMatches(type.LayerPath, layerPath))
 			.OrderBy(type => type.FullTypeName, StringComparer.Ordinal)
 			.ToImmutableArray();
-		var outgoing = snapshot.Evidence.Dependencies
+		var outgoing = _snapshot.Evidence.Dependencies
 			.Where(dependency => LayerEvidenceMatches(dependency.CallerLayerPath, layerPath))
 			.OrderByDescending(dependency => dependency.IsViolation)
 			.ThenBy(dependency => dependency.DependencyLayerPath, StringComparer.Ordinal)
 			.ThenBy(dependency => dependency.CallerTypeName, StringComparer.Ordinal)
 			.ToImmutableArray();
-		var incoming = snapshot.Evidence.Dependencies
+		var incoming = _snapshot.Evidence.Dependencies
 			.Where(dependency => LayerEvidenceMatches(dependency.DependencyLayerPath, layerPath))
 			.OrderByDescending(dependency => dependency.IsViolation)
 			.ThenBy(dependency => dependency.CallerLayerPath, StringComparer.Ordinal)
@@ -81,9 +83,9 @@ public sealed partial class ArchitectureGraphEditorControl
 		var violationCount = outgoing.Count(dependency => dependency.IsViolation) + incoming.Count(dependency => dependency.IsViolation);
 		panel.Children.Add(CreateSectionTitle("Code evidence"));
 		panel.Children.Add(CreateHintTextBlock(types.Length + " type(s), " + outgoing.Length + " outgoing observation(s), " + incoming.Length + " incoming observation(s), " + violationCount + " violation observation(s).", new Thickness(0, 2, 0, 6)));
-		AddEvidenceText(panel, "Types", types.Select(FormatTypeEvidence).Take(16).ToImmutableArray(), types.Length);
-		AddEvidenceText(panel, "Outgoing", outgoing.Select(FormatDependencyEvidence).Take(16).ToImmutableArray(), outgoing.Length);
-		AddEvidenceText(panel, "Incoming", incoming.Select(FormatDependencyEvidence).Take(16).ToImmutableArray(), incoming.Length);
+		AddEvidenceText(panel, "Types", [.. types.Select(FormatTypeEvidence).Take(16)], types.Length);
+		AddEvidenceText(panel, "Outgoing", [.. outgoing.Select(FormatDependencyEvidence).Take(16)], outgoing.Length);
+		AddEvidenceText(panel, "Incoming", [.. incoming.Select(FormatDependencyEvidence).Take(16)], incoming.Length);
 	}
 
 	private static void AddEvidenceText(StackPanel panel, string title, ImmutableArray<string> lines, int totalCount)

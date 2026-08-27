@@ -10,7 +10,7 @@ internal sealed partial class ArchitectureTagger
 {
 	IEnumerable<ITagSpan<InterLineAdornmentTag>> ITagger<InterLineAdornmentTag>.GetTags(NormalizedSnapshotSpanCollection spans)
 	{
-		if (spans.Count == 0 || !snapshot.HasConfiguration || snapshot.HasConfigurationIssues)
+		if (spans.Count == 0 || !_snapshot.HasConfiguration || _snapshot.HasConfigurationIssues)
 		{
 			yield break;
 		}
@@ -21,7 +21,7 @@ internal sealed partial class ArchitectureTagger
 			yield break;
 		}
 
-		foreach (var indicator in GetLayerBadgeIndicators(snapshot, options))
+		foreach (var indicator in GetLayerBadgeIndicators(_snapshot, options))
 		{
 			if (TryCreatePointSpan(spans[0].Snapshot, indicator.DeclarationSpan.Start, out var span))
 			{

@@ -1,4 +1,5 @@
 using AwesomeAssertions;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 using Xunit;
 
 namespace RonSijm.AnaalIJzer.ConfigurationEditing.Tests.Editing;
@@ -34,10 +35,10 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 			<Name endsWith="Id" />
 			""");
 
-		AssertionExtensions.Should((bool)edit.Succeeded).BeTrue(edit.Message);
+		edit.Succeeded.Should().BeTrue(edit.Message);
 		File.ReadAllText(path).Should().Contain("<Name endsWith=\"Id\" />");
 		var updatedRule = ArchitectureConfigurationEditService.GetLayerDetails(handle).NameRules.Should().ContainSingle().Which;
-		AssertionExtensions.Should((bool)ArchitectureConfigurationEditService.RemoveConfigurationElement(updatedRule.Handle).Succeeded).BeTrue();
+		ArchitectureConfigurationEditService.RemoveConfigurationElement(updatedRule.Handle).Succeeded.Should().BeTrue();
 		File.ReadAllText(path).Should().NotContain("NameRules");
 	}
 
@@ -64,7 +65,7 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 
 		var result = ArchitectureConfigurationEditService.AddNameRule(handle, "RequireDeclarationNameMatchesType", Attributes(("allowedSites", "Method, Property")));
 
-		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
+		result.Succeeded.Should().BeTrue(result.Message);
 		var content = File.ReadAllText(path);
 		content.Should().Contain("<RequireDeclarationNameMatchesType allowedSites=\"Method, Property\" />");
 		content.Should().Contain("{nameof(PatientController)}");

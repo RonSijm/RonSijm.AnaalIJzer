@@ -1,5 +1,6 @@
 using System.Xml;
 using System.Xml.Linq;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
 
 namespace RonSijm.AnaalIJzer.ConfigurationEditing.Document;
 
@@ -183,39 +184,22 @@ public static partial class ArchitectureConfigurationFileService
 		return result;
 	}
 
-	private sealed class ConfigurationDocument
+	private sealed class ConfigurationDocument(XElement root, string path)
 	{
-		public ConfigurationDocument(XElement root, string path)
-		{
-			Root = root;
-			Path = path;
-		}
+		public XElement Root { get; } = root;
 
-		public XElement Root { get; }
-
-		public string Path { get; }
+		public string Path { get; } = path;
 	}
 
-	private sealed class ConfigurationElement
+	private sealed class ConfigurationElement(XElement element)
 	{
-		public ConfigurationElement(XElement element)
-		{
-			Element = element;
-		}
-
-		public XElement Element { get; }
+		public XElement Element { get; } = element;
 	}
 
-	private sealed class FlattenedConfiguration
+	private sealed class FlattenedConfiguration(IReadOnlyList<ConfigurationDocument> documents, IReadOnlyList<ConfigurationElement> elements)
 	{
-		public FlattenedConfiguration(IReadOnlyList<ConfigurationDocument> documents, IReadOnlyList<ConfigurationElement> elements)
-		{
-			Documents = documents;
-			Elements = elements;
-		}
+		public IReadOnlyList<ConfigurationDocument> Documents { get; } = documents;
 
-		public IReadOnlyList<ConfigurationDocument> Documents { get; }
-
-		public IReadOnlyList<ConfigurationElement> Elements { get; }
+		public IReadOnlyList<ConfigurationElement> Elements { get; } = elements;
 	}
 }

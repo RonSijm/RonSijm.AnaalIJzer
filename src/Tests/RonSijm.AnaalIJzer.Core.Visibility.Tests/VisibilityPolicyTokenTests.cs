@@ -1,6 +1,3 @@
-using RonSijm.AnaalIJzer.Engine.Visibility;
-using RonSijm.AnaalIJzer.SymbolFacts;
-
 namespace RonSijm.AnaalIJzer.Core.Visibility.Tests;
 
 public sealed class VisibilityPolicyTokenTests

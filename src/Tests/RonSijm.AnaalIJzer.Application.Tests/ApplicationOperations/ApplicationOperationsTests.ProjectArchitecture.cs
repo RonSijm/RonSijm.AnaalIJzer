@@ -1,13 +1,14 @@
 using Microsoft.Build.Locator;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.MSBuild;
+using RonSijm.AnaalIJzer.Core.Findings;
+using RonSijm.AnaalIJzer.Engine;
 
 namespace RonSijm.AnaalIJzer.Application.Tests.ApplicationOperations;
 
 public sealed partial class ApplicationOperationsTests
 {
-	private static readonly object MsBuildRegistrationLock = new();
+	private static readonly Lock MsBuildRegistrationLock = new();
 
 	[Fact]
 	public async Task MsBuildWorkspace_GeneratesProjectReferenceManifest_ForProjectArchitecture()

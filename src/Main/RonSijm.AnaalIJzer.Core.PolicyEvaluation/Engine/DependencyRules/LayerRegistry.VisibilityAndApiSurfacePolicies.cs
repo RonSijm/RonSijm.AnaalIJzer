@@ -1,12 +1,10 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.Engine.ApiSurface;
-using RonSijm.AnaalIJzer.Definitions;
-using RonSijm.AnaalIJzer.SourceLocations;
-using RonSijm.AnaalIJzer.SymbolFacts;
-using RonSijm.AnaalIJzer.Engine.Visibility;
-using RonSijm.AnaalIJzer.Engine.LayerModel;
+using RonSijm.AnaalIJzer.Core.ApiSurface.Engine.Policies;
+using RonSijm.AnaalIJzer.Core.LayerModel;
+using RonSijm.AnaalIJzer.Core.SourceLocations;
+using RonSijm.AnaalIJzer.Core.Visibility;
 
-namespace RonSijm.AnaalIJzer.Engine.DependencyRules;
+namespace RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.DependencyRules;
 
 public readonly partial struct LayerRegistry
 {
@@ -14,7 +12,7 @@ public readonly partial struct LayerRegistry
 	{
 		foreach (var layer in layerMatch.Layers)
 		{
-			if (!catalog.NodesByPath.TryGetValue(layer.Name, out var node))
+			if (!_catalog.NodesByPath.TryGetValue(layer.Name, out var node))
 			{
 				continue;
 			}
@@ -37,7 +35,7 @@ public readonly partial struct LayerRegistry
 		var exposedLayer = CreateApiSurfaceLayerSelection(exposedLayerMatch);
 		foreach (var layer in callerLayerMatch.Layers)
 		{
-			if (!catalog.NodesByPath.TryGetValue(layer.Name, out var node))
+			if (!_catalog.NodesByPath.TryGetValue(layer.Name, out var node))
 			{
 				continue;
 			}
@@ -74,7 +72,7 @@ public readonly partial struct LayerRegistry
 		var maxDepth = 0;
 		foreach (var layer in callerLayerMatch.Layers)
 		{
-			if (!catalog.NodesByPath.TryGetValue(layer.Name, out var node))
+			if (!_catalog.NodesByPath.TryGetValue(layer.Name, out var node))
 			{
 				continue;
 			}
@@ -96,7 +94,7 @@ public readonly partial struct LayerRegistry
 		var result = ImmutableArray.CreateBuilder<SourceLocationPolicy>();
 		foreach (var layer in layerMatch.Layers)
 		{
-			if (!catalog.NodesByPath.TryGetValue(layer.Name, out var node))
+			if (!_catalog.NodesByPath.TryGetValue(layer.Name, out var node))
 			{
 				continue;
 			}

@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer.Engine.NameRules;
+namespace RonSijm.AnaalIJzer.Core.NameRules;
 
 public readonly struct NameRuleViolation(NameRuleKind ruleKind, string sourceName, string targetName, string normalizedSourceName, string normalizedTargetName, string site, string layerName, string reason, string xmlPath, int xmlLineNumber, int xmlLinePosition)
 {
