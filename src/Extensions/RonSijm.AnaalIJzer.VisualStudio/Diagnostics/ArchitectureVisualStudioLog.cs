@@ -13,11 +13,11 @@ internal static class ArchitectureVisualStudioLog
 	private const uint ErrorEntryType = 2;
 	private static readonly Guid PaneGuid = new("1e6f27a0-7148-4ea5-b8f3-6d6e9b86f00f");
 	private static readonly ConcurrentQueue<LogEntry> PendingEntries = new();
-	private static object? package;
+	private static object? _package;
 
 	internal static void Initialize(object packageInstance)
 	{
-		package = packageInstance;
+		_package = packageInstance;
 		Info("Logger initialized.");
 		RunFireAndForget(FlushPendingEntriesAsync);
 	}
@@ -47,7 +47,7 @@ internal static class ArchitectureVisualStudioLog
 		var entry = new LogEntry(entryType, FormatMessage(message));
 		Trace.WriteLine("[AnaalIJzer] " + entry.Message);
 
-		if (package is null)
+		if (_package is null)
 		{
 			PendingEntries.Enqueue(entry);
 			return;
@@ -66,7 +66,7 @@ internal static class ArchitectureVisualStudioLog
 
 	private static async Task WriteAsync(LogEntry entry)
 	{
-		if (package is null)
+		if (_package is null)
 		{
 			PendingEntries.Enqueue(entry);
 			return;
@@ -86,12 +86,12 @@ internal static class ArchitectureVisualStudioLog
 	private static async Task WriteActivityLogAsync(LogEntry entry)
 	{
 		var serviceType = Type.GetType(ActivityLogServiceTypeName, throwOnError: false);
-		if (package is null || serviceType is null)
+		if (_package is null || serviceType is null)
 		{
 			return;
 		}
 
-		var service = await GetServiceAsync(package, serviceType);
+		var service = await GetServiceAsync(_package, serviceType);
 		if (service is null)
 		{
 			return;
@@ -103,19 +103,19 @@ internal static class ArchitectureVisualStudioLog
 			return;
 		}
 
-		var arguments = new object[] { entry.EntryType, "AnaalIJzer", entry.Message };
+		object?[] arguments = [entry.EntryType, "AnaalIJzer", entry.Message];
 		logMethod.Invoke(service, arguments);
 	}
 
 	private static async Task WriteOutputWindowAsync(LogEntry entry)
 	{
 		var serviceType = Type.GetType(OutputWindowServiceTypeName, throwOnError: false);
-		if (package is null || serviceType is null)
+		if (_package is null || serviceType is null)
 		{
 			return;
 		}
 
-		var service = await GetServiceAsync(package, serviceType);
+		var service = await GetServiceAsync(_package, serviceType);
 		if (service is null)
 		{
 			return;
@@ -130,7 +130,7 @@ internal static class ArchitectureVisualStudioLog
 		}
 
 		var paneGuid = PaneGuid;
-		var createArguments = new object[] { paneGuid, "AnaalIJzer", 1, 1 };
+		object?[] createArguments = [paneGuid, "AnaalIJzer", 1, 1];
 		createPaneMethod.Invoke(service, createArguments);
 		paneGuid = createArguments[0] is Guid updatedGuid ? updatedGuid : PaneGuid;
 
@@ -148,13 +148,13 @@ internal static class ArchitectureVisualStudioLog
 			return;
 		}
 
-		var outputArguments = new object[] { entry.Message + Environment.NewLine };
+		object?[] outputArguments = [entry.Message + Environment.NewLine];
 		outputMethod.Invoke(pane, outputArguments);
 	}
 
 	private static void RunFireAndForget(Func<Task> action)
 	{
-		var result = Task.Run(action);
+		_ = Task.Run(action);
 	}
 
 	private static async Task<object?> GetServiceAsync(object packageInstance, Type serviceType)
@@ -187,9 +187,9 @@ internal static class ArchitectureVisualStudioLog
 	}
 
 	private readonly struct LogEntry(uint entryType, string message)
-    {
-        public uint EntryType { get; } = entryType;
+	{
+		public uint EntryType { get; } = entryType;
 
-        public string Message { get; } = message;
-    }
+		public string Message { get; } = message;
+	}
 }

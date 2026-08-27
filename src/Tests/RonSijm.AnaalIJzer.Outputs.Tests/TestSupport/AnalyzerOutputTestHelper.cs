@@ -3,16 +3,18 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
+using RonSijm.AnaalIJzer.Engine;
 
 namespace RonSijm.AnaalIJzer.Outputs.Tests.TestSupport;
 
 internal static class AnalyzerOutputTestHelper
 {
 	private static readonly MetadataReference[] BasicReferences =
-		((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)
-		.Split(Path.PathSeparator)
-		.Select(path => MetadataReference.CreateFromFile(path))
-		.ToArray();
+	[
+		..((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)
+			.Split(Path.PathSeparator)
+			.Select(path => MetadataReference.CreateFromFile(path))
+	];
 
 	internal static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(string source, string? levelConfig = null, string? configPath = null)
 	{
@@ -47,13 +49,13 @@ internal static class AnalyzerOutputTestHelper
 
 	private sealed class TestAdditionalText(string path, string content) : AdditionalText
 	{
-		private readonly SourceText text = SourceText.From(content);
+		private readonly SourceText _text = SourceText.From(content);
 
 		public override string Path { get; } = path;
 
 		public override SourceText GetText(CancellationToken cancellationToken = default)
 		{
-			var result = text;
+			var result = _text;
 
 			return result;
 		}

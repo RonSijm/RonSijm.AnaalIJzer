@@ -2,8 +2,9 @@ using System.Collections.Immutable;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
-using RonSijm.AnaalIJzer.Config.Parsing;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Document;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Sources;
 
 namespace RonSijm.AnaalIJzer.Core.Configuration.Document.Tests.Document;
 
@@ -33,6 +34,7 @@ public sealed class ArchitectureConfigurationDocumentCollectorTests
 		var result = ArchitectureConfigurationDocumentCollector.Collect(
 			additionalFiles[0].GetText(TestContext.Current.CancellationToken)!.ToString(),
 			additionalFiles[0].Path,
+			additionalFiles,
 			lookup,
 			TestContext.Current.CancellationToken,
 			ValidateDocument,
@@ -70,6 +72,7 @@ public sealed class ArchitectureConfigurationDocumentCollectorTests
 		var result = ArchitectureConfigurationDocumentCollector.Collect(
 			additionalFiles[0].GetText(TestContext.Current.CancellationToken)!.ToString(),
 			additionalFiles[0].Path,
+			additionalFiles,
 			lookup,
 			TestContext.Current.CancellationToken,
 			ValidateDocument,
@@ -114,6 +117,7 @@ public sealed class ArchitectureConfigurationDocumentCollectorTests
 		var result = ArchitectureConfigurationDocumentCollector.Collect(
 			additionalFiles[0].GetText(TestContext.Current.CancellationToken)!.ToString(),
 			additionalFiles[0].Path,
+			additionalFiles,
 			lookup,
 			TestContext.Current.CancellationToken,
 			ValidateDocument,
@@ -147,6 +151,7 @@ public sealed class ArchitectureConfigurationDocumentCollectorTests
 		var result = ArchitectureConfigurationDocumentCollector.Collect(
 			additionalFiles[0].GetText(TestContext.Current.CancellationToken)!.ToString(),
 			additionalFiles[0].Path,
+			additionalFiles,
 			lookup,
 			TestContext.Current.CancellationToken,
 			ValidateDocument,
@@ -159,6 +164,85 @@ public sealed class ArchitectureConfigurationDocumentCollectorTests
 		result.Issues.Should().BeEmpty();
 	}
 
+	[Fact]
+	public void Collect_LoadsWildcardIncludedDocuments_FromNestedRuleFiles()
+	{
+		var additionalFiles = ImmutableArray.Create<AdditionalText>(
+			new TestAdditionalText(
+				@"D:\repo\Features\Example.IncludeWildcardSettings\Architecture.anl",
+				"""
+				<ArchitecturalLevels>
+				  <Include path="*.anl" />
+				</ArchitecturalLevels>
+				"""),
+			new TestAdditionalText(
+				@"D:\repo\Features\Example.IncludeWildcardSettings\RulePlugins\RestaurantFlow.anl",
+				"""
+				<ArchitecturalLevels>
+				  <AllowedDependency from="Waiter" to="Chef" />
+				</ArchitecturalLevels>
+				"""),
+			new TestAdditionalText(
+				@"D:\repo\Features\Example.IncludeWildcardSettings\RulePlugins\RestaurantLayers.anl",
+				"""
+				<ArchitecturalLevels>
+				  <Layer name="Waiter" />
+				  <Layer name="Chef" />
+				</ArchitecturalLevels>
+				"""));
+		var lookup = ArchitectureConfigurationSourceLookup.BuildAdditionalFileLookup(additionalFiles);
+
+		var result = ArchitectureConfigurationDocumentCollector.Collect(
+			additionalFiles[0].GetText(TestContext.Current.CancellationToken)!.ToString(),
+			additionalFiles[0].Path,
+			additionalFiles,
+			lookup,
+			TestContext.Current.CancellationToken,
+			ValidateDocument,
+			ArchitectureConfigurationDocumentLoader.InlineSettingsMetadataKey,
+			false);
+
+		result.Documents.Should().HaveCount(3);
+		result.Elements.Should().HaveCount(3);
+		var layerNames = result.Elements
+			.Select(element => element.Element.Attribute("name")?.Value)
+			.Where(value => value is not null)
+			.Cast<string>()
+			.ToArray();
+
+		layerNames.Should().Contain("Waiter");
+		layerNames.Should().Contain("Chef");
+		result.Elements.Should().Contain(element => element.Element.Name.LocalName == "AllowedDependency");
+		result.Issues.Should().BeEmpty();
+	}
+
+	[Fact]
+	public void Collect_ReportsMissingWildcardIncludedDocuments()
+	{
+		var additionalFiles = ImmutableArray.Create<AdditionalText>(
+			new TestAdditionalText(
+				"Architecture.anl",
+				"""
+				<ArchitecturalLevels>
+				  <Include path="*.anl" />
+				</ArchitecturalLevels>
+				"""));
+		var lookup = ArchitectureConfigurationSourceLookup.BuildAdditionalFileLookup(additionalFiles);
+
+		var result = ArchitectureConfigurationDocumentCollector.Collect(
+			additionalFiles[0].GetText(TestContext.Current.CancellationToken)!.ToString(),
+			additionalFiles[0].Path,
+			additionalFiles,
+			lookup,
+			TestContext.Current.CancellationToken,
+			ValidateDocument,
+			ArchitectureConfigurationDocumentLoader.InlineSettingsMetadataKey,
+			false);
+
+		result.Documents.Should().HaveCount(1);
+		result.Issues.Should().ContainSingle(issue => issue.Message.Contains("wildcard matched no files", StringComparison.Ordinal));
+	}
+
 	private static ImmutableArray<ConfigurationIssue> ValidateDocument(XDocument document, string configPath)
 	{
 		_ = document;
@@ -169,13 +253,13 @@ public sealed class ArchitectureConfigurationDocumentCollectorTests
 
 	private sealed class TestAdditionalText(string path, string content) : AdditionalText
 	{
-		private readonly SourceText text = SourceText.From(content);
+		private readonly SourceText _text = SourceText.From(content);
 
 		public override string Path { get; } = path;
 
 		public override SourceText GetText(CancellationToken cancellationToken = default)
 		{
-			var result = text;
+			var result = _text;
 
 			return result;
 		}

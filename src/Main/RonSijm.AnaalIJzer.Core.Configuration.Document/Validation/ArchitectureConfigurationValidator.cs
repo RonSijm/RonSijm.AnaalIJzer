@@ -2,10 +2,12 @@ using System.Collections.Immutable;
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
-using RonSijm.AnaalIJzer.Config.Parsing;
-using RonSijm.AnaalIJzer.Symbols;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+using RonSijm.AnaalIJzer.Core.Matchers.Symbols;
+using RonSijm.AnaalIJzer.Core.Matchers.Declarations;
+using RonSijm.AnaalIJzer.Core.Matchers.Observations;
 
-namespace RonSijm.AnaalIJzer.ConfigurationEditing.Document;
+namespace RonSijm.AnaalIJzer.Core.Configuration.Document.Validation;
 
 public static class ArchitectureConfigurationValidator
 {
@@ -32,7 +34,7 @@ public static class ArchitectureConfigurationValidator
 			}
 		}
 
-		foreach (var element in document.Descendants().Where(element => element.Name.LocalName is "Class" or "Namespace" or "Assembly" or "Name" or "Source" or "Target"))
+		foreach (var element in document.Descendants().Where(element => IsMatcherElementName(element.Name.LocalName)))
 		{
 			ValidateMatcherElement(element, configPath, issues);
 		}
@@ -54,6 +56,13 @@ public static class ArchitectureConfigurationValidator
 
 	private static void ValidateMatcherElement(XElement element, string configPath, ImmutableArray<ConfigurationIssue>.Builder issues)
 	{
+		if (IsCodeObservationMatcherElementName(element.Name.LocalName))
+		{
+			ValidateCodeObservationMatcherElement(element, configPath, issues);
+
+			return;
+		}
+
 		var configuredMatchers = element.Attributes().Where(attribute => IsMatcherAttribute(attribute.Name.LocalName)).ToArray();
 		if (configuredMatchers.Length == 0)
 		{
@@ -89,11 +98,73 @@ public static class ArchitectureConfigurationValidator
 		}
 	}
 
+	private static void ValidateCodeObservationMatcherElement(XElement element, string configPath, ImmutableArray<ConfigurationIssue>.Builder issues)
+	{
+		var unsupportedAttributes = element.Attributes()
+			.Where(attribute => IsMatcherAttribute(attribute.Name.LocalName) && !IsCodeObservationMatcherAttribute(attribute.Name.LocalName))
+			.Select(attribute => attribute.Name.LocalName)
+			.ToArray();
+		if (unsupportedAttributes.Length > 0)
+		{
+			AddIssue(
+				issues,
+				ConfigurationIssueKind.InvalidConfiguration,
+				$"{element.Name.LocalName} supports typeName, exactName, exactFullName, endsWith, startsWith, contains, or regex matchers.",
+				element,
+				configPath);
+		}
+
+		var regex = element.Attribute("regex")?.Value;
+		if (regex is null)
+		{
+			return;
+		}
+
+		try
+		{
+			_ = new Regex(regex, RegexOptions.CultureInvariant);
+		}
+		catch (ArgumentException ex)
+		{
+			AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, $"Invalid regular expression '{regex}': {ex.Message}", element, configPath);
+		}
+	}
+
 	private static bool IsMatcherAttribute(string name)
 	{
 		var result = name is
 			"typeName" or "exactName" or "exactFullName" or "inherits" or "implements" or "withAttribute" or
 			"withAccessModifier" or "typeKind" or "endsWith" or "startsWith" or "contains" or "regex";
+
+		return result;
+	}
+
+	private static bool IsMatcherElementName(string name)
+	{
+		var result = name is "Class" or "Namespace" or "Assembly" or "Name" or "Source" or "Target"
+		             || IsDeclarationMatcherElementName(name)
+		             || IsCodeObservationMatcherElementName(name);
+
+		return result;
+	}
+
+	private static bool IsDeclarationMatcherElementName(string name)
+	{
+		var result = DeclarationMatchTargetParser.TryParse(name, out _);
+
+		return result;
+	}
+
+	private static bool IsCodeObservationMatcherElementName(string name)
+	{
+		var result = CodeObservationMatchTargetParser.TryParse(name, out _);
+
+		return result;
+	}
+
+	private static bool IsCodeObservationMatcherAttribute(string name)
+	{
+		var result = name is "typeName" or "exactName" or "exactFullName" or "endsWith" or "startsWith" or "contains" or "regex";
 
 		return result;
 	}

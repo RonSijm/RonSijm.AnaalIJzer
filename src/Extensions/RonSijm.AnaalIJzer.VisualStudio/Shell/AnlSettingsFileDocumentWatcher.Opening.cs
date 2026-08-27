@@ -15,7 +15,7 @@ internal sealed partial class AnlSettingsFileDocumentWatcher
 	{
 		ThreadHelper.ThrowIfNotOnUIThread();
 
-		if (runningDocumentTable is null)
+		if (_runningDocumentTable is null)
 		{
 			return;
 		}
@@ -23,7 +23,7 @@ internal sealed partial class AnlSettingsFileDocumentWatcher
 		var documentData = IntPtr.Zero;
 		try
 		{
-			var hr = runningDocumentTable.GetDocumentInfo(
+			var hr = _runningDocumentTable.GetDocumentInfo(
 				docCookie,
 				out _,
 				out _,
@@ -73,13 +73,13 @@ internal sealed partial class AnlSettingsFileDocumentWatcher
 		}
 
 		var fullPath = Path.GetFullPath(documentPath);
-		if (string.Equals(lastOpenedPath, fullPath, StringComparison.OrdinalIgnoreCase))
+		if (string.Equals(_lastOpenedPath, fullPath, StringComparison.OrdinalIgnoreCase))
 		{
 			return;
 		}
 
-		lastOpenedPath = fullPath;
+		_lastOpenedPath = fullPath;
 		ArchitectureVisualStudioLog.Info("Opening .anl settings file in dependency graph editor: " + fullPath);
-		_ = package.JoinableTaskFactory.RunAsync(async () => await ArchitectureGraphToolWindowOpener.OpenAnlFileAsync(package, fullPath));
+		_ = _package.JoinableTaskFactory.RunAsync(async () => await ArchitectureGraphToolWindowOpener.OpenAnlFileAsync(_package, fullPath));
 	}
 }

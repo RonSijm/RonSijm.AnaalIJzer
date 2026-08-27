@@ -1,39 +1,57 @@
 <Solution>
-  <Folder Name="/Main/">
-    <Project Path="Main/RonSijm.AnaalIJzer.Core.Findings/RonSijm.AnaalIJzer.Core.Findings.csproj" />
-    <Project Path="Main/RonSijm.AnaalIJzer.Core.Observations/RonSijm.AnaalIJzer.Core.Observations.csproj" />
-    <Project Path="Main/RonSijm.AnaalIJzer.Core.ProjectArchitecture/RonSijm.AnaalIJzer.Core.ProjectArchitecture.csproj" />
-    <Project Path="Main/RonSijm.AnaalIJzer.Core.DependencyRules/RonSijm.AnaalIJzer.Core.DependencyRules.csproj" />
-    <Project Path="Main/RonSijm.AnaalIJzer.Core.EntryPoints/RonSijm.AnaalIJzer.Core.EntryPoints.csproj" />
-    <Project Path="Main/RonSijm.AnaalIJzer.Core.ApiSurface/RonSijm.AnaalIJzer.Core.ApiSurface.csproj" />
-    <Project Path="Main/RonSijm.AnaalIJzer.Core.NameRules/RonSijm.AnaalIJzer.Core.NameRules.csproj" />
-    <Project Path="Main/RonSijm.AnaalIJzer.Core.SourceLocations/RonSijm.AnaalIJzer.Core.SourceLocations.csproj" />
-    <Project Path="Main/RonSijm.AnaalIJzer.Core.LayerModel/RonSijm.AnaalIJzer.Core.LayerModel.csproj" />
-    <Project Path="Main/RonSijm.AnaalIJzer.Core.PolicyEvaluation/RonSijm.AnaalIJzer.Core.PolicyEvaluation.csproj" />
-    <Project Path="Main/RonSijm.AnaalIJzer.Core.RuntimeConfig/RonSijm.AnaalIJzer.Core.RuntimeConfig.csproj" />
-    <Project Path="Main/RonSijm.AnaalIJzer.Core.Visibility/RonSijm.AnaalIJzer.Core.Visibility.csproj" />
-    <Project Path="Main/RonSijm.AnaalIJzer.Core.Inheritance/RonSijm.AnaalIJzer.Core.Inheritance.csproj" />
-    <Project Path="Main/RonSijm.AnaalIJzer.Core.Contracts/RonSijm.AnaalIJzer.Core.Contracts.csproj" />
-    <Project Path="Main/RonSijm.AnaalIJzer.Core.Exceptions/RonSijm.AnaalIJzer.Core.Exceptions.csproj" />
-    <Project Path="Main/RonSijm.AnaalIJzer.Core.Editor/RonSijm.AnaalIJzer.Core.Editor.csproj" />
-    <Project Path="Main/RonSijm.AnaalIJzer.Core.Indicators/RonSijm.AnaalIJzer.Core.Indicators.csproj" />
-    <Project Path="Main/RonSijm.AnaalIJzer.Core.Violations/RonSijm.AnaalIJzer.Core.Violations.csproj" />
+  <Folder Name="/Main/" />
+  <Folder Name="/Main/Analyzer/">
+    <Project Path="Main/RonSijm.AnaalIJzer/RonSijm.AnaalIJzer.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer.Diagnostics/RonSijm.AnaalIJzer.Diagnostics.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer.Engine/RonSijm.AnaalIJzer.Engine.csproj" />
+  </Folder>
+  <Folder Name="/Main/Application/">
+    <Project Path="Main/RonSijm.AnaalIJzer.Application/RonSijm.AnaalIJzer.Application.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer.Outputs/RonSijm.AnaalIJzer.Outputs.csproj" />
+  </Folder>
+  <Folder Name="/Main/Configuration/">
     <Project Path="Main/RonSijm.AnaalIJzer.Core.BuildMetadata/RonSijm.AnaalIJzer.Core.BuildMetadata.csproj" />
     <Project Path="Main/RonSijm.AnaalIJzer.Core.Configuration.Compilation/RonSijm.AnaalIJzer.Core.Configuration.Compilation.csproj" />
     <Project Path="Main/RonSijm.AnaalIJzer.Core.Configuration.Document/RonSijm.AnaalIJzer.Core.Configuration.Document.csproj" />
     <Project Path="Main/RonSijm.AnaalIJzer.Core.Matchers/RonSijm.AnaalIJzer.Core.Matchers.csproj" />
-    <Project Path="Main/RonSijm.AnaalIJzer.Diagnostics/RonSijm.AnaalIJzer.Diagnostics.csproj" />
-    <Project Path="Main/RonSijm.AnaalIJzer.Engine/RonSijm.AnaalIJzer.Engine.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer.Core.RuntimeConfig/RonSijm.AnaalIJzer.Core.RuntimeConfig.csproj" />
+  </Folder>
+  <Folder Name="/Main/Core/" />
+  <Folder Name="/Main/Core/Model/">
+    <Project Path="Main/RonSijm.AnaalIJzer.Core.Findings/RonSijm.AnaalIJzer.Core.Findings.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer.Core.Indicators/RonSijm.AnaalIJzer.Core.Indicators.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer.Core.LayerModel/RonSijm.AnaalIJzer.Core.LayerModel.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer.Core.Observations/RonSijm.AnaalIJzer.Core.Observations.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer.Core.Violations/RonSijm.AnaalIJzer.Core.Violations.csproj" />
+  </Folder>
+  <Folder Name="/Main/Core/Policies/">
+    <Project Path="Main/RonSijm.AnaalIJzer.Core.ApiSurface/RonSijm.AnaalIJzer.Core.ApiSurface.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer.Core.Contracts/RonSijm.AnaalIJzer.Core.Contracts.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer.Core.DependencyRules/RonSijm.AnaalIJzer.Core.DependencyRules.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer.Core.EntryPoints/RonSijm.AnaalIJzer.Core.EntryPoints.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer.Core.Exceptions/RonSijm.AnaalIJzer.Core.Exceptions.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer.Core.Inheritance/RonSijm.AnaalIJzer.Core.Inheritance.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer.Core.NameRules/RonSijm.AnaalIJzer.Core.NameRules.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer.Core.PolicyEvaluation/RonSijm.AnaalIJzer.Core.PolicyEvaluation.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer.Core.ProjectArchitecture/RonSijm.AnaalIJzer.Core.ProjectArchitecture.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer.Core.SourceLocations/RonSijm.AnaalIJzer.Core.SourceLocations.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer.Core.Visibility/RonSijm.AnaalIJzer.Core.Visibility.csproj" />
+  </Folder>
+  <Folder Name="/Main/Editor/">
+    <Project Path="Main/RonSijm.AnaalIJzer.Core.Editor/RonSijm.AnaalIJzer.Core.Editor.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer.EditorRuntime/RonSijm.AnaalIJzer.EditorRuntime.csproj" />
+  </Folder>
+  <Folder Name="/Main/Editing/">
     <Project Path="Main/RonSijm.AnaalIJzer.ConfigurationEditing/RonSijm.AnaalIJzer.ConfigurationEditing.csproj" />
+  </Folder>
+  <Folder Name="/Main/Graphing/">
     <Project Path="Main/RonSijm.AnaalIJzer.GraphApplication/RonSijm.AnaalIJzer.GraphApplication.csproj" />
     <Project Path="Main/RonSijm.AnaalIJzer.GraphModel/RonSijm.AnaalIJzer.GraphModel.csproj" />
-    <Project Path="Main/RonSijm.AnaalIJzer.GraphWorkspace/RonSijm.AnaalIJzer.GraphWorkspace.csproj" />
-    <Project Path="Main/RonSijm.AnaalIJzer.EditorRuntime/RonSijm.AnaalIJzer.EditorRuntime.csproj" />
     <Project Path="Main/RonSijm.AnaalIJzer.Graphing/RonSijm.AnaalIJzer.Graphing.csproj" />
-    <Project Path="Main/RonSijm.AnaalIJzer.Outputs/RonSijm.AnaalIJzer.Outputs.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer.GraphWorkspace/RonSijm.AnaalIJzer.GraphWorkspace.csproj" />
+  </Folder>
+  <Folder Name="/Main/Workspace/">
     <Project Path="Main/RonSijm.AnaalIJzer.Workspace/RonSijm.AnaalIJzer.Workspace.csproj" />
-    <Project Path="Main/RonSijm.AnaalIJzer.Application/RonSijm.AnaalIJzer.Application.csproj" />
-    <Project Path="Main/RonSijm.AnaalIJzer/RonSijm.AnaalIJzer.csproj" />
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="Tests/RonSijm.AnaalIJzer.ConfigurationEditing.Tests/RonSijm.AnaalIJzer.ConfigurationEditing.Tests.csproj" />

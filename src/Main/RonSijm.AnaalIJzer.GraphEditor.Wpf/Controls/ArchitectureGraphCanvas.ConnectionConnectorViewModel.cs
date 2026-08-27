@@ -8,7 +8,7 @@ internal sealed partial class ArchitectureGraphCanvas
 	private sealed class NodifyGraphConnectorViewModel(string layerPath, string title, bool isOutput)
 		: INotifyPropertyChanged
 	{
-		private Point anchor;
+		private Point _anchor;
 
 		public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -18,39 +18,23 @@ internal sealed partial class ArchitectureGraphCanvas
 
 		public bool IsOutput { get; } = isOutput;
 
-		public bool IsInput
-		{
-			get
-			{
-				var result = !IsOutput;
-
-				return result;
-			}
-		}
+		public bool IsInput => !IsOutput;
 
 		public Point Anchor
 		{
-			get { return anchor; }
+			get { return _anchor; }
 			set
 			{
-				if (anchor == value)
+				if (_anchor == value)
 				{
 					return;
 				}
 
-				anchor = value;
+				_anchor = value;
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Anchor)));
 			}
 		}
 
-		public string ToolTip
-		{
-			get
-			{
-				var result = LayerPath + " " + Title + " connector";
-
-				return result;
-			}
-		}
+		public string ToolTip => LayerPath + " " + Title + " connector";
 	}
 }

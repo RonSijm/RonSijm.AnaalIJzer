@@ -174,3 +174,4 @@ build/Artifacts/*
 /Examples/**/[Bb]uild/
 
 tmp/
+docs/plans/

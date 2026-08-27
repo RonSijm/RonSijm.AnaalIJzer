@@ -8,12 +8,12 @@ public sealed partial class ArchitectureGraphEditorControl
 	private (DockPanel Root, ScrollViewer InspectorScrollViewer) CreateEditorRoot()
 	{
 		var root = new DockPanel();
-		theme.ApplyToRoot(root);
-		theme.ApplyBackground(root);
-		theme.ApplyBackground(inspectorPanel);
-		DockPanel.SetDock(statusText, Dock.Top);
+		_theme.ApplyToRoot(root);
+		_theme.ApplyBackground(root);
+		_theme.ApplyBackground(_inspectorPanel);
+		DockPanel.SetDock(_statusText, Dock.Top);
 		root.Children.Add(CreateHeader());
-		root.Children.Add(statusText);
+		root.Children.Add(_statusText);
 		var editorGrid = CreateEditorGrid();
 		root.Children.Add(editorGrid.Grid);
 
@@ -40,16 +40,16 @@ public sealed partial class ArchitectureGraphEditorControl
 		};
 
 		refresh.Click += (_, _) => RefreshCurrentView();
-		exportImageButton.Click += (_, _) => PromptExportGraphsAsPng();
-		showCodeEvidence.Checked += (_, _) => Render();
-		showCodeEvidence.Unchecked += (_, _) => Render();
+		_exportImageButton.Click += (_, _) => PromptExportGraphsAsPng();
+		_showCodeEvidence.Checked += (_, _) => Render();
+		_showCodeEvidence.Unchecked += (_, _) => Render();
 
 		DockPanel.SetDock(refresh, Dock.Right);
 		header.Children.Add(refresh);
-		DockPanel.SetDock(exportImageButton, Dock.Right);
-		header.Children.Add(exportImageButton);
-		DockPanel.SetDock(showCodeEvidence, Dock.Right);
-		header.Children.Add(showCodeEvidence);
+		DockPanel.SetDock(_exportImageButton, Dock.Right);
+		header.Children.Add(_exportImageButton);
+		DockPanel.SetDock(_showCodeEvidence, Dock.Right);
+		header.Children.Add(_showCodeEvidence);
 		header.Children.Add(heading);
 		DockPanel.SetDock(header, Dock.Top);
 
@@ -65,7 +65,7 @@ public sealed partial class ArchitectureGraphEditorControl
 
 		var graphScroll = new ScrollViewer
 		{
-			Content = contentPanel,
+			Content = _contentPanel,
 			VerticalScrollBarVisibility = ScrollBarVisibility.Auto
 		};
 		Grid.SetColumn(graphScroll, 0);
@@ -76,7 +76,7 @@ public sealed partial class ArchitectureGraphEditorControl
 			Width = 5,
 			HorizontalAlignment = HorizontalAlignment.Stretch,
 			VerticalAlignment = VerticalAlignment.Stretch,
-			Background = inspectorPanel.BorderBrush,
+			Background = _inspectorPanel.BorderBrush,
 			ResizeBehavior = GridResizeBehavior.PreviousAndNext
 		};
 		Grid.SetColumn(splitter, 1);
@@ -84,7 +84,7 @@ public sealed partial class ArchitectureGraphEditorControl
 
 		var createdInspectorScrollViewer = new ScrollViewer
 		{
-			Content = inspectorPanel,
+			Content = _inspectorPanel,
 			VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
 			HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled
 		};
@@ -100,6 +100,6 @@ public sealed partial class ArchitectureGraphEditorControl
 	{
 		TryReloadSnapshot();
 		Render();
-		RenderSelection(RemapSelection(currentSelection));
+		RenderSelection(RemapSelection(_currentSelection));
 	}
 }

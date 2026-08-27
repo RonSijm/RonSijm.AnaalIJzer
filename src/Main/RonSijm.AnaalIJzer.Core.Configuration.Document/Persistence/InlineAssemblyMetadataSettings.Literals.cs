@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
+namespace RonSijm.AnaalIJzer.Core.Configuration.Document.Persistence;
 
 public static partial class InlineAssemblyMetadataSettings
 {
@@ -22,7 +22,7 @@ public static partial class InlineAssemblyMetadataSettings
 		return true;
 	}
 
-	public static string CreateRawStringLiteral(string xml, string newLine)
+	private static string CreateRawStringLiteral(string xml, string newLine)
 	{
 		var delimiter = new string('"', Math.Max(3, GetLongestQuoteRun(xml) + 1));
 		var result = delimiter + newLine + xml + newLine + delimiter;
@@ -30,7 +30,7 @@ public static partial class InlineAssemblyMetadataSettings
 		return result;
 	}
 
-	public static int GetLongestQuoteRun(string value)
+	private static int GetLongestQuoteRun(string value)
 	{
 		var longest = 0;
 		var current = 0;

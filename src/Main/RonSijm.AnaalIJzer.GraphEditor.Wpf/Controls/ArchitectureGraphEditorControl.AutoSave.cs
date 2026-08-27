@@ -111,55 +111,55 @@ public sealed partial class ArchitectureGraphEditorControl
 	{
 		if (result.Succeeded)
 		{
-			infoLogger?.Invoke(result.Message);
+			_infoLogger?.Invoke(result.Message);
 			if (refresh)
 			{
 				RefreshAfterAutoSave(clearSelection);
 			}
 
-			statusText.Text = result.Message;
-			statusText.Foreground = theme.SuccessForeground;
+			_statusText.Text = result.Message;
+			_statusText.Foreground = _theme.SuccessForeground;
 			return;
 		}
 
-		statusText.Text = result.Message;
-		statusText.Foreground = theme.ErrorForeground;
-		warningLogger?.Invoke(result.Message);
+		_statusText.Text = result.Message;
+		_statusText.Foreground = _theme.ErrorForeground;
+		_warningLogger?.Invoke(result.Message);
 	}
 
 	private void RefreshAfterAutoSave(bool clearSelection)
 	{
 		TryReloadSnapshot();
-		var nextSelection = clearSelection ? ArchitectureGraphSelection.None : RemapSelection(currentSelection);
+		var nextSelection = clearSelection ? ArchitectureGraphSelection.None : RemapSelection(_currentSelection);
 		Render();
 		RenderSelection(nextSelection);
 	}
 
 	private void TryReloadSnapshot()
 	{
-		if (snapshotReloader is null)
+		if (_snapshotReloader is null)
 		{
 			return;
 		}
 
 		try
 		{
-			layoutState.Save();
-			var reloadedSnapshot = snapshotReloader(snapshot);
-			logger?.LogInformation(
+			_layoutState.Save();
+			var reloadedSnapshot = _snapshotReloader(_snapshot);
+			_logger?.LogInformation(
 				"Reloaded architecture graph snapshot. Layers: {LayerCount}. Rules: {RuleCount}.",
 				reloadedSnapshot.Layers.Length,
 				reloadedSnapshot.Rules.Length);
-			snapshot = reloadedSnapshot;
-			EnsureLayoutState(snapshot.ConfigurationSource);
+			_snapshot = reloadedSnapshot;
+			EnsureLayoutState(_snapshot.ConfigurationSource);
 		}
 		catch (Exception exception)
 		{
-			logger?.LogError(exception, "Failed to reload architecture graph snapshot after edit.");
+			_logger?.LogError(exception, "Failed to reload architecture graph snapshot after edit.");
 			var message = "Saved, but reloading the graph failed. " + exception.Message;
-			statusText.Text = message;
-			statusText.Foreground = theme.ErrorForeground;
-			warningLogger?.Invoke(message);
+			_statusText.Text = message;
+			_statusText.Foreground = _theme.ErrorForeground;
+			_warningLogger?.Invoke(message);
 		}
 	}
 }

@@ -1,7 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <Import Project="../../../build/Settings/NuGetVersioning.props" />
-
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <LangVersion>latest</LangVersion>
@@ -15,16 +13,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="..\RonSijm.AnaalIJzer\ArchitecturalLevelAnalyzer.cs" />
-        <Compile Include="..\RonSijm.AnaalIJzer\ArchitecturalLevelAnalyzer.ConfigurationLocations.cs" />
-        <Compile Include="..\RonSijm.AnaalIJzer\ArchitecturalLevelAnalyzer.ConfigurationReporting.cs" />
-        <Compile Include="..\RonSijm.AnaalIJzer\ArchitecturalLevelAnalyzer.ObservedCycles.cs" />
-        <Compile Include="..\RonSijm.AnaalIJzer\Analysis\**\*.cs" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <AdditionalFiles Include="..\RonSijm.AnaalIJzer\AnalyzerReleases.Shipped.md" />
-        <AdditionalFiles Include="..\RonSijm.AnaalIJzer\AnalyzerReleases.Unshipped.md" />
+        <AdditionalFiles Include="AnalyzerReleases.Shipped.md" />
+        <AdditionalFiles Include="AnalyzerReleases.Unshipped.md" />
     </ItemGroup>
 
     <ItemGroup>

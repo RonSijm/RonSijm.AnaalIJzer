@@ -2,10 +2,10 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using AwesomeAssertions;
-using RonSijm.AnaalIJzer.Graphing.Loading;
-using RonSijm.AnaalIJzer.Graphing.Model;
 using RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
 using RonSijm.AnaalIJzer.GraphApplication.Selection;
+using RonSijm.AnaalIJzer.GraphModel.Loading;
+using RonSijm.AnaalIJzer.GraphModel.Model;
 using Xunit;
 
 namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests.Controls;
@@ -256,7 +256,7 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 				""");
 			var control = CreateControl(ArchitectureGraphXmlSnapshotLoader.Load(path));
 
-			FindVisualDescendant<ArchitectureGraphCanvas>(control)!.Height.Should().Be(390);
+			FindVisualDescendant<ArchitectureGraphCanvas>(control).Height.Should().Be(390);
 		});
 	}
 
@@ -285,7 +285,7 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 				""");
 			var control = CreateControl(LoadInlineSnapshot(path));
 
-			FindVisualDescendant<ArchitectureGraphCanvas>(control)!.Height.Should().Be(390);
+			FindVisualDescendant<ArchitectureGraphCanvas>(control).Height.Should().Be(390);
 		});
 	}
 }

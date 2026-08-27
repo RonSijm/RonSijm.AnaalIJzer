@@ -1,10 +1,9 @@
-using System.Collections.Immutable;
 using System.Globalization;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Document;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Sources;
 
 namespace RonSijm.AnaalIJzer.Core.Configuration.Document.Tests.Document;
 
@@ -23,7 +22,7 @@ public sealed class ArchitectureConfigurationSourceDiscoveryTests
 		var result = ArchitectureConfigurationSourceDiscovery.TryReadInlineConfigurationTextDocument(compilation, null, TestContext.Current.CancellationToken);
 
 		result.Should().NotBeNull();
-		result!.Path.Should().Be("Properties\\AnaalIJzerSettings.cs");
+		result.Path.Should().Be("Properties\\AnaalIJzerSettings.cs");
 		result.Content.Should().Contain("Layer name=\"Inline\"");
 	}
 

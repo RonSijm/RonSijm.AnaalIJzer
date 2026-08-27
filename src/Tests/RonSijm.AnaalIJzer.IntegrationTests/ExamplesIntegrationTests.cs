@@ -1,6 +1,6 @@
 using AwesomeAssertions;
-using RonSijm.AnaalIJzer;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+using RonSijm.AnaalIJzer.IntegrationTests.Support;
 using Xunit;
 
 namespace RonSijm.AnaalIJzer.IntegrationTests;
@@ -48,11 +48,19 @@ public sealed class ExamplesIntegrationTests
 			.FirstOrDefault(element => string.Equals(element.Name.LocalName, "EnableAnalyzerOnDebug", StringComparison.Ordinal))
 			?.Value
 			?.Trim();
+		var additionalFiles = document
+			.Descendants()
+			.Where(element => string.Equals(element.Name.LocalName, "AdditionalFiles", StringComparison.Ordinal))
+			.Select(element => element.Attribute("Include")?.Value)
+			.Where(value => !string.IsNullOrWhiteSpace(value))
+			.ToArray();
 
 		enableAnalyzerOnDebug.Should().Be("true", "examples should show their analyzer behavior in ordinary Debug IDE builds by default");
 		projectReferences.Should().BeEmpty("example projects should not inherit analyzer implementation projects as visible project dependencies");
 		analyzerBuildTargets.Should().Contain("$(AnaalIJzerEngineProjectPath)",
 			"the shared example props should build the Engine analyzer entry point via the centralized path property before attaching its analyzer DLLs");
+		additionalFiles.Should().Contain("$(MSBuildProjectDirectory)\\**\\*.anl",
+			"example projects should be able to keep drop-in rule packs in project-local subfolders");
 	}
 
 	[Fact]
@@ -72,6 +80,23 @@ public sealed class ExamplesIntegrationTests
 		snapshot.LayerIndicators.Should().Contain(indicator => indicator.TypeName == "HungryCustomer" && indicator.LayerPath == "Customer");
 		snapshot.LayerIndicators.Should().Contain(indicator => indicator.TypeName == "TableWaiter" && indicator.LayerPath == "Waiter");
 		snapshot.LayerIndicators.Should().Contain(indicator => indicator.TypeName == "IIngredientPantry" && indicator.LayerPath == "Pantry");
+	}
+
+	[Fact]
+	public async Task StructuralDeclarationMatchersExample_BuildsWithExpectedDiagnostic()
+	{
+		var context = ExampleRepositoryContext.Discover();
+		var expectation = ExampleBuildExpectationCatalog.All.Single(item => string.Equals(item.RelativeProjectPath, "Features/Example.StructuralDeclarationMatchers", StringComparison.Ordinal));
+		var projectPath = context.GetExampleProjectPath(expectation.RelativeProjectPath);
+
+		using var host = new ExampleProjectAnalysisHost();
+		var result = await host.AnalyzeProjectAsync(projectPath, TestContext.Current.CancellationToken);
+
+		result.WorkspaceFailures.Should().BeEmpty();
+		result.HasConfiguration.Should().BeTrue();
+		result.CompilerErrors.Should().BeEmpty();
+		result.AnalyzerDiagnostics.Should().BeEquivalentTo(expectation.Diagnostics);
+		result.AnalyzerDiagnosticMessages.Should().ContainSingle(message => message.Contains("CreatePizzaRequest", StringComparison.Ordinal));
 	}
 
 	[Fact]

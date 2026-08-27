@@ -2,14 +2,13 @@ using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Text;
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.Analysis.ApiSurface.Declarations;
-using RonSijm.AnaalIJzer.Analysis.ApiSurface.Model;
-using RonSijm.AnaalIJzer.Analysis.ApiSurface.Traversal;
-using RonSijm.AnaalIJzer.Engine.ApiSurface;
-using RonSijm.AnaalIJzer.Definitions;
-using RonSijm.AnaalIJzer.SymbolFacts;
-using AnalyzerConfiguration = RonSijm.AnaalIJzer.Model.AnalyzerConfig;
-using RonSijm.AnaalIJzer.Engine.LayerModel;
+using RonSijm.AnaalIJzer.Core.ApiSurface.Analysis.Declarations;
+using RonSijm.AnaalIJzer.Core.ApiSurface.Analysis.Model;
+using RonSijm.AnaalIJzer.Core.ApiSurface.Analysis.Traversal;
+using RonSijm.AnaalIJzer.Core.ApiSurface.Engine.Policies;
+using RonSijm.AnaalIJzer.Core.LayerModel;
+using RonSijm.AnaalIJzer.Core.Visibility;
+using AnalyzerConfiguration = RonSijm.AnaalIJzer.Core.RuntimeConfig.Config.Model.AnalyzerConfig;
 
 namespace RonSijm.AnaalIJzer.Application;
 
@@ -75,8 +74,8 @@ internal static partial class ArchitectureCodeEvidenceGenerator
 						(candidateType, site, depth) =>
 						{
 							var dependencyLayer = FindLayer(config, candidateType);
-							var evaluation = config.Engine.EvaluateApiSurfacePolicies(callerMatch.Value, dependencyLayer, candidateType.Name, site, depth);
-							var result = (evaluation, dependencyLayer?.Layer.Name);
+							var policyEvaluation = config.Engine.EvaluateApiSurfacePolicies(callerMatch.Value, dependencyLayer, candidateType.Name, site, depth);
+							var result = (policyEvaluation, dependencyLayer?.Layer.Name);
 
 							return result;
 						},
@@ -151,7 +150,7 @@ internal static partial class ArchitectureCodeEvidenceGenerator
 
 		var result = new ApiSurfaceLayerSelection(
 			layerMatch.Value.Layer.Name,
-			layerMatch.Value.Layers.Select(layer => layer.Name).ToImmutableArray());
+			[..layerMatch.Value.Layers.Select(layer => layer.Name)]);
 
 		return result;
 	}

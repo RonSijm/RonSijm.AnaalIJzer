@@ -1,8 +1,7 @@
-using System.Globalization;
 using System.Runtime.InteropServices;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Utilities.UnifiedSettings;
-using RonSijm.AnaalIJzer.Graphing.Model;
+using RonSijm.AnaalIJzer.GraphModel.Model;
 using RonSijm.AnaalIJzer.VisualStudio.Diagnostics;
 
 namespace RonSijm.AnaalIJzer.VisualStudio.Options;
@@ -12,18 +11,18 @@ internal sealed partial class AnaalIJzerUnifiedSettingsProvider : IExternalSetti
 {
 	internal const string ServiceGuidString = "af0e6eb4-77ec-4d32-a9b1-233720e65c03";
 
-	private readonly AsyncPackage package;
-	private EventHandler<ExternalSettingsChangedEventArgs>? settingValuesChanged;
+	private readonly AsyncPackage _package;
+	private EventHandler<ExternalSettingsChangedEventArgs>? _settingValuesChanged;
 
 	internal AnaalIJzerUnifiedSettingsProvider(AsyncPackage package)
 	{
-		this.package = package;
+		this._package = package;
 	}
 
 	public event EventHandler<ExternalSettingsChangedEventArgs>? SettingValuesChanged
 	{
-		add => settingValuesChanged += value;
-		remove => settingValuesChanged -= value;
+		add => _settingValuesChanged += value;
+		remove => _settingValuesChanged -= value;
 	}
 
 	public event EventHandler<EnumSettingChoicesChangedEventArgs>? EnumSettingChoicesChanged
@@ -69,7 +68,7 @@ internal sealed partial class AnaalIJzerUnifiedSettingsProvider : IExternalSetti
 		{
 			optionsPage.SaveSettingsToStorage();
 			ArchitectureVisualStudioOptions.Publish(optionsPage.ToEditorOptions());
-			settingValuesChanged?.Invoke(this, ExternalSettingsChangedEventArgs.SomeOrAll);
+			_settingValuesChanged?.Invoke(this, ExternalSettingsChangedEventArgs.SomeOrAll);
 			ArchitectureVisualStudioLog.Info("Unified Settings updated " + moniker + ".");
 		}
 
@@ -87,12 +86,12 @@ internal sealed partial class AnaalIJzerUnifiedSettingsProvider : IExternalSetti
 
 	public Task<ExternalSettingOperationResult<IReadOnlyList<EnumChoice>>> GetEnumChoicesAsync(string enumSettingMoniker, CancellationToken cancellationToken)
 	{
-		IReadOnlyList<EnumChoice> choices = new[]
-		{
-			new EnumChoice(nameof(ArchitectureGraphFocusMode.ShowAll), "Show all graphs"),
+		IReadOnlyList<EnumChoice> choices =
+        [
+            new EnumChoice(nameof(ArchitectureGraphFocusMode.ShowAll), "Show all graphs"),
 			new EnumChoice(nameof(ArchitectureGraphFocusMode.HighlightCurrent), "Highlight current graph"),
 			new EnumChoice(nameof(ArchitectureGraphFocusMode.FilterToCurrent), "Filter to current graph")
-		};
+        ];
 		var result = ExternalSettingOperationResult.SuccessResultTask(choices);
 
 		return result;
@@ -109,7 +108,7 @@ internal sealed partial class AnaalIJzerUnifiedSettingsProvider : IExternalSetti
 	{
 		ThreadHelper.ThrowIfNotOnUIThread();
 
-		var result = (AnaalIJzerOptionsPage)package.GetDialogPage(typeof(AnaalIJzerOptionsPage));
+		var result = (AnaalIJzerOptionsPage)_package.GetDialogPage(typeof(AnaalIJzerOptionsPage));
 
 		return result;
 	}

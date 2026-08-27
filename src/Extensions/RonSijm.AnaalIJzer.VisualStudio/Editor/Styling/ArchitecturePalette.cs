@@ -1,7 +1,7 @@
 using System.Windows.Media;
-using RonSijm.AnaalIJzer.Indicators;
+using RonSijm.AnaalIJzer.Core.Indicators;
 
-namespace RonSijm.AnaalIJzer.VisualStudio.Styling;
+namespace RonSijm.AnaalIJzer.VisualStudio.Editor.Styling;
 
 internal static class ArchitecturePalette
 {

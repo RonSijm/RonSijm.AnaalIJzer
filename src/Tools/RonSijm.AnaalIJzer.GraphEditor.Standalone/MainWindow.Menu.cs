@@ -45,12 +45,12 @@ internal sealed partial class MainWindow
 		};
 		if (dialog.ShowDialog(this) != true)
 		{
-			logger.LogDebug("Open input dialog cancelled.");
+			_logger.LogDebug("Open input dialog cancelled.");
 			return;
 		}
 
-		logger.LogInformation("Open input dialog selected {Path}", dialog.FileName);
-		pathBox.Text = dialog.FileName;
+		_logger.LogInformation("Open input dialog selected {Path}", dialog.FileName);
+		_pathBox.Text = dialog.FileName;
 		LoadSnapshot();
 	}
 }

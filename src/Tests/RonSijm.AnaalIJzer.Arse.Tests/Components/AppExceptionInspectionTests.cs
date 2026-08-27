@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 using System.Reflection;
 using RonSijm.AnaalIJzer.Arse.Components;
-using RonSijm.AnaalIJzer.Findings;
+using RonSijm.AnaalIJzer.Core.Findings;
 
 namespace RonSijm.AnaalIJzer.Arse.Tests.Components;
 

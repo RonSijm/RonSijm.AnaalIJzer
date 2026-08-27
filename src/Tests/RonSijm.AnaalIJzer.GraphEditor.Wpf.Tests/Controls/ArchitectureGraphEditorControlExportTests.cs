@@ -3,8 +3,8 @@ using System.Collections.Immutable;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using AwesomeAssertions;
-using RonSijm.AnaalIJzer.Graphing.Model;
 using RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
+using RonSijm.AnaalIJzer.GraphModel.Model;
 using Xunit;
 
 namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests.Controls;
@@ -90,7 +90,7 @@ public sealed partial class ArchitectureGraphCanvasTests
 			rules.Add(new ArchitectureGraphRule("Caller", layer.Path, string.Empty, "AllowedDependency", "all sites", false, false, true));
 		}
 
-		var result = new ArchitectureGraphSnapshot(true, false, layers.ToImmutable(), rules.ToImmutable(), ImmutableArray.Create("Caller"), ImmutableArray<string>.Empty);
+		var result = new ArchitectureGraphSnapshot(true, false, layers.ToImmutable(), rules.ToImmutable(), ["Caller"], ImmutableArray<string>.Empty);
 
 		return result;
 	}

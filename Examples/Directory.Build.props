@@ -52,7 +52,7 @@
   </Target>
 
   <ItemGroup>
-    <AdditionalFiles Include="$(MSBuildProjectDirectory)\*.anl" />
+    <AdditionalFiles Include="$(MSBuildProjectDirectory)\**\*.anl" />
     <AdditionalFiles Include="$(MSBuildProjectDirectory)\..\*.anl" />
   </ItemGroup>
 

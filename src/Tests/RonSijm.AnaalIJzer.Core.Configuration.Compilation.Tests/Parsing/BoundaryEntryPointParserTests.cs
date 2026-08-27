@@ -1,5 +1,6 @@
+using RonSijm.AnaalIJzer.Core.Configuration.Compilation.Parsing;
 using RonSijm.AnaalIJzer.Core.Configuration.Compilation.Tests.TestSupport;
-using AnalyzerConfiguration = RonSijm.AnaalIJzer.Model.AnalyzerConfig;
+using AnalyzerConfiguration = RonSijm.AnaalIJzer.Core.RuntimeConfig.Config.Model.AnalyzerConfig;
 
 namespace RonSijm.AnaalIJzer.Core.Configuration.Compilation.Tests.Parsing;
 
@@ -66,8 +67,9 @@ public sealed class BoundaryEntryPointParserTests
     private static AnalyzerConfiguration ParseConfig(string configText)
     {
         var result = ArchitecturalConfigParser.Parse(
-            ImmutableArray.Create<AdditionalText>(
-                new TestAdditionalText(@"D:\repo\Architecture.anl", configText)),
+            [
+                new TestAdditionalText(@"D:\repo\Architecture.anl", configText)
+            ],
             CancellationToken.None);
 
         return result;

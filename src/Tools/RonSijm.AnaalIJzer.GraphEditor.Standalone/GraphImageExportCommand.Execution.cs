@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
+using RonSijm.AnaalIJzer.GraphModel.Model;
 using RonSijm.AnaalIJzer.GraphWorkspace;
-using RonSijm.AnaalIJzer.Graphing.Model;
 using RonSijm.AnaalIJzer.Outputs.GraphExports;
 
 namespace RonSijm.AnaalIJzer.GraphEditor.Standalone;
@@ -9,7 +9,7 @@ internal sealed partial class GraphImageExportCommand
 {
 	public Task<ArchitectureGraphSnapshot> LoadAsync(string inputPath, CancellationToken cancellationToken)
 	{
-		var loader = new ArchitectureGraphWorkspaceSnapshotLoader(configuration);
+		var loader = new ArchitectureGraphWorkspaceSnapshotLoader(_configuration);
 		var result = loader.LoadAsync(inputPath, cancellationToken);
 
 		return result;
@@ -33,9 +33,9 @@ internal sealed partial class GraphImageExportCommand
 			}
 		}
 
-		if (mode == ArchitectureGraphImageExportMode.Examples)
+		if (_mode == ArchitectureGraphImageExportMode.Examples)
 		{
-			Console.WriteLine("Exported " + result.SuccessCount.ToString(System.Globalization.CultureInfo.InvariantCulture) + " example graph image(s) to " + outputPath + ".");
+			Console.WriteLine("Exported " + result.SuccessCount.ToString(System.Globalization.CultureInfo.InvariantCulture) + " example graph image(s) to " + _outputPath + ".");
 			if (result.PlaceholderCount > 0)
 			{
 				Console.WriteLine("Created " + result.PlaceholderCount.ToString(System.Globalization.CultureInfo.InvariantCulture) + " placeholder image(s) for examples that could not render a graph.");

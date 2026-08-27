@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Xml;
 using System.Xml.Linq;
 using RonSijm.AnaalIJzer.ConfigurationEditing.Model;

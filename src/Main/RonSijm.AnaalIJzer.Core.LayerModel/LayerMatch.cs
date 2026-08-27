@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 
-namespace RonSijm.AnaalIJzer.Engine.LayerModel;
+namespace RonSijm.AnaalIJzer.Core.LayerModel;
 
 /// <summary>The result of a layer lookup.</summary>
 public readonly struct LayerMatch(LayerDefinition layer, ImmutableArray<LayerDefinition> layers, ImmutableArray<LayerMatcherMatch> matcherMatches, string? matchedSuffix, int xmlLineNumber, int xmlLinePosition, string xmlPath)

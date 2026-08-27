@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer;
+namespace RonSijm.AnaalIJzer.Core.Indicators;
 
 public static class DependencySites
 {

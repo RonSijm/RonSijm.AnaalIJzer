@@ -1,5 +1,5 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.Engine.ApiSurface;
+using RonSijm.AnaalIJzer.Core.ApiSurface.Engine.Policies;
 
 namespace RonSijm.AnaalIJzer.Core.ApiSurface.Tests.ApiSurface;
 
@@ -21,7 +21,7 @@ public sealed class ApiSurfaceLayerSelectionTests
 	{
 		var result = new ApiSurfaceLayerSelection(
 			"Application/Contracts",
-			ImmutableArray.Create("Application", "Application/Contracts"));
+            ["Application", "Application/Contracts"]);
 
 		result.IsRecognized.Should().BeTrue();
 		result.Selects("Application").Should().BeTrue();

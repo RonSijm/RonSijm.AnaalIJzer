@@ -1,10 +1,10 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.SymbolFacts;
+using RonSijm.AnaalIJzer.Core.ApiSurface.Analysis.Model;
+using RonSijm.AnaalIJzer.Core.Indicators;
+using RonSijm.AnaalIJzer.Core.Visibility;
 
-using RonSijm.AnaalIJzer.Analysis.ApiSurface.Model;
-
-namespace RonSijm.AnaalIJzer.Analysis.ApiSurface.Traversal;
+namespace RonSijm.AnaalIJzer.Core.ApiSurface.Analysis.Traversal;
 
 internal static class ExternallyVisibleMemberEnumerator
 {
@@ -134,7 +134,7 @@ internal static class ExternallyVisibleMemberEnumerator
 			}
 		}
 
-		if (namedType.TypeKind == TypeKind.Delegate && namedType.DelegateInvokeMethod is { } invokeMethod)
+		if (namedType is { TypeKind: TypeKind.Delegate, DelegateInvokeMethod: { } invokeMethod })
 		{
 			foreach (var item in ExpandNamedTypes(invokeMethod.ReturnType, segmentName + ".return", seen))
 			{

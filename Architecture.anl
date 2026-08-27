@@ -1,100 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="AnaalIJzer.xsd" description="Generated helpful solution baseline for RonSijm.AnaalIJzer. Each C# project is represented as an assembly layer, with observed inter-project dependency sites allowed.">
-  <Layer name="RonSijm.AnaalIJzer.VisualStudio" description="Inferred solution layer for the RonSijm.AnaalIJzer.VisualStudio project assembly.">
-    <Assembly exactName="RonSijm.AnaalIJzer.VisualStudio" description="Types compiled into RonSijm.AnaalIJzer.VisualStudio." />
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="AnaalIJzer.xsd"
+                     description="Helpful solution baseline for RonSijm.AnaalIJzer. This configuration groups assemblies by responsibility instead of mirroring every individual project reference, so it stays readable and useful as an architectural example.">
+  <Layer name="Foundation"
+         description="Shared architectural vocabulary, matcher logic, findings, policies, and configuration primitives.">
+    <Assembly startsWith="RonSijm.AnaalIJzer.Core." />
   </Layer>
-  <Layer name="RonSijm.AnaalIJzer.ConfigurationEditing" description="Inferred solution layer for the RonSijm.AnaalIJzer.ConfigurationEditing project assembly.">
-    <Assembly exactName="RonSijm.AnaalIJzer.ConfigurationEditing" description="Types compiled into RonSijm.AnaalIJzer.ConfigurationEditing." />
+
+  <Layer name="AnalysisPlatform"
+         description="Roslyn-facing analysis, diagnostics, and report generation.">
+    <Assembly exactName="RonSijm.AnaalIJzer" />
+    <Assembly exactName="RonSijm.AnaalIJzer.Engine" />
+    <Assembly exactName="RonSijm.AnaalIJzer.Diagnostics" />
+    <Assembly exactName="RonSijm.AnaalIJzer.Outputs" />
   </Layer>
-  <Layer name="RonSijm.AnaalIJzer.Graphing.Wpf" description="Inferred solution layer for the RonSijm.AnaalIJzer.Graphing.Wpf project assembly.">
-    <Assembly exactName="RonSijm.AnaalIJzer.Graphing.Wpf" description="Types compiled into RonSijm.AnaalIJzer.Graphing.Wpf." />
+
+  <Layer name="ApplicationServices"
+         description="Workspace loading, runtime orchestration, editor/runtime bridges, and configuration editing.">
+    <Assembly exactName="RonSijm.AnaalIJzer.Application" />
+    <Assembly exactName="RonSijm.AnaalIJzer.Workspace" />
+    <Assembly exactName="RonSijm.AnaalIJzer.EditorRuntime" />
+    <Assembly exactName="RonSijm.AnaalIJzer.ConfigurationEditing" />
   </Layer>
-  <Layer name="RonSijm.AnaalIJzer.Graphing" description="Inferred solution layer for the RonSijm.AnaalIJzer.Graphing project assembly.">
-    <Assembly exactName="RonSijm.AnaalIJzer.Graphing" description="Types compiled into RonSijm.AnaalIJzer.Graphing." />
+
+  <Layer name="Graphing"
+         description="Graph models, graph layout, graph workspace analysis, and graph editing surfaces.">
+    <Assembly startsWith="RonSijm.AnaalIJzer.Graph" />
   </Layer>
-  <Layer name="RonSijm.AnaalIJzer.VisualStudio.Core" description="Inferred solution layer for the RonSijm.AnaalIJzer.VisualStudio.Core project assembly.">
-    <Assembly exactName="RonSijm.AnaalIJzer.VisualStudio.Core" description="Types compiled into RonSijm.AnaalIJzer.VisualStudio.Core." />
+
+  <Layer name="Tooling"
+         description="Human-facing hosts built on top of the analysis, application, and graphing layers.">
+    <Assembly exactName="RonSijm.AnaalIJzer.Arse" />
+    <Assembly exactName="RonSijm.AnaalIJzer.GraphEditor.Standalone" />
+    <Assembly exactName="RonSijm.AnaalIJzer.VisualStudio" />
   </Layer>
-  <Layer name="RonSijm.AnaalIJzer" description="Inferred solution layer for the RonSijm.AnaalIJzer project assembly.">
-    <Assembly exactName="RonSijm.AnaalIJzer" description="Types compiled into RonSijm.AnaalIJzer." />
+
+  <Layer name="Tests"
+         description="Test projects may probe any layer and are kept outside the production dependency flow.">
+    <Assembly endsWith=".Tests" />
+    <Assembly exactName="RonSijm.AnaalIJzer.IntegrationTests" />
   </Layer>
-  <Layer name="RonSijm.AnaalIJzer.Arse.Tests" description="Inferred solution layer for the RonSijm.AnaalIJzer.Arse.Tests project assembly.">
-    <Assembly exactName="RonSijm.AnaalIJzer.Arse.Tests" description="Types compiled into RonSijm.AnaalIJzer.Arse.Tests." />
-  </Layer>
-  <Layer name="RonSijm.AnaalIJzer.ConfigurationEditing.Tests" description="Inferred solution layer for the RonSijm.AnaalIJzer.ConfigurationEditing.Tests project assembly.">
-    <Assembly exactName="RonSijm.AnaalIJzer.ConfigurationEditing.Tests" description="Types compiled into RonSijm.AnaalIJzer.ConfigurationEditing.Tests." />
-  </Layer>
-  <Layer name="RonSijm.AnaalIJzer.Graphing.Tests" description="Inferred solution layer for the RonSijm.AnaalIJzer.Graphing.Tests project assembly.">
-    <Assembly exactName="RonSijm.AnaalIJzer.Graphing.Tests" description="Types compiled into RonSijm.AnaalIJzer.Graphing.Tests." />
-  </Layer>
-  <Layer name="RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests" description="Inferred solution layer for the RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests project assembly.">
-    <Assembly exactName="RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests" description="Types compiled into RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests." />
-  </Layer>
-  <Layer name="RonSijm.AnaalIJzer.IntegrationTests" description="Inferred solution layer for the RonSijm.AnaalIJzer.IntegrationTests project assembly.">
-    <Assembly exactName="RonSijm.AnaalIJzer.IntegrationTests" description="Types compiled into RonSijm.AnaalIJzer.IntegrationTests." />
-  </Layer>
-  <Layer name="RonSijm.AnaalIJzer.Tooling.Tests" description="Inferred solution layer for the RonSijm.AnaalIJzer.Tooling.Tests project assembly.">
-    <Assembly exactName="RonSijm.AnaalIJzer.Tooling.Tests" description="Types compiled into RonSijm.AnaalIJzer.Tooling.Tests." />
-  </Layer>
-  <Layer name="RonSijm.AnaalIJzer.UnitTests" description="Inferred solution layer for the RonSijm.AnaalIJzer.UnitTests project assembly.">
-    <Assembly exactName="RonSijm.AnaalIJzer.UnitTests" description="Types compiled into RonSijm.AnaalIJzer.UnitTests." />
-  </Layer>
-  <Layer name="RonSijm.AnaalIJzer.VisualStudio.Core.Tests" description="Inferred solution layer for the RonSijm.AnaalIJzer.VisualStudio.Core.Tests project assembly.">
-    <Assembly exactName="RonSijm.AnaalIJzer.VisualStudio.Core.Tests" description="Types compiled into RonSijm.AnaalIJzer.VisualStudio.Core.Tests." />
-  </Layer>
-  <Layer name="RonSijm.AnaalIJzer.VisualStudio.Tests" description="Inferred solution layer for the RonSijm.AnaalIJzer.VisualStudio.Tests project assembly.">
-    <Assembly exactName="RonSijm.AnaalIJzer.VisualStudio.Tests" description="Types compiled into RonSijm.AnaalIJzer.VisualStudio.Tests." />
-  </Layer>
-  <Layer name="RonSijm.AnaalIJzer.Arse" description="Inferred solution layer for the RonSijm.AnaalIJzer.Arse project assembly.">
-    <Assembly exactName="RonSijm.AnaalIJzer.Arse" description="Types compiled into RonSijm.AnaalIJzer.Arse." />
-  </Layer>
-  <Layer name="RonSijm.AnaalIJzer.GraphEditor.Standalone" description="Inferred solution layer for the RonSijm.AnaalIJzer.GraphEditor.Standalone project assembly.">
-    <Assembly exactName="RonSijm.AnaalIJzer.GraphEditor.Standalone" description="Types compiled into RonSijm.AnaalIJzer.GraphEditor.Standalone." />
-  </Layer>
-  <Layer name="RonSijm.AnaalIJzer.Tooling" description="Inferred solution layer for the RonSijm.AnaalIJzer.Tooling project assembly.">
-    <Assembly exactName="RonSijm.AnaalIJzer.Tooling" description="Types compiled into RonSijm.AnaalIJzer.Tooling." />
-  </Layer>
-  <AllowedDependency from="RonSijm.AnaalIJzer.VisualStudio" to="RonSijm.AnaalIJzer.VisualStudio.Core" description="Observed 19 RonSijm.AnaalIJzer.VisualStudio caller(s) depending on RonSijm.AnaalIJzer.VisualStudio.Core at: Constructor, Method, MethodReturn, Field, Property, Local, New, GenericArgument, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.VisualStudio" to="RonSijm.AnaalIJzer.VisualStudio" description="Observed 40 RonSijm.AnaalIJzer.VisualStudio caller(s) depending on RonSijm.AnaalIJzer.VisualStudio at: Constructor, Method, MethodReturn, Field, Local, New, GenericInvocation, GenericArgument, Inheritance, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.VisualStudio" to="RonSijm.AnaalIJzer.Graphing" description="Observed 4 RonSijm.AnaalIJzer.VisualStudio caller(s) depending on RonSijm.AnaalIJzer.Graphing at: Method, MethodReturn, Field, Property, Local, New, GenericArgument, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.VisualStudio" to="RonSijm.AnaalIJzer.ConfigurationEditing" description="Observed 1 RonSijm.AnaalIJzer.VisualStudio caller(s) depending on RonSijm.AnaalIJzer.ConfigurationEditing at: MethodReturn, Local, New, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.VisualStudio" to="RonSijm.AnaalIJzer.Graphing.Wpf" description="Observed 2 RonSijm.AnaalIJzer.VisualStudio caller(s) depending on RonSijm.AnaalIJzer.Graphing.Wpf at: MethodReturn, Field, Local, New, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.ConfigurationEditing" to="RonSijm.AnaalIJzer.ConfigurationEditing" description="Observed 38 RonSijm.AnaalIJzer.ConfigurationEditing caller(s) depending on RonSijm.AnaalIJzer.ConfigurationEditing at: Constructor, Method, MethodReturn, Property, Local, New, GenericInvocation, GenericArgument, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.Graphing.Wpf" to="RonSijm.AnaalIJzer.ConfigurationEditing" description="Observed 16 RonSijm.AnaalIJzer.Graphing.Wpf caller(s) depending on RonSijm.AnaalIJzer.ConfigurationEditing at: Constructor, Method, Property, Local, New, GenericArgument, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.Graphing.Wpf" to="RonSijm.AnaalIJzer.Graphing.Wpf" description="Observed 24 RonSijm.AnaalIJzer.Graphing.Wpf caller(s) depending on RonSijm.AnaalIJzer.Graphing.Wpf at: Constructor, Method, MethodReturn, Field, Property, Local, New, GenericArgument, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.Graphing.Wpf" to="RonSijm.AnaalIJzer.Graphing" description="Observed 12 RonSijm.AnaalIJzer.Graphing.Wpf caller(s) depending on RonSijm.AnaalIJzer.Graphing at: Constructor, Method, Field, Local, GenericArgument, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.Graphing" to="RonSijm.AnaalIJzer.Graphing" description="Observed 28 RonSijm.AnaalIJzer.Graphing caller(s) depending on RonSijm.AnaalIJzer.Graphing at: Constructor, Method, MethodReturn, Property, Local, New, GenericInvocation, GenericArgument, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.Graphing" to="RonSijm.AnaalIJzer.ConfigurationEditing" description="Observed 18 RonSijm.AnaalIJzer.Graphing caller(s) depending on RonSijm.AnaalIJzer.ConfigurationEditing at: Constructor, Method, Property, Local, New, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.VisualStudio.Core" to="RonSijm.AnaalIJzer.VisualStudio.Core" description="Observed 46 RonSijm.AnaalIJzer.VisualStudio.Core caller(s) depending on RonSijm.AnaalIJzer.VisualStudio.Core at: Constructor, Method, MethodReturn, Property, Local, New, GenericInvocation, GenericArgument, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer" to="RonSijm.AnaalIJzer" description="Observed 46 RonSijm.AnaalIJzer caller(s) depending on RonSijm.AnaalIJzer at: Constructor, Method, MethodReturn, Property, Local, New, GenericInvocation, GenericArgument, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.Arse.Tests" to="RonSijm.AnaalIJzer.Arse" description="Observed 2 RonSijm.AnaalIJzer.Arse.Tests caller(s) depending on RonSijm.AnaalIJzer.Arse at: Local, GenericArgument, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.Arse.Tests" to="RonSijm.AnaalIJzer.Tooling" description="Observed 1 RonSijm.AnaalIJzer.Arse.Tests caller(s) depending on RonSijm.AnaalIJzer.Tooling at: Local, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.ConfigurationEditing.Tests" to="RonSijm.AnaalIJzer.ConfigurationEditing.Tests" description="Observed 1 RonSijm.AnaalIJzer.ConfigurationEditing.Tests caller(s) depending on RonSijm.AnaalIJzer.ConfigurationEditing.Tests at: Local, New." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.ConfigurationEditing.Tests" to="RonSijm.AnaalIJzer.ConfigurationEditing" description="Observed 1 RonSijm.AnaalIJzer.ConfigurationEditing.Tests caller(s) depending on RonSijm.AnaalIJzer.ConfigurationEditing at: Method, MethodReturn, Local, New, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.Graphing.Tests" to="RonSijm.AnaalIJzer.Graphing" description="Observed 2 RonSijm.AnaalIJzer.Graphing.Tests caller(s) depending on RonSijm.AnaalIJzer.Graphing at: Method, MethodReturn, Local, New, GenericArgument, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.Graphing.Tests" to="RonSijm.AnaalIJzer.ConfigurationEditing" description="Observed 2 RonSijm.AnaalIJzer.Graphing.Tests caller(s) depending on RonSijm.AnaalIJzer.ConfigurationEditing at: Local, New, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests" to="RonSijm.AnaalIJzer.Graphing" description="Observed 2 RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests caller(s) depending on RonSijm.AnaalIJzer.Graphing at: Method, MethodReturn, Local, New, GenericInvocation, GenericArgument, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests" to="RonSijm.AnaalIJzer.Graphing.Wpf" description="Observed 2 RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests caller(s) depending on RonSijm.AnaalIJzer.Graphing.Wpf at: MethodReturn, Local, New, GenericInvocation, GenericArgument, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests" to="RonSijm.AnaalIJzer.ConfigurationEditing" description="Observed 1 RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests caller(s) depending on RonSijm.AnaalIJzer.ConfigurationEditing at: Method, Local, New, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.IntegrationTests" to="RonSijm.AnaalIJzer.IntegrationTests" description="Observed 3 RonSijm.AnaalIJzer.IntegrationTests caller(s) depending on RonSijm.AnaalIJzer.IntegrationTests at: Constructor, MethodReturn, Local, New, GenericArgument, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.IntegrationTests" to="RonSijm.AnaalIJzer" description="Observed 2 RonSijm.AnaalIJzer.IntegrationTests caller(s) depending on RonSijm.AnaalIJzer at: New, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.IntegrationTests" to="RonSijm.AnaalIJzer.Tooling" description="Observed 1 RonSijm.AnaalIJzer.IntegrationTests caller(s) depending on RonSijm.AnaalIJzer.Tooling at: Method, Local, New, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.Tooling.Tests" to="RonSijm.AnaalIJzer.Tooling" description="Observed 1 RonSijm.AnaalIJzer.Tooling.Tests caller(s) depending on RonSijm.AnaalIJzer.Tooling at: MethodReturn, Local, New, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.Tooling.Tests" to="RonSijm.AnaalIJzer.Graphing" description="Observed 1 RonSijm.AnaalIJzer.Tooling.Tests caller(s) depending on RonSijm.AnaalIJzer.Graphing at: Local." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.UnitTests" to="RonSijm.AnaalIJzer.UnitTests" description="Observed 23 RonSijm.AnaalIJzer.UnitTests caller(s) depending on RonSijm.AnaalIJzer.UnitTests at: Local, New, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.UnitTests" to="RonSijm.AnaalIJzer" description="Observed 22 RonSijm.AnaalIJzer.UnitTests caller(s) depending on RonSijm.AnaalIJzer at: MethodReturn, Local, New, GenericArgument, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.VisualStudio.Core.Tests" to="RonSijm.AnaalIJzer.VisualStudio.Core" description="Observed 1 RonSijm.AnaalIJzer.VisualStudio.Core.Tests caller(s) depending on RonSijm.AnaalIJzer.VisualStudio.Core at: Method, Local, New, GenericArgument, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.VisualStudio.Core.Tests" to="RonSijm.AnaalIJzer.VisualStudio.Core.Tests" description="Observed 1 RonSijm.AnaalIJzer.VisualStudio.Core.Tests caller(s) depending on RonSijm.AnaalIJzer.VisualStudio.Core.Tests at: New." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.VisualStudio.Tests" to="RonSijm.AnaalIJzer.VisualStudio.Core" description="Observed 1 RonSijm.AnaalIJzer.VisualStudio.Tests caller(s) depending on RonSijm.AnaalIJzer.VisualStudio.Core at: MethodReturn, Local, New, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.VisualStudio.Tests" to="RonSijm.AnaalIJzer.VisualStudio" description="Observed 1 RonSijm.AnaalIJzer.VisualStudio.Tests caller(s) depending on RonSijm.AnaalIJzer.VisualStudio at: StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.Arse" to="RonSijm.AnaalIJzer.Tooling" description="Observed 4 RonSijm.AnaalIJzer.Arse caller(s) depending on RonSijm.AnaalIJzer.Tooling at: Method, MethodReturn, Property, Local, New, GenericInvocation, GenericArgument, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.Arse" to="RonSijm.AnaalIJzer.Arse" description="Observed 7 RonSijm.AnaalIJzer.Arse caller(s) depending on RonSijm.AnaalIJzer.Arse at: Method, MethodReturn, Local, New, GenericInvocation, GenericArgument, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.GraphEditor.Standalone" to="RonSijm.AnaalIJzer.GraphEditor.Standalone" description="Observed 5 RonSijm.AnaalIJzer.GraphEditor.Standalone caller(s) depending on RonSijm.AnaalIJzer.GraphEditor.Standalone at: Constructor, Method, Field, Local, New, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.GraphEditor.Standalone" to="RonSijm.AnaalIJzer.Tooling" description="Observed 2 RonSijm.AnaalIJzer.GraphEditor.Standalone caller(s) depending on RonSijm.AnaalIJzer.Tooling at: Field, Local, New." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.GraphEditor.Standalone" to="RonSijm.AnaalIJzer.Graphing" description="Observed 2 RonSijm.AnaalIJzer.GraphEditor.Standalone caller(s) depending on RonSijm.AnaalIJzer.Graphing at: Method, MethodReturn, Local, GenericArgument, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.GraphEditor.Standalone" to="RonSijm.AnaalIJzer.Graphing.Wpf" description="Observed 2 RonSijm.AnaalIJzer.GraphEditor.Standalone caller(s) depending on RonSijm.AnaalIJzer.Graphing.Wpf at: MethodReturn, Field, Local, New, GenericInvocation, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.Tooling" to="RonSijm.AnaalIJzer.Tooling" description="Observed 20 RonSijm.AnaalIJzer.Tooling caller(s) depending on RonSijm.AnaalIJzer.Tooling at: Constructor, Method, MethodReturn, Property, Local, New, GenericInvocation, GenericArgument, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.Tooling" to="RonSijm.AnaalIJzer" description="Observed 12 RonSijm.AnaalIJzer.Tooling caller(s) depending on RonSijm.AnaalIJzer at: Constructor, Method, MethodReturn, Local, New, GenericInvocation, GenericArgument, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.Tooling" to="RonSijm.AnaalIJzer.Graphing" description="Observed 1 RonSijm.AnaalIJzer.Tooling caller(s) depending on RonSijm.AnaalIJzer.Graphing at: MethodReturn, Local, New, GenericInvocation, GenericArgument, StaticMember." />
-  <AllowedDependency from="RonSijm.AnaalIJzer.Tooling" to="RonSijm.AnaalIJzer.ConfigurationEditing" description="Observed 1 RonSijm.AnaalIJzer.Tooling caller(s) depending on RonSijm.AnaalIJzer.ConfigurationEditing at: MethodReturn, Local, New, StaticMember." />
+
+  <AllowedDependency from="*" to="Foundation" appliesToDescendants="true"
+                     description="Everything may rely on the shared architectural vocabulary and runtime/configuration primitives." />
+
+  <AllowedDependency from="Foundation" to="Foundation"
+                     description="Foundation projects may collaborate with each other." />
+
+  <AllowedDependency from="AnalysisPlatform" to="AnalysisPlatform"
+                     description="Analyzer components collaborate with each other." />
+
+  <AllowedDependency from="ApplicationServices" to="AnalysisPlatform"
+                     description="Application services execute analysis and reporting workflows." />
+  <AllowedDependency from="ApplicationServices" to="ApplicationServices"
+                     description="Application services may collaborate with each other." />
+
+  <AllowedDependency from="Graphing" to="AnalysisPlatform"
+                     description="Graphing surfaces inspect analyzed architecture and diagnostics metadata." />
+  <AllowedDependency from="Graphing" to="ApplicationServices"
+                     description="Graphing workflows load workspaces and edit configurations through application services." />
+  <AllowedDependency from="Graphing" to="Graphing"
+                     description="Graphing components may collaborate with each other." />
+
+  <AllowedDependency from="Tooling" to="AnalysisPlatform"
+                     description="Host tools may trigger analysis and reporting workflows directly." />
+  <AllowedDependency from="Tooling" to="ApplicationServices"
+                     description="Host tools orchestrate workspace analysis and configuration editing." />
+  <AllowedDependency from="Tooling" to="Graphing"
+                     description="Host tools may render and edit dependency graphs." />
+  <AllowedDependency from="Tooling" to="Tooling"
+                     description="Tool-specific helpers may collaborate within the tooling layer." />
+
+  <AllowedDependency from="Tests" to="*" appliesToDescendants="true"
+                     description="Tests are allowed to reach across the system." />
 </ArchitecturalLevels>

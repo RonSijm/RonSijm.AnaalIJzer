@@ -1,3 +1,5 @@
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+
 namespace RonSijm.AnaalIJzer.GraphApplication.Tests.Selection;
 
 public sealed class ArchitectureGraphSelectionTests
@@ -38,8 +40,8 @@ public sealed class ArchitectureGraphSelectionTests
 			"/Application/Implementation",
 			"/Application/Contracts",
 			false,
-			ImmutableArray.Create(ArchitectureDependencySiteNames.MethodReturn, ArchitectureDependencySiteNames.New),
-			ImmutableArray.Create(ArchitectureDependencySiteNames.Field),
+            [ArchitectureDependencySiteNames.MethodReturn, ArchitectureDependencySiteNames.New],
+            [ArchitectureDependencySiteNames.Field],
 			"Application implementations may create and return contracts.");
 
 		var result = ArchitectureGraphSelection.ForDependency(handle);

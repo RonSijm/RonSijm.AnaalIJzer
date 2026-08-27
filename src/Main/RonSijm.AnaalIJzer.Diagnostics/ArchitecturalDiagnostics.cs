@@ -1,6 +1,7 @@
 using Microsoft.CodeAnalysis;
+using RonSijm.AnaalIJzer.Core.Findings;
 
-namespace RonSijm.AnaalIJzer;
+namespace RonSijm.AnaalIJzer.Diagnostics;
 
 internal static class ArchitecturalDiagnostics
 {
@@ -45,7 +46,9 @@ internal static class ArchitecturalDiagnostics
 	internal const string PropertyNestedMemberName = ArchitectureDiagnosticProperties.PropertyNestedMemberName;
 	internal const string PropertyNestedMemberContainingType = ArchitectureDiagnosticProperties.PropertyNestedMemberContainingType;
 	internal const string PropertyContractViolationKind = ArchitectureDiagnosticProperties.PropertyContractViolationKind;
+	internal const string PropertyContractPropertyAccessor = ArchitectureDiagnosticProperties.PropertyContractPropertyAccessor;
 	internal const string PropertyInheritanceViolationKind = ArchitectureDiagnosticProperties.PropertyInheritanceViolationKind;
+	internal const string PropertyRequiredInheritanceTypeName = ArchitectureDiagnosticProperties.PropertyRequiredInheritanceTypeName;
 	internal const string PropertyBoundaryLayerName = ArchitectureDiagnosticProperties.PropertyBoundaryLayerName;
 	internal const string PropertyMatchedEntryPoint = ArchitectureDiagnosticProperties.PropertyMatchedEntryPoint;
 	internal const string PropertyEntryPointFailureReason = ArchitectureDiagnosticProperties.PropertyEntryPointFailureReason;

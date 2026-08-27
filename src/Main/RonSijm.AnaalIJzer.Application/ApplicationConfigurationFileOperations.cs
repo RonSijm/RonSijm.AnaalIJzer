@@ -8,7 +8,7 @@ internal static class ApplicationConfigurationFileOperations
 {
 	public static async Task<ApplicationRunResult> MergeConfigAsync(ApplicationRequest request, CancellationToken cancellationToken)
 	{
-		var inputPaths = request.InputPaths.Select(Path.GetFullPath).ToArray();
+		string[] inputPaths = [..request.InputPaths.Select(Path.GetFullPath)];
 		var inputDirectory = Path.GetDirectoryName(inputPaths[0])!;
 		var outputPath = ApplicationOutputPathService.ResolveOutputPath(request.OutputPath, Path.Combine(inputDirectory, "Architecture.merged.anl"), inputDirectory);
 		await RunFileOperationAsync(() => ArchitectureConfigurationFileService.MergeAsync(inputPaths, outputPath, request.Force, cancellationToken));

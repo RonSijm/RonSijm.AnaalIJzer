@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer.ConfigurationEditing.Model;
+namespace RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 
 public sealed class ArchitectureConfigurationCreationTarget(
 	string title,

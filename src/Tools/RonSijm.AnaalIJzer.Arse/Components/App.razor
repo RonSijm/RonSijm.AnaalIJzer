@@ -1,6 +1,4 @@
 @namespace RonSijm.AnaalIJzer.Arse.Components
-@using System.Globalization
-@using System.Text
 
 <Rows>
 	<Markup Content="Arse" Foreground="@Color.DeepSkyBlue1" Decoration="@Decoration.Bold" />
@@ -13,7 +11,7 @@
 		        Options="@OperationOptions"
 		        Value="@_selectedOperation"
 		        ValueChanged="OnOperationChanged"
-		        Expand="true" />
+		        Expand="true"></Select>
 
 		@if (IsFileAssociationOperation)
 		{
@@ -166,7 +164,7 @@
 			        Value="@_selectedInput"
 			        ValueChanged="OnInputChanged"
 			        @onkeyup="OnFormKeyUp"
-			        Expand="true" />
+			        Expand="true"></Select>
 		}
 
 		<FileSelector Label="@(operation.SupportsMultipleInputs ? $"{input.DisplayName} files" : input.DisplayName)"
@@ -196,7 +194,7 @@
 			        Value="@_generationStrategy"
 			        ValueChanged="OnGenerationStrategyChanged"
 			        @onkeyup="OnFormKeyUp"
-			        Expand="true" />
+			        Expand="true"></Select>
 
 			@if (_generationStrategy == ConventionsStrategy)
 			{
@@ -222,7 +220,7 @@
 			        Value="@_generatedDocumentation"
 			        ValueChanged="OnGeneratedDocumentationChanged"
 			        @onkeyup="OnFormKeyUp"
-			        Expand="true" />
+			        Expand="true"></Select>
 
 			@if (_generatedDocumentation == GenerateDocumentation)
 			{
@@ -231,7 +229,7 @@
 				        Value="@_inputInclusion"
 				        ValueChanged="OnInputInclusionChanged"
 				        @onkeyup="OnFormKeyUp"
-				        Expand="true" />
+				        Expand="true"></Select>
 			}
 		}
 
@@ -244,7 +242,7 @@
 				        Value="@_codeEvidence"
 				        ValueChanged="OnCodeEvidenceChanged"
 				        @onkeyup="OnFormKeyUp"
-				        Expand="true" />
+				        Expand="true"></Select>
 			}
 
 			<Select TItem="string"
@@ -252,7 +250,7 @@
 			        Value="@_inputInclusion"
 			        ValueChanged="OnInputInclusionChanged"
 			        @onkeyup="OnFormKeyUp"
-			        Expand="true" />
+			        Expand="true"></Select>
 		}
 
 		@if (operation.Kind != ApplicationOperationKind.Inspect)
@@ -271,7 +269,7 @@
 			        Value="@_overwrite"
 			        ValueChanged="OnOverwriteChanged"
 			        @onkeyup="OnFormKeyUp"
-			        Expand="true" />
+			        Expand="true"></Select>
 		}
 
 		<Newline />

@@ -1,7 +1,7 @@
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.Engine.ApiSurface;
+using RonSijm.AnaalIJzer.Core.ApiSurface.Engine.Policies;
 
-namespace RonSijm.AnaalIJzer.Analysis.ApiSurface.Model;
+namespace RonSijm.AnaalIJzer.Core.ApiSurface.Analysis.Model;
 
 public readonly struct TransitiveExposureViolationCandidate(
 	INamedTypeSymbol forbiddenType,

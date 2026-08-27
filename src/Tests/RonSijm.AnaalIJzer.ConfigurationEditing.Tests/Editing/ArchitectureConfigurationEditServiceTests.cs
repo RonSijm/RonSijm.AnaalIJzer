@@ -1,5 +1,5 @@
-using System.Collections.Immutable;
 using AwesomeAssertions;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 using Xunit;
 
 namespace RonSijm.AnaalIJzer.ConfigurationEditing.Tests.Editing;
@@ -15,7 +15,7 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 
 		var result = ArchitectureConfigurationEditService.CreateConfiguration(source);
 
-		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
+		result.Succeeded.Should().BeTrue(result.Message);
 		File.Exists(path).Should().BeTrue();
 		File.ReadAllText(path).Should().Contain("<ArchitecturalLevels");
 	}
@@ -36,7 +36,7 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 
 		var result = ArchitectureConfigurationEditService.CreateConfiguration(target);
 
-		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
+		result.Succeeded.Should().BeTrue(result.Message);
 		File.ReadAllText(projectPath).Should().Contain("<AdditionalFiles Include=\"Architecture.anl\" />");
 	}
 
@@ -56,7 +56,7 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 
 		var result = ArchitectureConfigurationEditService.CreateConfiguration(target);
 
-		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
+		result.Succeeded.Should().BeTrue(result.Message);
 		File.Exists(propsPath).Should().BeTrue();
 		File.ReadAllText(propsPath).Should().Contain("<AdditionalFiles Include=\"Architecture.anl\" />");
 	}
@@ -91,7 +91,7 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 
 		var result = ArchitectureConfigurationEditService.RemoveDependency(handle);
 
-		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
+		result.Succeeded.Should().BeTrue(result.Message);
 		File.ReadAllText(path).Should().NotContain("AllowedDependency");
 	}
 
@@ -113,10 +113,10 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 		var result = ArchitectureConfigurationEditService.SetDependencySites(
 			handle,
 			ArchitectureSiteFilterEditMode.AllowedSites,
-			ImmutableArray.Create<string>(ArchitectureDependencySiteNames.Constructor, ArchitectureDependencySiteNames.Method));
+			[ArchitectureDependencySiteNames.Constructor, ArchitectureDependencySiteNames.Method]);
 
 		var content = File.ReadAllText(path);
-		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
+		result.Succeeded.Should().BeTrue(result.Message);
 		content.Should().Contain("allowedSites=\"Constructor, Method\"");
 		content.Should().NotContain("blockedSites");
 	}
@@ -137,7 +137,7 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 
 		var result = ArchitectureConfigurationEditService.AddAllowedDependency(source, "Application/Implementation", "DataAbstraction/Contracts");
 
-		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
+		result.Succeeded.Should().BeTrue(result.Message);
 		File.ReadAllText(path).Should().Contain("<AllowedDependency from=\"/Application/Implementation\" to=\"/DataAbstraction/Contracts\" />");
 	}
 
@@ -160,7 +160,7 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 		var result = ArchitectureConfigurationEditService.AddAllowedDependency(source, "Application/Implementation", "Application/Contracts");
 
 		var content = File.ReadAllText(path);
-		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
+		result.Succeeded.Should().BeTrue(result.Message);
 		content.Should().Contain("<Layer name=\"Application\">");
 		content.Should().Contain("<AllowedDependency from=\"Implementation\" to=\"Contracts\" />");
 		content.Should().NotContain("<AllowedDependency from=\"/Application/Implementation\"");
@@ -182,7 +182,7 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 
 		var result = ArchitectureConfigurationEditService.AddDependency(source, "Customer", "Pantry", "BlockedDependency");
 
-		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
+		result.Succeeded.Should().BeTrue(result.Message);
 		File.ReadAllText(path).Should().Contain("<BlockedDependency from=\"Customer\" to=\"Pantry\" />");
 	}
 
@@ -204,7 +204,7 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 		var result = ArchitectureConfigurationEditService.SetDependencyKind(handle, "BlockedDependency");
 
 		var content = File.ReadAllText(path);
-		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
+		result.Succeeded.Should().BeTrue(result.Message);
 		content.Should().Contain("<BlockedDependency from=\"Customer\" to=\"Pantry\" />");
 		content.Should().NotContain("<AllowedDependency from=\"Customer\" to=\"Pantry\" />");
 	}
@@ -224,10 +224,10 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 			""");
 		var handle = CreateHandle(path, "AllowedDependency", "Customer", "Framework");
 
-		AssertionExtensions.Should((bool)ArchitectureConfigurationEditService.SetDependencyAppliesToDescendants(handle, true).Succeeded).BeTrue();
+		ArchitectureConfigurationEditService.SetDependencyAppliesToDescendants(handle, true).Succeeded.Should().BeTrue();
 		File.ReadAllText(path).Should().Contain("appliesToDescendants=\"true\"");
 
-		AssertionExtensions.Should((bool)ArchitectureConfigurationEditService.SetDependencyAppliesToDescendants(handle, false).Succeeded).BeTrue();
+		ArchitectureConfigurationEditService.SetDependencyAppliesToDescendants(handle, false).Succeeded.Should().BeTrue();
 		File.ReadAllText(path).Should().NotContain("appliesToDescendants");
 	}
 
@@ -248,7 +248,7 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 
 		var result = ArchitectureConfigurationEditService.SetDependencyDescription(handle, "Customers talk to waiters.");
 
-		AssertionExtensions.Should((bool)result.Succeeded).BeTrue(result.Message);
+		result.Succeeded.Should().BeTrue(result.Message);
 		File.ReadAllText(path).Should().Contain("description=\"Customers talk to waiters.\"");
 	}
 

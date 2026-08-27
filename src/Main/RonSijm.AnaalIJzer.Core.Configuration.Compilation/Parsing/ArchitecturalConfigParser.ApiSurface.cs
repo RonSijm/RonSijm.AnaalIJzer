@@ -1,9 +1,10 @@
 using System.Collections.Immutable;
 using System.Xml;
 using System.Xml.Linq;
-using RonSijm.AnaalIJzer.Engine.ApiSurface;
+using RonSijm.AnaalIJzer.Core.ApiSurface.Engine.Policies;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 
-namespace RonSijm.AnaalIJzer.Config.Parsing;
+namespace RonSijm.AnaalIJzer.Core.Configuration.Compilation.Parsing;
 
 public static partial class ArchitecturalConfigParser
 {

@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace RonSijm.AnaalIJzer.Engine.NameRules;
+namespace RonSijm.AnaalIJzer.Core.NameRules;
 
 public static class NameRuleNameNormalizer
 {

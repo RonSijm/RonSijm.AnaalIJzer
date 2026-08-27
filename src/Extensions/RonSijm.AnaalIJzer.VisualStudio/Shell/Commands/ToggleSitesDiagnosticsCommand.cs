@@ -7,16 +7,16 @@ namespace RonSijm.AnaalIJzer.VisualStudio.Shell.Commands;
 
 internal sealed class ToggleSitesDiagnosticsCommand
 {
-	private readonly AsyncPackage package;
-	private readonly OleMenuCommand command;
+	private readonly AsyncPackage _package;
+	private readonly OleMenuCommand _command;
 
 	private ToggleSitesDiagnosticsCommand(AsyncPackage package, OleMenuCommandService commandService)
 	{
-		this.package = package;
+		this._package = package;
 		var commandId = new CommandID(PackageIds.CommandSet, PackageIds.ToggleSitesDiagnosticsCommandId);
-		command = new OleMenuCommand(Execute, commandId);
-		command.BeforeQueryStatus += BeforeQueryStatus;
-		commandService.AddCommand(command);
+		_command = new OleMenuCommand(Execute, commandId);
+		_command.BeforeQueryStatus += BeforeQueryStatus;
+		commandService.AddCommand(_command);
 		ArchitectureVisualStudioLog.Info("Registered command: AnaalIJzer.ToggleSitesDiagnostics.");
 	}
 
@@ -37,15 +37,15 @@ internal sealed class ToggleSitesDiagnosticsCommand
 	{
 		ThreadHelper.ThrowIfNotOnUIThread();
 
-		var optionsPage = (AnaalIJzerOptionsPage)package.GetDialogPage(typeof(AnaalIJzerOptionsPage));
-		command.Checked = optionsPage.ToEditorOptions().EnableSitesDiagnostics;
+		var optionsPage = (AnaalIJzerOptionsPage)_package.GetDialogPage(typeof(AnaalIJzerOptionsPage));
+		_command.Checked = optionsPage.ToEditorOptions().EnableSitesDiagnostics;
 	}
 
 	private void Execute(object sender, EventArgs e)
 	{
 		ThreadHelper.ThrowIfNotOnUIThread();
 
-		var optionsPage = (AnaalIJzerOptionsPage)package.GetDialogPage(typeof(AnaalIJzerOptionsPage));
+		var optionsPage = (AnaalIJzerOptionsPage)_package.GetDialogPage(typeof(AnaalIJzerOptionsPage));
 		var options = SitesDiagnosticsCommandState.Toggle(optionsPage.ToEditorOptions());
 		optionsPage.ApplyEditorOptions(options);
 		optionsPage.SaveSettingsToStorage();

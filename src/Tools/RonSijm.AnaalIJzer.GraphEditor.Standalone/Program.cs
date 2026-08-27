@@ -1,5 +1,4 @@
 using System.IO;
-using System.Threading;
 using System.Windows;
 using Microsoft.Extensions.Logging;
 using RonSijm.AnaalIJzer.GraphEditor.Standalone.FileExtension;
@@ -50,7 +49,7 @@ internal static class Program
 			return;
 		}
 
-		var app = new System.Windows.Application();
+		var app = new Application();
 		RegisterExceptionLogging(app, logger);
 		try
 		{
@@ -87,7 +86,7 @@ internal static class Program
 			return;
 		}
 
-		var app = new System.Windows.Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
+		var app = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
 		RegisterExceptionLogging(app, logger);
 		var previousSynchronizationContext = SynchronizationContext.Current;
 		SynchronizationContext.SetSynchronizationContext(null);
@@ -108,7 +107,7 @@ internal static class Program
 		}
 	}
 
-	private static void RegisterExceptionLogging(System.Windows.Application app, ILogger logger)
+	private static void RegisterExceptionLogging(Application app, ILogger logger)
 	{
 		app.DispatcherUnhandledException += (_, args) =>
 		{

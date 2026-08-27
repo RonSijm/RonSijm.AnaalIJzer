@@ -1,30 +1,19 @@
 using System.Collections.Immutable;
 
-namespace RonSijm.AnaalIJzer.Findings;
+namespace RonSijm.AnaalIJzer.Core.Findings;
 
-public sealed class ArchitectureFinding
+public sealed class ArchitectureFinding(
+	ArchitectureFindingSeverity severity,
+	string code,
+	string message,
+	string context,
+	string? state = null,
+	string? reasonCode = null,
+	ImmutableDictionary<string, string?>? properties = null)
 {
-	public ArchitectureFinding(
-		ArchitectureFindingSeverity severity,
-		string code,
-		string message,
-		string context,
-		string? state = null,
-		string? reasonCode = null,
-		ImmutableDictionary<string, string?>? properties = null)
-	{
-		Severity = severity;
-		Code = code;
-		Message = message;
-		Context = context;
-		State = state;
-		ReasonCode = reasonCode;
-		Properties = properties ?? ImmutableDictionary<string, string?>.Empty;
-	}
+	public ArchitectureFindingSeverity Severity { get; } = severity;
 
-	public ArchitectureFindingSeverity Severity { get; }
-
-	public string Code { get; }
+	public string Code { get; } = code;
 
 	public string Category
 	{
@@ -36,15 +25,15 @@ public sealed class ArchitectureFinding
 		}
 	}
 
-	public string Message { get; }
+	public string Message { get; } = message;
 
-	public string Context { get; }
+	public string Context { get; } = context;
 
-	public string? State { get; }
+	public string? State { get; } = state;
 
-	public string? ReasonCode { get; }
+	public string? ReasonCode { get; } = reasonCode;
 
-	public ImmutableDictionary<string, string?> Properties { get; }
+	public ImmutableDictionary<string, string?> Properties { get; } = properties ?? ImmutableDictionary<string, string?>.Empty;
 
 	public string SeverityText
 	{

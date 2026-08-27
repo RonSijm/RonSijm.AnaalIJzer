@@ -8,16 +8,16 @@ namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
 
 internal sealed class ArchitectureLayerCreationDialog : Window
 {
-	private readonly ArchitectureGraphCanvasTheme theme;
-	private readonly TextBox name;
-	private readonly ComboBox matcherKind;
-	private readonly ComboBox attributeName;
-	private readonly TextBox attributeValue;
-	private readonly TextBlock error;
+	private readonly ArchitectureGraphCanvasTheme _theme;
+	private readonly TextBox _name;
+	private readonly ComboBox _matcherKind;
+	private readonly ComboBox _attributeName;
+	private readonly TextBox _attributeValue;
+	private readonly TextBlock _error;
 
 	private ArchitectureLayerCreationDialog(ArchitectureGraphCanvasTheme theme)
 	{
-		this.theme = theme;
+		this._theme = theme;
 		Title = "Add AnaalIJzer layer";
 		Width = 420;
 		SizeToContent = SizeToContent.Height;
@@ -29,26 +29,26 @@ internal sealed class ArchitectureLayerCreationDialog : Window
 		var root = new StackPanel { Margin = new Thickness(14) };
 		theme.ApplyToRoot(root);
 		root.Children.Add(CreateLabel("Layer name"));
-		name = CreateTextBox();
-		root.Children.Add(name);
+		_name = CreateTextBox();
+		root.Children.Add(_name);
 		root.Children.Add(CreateLabel("Matcher kind"));
-		matcherKind = CreateComboBox("Class", "Namespace", "Assembly");
-		matcherKind.SelectionChanged += (_, _) => UpdateAttributeNames();
-		root.Children.Add(matcherKind);
+		_matcherKind = CreateComboBox("Class", "Namespace", "Assembly");
+		_matcherKind.SelectionChanged += (_, _) => UpdateAttributeNames();
+		root.Children.Add(_matcherKind);
 		root.Children.Add(CreateLabel("Matcher attribute"));
 		var row = new Grid();
 		row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(150) });
 		row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(8) });
 		row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-		attributeName = CreateComboBox();
-		Grid.SetColumn(attributeName, 0);
-		row.Children.Add(attributeName);
-		attributeValue = CreateTextBox();
-		Grid.SetColumn(attributeValue, 2);
-		row.Children.Add(attributeValue);
+		_attributeName = CreateComboBox();
+		Grid.SetColumn(_attributeName, 0);
+		row.Children.Add(_attributeName);
+		_attributeValue = CreateTextBox();
+		Grid.SetColumn(_attributeValue, 2);
+		row.Children.Add(_attributeValue);
 		root.Children.Add(row);
-		error = new TextBlock { TextWrapping = TextWrapping.Wrap, Foreground = Brushes.IndianRed, Margin = new Thickness(0, 8, 0, 0) };
-		root.Children.Add(error);
+		_error = new TextBlock { TextWrapping = TextWrapping.Wrap, Foreground = Brushes.IndianRed, Margin = new Thickness(0, 8, 0, 0) };
+		root.Children.Add(_error);
 		var buttons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 12, 0, 0) };
 		var cancel = CreateButton("Cancel");
 		cancel.Click += (_, _) => DialogResult = false;
@@ -59,10 +59,10 @@ internal sealed class ArchitectureLayerCreationDialog : Window
 		root.Children.Add(buttons);
 		UpdateAttributeNames();
 		Content = root;
-		Loaded += (_, _) => name.Focus();
+		Loaded += (_, _) => _name.Focus();
 	}
 
-	public ArchitectureLayerCreationRequest? Request { get; private set; }
+	private ArchitectureLayerCreationRequest? Request { get; set; }
 
 	public static ArchitectureLayerCreationRequest? Prompt(Window? owner, ArchitectureGraphCanvasTheme theme)
 	{
@@ -80,65 +80,65 @@ internal sealed class ArchitectureLayerCreationDialog : Window
 
 	private void Accept()
 	{
-		if (string.IsNullOrWhiteSpace(name.Text))
+		if (string.IsNullOrWhiteSpace(_name.Text))
 		{
-			error.Text = "Layer name is required.";
+			_error.Text = "Layer name is required.";
 			return;
 		}
 
-		if (name.Text.Contains("/"))
+		if (_name.Text.Contains("/"))
 		{
-			error.Text = "Layer names may not contain '/'.";
+			_error.Text = "Layer names may not contain '/'.";
 			return;
 		}
 
-		var key = attributeName.SelectedItem?.ToString() ?? string.Empty;
+		var key = _attributeName.SelectedItem as string ?? string.Empty;
 		if (string.IsNullOrWhiteSpace(key))
 		{
-			error.Text = "Choose a matcher attribute.";
+			_error.Text = "Choose a matcher attribute.";
 			return;
 		}
 
-		if (string.IsNullOrWhiteSpace(attributeValue.Text))
+		if (string.IsNullOrWhiteSpace(_attributeValue.Text))
 		{
-			error.Text = "Matcher value is required.";
+			_error.Text = "Matcher value is required.";
 			return;
 		}
 
 		var attributes = ImmutableDictionary.CreateBuilder<string, string>(StringComparer.Ordinal);
-		attributes[key] = attributeValue.Text.Trim();
-		Request = new ArchitectureLayerCreationRequest(name.Text.Trim(), matcherKind.SelectedItem?.ToString() ?? "Class", attributes.ToImmutable());
+		attributes[key] = _attributeValue.Text.Trim();
+		Request = new ArchitectureLayerCreationRequest(_name.Text.Trim(), _matcherKind.SelectedItem as string ?? "Class", attributes.ToImmutable());
 		DialogResult = true;
 	}
 
 	private void UpdateAttributeNames()
 	{
-		attributeName.Items.Clear();
-		foreach (var option in MatcherAttributeOptions.GetNames(matcherKind.SelectedItem?.ToString()))
+		_attributeName.Items.Clear();
+		foreach (var option in MatcherAttributeOptions.GetNames(_matcherKind.SelectedItem as string))
 		{
-			attributeName.Items.Add(option);
+			_attributeName.Items.Add(option);
 		}
 
-		attributeName.SelectedIndex = attributeName.Items.Count > 0 ? 0 : -1;
+		_attributeName.SelectedIndex = _attributeName.Items.Count > 0 ? 0 : -1;
 	}
 
 	private TextBlock CreateLabel(string text)
 	{
-		var result = new TextBlock { Text = text, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 8, 0, 2), Foreground = theme.Foreground };
+		var result = new TextBlock { Text = text, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 8, 0, 2), Foreground = _theme.Foreground };
 
 		return result;
 	}
 
 	private TextBox CreateTextBox()
 	{
-		var result = new TextBox { Background = theme.SurfaceBackground, Foreground = theme.Foreground, BorderBrush = theme.Border };
+		var result = new TextBox { Background = _theme.SurfaceBackground, Foreground = _theme.Foreground, BorderBrush = _theme.Border };
 
 		return result;
 	}
 
 	private ComboBox CreateComboBox(params string[] items)
 	{
-		var result = new ComboBox { Background = theme.SurfaceBackground, Foreground = theme.Foreground, BorderBrush = theme.Border };
+		var result = new ComboBox { Background = _theme.SurfaceBackground, Foreground = _theme.Foreground, BorderBrush = _theme.Border };
 		foreach (var item in items)
 		{
 			result.Items.Add(item);
@@ -154,7 +154,7 @@ internal sealed class ArchitectureLayerCreationDialog : Window
 
 	private Button CreateButton(string text)
 	{
-		var result = new Button { Content = text, MinWidth = 82, Margin = new Thickness(6, 0, 0, 0), Foreground = theme.Foreground, BorderBrush = theme.Border };
+		var result = new Button { Content = text, MinWidth = 82, Margin = new Thickness(6, 0, 0, 0), Foreground = _theme.Foreground, BorderBrush = _theme.Border };
 
 		return result;
 	}

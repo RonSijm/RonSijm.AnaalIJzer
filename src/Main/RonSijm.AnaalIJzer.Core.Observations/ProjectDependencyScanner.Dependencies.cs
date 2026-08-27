@@ -1,7 +1,8 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using RonSijm.AnaalIJzer.Core.Indicators;
 
-namespace RonSijm.AnaalIJzer.ObservedDependencies;
+namespace RonSijm.AnaalIJzer.Core.Observations;
 
 public static partial class ProjectDependencyScanner
 {

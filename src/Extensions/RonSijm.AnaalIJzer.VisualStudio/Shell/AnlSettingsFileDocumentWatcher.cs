@@ -1,25 +1,22 @@
-using System.IO;
-using System.Runtime.InteropServices;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using RonSijm.AnaalIJzer.VisualStudio.Diagnostics;
-using RonSijm.AnaalIJzer.VisualStudio.Options;
 
 namespace RonSijm.AnaalIJzer.VisualStudio.Shell;
 
 internal sealed partial class AnlSettingsFileDocumentWatcher : IVsRunningDocTableEvents, IVsSelectionEvents, IDisposable
 {
-	private readonly AsyncPackage package;
-	private IVsRunningDocumentTable? runningDocumentTable;
-	private IVsMonitorSelection? monitorSelection;
-	private uint runningDocumentTableCookie;
-	private uint monitorSelectionCookie;
-	private string? lastOpenedPath;
+	private readonly AsyncPackage _package;
+	private IVsRunningDocumentTable? _runningDocumentTable;
+	private IVsMonitorSelection? _monitorSelection;
+	private uint _runningDocumentTableCookie;
+	private uint _monitorSelectionCookie;
+	private string? _lastOpenedPath;
 
 	private AnlSettingsFileDocumentWatcher(AsyncPackage package)
 	{
-		this.package = package;
+		this._package = package;
 	}
 
 	internal static async Task<AnlSettingsFileDocumentWatcher> InitializeAsync(AsyncPackage package)
@@ -35,27 +32,27 @@ internal sealed partial class AnlSettingsFileDocumentWatcher : IVsRunningDocTabl
 	{
 		ThreadHelper.ThrowIfNotOnUIThread();
 
-		if (runningDocumentTable is not null && runningDocumentTableCookie != 0)
+		if (_runningDocumentTable is not null && _runningDocumentTableCookie != 0)
 		{
-			ErrorHandler.ThrowOnFailure(runningDocumentTable.UnadviseRunningDocTableEvents(runningDocumentTableCookie));
-			runningDocumentTableCookie = 0;
+			ErrorHandler.ThrowOnFailure(_runningDocumentTable.UnadviseRunningDocTableEvents(_runningDocumentTableCookie));
+			_runningDocumentTableCookie = 0;
 		}
 
-		if (monitorSelection is not null && monitorSelectionCookie != 0)
+		if (_monitorSelection is not null && _monitorSelectionCookie != 0)
 		{
-			ErrorHandler.ThrowOnFailure(monitorSelection.UnadviseSelectionEvents(monitorSelectionCookie));
-			monitorSelectionCookie = 0;
+			ErrorHandler.ThrowOnFailure(_monitorSelection.UnadviseSelectionEvents(_monitorSelectionCookie));
+			_monitorSelectionCookie = 0;
 		}
 	}
 
 	private async Task InitializeCoreAsync()
 	{
-		await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(package.DisposalToken);
+		await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(_package.DisposalToken);
 
-		runningDocumentTable = await package.GetServiceAsync(typeof(SVsRunningDocumentTable)) as IVsRunningDocumentTable;
-		if (runningDocumentTable is not null)
+		_runningDocumentTable = await _package.GetServiceAsync(typeof(SVsRunningDocumentTable)) as IVsRunningDocumentTable;
+		if (_runningDocumentTable is not null)
 		{
-			ErrorHandler.ThrowOnFailure(runningDocumentTable.AdviseRunningDocTableEvents(this, out runningDocumentTableCookie));
+			ErrorHandler.ThrowOnFailure(_runningDocumentTable.AdviseRunningDocTableEvents(this, out _runningDocumentTableCookie));
 			ArchitectureVisualStudioLog.Info("Registered .anl settings file running-document watcher.");
 		}
 		else
@@ -63,10 +60,10 @@ internal sealed partial class AnlSettingsFileDocumentWatcher : IVsRunningDocTabl
 			ArchitectureVisualStudioLog.Warning("Could not register .anl running-document watcher because IVsRunningDocumentTable was unavailable.");
 		}
 
-		monitorSelection = await package.GetServiceAsync(typeof(SVsShellMonitorSelection)) as IVsMonitorSelection;
-		if (monitorSelection is not null)
+		_monitorSelection = await _package.GetServiceAsync(typeof(SVsShellMonitorSelection)) as IVsMonitorSelection;
+		if (_monitorSelection is not null)
 		{
-			ErrorHandler.ThrowOnFailure(monitorSelection.AdviseSelectionEvents(this, out monitorSelectionCookie));
+			ErrorHandler.ThrowOnFailure(_monitorSelection.AdviseSelectionEvents(this, out _monitorSelectionCookie));
 			ArchitectureVisualStudioLog.Info("Registered .anl active-document watcher.");
 		}
 		else

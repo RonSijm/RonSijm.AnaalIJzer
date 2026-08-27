@@ -7,18 +7,18 @@ namespace RonSijm.AnaalIJzer.VisualStudio.Options;
 [Guid("5d45288a-bff3-44d8-96a9-d7271b425a30")]
 public sealed partial class AnaalIJzerOptionsPage : DialogPage
 {
-	private bool isLoadingSettings;
+	private bool _isLoadingSettings;
 
 	public override void LoadSettingsFromStorage()
 	{
-		isLoadingSettings = true;
+		_isLoadingSettings = true;
 		try
 		{
 			base.LoadSettingsFromStorage();
 		}
 		finally
 		{
-			isLoadingSettings = false;
+			_isLoadingSettings = false;
 		}
 
 		ArchitectureVisualStudioOptions.Publish(ToEditorOptions());

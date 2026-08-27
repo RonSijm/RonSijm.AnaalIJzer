@@ -2,14 +2,14 @@ using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using RonSijm.AnaalIJzer.Graphing.Model;
-using RonSijm.AnaalIJzer.Indicators;
-using RonSijm.AnaalIJzer.Config.Parsing;
-using RonSijm.AnaalIJzer.Analysis.ApiSurface.Model;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Document;
+using RonSijm.AnaalIJzer.Core.ApiSurface.Analysis.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Compilation.Parsing;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
 using RonSijm.AnaalIJzer.Core.Editor.Snapshots;
+using RonSijm.AnaalIJzer.Core.Indicators;
+using RonSijm.AnaalIJzer.GraphModel.Model;
 
-namespace RonSijm.AnaalIJzer.EditorRuntime.Snapshots;
+namespace RonSijm.AnaalIJzer.EditorRuntime.Editor.Snapshots;
 
 public static partial class ArchitectureEditorSnapshotService
 {
@@ -58,7 +58,7 @@ public static partial class ArchitectureEditorSnapshotService
 				ImmutableArray<ArchitectureGraphLayer>.Empty,
 				ImmutableArray<ArchitectureGraphRule>.Empty,
 				ImmutableArray<string>.Empty,
-				config.ConfigurationIssues.Select(issue => issue.Message).ToImmutableArray(),
+				[..config.ConfigurationIssues.Select(issue => issue.Message)],
 				configurationSource,
 				exceptionReviews: ImmutableArray<ArchitectureGraphExceptionReview>.Empty);
 
@@ -67,7 +67,7 @@ public static partial class ArchitectureEditorSnapshotService
 				true,
 				ImmutableArray<ArchitectureLayerIndicator>.Empty,
 				ImmutableArray<ArchitectureDependencySiteIndicator>.Empty,
-				config.ConfigurationIssues.Select(issue => issue.Message).ToImmutableArray(),
+				[..config.ConfigurationIssues.Select(issue => issue.Message)],
 				graphSnapshot);
 		}
 
@@ -121,7 +121,7 @@ public static partial class ArchitectureEditorSnapshotService
 			config.HasConfigurationIssues,
 			layerIndicatorArray,
 			siteIndicatorArray,
-			config.ConfigurationIssues.Select(issue => issue.Message).ToImmutableArray(),
+			[..config.ConfigurationIssues.Select(issue => issue.Message)],
 			graph,
 			unclassifiedTypeIndicatorArray,
 			nameRuleIndicators.ToImmutable(),

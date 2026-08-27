@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.Config.Parsing;
-using RonSijm.AnaalIJzer.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Compilation.Parsing;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 
-namespace RonSijm.AnaalIJzer.Config.Compilation;
+namespace RonSijm.AnaalIJzer.Core.Configuration.Compilation.Compilation;
 
 internal readonly struct ArchitectureConfigurationDocumentParseContext
 {

@@ -10,16 +10,16 @@ internal sealed partial class MainWindow
 	{
 		try
 		{
-			var changed = AnaalIJzerFileAssociation.AssociateAnlFiles(logger);
-			status.Text = changed
+			var changed = AnaalIJzerFileAssociation.AssociateAnlFiles(_logger);
+			_status.Text = changed
 				? ".anl files are now associated with the AnaalIJzer Graph Editor."
 				: ".anl files were already associated with the AnaalIJzer Graph Editor.";
-			MessageBox.Show(status.Text, "AnaalIJzer Graph Editor", MessageBoxButton.OK, MessageBoxImage.Information);
+			MessageBox.Show(_status.Text, "AnaalIJzer Graph Editor", MessageBoxButton.OK, MessageBoxImage.Information);
 		}
 		catch (Exception exception)
 		{
-			logger.LogError(exception, "Failed to associate .anl files with the AnaalIJzer Graph Editor.");
-			status.Text = exception.Message + " Log: " + logPath;
+			_logger.LogError(exception, "Failed to associate .anl files with the AnaalIJzer Graph Editor.");
+			_status.Text = exception.Message + " Log: " + _logPath;
 			MessageBox.Show(exception.Message, "AnaalIJzer Graph Editor", MessageBoxButton.OK, MessageBoxImage.Warning);
 		}
 	}
@@ -28,16 +28,16 @@ internal sealed partial class MainWindow
 	{
 		try
 		{
-			var changed = AnaalIJzerFileAssociation.UnassociateAnlFiles(logger);
-			status.Text = changed
+			var changed = AnaalIJzerFileAssociation.UnassociateAnlFiles(_logger);
+			_status.Text = changed
 				? ".anl files are no longer associated with the AnaalIJzer Graph Editor."
 				: ".anl files were not associated with the AnaalIJzer Graph Editor.";
-			MessageBox.Show(status.Text, "AnaalIJzer Graph Editor", MessageBoxButton.OK, MessageBoxImage.Information);
+			MessageBox.Show(_status.Text, "AnaalIJzer Graph Editor", MessageBoxButton.OK, MessageBoxImage.Information);
 		}
 		catch (Exception exception)
 		{
-			logger.LogError(exception, "Failed to unassociate .anl files from the AnaalIJzer Graph Editor.");
-			status.Text = exception.Message + " Log: " + logPath;
+			_logger.LogError(exception, "Failed to unassociate .anl files from the AnaalIJzer Graph Editor.");
+			_status.Text = exception.Message + " Log: " + _logPath;
 			MessageBox.Show(exception.Message, "AnaalIJzer Graph Editor", MessageBoxButton.OK, MessageBoxImage.Warning);
 		}
 	}

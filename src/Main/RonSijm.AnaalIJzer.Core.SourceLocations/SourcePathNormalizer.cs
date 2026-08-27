@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer.SourceLocations;
+namespace RonSijm.AnaalIJzer.Core.SourceLocations;
 
 public static class SourcePathNormalizer
 {
@@ -113,7 +113,7 @@ public static class SourcePathNormalizer
 
 		if (path.StartsWith("//", StringComparison.Ordinal))
 		{
-			var segments = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+			var segments = path.Split(['/'], StringSplitOptions.RemoveEmptyEntries);
 			if (segments.Length >= 2)
 			{
 				var result = "//" + segments[0] + "/" + segments[1] + "/";
@@ -142,7 +142,7 @@ public static class SourcePathNormalizer
 	private static string[] SplitSegments(string path, string root)
 	{
 		var relativePath = root.Length == 0 ? path : path.Substring(root.Length);
-		var result = relativePath.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+		var result = relativePath.Split(['/'], StringSplitOptions.RemoveEmptyEntries);
 
 		return result;
 	}

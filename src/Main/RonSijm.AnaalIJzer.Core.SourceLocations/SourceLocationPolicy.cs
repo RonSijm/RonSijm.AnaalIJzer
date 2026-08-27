@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 
-namespace RonSijm.AnaalIJzer.SourceLocations;
+namespace RonSijm.AnaalIJzer.Core.SourceLocations;
 
 public readonly struct SourceLocationPolicy(
 	string ownerLayerPath,

@@ -1,7 +1,7 @@
 using System.Text;
 using System.Xml.Linq;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Document;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Persistence;
 
 namespace RonSijm.AnaalIJzer.ConfigurationEditing.Editing.Registration;
 
@@ -46,7 +46,7 @@ internal static class ArchitectureConfigurationMsbuildRegistrationEditor
 		var directory = Path.GetDirectoryName(fullRegistrationPath);
 		if (!string.IsNullOrWhiteSpace(directory))
 		{
-			Directory.CreateDirectory(directory!);
+			Directory.CreateDirectory(directory);
 		}
 
 		File.WriteAllText(fullRegistrationPath, ArchitectureConfigurationXmlSerializer.SerializeXml(document), Encoding.UTF8);
@@ -67,7 +67,7 @@ internal static class ArchitectureConfigurationMsbuildRegistrationEditor
 				continue;
 			}
 
-			var resolved = Path.GetFullPath(Path.Combine(registrationDirectory, include!));
+			var resolved = Path.GetFullPath(Path.Combine(registrationDirectory, include));
 			if (string.Equals(resolved, configurationFullPath, StringComparison.OrdinalIgnoreCase))
 			{
 				return true;

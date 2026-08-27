@@ -4,13 +4,13 @@ namespace RonSijm.AnaalIJzer.VisualStudio.Diagnostics;
 
 internal static class ArchitectureVisualStudioDiagnostics
 {
-	private static string current = "AnaalIJzer Visual Studio companion is loaded. Open a C# document in a configured project to start editor analysis.";
+	private static string _current = "AnaalIJzer Visual Studio companion is loaded. Open a C# document in a configured project to start editor analysis.";
 
-	internal static string Current => current;
+	internal static string Current => _current;
 
 	internal static void Publish(string message)
 	{
-		current = message;
+		_current = message;
 	}
 
 	internal static string FormatSnapshot(string filePath, ArchitectureEditorSnapshot snapshot)

@@ -5,16 +5,19 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
+using RonSijm.AnaalIJzer.Core.Findings;
+using RonSijm.AnaalIJzer.Engine;
 
-namespace RonSijm.AnaalIJzer.Testing;
+namespace RonSijm.AnaalIJzer.Analyzer.Tests.Testing;
 
 public static class AnalyzerTestHelper
 {
 	private static readonly MetadataReference[] BasicReferences =
-		((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)
-		.Split(Path.PathSeparator)
-		.Select(path => MetadataReference.CreateFromFile(path))
-		.ToArray<MetadataReference>();
+	[
+		..((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!)
+			.Split(Path.PathSeparator)
+			.Select(path => MetadataReference.CreateFromFile(path))
+	];
 
 	public static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(string source, string? levelConfig = null)
 	{
@@ -23,7 +26,7 @@ public static class AnalyzerTestHelper
 		return result;
 	}
 
-	public static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(string source, string? levelConfig, string? configPath)
+	private static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(string source, string? levelConfig, string? configPath)
 	{
 		var result = await GetDiagnosticsAsync(source, levelConfig is null ? [] : [(configPath ?? "Architecture.anl", levelConfig)]);
 
@@ -64,60 +67,30 @@ public static class AnalyzerTestHelper
 
 	public static async Task<string> ApplyCodeFixAsync(string source, string levelConfig)
 	{
-		using var workspace = new AdhocWorkspace();
+		var result = await ApplySelectedCodeFixAsync(
+			source,
+			levelConfig,
+			ArchitecturalDiagnosticIds.ForbiddenDependency,
+			action => action.Title.StartsWith("Rename '", StringComparison.Ordinal));
 
-		var projectId = ProjectId.CreateNewId();
-		var documentId = DocumentId.CreateNewId(projectId);
+		return result;
+	}
 
-		var solution = workspace.CurrentSolution
-			.AddProject(projectId, "TestProject", "TestProject", LanguageNames.CSharp)
-			.AddMetadataReferences(projectId, BasicReferences)
-			.AddDocument(documentId, "Test.cs", source);
+	public static async Task<string> ApplyCodeFixAsync(string source, string levelConfig, string targetDiagnosticId, string titlePrefix)
+	{
+		var result = await ApplySelectedCodeFixAsync(
+			source,
+			levelConfig,
+			targetDiagnosticId,
+			action => action.Title.StartsWith(titlePrefix, StringComparison.Ordinal));
 
-		workspace.TryApplyChanges(solution);
+		return result;
+	}
 
-		var document = workspace.CurrentSolution.GetDocument(documentId)!;
-		var compilation = await document.Project.GetCompilationAsync();
-
-		var additionalTexts = ImmutableArray.Create<AdditionalText>(new TestAdditionalText("Architecture.anl", levelConfig));
-
-		var analyzerOptions = new AnalyzerOptions(additionalTexts);
-		var compilationWithAnalyzers = compilation!.WithAnalyzers([new ArchitecturalLevelAnalyzer()], analyzerOptions);
-
-		var diagnostics = await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync();
-
-		var target = diagnostics.FirstOrDefault(d =>
-			d.Id == ArchitecturalDiagnosticIds.ForbiddenDependency &&
-			d.Properties.ContainsKey(ArchitectureDiagnosticProperties.PropertyMatchedSuffix));
-
-		if (target is null)
-		{
-			return source;
-		}
-
-		var actions = new List<CodeAction>();
-		var fixContext = new CodeFixContext(document, target, (action, _) => actions.Add(action), CancellationToken.None);
-
-		var fixer = new ArchitecturalLevelCodeFixProvider();
-		await fixer.RegisterCodeFixesAsync(fixContext);
-
-		if (actions.Count == 0)
-		{
-			return source;
-		}
-
-		var operations = await actions[0].GetOperationsAsync(CancellationToken.None);
-		var applyOperation = operations.OfType<ApplyChangesOperation>().FirstOrDefault();
-
-		if (applyOperation is null)
-		{
-			return source;
-		}
-
-		var changedSolution = applyOperation.ChangedSolution;
-		var changedDocument = changedSolution.GetDocument(documentId)!;
-		var changedText = await changedDocument.GetTextAsync();
-		var result = changedText.ToString();
+	public static async Task<IReadOnlyList<string>> GetCodeFixTitlesAsync(string source, string levelConfig, string targetDiagnosticId)
+	{
+		var actions = await GetCodeFixActionsAsync(source, [("Architecture.anl", levelConfig)], targetDiagnosticId);
+		var result = actions.Select(action => action.Title).ToArray();
 
 		return result;
 	}
@@ -186,15 +159,108 @@ public static class AnalyzerTestHelper
 		return result;
 	}
 
+	private static async Task<string> ApplySelectedCodeFixAsync(string source, string levelConfig, string targetDiagnosticId, Func<CodeAction, bool> selector)
+	{
+		var result = await ApplySelectedCodeFixAsync(source, [("Architecture.anl", levelConfig)], targetDiagnosticId, selector);
+
+		return result;
+	}
+
+	private static async Task<string> ApplySelectedCodeFixAsync(string source, (string Path, string Content)[] configs, string targetDiagnosticId, Func<CodeAction, bool> selector)
+	{
+		using var workspace = new AdhocWorkspace();
+
+		var projectId = ProjectId.CreateNewId();
+		var documentId = DocumentId.CreateNewId(projectId);
+		var configDocIds = configs.ToDictionary(config => config.Path, _ => DocumentId.CreateNewId(projectId), StringComparer.OrdinalIgnoreCase);
+
+		var solution = workspace.CurrentSolution
+			.AddProject(projectId, "TestProject", "TestProject", LanguageNames.CSharp)
+			.AddMetadataReferences(projectId, BasicReferences)
+			.AddDocument(documentId, "Test.cs", source);
+
+		foreach (var config in configs)
+		{
+			solution = solution.AddAdditionalDocument(DocumentInfo.Create(configDocIds[config.Path], name: Path.GetFileName(config.Path), filePath: config.Path, loader: TextLoader.From(TextAndVersion.Create(SourceText.From(config.Content), VersionStamp.Create()))));
+		}
+
+		workspace.TryApplyChanges(solution);
+
+		var document = workspace.CurrentSolution.GetDocument(documentId)!;
+		var actions = await GetCodeFixActionsAsync(document, targetDiagnosticId);
+		var action = actions.FirstOrDefault(selector);
+
+		if (action is null)
+		{
+			return source;
+		}
+
+		var operations = await action.GetOperationsAsync(CancellationToken.None);
+		var applyOperation = operations.OfType<ApplyChangesOperation>().FirstOrDefault();
+
+		if (applyOperation is null)
+		{
+			return source;
+		}
+
+		var changedDocument = applyOperation.ChangedSolution.GetDocument(documentId)!;
+		var changedText = await changedDocument.GetTextAsync();
+		var result = changedText.ToString();
+
+		return result;
+	}
+
+	private static async Task<List<CodeAction>> GetCodeFixActionsAsync(string source, (string Path, string Content)[] configs, string targetDiagnosticId)
+	{
+		using var workspace = new AdhocWorkspace();
+
+		var projectId = ProjectId.CreateNewId();
+		var documentId = DocumentId.CreateNewId(projectId);
+		var configDocIds = configs.ToDictionary(config => config.Path, _ => DocumentId.CreateNewId(projectId), StringComparer.OrdinalIgnoreCase);
+
+		var solution = workspace.CurrentSolution
+			.AddProject(projectId, "TestProject", "TestProject", LanguageNames.CSharp)
+			.AddMetadataReferences(projectId, BasicReferences)
+			.AddDocument(documentId, "Test.cs", source);
+
+		foreach (var config in configs)
+		{
+			solution = solution.AddAdditionalDocument(DocumentInfo.Create(configDocIds[config.Path], name: Path.GetFileName(config.Path), filePath: config.Path, loader: TextLoader.From(TextAndVersion.Create(SourceText.From(config.Content), VersionStamp.Create()))));
+		}
+
+		workspace.TryApplyChanges(solution);
+
+		var document = workspace.CurrentSolution.GetDocument(documentId)!;
+		var result = await GetCodeFixActionsAsync(document, targetDiagnosticId);
+
+		return result;
+	}
+
+	private static async Task<List<CodeAction>> GetCodeFixActionsAsync(Document document, string targetDiagnosticId)
+	{
+		var project = document.Project;
+		var compilation = await project.GetCompilationAsync();
+		var compilationWithAnalyzers = compilation!.WithAnalyzers([new ArchitecturalLevelAnalyzer()], project.AnalyzerOptions);
+		var diagnostics = await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync();
+		var target = diagnostics.FirstOrDefault(diagnostic => diagnostic.Id == targetDiagnosticId)
+		             ?? throw new InvalidOperationException($"No {targetDiagnosticId} diagnostic was produced.");
+		var actions = new List<CodeAction>();
+		var fixContext = new CodeFixContext(document, target, (action, _) => actions.Add(action), CancellationToken.None);
+
+		await new ArchitecturalLevelCodeFixProvider().RegisterCodeFixesAsync(fixContext);
+
+		return actions;
+	}
+
 	private sealed class TestAdditionalText(string path, string content) : AdditionalText
 	{
-		private readonly SourceText text = SourceText.From(content);
+		private readonly SourceText _text = SourceText.From(content);
 
 		public override string Path { get; } = path;
 
 		public override SourceText GetText(CancellationToken cancellationToken = default)
 		{
-			var result = text;
+			var result = _text;
 
 			return result;
 		}
@@ -202,19 +268,19 @@ public static class AnalyzerTestHelper
 
 	private sealed class TestAnalyzerConfigOptionsProvider(ImmutableDictionary<string, string>? globalOptions) : AnalyzerConfigOptionsProvider
 	{
-		private static readonly AnalyzerConfigOptions emptyOptions = new TestAnalyzerConfigOptions(ImmutableDictionary<string, string>.Empty);
-		private readonly AnalyzerConfigOptions globalOptions = new TestAnalyzerConfigOptions(globalOptions ?? ImmutableDictionary<string, string>.Empty);
+		private static readonly AnalyzerConfigOptions EmptyOptions = new TestAnalyzerConfigOptions(ImmutableDictionary<string, string>.Empty);
+		private readonly AnalyzerConfigOptions _globalOptions = new TestAnalyzerConfigOptions(globalOptions ?? ImmutableDictionary<string, string>.Empty);
 
-		public override AnalyzerConfigOptions GlobalOptions => globalOptions;
+		public override AnalyzerConfigOptions GlobalOptions => _globalOptions;
 
 		public override AnalyzerConfigOptions GetOptions(SyntaxTree tree)
 		{
-			return emptyOptions;
+			return EmptyOptions;
 		}
 
 		public override AnalyzerConfigOptions GetOptions(AdditionalText textFile)
 		{
-			return emptyOptions;
+			return EmptyOptions;
 		}
 	}
 

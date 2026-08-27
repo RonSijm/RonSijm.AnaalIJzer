@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer.Engine.LayerModel;
+namespace RonSijm.AnaalIJzer.Core.LayerModel;
 
 /// <summary>Defines a named architectural layer.</summary>
 public readonly struct LayerDefinition

@@ -1,7 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
-namespace RonSijm.AnaalIJzer.ObservedDependencies;
+namespace RonSijm.AnaalIJzer.Core.Observations;
 
 public static class GeneratedCodeDetector
 {

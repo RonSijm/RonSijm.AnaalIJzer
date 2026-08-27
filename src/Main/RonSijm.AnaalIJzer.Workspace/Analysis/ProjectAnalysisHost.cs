@@ -2,11 +2,13 @@ using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.MSBuild;
-using RonSijm.AnaalIJzer.Config.Parsing;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Document;
-using AnalyzerConfiguration = RonSijm.AnaalIJzer.Model.AnalyzerConfig;
+using RonSijm.AnaalIJzer.Core.Configuration.Compilation.Parsing;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Sources;
+using RonSijm.AnaalIJzer.Engine;
+using AnalyzerConfiguration = RonSijm.AnaalIJzer.Core.RuntimeConfig.Config.Model.AnalyzerConfig;
 
-namespace RonSijm.AnaalIJzer.Workspace;
+namespace RonSijm.AnaalIJzer.Workspace.Analysis;
 
 internal sealed partial class ProjectAnalysisHost : IDisposable
 {
@@ -140,12 +142,12 @@ internal sealed record SolutionAnalysisResult(
 {
 	public ImmutableArray<Diagnostic> AnalyzerDiagnostics
 	{
-		get { return Projects.SelectMany(project => project.AnalyzerDiagnostics).ToImmutableArray(); }
+		get => [..Projects.SelectMany(project => project.AnalyzerDiagnostics)];
 	}
 
 	public ImmutableArray<string> CompilerErrors
 	{
-		get { return Projects.SelectMany(project => project.CompilerErrors).ToImmutableArray(); }
+		get => [..Projects.SelectMany(project => project.CompilerErrors)];
 	}
 
 	public ProjectAnalysisResult? FirstConfiguredProject

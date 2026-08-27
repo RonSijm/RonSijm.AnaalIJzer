@@ -3,8 +3,8 @@ using Microsoft.Build.Locator;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.MSBuild;
 using RonSijm.AnaalIJzer.Core.Editor.Snapshots;
-using RonSijm.AnaalIJzer.EditorRuntime.Snapshots;
-using RonSijm.AnaalIJzer.Workspace;
+using RonSijm.AnaalIJzer.EditorRuntime.Editor.Snapshots;
+using RonSijm.AnaalIJzer.Workspace.Analysis;
 
 namespace RonSijm.AnaalIJzer.IntegrationTests;
 

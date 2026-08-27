@@ -1,14 +1,14 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.Conditions;
-using RonSijm.AnaalIJzer.Contracts;
-using RonSijm.AnaalIJzer.Engine.ApiSurface;
-using RonSijm.AnaalIJzer.Engine.EntryPoints;
-using RonSijm.AnaalIJzer.Engine.NameRules;
-using RonSijm.AnaalIJzer.Engine.Visibility;
-using RonSijm.AnaalIJzer.Inheritance;
-using RonSijm.AnaalIJzer.SourceLocations;
+using RonSijm.AnaalIJzer.Core.ApiSurface.Engine.Policies;
+using RonSijm.AnaalIJzer.Core.Contracts.Contracts;
+using RonSijm.AnaalIJzer.Core.EntryPoints;
+using RonSijm.AnaalIJzer.Core.Inheritance.Policies;
+using RonSijm.AnaalIJzer.Core.Matchers;
+using RonSijm.AnaalIJzer.Core.NameRules;
+using RonSijm.AnaalIJzer.Core.SourceLocations;
+using RonSijm.AnaalIJzer.Core.Visibility;
 
-namespace RonSijm.AnaalIJzer.Engine.LayerModel;
+namespace RonSijm.AnaalIJzer.Core.LayerModel;
 
 /// <summary>A configured layer boundary together with its matchers and nested layers.</summary>
 public sealed class LayerNode(

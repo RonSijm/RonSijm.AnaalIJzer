@@ -1,11 +1,6 @@
 using System.Globalization;
-using System.Text;
-using System.Xml;
-using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Text;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Document;
-using RonSijm.AnaalIJzer.Exceptions;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
 
 namespace RonSijm.AnaalIJzer.Diagnostics;
 

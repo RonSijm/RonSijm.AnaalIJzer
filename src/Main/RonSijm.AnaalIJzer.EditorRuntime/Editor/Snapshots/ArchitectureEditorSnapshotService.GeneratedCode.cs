@@ -1,10 +1,8 @@
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.Definitions;
-using RonSijm.AnaalIJzer.Engine.LayerModel;
-using RonSijm.AnaalIJzer.ObservedDependencies;
-using RonSijm.AnaalIJzer.Core.Editor.Snapshots;
+using RonSijm.AnaalIJzer.Core.LayerModel;
+using RonSijm.AnaalIJzer.Core.Observations;
 
-namespace RonSijm.AnaalIJzer.EditorRuntime.Snapshots;
+namespace RonSijm.AnaalIJzer.EditorRuntime.Editor.Snapshots;
 
 public static partial class ArchitectureEditorSnapshotService
 {

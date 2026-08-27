@@ -1,4 +1,3 @@
-using RonSijm.AnaalIJzer.Arse;
 using RonSijm.AnaalIJzer.Application;
 
 namespace RonSijm.AnaalIJzer.Arse.Tests.CommandLine;

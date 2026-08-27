@@ -1,16 +1,18 @@
 using System.Collections.Immutable;
 using System.Xml;
 using System.Xml.Linq;
-using RonSijm.AnaalIJzer.Config.Compilation;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Document;
-using RonSijm.AnaalIJzer.Engine.DependencyRules;
-using RonSijm.AnaalIJzer.Engine.Policies;
-using RonSijm.AnaalIJzer.Exceptions;
-using RonSijm.AnaalIJzer.Model;
-using RonSijm.AnaalIJzer.ProjectArchitecture;
-using AnalyzerConfig = RonSijm.AnaalIJzer.Model.AnalyzerConfig;
+using RonSijm.AnaalIJzer.Core.Configuration.Compilation.Compilation;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+using RonSijm.AnaalIJzer.Core.DependencyRules;
+using RonSijm.AnaalIJzer.Core.Exceptions;
+using RonSijm.AnaalIJzer.Core.LayerModel;
+using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Config.Model;
+using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.DependencyRules;
+using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.Policies;
+using RonSijm.AnaalIJzer.Core.ProjectArchitecture;
+using AnalyzerConfig = RonSijm.AnaalIJzer.Core.RuntimeConfig.Config.Model.AnalyzerConfig;
 
-namespace RonSijm.AnaalIJzer.Config.Parsing;
+namespace RonSijm.AnaalIJzer.Core.Configuration.Compilation.Parsing;
 
 public static partial class ArchitecturalConfigParser
 {

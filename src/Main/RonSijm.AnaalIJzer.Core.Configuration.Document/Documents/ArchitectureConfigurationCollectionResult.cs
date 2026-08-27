@@ -1,9 +1,8 @@
 using System.Collections.Immutable;
 using System.Xml.Linq;
-using RonSijm.AnaalIJzer.Config.Parsing;
-using RonSijm.AnaalIJzer.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 
-namespace RonSijm.AnaalIJzer.ConfigurationEditing.Document;
+namespace RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
 
 public readonly struct ArchitectureConfigurationCollectedDocument(XElement root, string path, bool isInlineConfiguration)
 {

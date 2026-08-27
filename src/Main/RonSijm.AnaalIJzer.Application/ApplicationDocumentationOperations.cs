@@ -1,6 +1,5 @@
-using RonSijm.AnaalIJzer.Config.Parsing;
-using RonSijm.AnaalIJzer.Documentation;
-using RonSijm.AnaalIJzer.Violations;
+using RonSijm.AnaalIJzer.Outputs.Documentation;
+using RonSijm.AnaalIJzer.Outputs.Violations;
 
 namespace RonSijm.AnaalIJzer.Application;
 

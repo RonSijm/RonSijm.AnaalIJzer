@@ -1,5 +1,3 @@
-using RonSijm.AnaalIJzer.Violations;
-
 namespace RonSijm.AnaalIJzer.Core.Violations.Tests.Violations;
 
 public sealed class ViolationRecordTests

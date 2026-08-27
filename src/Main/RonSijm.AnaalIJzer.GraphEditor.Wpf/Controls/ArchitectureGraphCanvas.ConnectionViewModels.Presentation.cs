@@ -12,15 +12,15 @@ internal sealed partial class ArchitectureGraphCanvas
 		{
 			foreach (var option in AllowedSiteOptions)
 			{
-				option.IsChecked = allowedSites.Contains(option.Site, StringComparer.Ordinal);
+				option.IsChecked = _allowedSites.Contains(option.Site, StringComparer.Ordinal);
 			}
 
 			foreach (var option in BlockedSiteOptions)
 			{
-				option.IsChecked = blockedSites.Contains(option.Site, StringComparer.Ordinal);
+				option.IsChecked = _blockedSites.Contains(option.Site, StringComparer.Ordinal);
 			}
 
-			var siteText = FormatSiteText(allowedSites, blockedSites);
+			var siteText = FormatSiteText(_allowedSites, _blockedSites);
 			LabelText = FormatLabelText(siteText, AppliesToDescendants);
 			ToolTip = FormatEdgeToolTip(Kind, From, To, siteText, AppliesToDescendants);
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(UsesAllSites)));

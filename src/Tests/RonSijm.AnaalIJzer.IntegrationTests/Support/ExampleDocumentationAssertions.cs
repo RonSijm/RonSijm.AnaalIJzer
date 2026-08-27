@@ -1,6 +1,6 @@
 using AwesomeAssertions;
 
-namespace RonSijm.AnaalIJzer.IntegrationTests;
+namespace RonSijm.AnaalIJzer.IntegrationTests.Support;
 
 internal static class ExampleDocumentationAssertions
 {

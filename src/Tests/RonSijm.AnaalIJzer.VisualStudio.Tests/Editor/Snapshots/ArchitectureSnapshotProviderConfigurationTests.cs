@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.IO;
 using AwesomeAssertions;
 using Microsoft.CodeAnalysis;

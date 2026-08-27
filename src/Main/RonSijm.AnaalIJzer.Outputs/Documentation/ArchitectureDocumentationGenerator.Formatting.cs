@@ -1,9 +1,10 @@
 using System.Collections.Immutable;
 using System.Text;
-using RonSijm.AnaalIJzer.Engine.DependencyRules;
-using RonSijm.AnaalIJzer.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+using RonSijm.AnaalIJzer.Core.DependencyRules;
+using RonSijm.AnaalIJzer.Core.Indicators;
 
-namespace RonSijm.AnaalIJzer.Documentation;
+namespace RonSijm.AnaalIJzer.Outputs.Documentation;
 
 internal static partial class ArchitectureDocumentationMarkdownBuilder
 {

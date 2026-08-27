@@ -1,17 +1,12 @@
-namespace RonSijm.AnaalIJzer.IntegrationTests;
+namespace RonSijm.AnaalIJzer.IntegrationTests.Support;
 
-internal sealed class GeneratedExampleFilesScope : IDisposable
+internal sealed class GeneratedExampleFilesScope(ExampleRepositoryContext context) : IDisposable
 {
-	private readonly IReadOnlyDictionary<string, byte[]?> snapshots;
-
-	public GeneratedExampleFilesScope(ExampleRepositoryContext context)
-	{
-		snapshots = SnapshotGeneratedExampleFiles(context.RepositoryRoot);
-	}
+	private readonly IReadOnlyDictionary<string, byte[]?> _snapshots = SnapshotGeneratedExampleFiles(context.RepositoryRoot);
 
 	public void Dispose()
 	{
-		RestoreGeneratedExampleFiles(snapshots);
+		RestoreGeneratedExampleFiles(_snapshots);
 	}
 
 	private static Dictionary<string, byte[]?> SnapshotGeneratedExampleFiles(string repositoryRoot)

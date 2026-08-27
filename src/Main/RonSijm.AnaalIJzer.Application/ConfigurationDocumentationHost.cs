@@ -2,8 +2,9 @@ using System.Collections.Immutable;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
-using RonSijm.AnaalIJzer.Config.Parsing;
-using AnalyzerConfiguration = RonSijm.AnaalIJzer.Model.AnalyzerConfig;
+using RonSijm.AnaalIJzer.Core.Configuration.Compilation.Parsing;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Sources;
+using AnalyzerConfiguration = RonSijm.AnaalIJzer.Core.RuntimeConfig.Config.Model.AnalyzerConfig;
 
 namespace RonSijm.AnaalIJzer.Application;
 
@@ -52,9 +53,7 @@ internal static class ConfigurationDocumentationHost
 					continue;
 				}
 
-				var containingDirectory = Path.GetDirectoryName(file.Path)!;
-				var resolvedPath = Path.GetFullPath(includePath, containingDirectory);
-				if (File.Exists(resolvedPath))
+				foreach (var resolvedPath in ArchitectureConfigurationIncludeResolver.ResolveFileSystemPaths(file.Path, includePath))
 				{
 					pending.Enqueue(LoadFile(resolvedPath));
 				}

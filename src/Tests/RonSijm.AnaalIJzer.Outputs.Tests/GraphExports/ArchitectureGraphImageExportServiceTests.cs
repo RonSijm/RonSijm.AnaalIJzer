@@ -1,5 +1,5 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.Graphing.Model;
+using RonSijm.AnaalIJzer.GraphModel.Model;
 using RonSijm.AnaalIJzer.Outputs.GraphExports;
 
 namespace RonSijm.AnaalIJzer.Outputs.Tests.GraphExports;

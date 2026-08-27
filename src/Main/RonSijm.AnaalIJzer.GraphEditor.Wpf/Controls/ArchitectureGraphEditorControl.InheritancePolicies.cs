@@ -74,7 +74,7 @@ public sealed partial class ArchitectureGraphEditorControl
 				attributes = attributes.Add("requiredInterfaces", requiredInterfaces.Text);
 			}
 
-			var result = editService.SetConfigurationElementAttributes(policy.Handle, attributes);
+			var result = _editService.SetConfigurationElementAttributes(policy.Handle, attributes);
 
 			return result;
 		}
@@ -88,9 +88,9 @@ public sealed partial class ArchitectureGraphEditorControl
 		remove.Margin = new Thickness(0, 8, 0, 0);
 		remove.Click += (_, _) =>
 		{
-			if (confirmationHandler("Remove '" + policy.Summary + "'?"))
+			if (_confirmationHandler("Remove '" + policy.Summary + "'?"))
 			{
-				HandleEditResult(editService.RemoveConfigurationElement(policy.Handle), true);
+				HandleEditResult(_editService.RemoveConfigurationElement(policy.Handle), true);
 			}
 		};
 		panel.Children.Add(remove);
@@ -146,7 +146,7 @@ public sealed partial class ArchitectureGraphEditorControl
 				attributes = attributes.Add("requiredInterfaces", requiredInterfaces.Text);
 			}
 
-			HandleEditResult(editService.AddInheritancePolicy(handle, attributes), true);
+			HandleEditResult(_editService.AddInheritancePolicy(handle, attributes), true);
 		};
 		panel.Children.Add(add);
 		expander.Content = panel;

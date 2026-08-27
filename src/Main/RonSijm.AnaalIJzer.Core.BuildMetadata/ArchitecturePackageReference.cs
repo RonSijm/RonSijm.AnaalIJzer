@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer.BuildMetadata;
+namespace RonSijm.AnaalIJzer.Core.BuildMetadata;
 
 public readonly struct ArchitecturePackageReference(
     string sourceProjectPath,

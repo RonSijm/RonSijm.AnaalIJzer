@@ -2,8 +2,9 @@ using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using RonSijm.AnaalIJzer.Core.Indicators;
 
-namespace RonSijm.AnaalIJzer.Engine.NameRules;
+namespace RonSijm.AnaalIJzer.Core.NameRules;
 
 public static class NameRuleSemanticSubjectResolver
 {

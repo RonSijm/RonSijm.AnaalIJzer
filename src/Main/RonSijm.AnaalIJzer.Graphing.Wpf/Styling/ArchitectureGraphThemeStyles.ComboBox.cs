@@ -39,15 +39,15 @@ public static partial class ArchitectureGraphThemeStyles
 		content.SetValue(ContentPresenter.ContentProperty, new TemplateBindingExtension(ComboBox.SelectionBoxItemProperty));
 		content.SetValue(ContentPresenter.ContentStringFormatProperty, new TemplateBindingExtension(ComboBox.SelectionBoxItemStringFormatProperty));
 		content.SetValue(ContentPresenter.ContentTemplateProperty, new TemplateBindingExtension(ComboBox.SelectionBoxItemTemplateProperty));
-		content.SetValue(ContentPresenter.HorizontalAlignmentProperty, HorizontalAlignment.Left);
-		content.SetValue(ContentPresenter.VerticalAlignmentProperty, VerticalAlignment.Center);
-		content.SetValue(ContentPresenter.MarginProperty, new Thickness(6, 2, 24, 2));
+		content.SetValue(FrameworkElement.HorizontalAlignmentProperty, HorizontalAlignment.Left);
+		content.SetValue(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Center);
+		content.SetValue(FrameworkElement.MarginProperty, new Thickness(6, 2, 24, 2));
 		content.SetValue(UIElement.IsHitTestVisibleProperty, false);
 		grid.AppendChild(content);
 
 		var arrow = new FrameworkElementFactory(typeof(Path));
 		arrow.SetValue(Path.DataProperty, Geometry.Parse("M 0 0 L 4 4 L 8 0 Z"));
-		arrow.SetValue(Path.FillProperty, new TemplateBindingExtension(Control.ForegroundProperty));
+		arrow.SetValue(Shape.FillProperty, new TemplateBindingExtension(Control.ForegroundProperty));
 		arrow.SetValue(FrameworkElement.HorizontalAlignmentProperty, HorizontalAlignment.Right);
 		arrow.SetValue(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Center);
 		arrow.SetValue(FrameworkElement.MarginProperty, new Thickness(0, 0, 8, 0));
@@ -68,10 +68,12 @@ public static partial class ArchitectureGraphThemeStyles
 		toggle.AddHandler(ButtonBase.ClickEvent, new RoutedEventHandler(ComboBoxToggleClicked));
 		grid.AppendChild(toggle);
 
-		var popup = new FrameworkElementFactory(typeof(Popup));
-		popup.Name = "PART_Popup";
+		var popup = new FrameworkElementFactory(typeof(Popup))
+		{
+			Name = "PART_Popup"
+		};
 		popup.SetValue(Popup.AllowsTransparencyProperty, true);
-		popup.SetValue(Popup.FocusableProperty, false);
+		popup.SetValue(UIElement.FocusableProperty, false);
 		popup.SetValue(Popup.IsOpenProperty, new TemplateBindingExtension(ComboBox.IsDropDownOpenProperty));
 		popup.SetValue(Popup.PlacementProperty, PlacementMode.Bottom);
 		popup.SetBinding(Popup.PlacementTargetProperty, new Binding
@@ -144,9 +146,9 @@ public static partial class ArchitectureGraphThemeStyles
 		chrome.SetValue(UIElement.SnapsToDevicePixelsProperty, true);
 
 		var content = new FrameworkElementFactory(typeof(ContentPresenter));
-		content.SetValue(ContentPresenter.MarginProperty, new TemplateBindingExtension(Control.PaddingProperty));
-		content.SetValue(ContentPresenter.HorizontalAlignmentProperty, new TemplateBindingExtension(Control.HorizontalContentAlignmentProperty));
-		content.SetValue(ContentPresenter.VerticalAlignmentProperty, new TemplateBindingExtension(Control.VerticalContentAlignmentProperty));
+		content.SetValue(FrameworkElement.MarginProperty, new TemplateBindingExtension(Control.PaddingProperty));
+		content.SetValue(FrameworkElement.HorizontalAlignmentProperty, new TemplateBindingExtension(Control.HorizontalContentAlignmentProperty));
+		content.SetValue(FrameworkElement.VerticalAlignmentProperty, new TemplateBindingExtension(Control.VerticalContentAlignmentProperty));
 		chrome.AppendChild(content);
 
 		var result = new ControlTemplate(typeof(ComboBoxItem)) { VisualTree = chrome };

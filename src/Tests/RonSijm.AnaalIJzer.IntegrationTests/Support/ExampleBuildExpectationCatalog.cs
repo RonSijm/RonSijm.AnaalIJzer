@@ -1,6 +1,6 @@
-using RonSijm.AnaalIJzer;
+using RonSijm.AnaalIJzer.Core.Findings;
 
-namespace RonSijm.AnaalIJzer.IntegrationTests;
+namespace RonSijm.AnaalIJzer.IntegrationTests.Support;
 
 internal static class ExampleBuildExpectationCatalog
 {
@@ -31,10 +31,12 @@ internal static class ExampleBuildExpectationCatalog
 		Expect("Features/Example.BlockedDependency", (ArchitecturalDiagnosticIds.IllegalLevelDependency, 1)),
 		ExpectFile("Features/Example.CascadingDependencyRules"),
 		Expect("Features/Example.CombinedMatchers", (ArchitecturalDiagnosticIds.SameLayerDependency, 1)),
+		Expect("Features/Example.DeclarationObservationMatchers", (ArchitecturalDiagnosticIds.InheritancePolicyViolation, 2)),
 		Expect("Features/Example.DeclarationNameMatchesType", (ArchitecturalDiagnosticIds.NameRuleViolation, 6)),
 		Expect("Features/Example.ExceptionPolicy", (ArchitecturalDiagnosticIds.ExceptionReview, 1)),
 		Expect("Features/Example.Exceptions", (ArchitecturalDiagnosticIds.ForbiddenDependency, 1)),
 		ExpectFile("Features/Example.IncludeSettings", (ArchitecturalDiagnosticIds.IllegalLevelDependency, 1)),
+		ExpectFile("Features/Example.IncludeWildcardSettings", (ArchitecturalDiagnosticIds.IllegalLevelDependency, 1)),
 		Expect("Features/Example.InlineXml", (ArchitecturalDiagnosticIds.IllegalLevelDependency, 1)),
 		Expect("Features/Example.LayerScopedRecognizedDependencies", (ArchitecturalDiagnosticIds.UnrecognizedDependency, 1)),
 		Expect("Features/Example.NameRules", (ArchitecturalDiagnosticIds.NameRuleViolation, 4)),
@@ -45,6 +47,7 @@ internal static class ExampleBuildExpectationCatalog
 		Expect("Features/Example.SameLayerInheritance", (ArchitecturalDiagnosticIds.SameLayerDependency, 1)),
 		Expect("Features/Example.ScopedTypePolicies", (ArchitecturalDiagnosticIds.ForbiddenDependency, 2)),
 		ExpectFile("Features/Example.SourceLocations", (ArchitecturalDiagnosticIds.SourceLocationViolation, 1)),
+		ExpectFile("Features/Example.StructuralDeclarationMatchers", (ArchitecturalDiagnosticIds.InheritancePolicyViolation, 1)),
 		ExpectFile("Scenarios/Example.HonestTypeEndpointNames", (ArchitecturalDiagnosticIds.NameRuleViolation, 2)),
 		ExpectFile("Scenarios/Example.PackageReferenceBoundaries/Example.PackageReferenceBoundaries.Data"),
 		ExpectFile("Scenarios/Example.PackageReferenceBoundaries/Example.PackageReferenceBoundaries.Domain", (ArchitecturalDiagnosticIds.PackageReferenceViolation, 1)),

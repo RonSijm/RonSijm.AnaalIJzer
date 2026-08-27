@@ -1,5 +1,5 @@
 using System.ComponentModel;
-using RonSijm.AnaalIJzer.Indicators;
+using RonSijm.AnaalIJzer.Core.Indicators;
 
 namespace RonSijm.AnaalIJzer.VisualStudio.Options;
 
@@ -19,7 +19,7 @@ public sealed partial class AnaalIJzerOptionsPage
 		}
 		set
 		{
-			if (isLoadingSettings)
+			if (_isLoadingSettings)
 			{
 				return;
 			}

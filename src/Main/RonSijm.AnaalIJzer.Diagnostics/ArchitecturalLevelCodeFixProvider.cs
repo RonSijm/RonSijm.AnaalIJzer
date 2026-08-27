@@ -3,11 +3,9 @@ using System.Composition;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Rename;
-using RonSijm.AnaalIJzer.Diagnostics;
+using RonSijm.AnaalIJzer.Core.Findings;
 
-namespace RonSijm.AnaalIJzer;
+namespace RonSijm.AnaalIJzer.Diagnostics;
 
 /// <summary>
 ///     Registers two kinds of code fix for architectural diagnostics:
@@ -27,13 +25,16 @@ namespace RonSijm.AnaalIJzer;
 [Shared]
 public sealed class ArchitecturalLevelCodeFixProvider : CodeFixProvider
 {
-    public override ImmutableArray<string> FixableDiagnosticIds =>
-    [
-        ArchitecturalDiagnosticIds.IllegalLevelDependency,
-        ArchitecturalDiagnosticIds.ForbiddenDependency,
-        ArchitecturalDiagnosticIds.WrongDirectionDependency,
-        ArchitecturalDiagnosticIds.SameLayerDependency,
-    ];
+	public override ImmutableArray<string> FixableDiagnosticIds =>
+	[
+		ArchitecturalDiagnosticIds.IllegalLevelDependency,
+		ArchitecturalDiagnosticIds.NameRuleViolation,
+		ArchitecturalDiagnosticIds.ForbiddenDependency,
+		ArchitecturalDiagnosticIds.WrongDirectionDependency,
+		ArchitecturalDiagnosticIds.SameLayerDependency,
+		ArchitecturalDiagnosticIds.ContractPurityViolation,
+		ArchitecturalDiagnosticIds.InheritancePolicyViolation,
+	];
 
     // Rename is not batch-safe (each rename changes all references), so no FixAll.
 	public override FixAllProvider? GetFixAllProvider()
@@ -47,62 +48,28 @@ public sealed class ArchitecturalLevelCodeFixProvider : CodeFixProvider
     {
         foreach (var diagnostic in context.Diagnostics)
         {
+			if (diagnostic.Id == ArchitecturalDiagnosticIds.NameRuleViolation)
+			{
+				await DeclarationNameCodeFix.TryRegisterAsync(context, diagnostic).ConfigureAwait(false);
+			}
+
             if (diagnostic.Id == ArchitecturalDiagnosticIds.ForbiddenDependency)
             {
                 await TryRegisterRenameAsync(context, diagnostic).ConfigureAwait(false);
             }
 
+			if (diagnostic.Id == ArchitecturalDiagnosticIds.ContractPurityViolation)
+			{
+				await ContractPurityCodeFix.TryRegisterAsync(context, diagnostic).ConfigureAwait(false);
+			}
+
+			if (diagnostic.Id == ArchitecturalDiagnosticIds.InheritancePolicyViolation)
+			{
+				await InheritancePolicyCodeFix.TryRegisterAsync(context, diagnostic).ConfigureAwait(false);
+			}
+
             await TryRegisterAddToExceptionsAsync(context, diagnostic).ConfigureAwait(false);
         }
-    }
-
-    private static async Task TryRegisterRenameAsync(CodeFixContext context, Diagnostic diagnostic)
-    {
-        if (!diagnostic.Properties.TryGetValue(ArchitecturalDiagnostics.PropertyMatchedSuffix, out var matchedSuffix)
-            || !diagnostic.Properties.TryGetValue(ArchitecturalDiagnostics.PropertyFixSuffix, out var fixSuffix))
-        {
-            return;
-        }
-
-        if (matchedSuffix is null || fixSuffix is null)
-        {
-            return;
-        }
-
-        var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-
-        if (root is null)
-        {
-            return;
-        }
-
-        // The diagnostic sits on the ParameterSyntax; find the type node inside it.
-        var node = root.FindNode(diagnostic.Location.SourceSpan);
-        var paramSyntax = node as ParameterSyntax ?? node.Parent as ParameterSyntax;
-        if (paramSyntax?.Type is null)
-        {
-            return;
-        }
-
-        var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken)
-            .ConfigureAwait(false);
-
-        var typeSymbol = semanticModel?.GetTypeInfo(paramSyntax.Type, context.CancellationToken).Type;
-        if (typeSymbol is null)
-        {
-            return;
-        }
-
-        var oldName = typeSymbol.Name;
-        if (!oldName.EndsWith(matchedSuffix, StringComparison.Ordinal))
-        {
-            return;
-        }
-
-        var newName = oldName.Substring(0, oldName.Length - matchedSuffix.Length) + fixSuffix;
-        var title = $"Rename '{oldName}' to '{newName}'";
-
-        context.RegisterCodeFix(CodeAction.Create(title, ct => RenameTypeAsync(context.Document, typeSymbol, newName, ct), title), diagnostic);
     }
 
     private static async Task TryRegisterAddToExceptionsAsync(CodeFixContext context, Diagnostic diagnostic)
@@ -149,9 +116,9 @@ public sealed class ArchitecturalLevelCodeFixProvider : CodeFixProvider
             : project.Solution.WithAdditionalDocumentText(configDocId, newText);
     }
 
-	private static async Task<Solution> RenameTypeAsync(Document document, ISymbol typeSymbol, string newName, CancellationToken cancellationToken)
+	private static Task TryRegisterRenameAsync(CodeFixContext context, Diagnostic diagnostic)
 	{
-		var result = await Renamer.RenameSymbolAsync(document.Project.Solution, typeSymbol, new SymbolRenameOptions(), newName, cancellationToken).ConfigureAwait(false);
+		var result = RenameCodeFix.TryRegisterAsync(context, diagnostic);
 
 		return result;
 	}

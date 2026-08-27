@@ -8,7 +8,7 @@ internal sealed partial class ArchitectureGraphCanvas
 	private sealed class NodifySiteFilterOptionViewModel(string site, bool isChecked, ICommand command)
 		: INotifyPropertyChanged
 	{
-		private bool isChecked = isChecked;
+		private bool _isChecked = isChecked;
 
 		public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -16,15 +16,15 @@ internal sealed partial class ArchitectureGraphCanvas
 
 		public bool IsChecked
 		{
-			get { return isChecked; }
+			get => _isChecked;
 			set
 			{
-				if (isChecked == value)
+				if (_isChecked == value)
 				{
 					return;
 				}
 
-				isChecked = value;
+				_isChecked = value;
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsChecked)));
 			}
 		}

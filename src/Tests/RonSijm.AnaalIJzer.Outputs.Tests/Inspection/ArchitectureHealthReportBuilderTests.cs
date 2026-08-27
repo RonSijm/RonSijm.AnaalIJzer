@@ -1,4 +1,4 @@
-using RonSijm.AnaalIJzer.Findings;
+using RonSijm.AnaalIJzer.Core.Findings;
 using RonSijm.AnaalIJzer.Outputs.Inspection;
 
 namespace RonSijm.AnaalIJzer.Outputs.Tests.Inspection;

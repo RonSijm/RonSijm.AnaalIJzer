@@ -1,22 +1,30 @@
 using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.Symbols;
+using RonSijm.AnaalIJzer.Core.Matchers.Symbols;
 
-namespace RonSijm.AnaalIJzer.Conditions;
+namespace RonSijm.AnaalIJzer.Core.Matchers.Conditions;
 
 internal static class MatchConditionExtensions
 {
 	internal static bool Matches(this MatchCondition condition, MatchTarget target, string typeName, string namespaceName, ITypeSymbol? symbol)
 	{
-		var subject = target.GetSubject(typeName, namespaceName, symbol);
+		var context = MatchContext.Create(target, typeName, namespaceName, symbol);
+		var result = condition.Matches(context);
+
+		return result;
+	}
+
+	internal static bool Matches(this MatchCondition condition, MatchContext context)
+	{
+		var subject = context.GetName(condition.Operand);
 		var result = condition.Kind switch
 		{
-			MatchKind.EqualsFullName => string.Equals(typeName.ToFullName(namespaceName), condition.Value, StringComparison.Ordinal),
-			MatchKind.Inherits => symbol is not null && symbol.InheritsFrom(condition.Value),
-			MatchKind.Implements => symbol is not null && symbol.ImplementsInterface(condition.Value),
-			MatchKind.HasAttribute => symbol is not null && symbol.HasAttribute(condition.Value),
-			MatchKind.HasAccessModifier => symbol is not null && symbol.HasAccessModifier(condition.Value),
-			MatchKind.HasTypeKind => symbol is not null && symbol.HasTypeKind(condition.Value),
+			MatchKind.EqualsFullName => string.Equals(context.GetName(condition.Operand).ToFullName(context.GetNamespace(condition.Operand)), condition.Value, StringComparison.Ordinal),
+			MatchKind.Inherits => context.GetTypeSymbol(condition.Operand) is { } inheritedType && inheritedType.InheritsFrom(condition.Value),
+			MatchKind.Implements => context.GetTypeSymbol(condition.Operand) is { } implementedType && implementedType.ImplementsInterface(condition.Value),
+			MatchKind.HasAttribute => context.GetSymbol(condition.Operand) is { } attributedSymbol && attributedSymbol.HasAttribute(condition.Value),
+			MatchKind.HasAccessModifier => context.GetSymbol(condition.Operand) is { } modifiedSymbol && modifiedSymbol.HasAccessModifier(condition.Value),
+			MatchKind.HasTypeKind => context.GetTypeSymbol(condition.Operand) is { } kindSymbol && kindSymbol.HasTypeKind(condition.Value),
 			_ => condition.MatchesString(subject, StringComparison.Ordinal, RegexOptions.CultureInvariant)
 		};
 

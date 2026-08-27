@@ -1,3 +1,8 @@
+using RonSijm.AnaalIJzer.Core.BuildMetadata;
+using RonSijm.AnaalIJzer.Core.Findings;
+using RonSijm.AnaalIJzer.Core.Matchers.Conditions;
+using RonSijm.AnaalIJzer.Core.Matchers.ProjectArchitecture;
+
 namespace RonSijm.AnaalIJzer.Core.ProjectArchitecture.Tests;
 
 public sealed class ProjectArchitectureAnalysisServiceTests

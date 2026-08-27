@@ -1,6 +1,4 @@
-using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.Conditions;
-using RonSijm.AnaalIJzer.SourceLocations;
+using RonSijm.AnaalIJzer.Core.Matchers.Conditions;
 
 namespace RonSijm.AnaalIJzer.Core.SourceLocations.Tests.SourceLocations;
 

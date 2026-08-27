@@ -1,4 +1,6 @@
-using RonSijm.AnaalIJzer.Testing;
+using RonSijm.AnaalIJzer.Analyzer.Tests.Testing;
+using RonSijm.AnaalIJzer.Core.Findings;
+using RonSijm.AnaalIJzer.Core.Indicators;
 
 namespace RonSijm.AnaalIJzer.Analyzer.Tests.Analysis.ApiSurface;
 

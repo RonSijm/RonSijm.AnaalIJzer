@@ -3,8 +3,9 @@ using System.Xml;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
-using RonSijm.AnaalIJzer.Exceptions;
-using RonSijm.AnaalIJzer.Testing;
+using RonSijm.AnaalIJzer.Analyzer.Tests.Testing;
+using RonSijm.AnaalIJzer.Core.Exceptions;
+using RonSijm.AnaalIJzer.Core.Findings;
 
 namespace RonSijm.AnaalIJzer.Analyzer.Tests.Diagnostics;
 
@@ -32,13 +33,13 @@ public sealed class AddToExceptionsCodeFixTests
 
 		updated.Should().NotBeNull();
 
-		var reparsed = XDocument.Parse(updated!.ToString());
+		var reparsed = XDocument.Parse(updated.ToString());
 		var exceptions = reparsed.Descendants("Class")
 			.Single(c => c.Attribute("endsWith")?.Value == "Store")
 			.Element("Exceptions");
 
 		exceptions.Should().NotBeNull();
-		exceptions!.Elements("Class")
+		exceptions.Elements("Class")
 			.Where(c => c.Attribute("typeName")?.Value == "LegacyPatientStore")
 			.Should().ContainSingle();
 	}
@@ -94,13 +95,13 @@ public sealed class AddToExceptionsCodeFixTests
 
 		updated.Should().NotBeNull();
 
-		var reparsed = XDocument.Parse(updated!.ToString());
+		var reparsed = XDocument.Parse(updated.ToString());
 		var exceptions = reparsed.Descendants("Class")
 			.Single(c => c.Attribute("endsWith")?.Value == "Store")
 			.Element("Exceptions");
 
 		exceptions.Should().NotBeNull();
-		exceptions!.Elements("Class")
+		exceptions.Elements("Class")
 			.Select(c => c.Attribute("typeName")?.Value)
 			.Should().Contain(["LegacyPatientStore", "PartnerPatientStore"]);
 	}
@@ -157,7 +158,7 @@ public sealed class AddToExceptionsCodeFixTests
 
 		updated.Should().NotBeNull();
 
-		var reparsed = XDocument.Parse(updated!.ToString());
+		var reparsed = XDocument.Parse(updated.ToString());
 		var exceptionElement = reparsed.Descendants("Class")
 			.Single(c => c.Attribute("typeName")?.Value == "LegacyPatientStore");
 
@@ -233,7 +234,7 @@ public sealed class AddToExceptionsCodeFixTests
 			.Element("Exceptions");
 
 		exceptions.Should().NotBeNull();
-		exceptions!.Elements("Class")
+		exceptions.Elements("Class")
 			.Where(c => c.Attribute("typeName")?.Value == "IPaymentStore")
 			.Should().ContainSingle();
 	}
@@ -266,7 +267,7 @@ public sealed class AddToExceptionsCodeFixTests
 			.Element("Exceptions");
 
 		exceptions.Should().NotBeNull();
-		exceptions!.Elements("Class")
+		exceptions.Elements("Class")
 			.Where(c => c.Attribute("typeName")?.Value == "IPatientManager")
 			.Should().ContainSingle();
 	}
@@ -347,20 +348,22 @@ public sealed class AddToExceptionsCodeFixTests
 			.Element("Exceptions");
 
 		exceptions.Should().NotBeNull();
-		exceptions!.Elements("Class")
+		exceptions.Elements("Class")
 			.Where(c => c.Attribute("typeName")?.Value == "ICheeseRepository")
 			.Should().ContainSingle();
 	}
 
 	private static Diagnostic CreateDiagnosticWithProperties(ImmutableDictionary<string, string?> properties)
-    {
-        return Diagnostic.Create(
-            ArchitecturalDiagnostics.IllegalDependency,
-            Location.None,
-            properties,
-            "PizzaController",
-            "Controller",
-            "CheeseRepository",
-            "Repository");
-    }
+	{
+		var result = Diagnostic.Create(
+			ArchitecturalDiagnostics.IllegalDependency,
+			Location.None,
+			properties,
+			"PizzaController",
+			"Controller",
+			"CheeseRepository",
+			"Repository");
+
+		return result;
+	}
 }

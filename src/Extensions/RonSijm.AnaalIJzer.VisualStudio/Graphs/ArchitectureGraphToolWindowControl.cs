@@ -1,10 +1,9 @@
 using System.Windows.Controls;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Threading;
-using RonSijm.AnaalIJzer.Graphing.Loading;
-using RonSijm.AnaalIJzer.Graphing.Model;
-using RonSijm.AnaalIJzer.Graphing.Wpf;
 using RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
+using RonSijm.AnaalIJzer.GraphModel.Loading;
+using RonSijm.AnaalIJzer.GraphModel.Model;
 using RonSijm.AnaalIJzer.VisualStudio.Diagnostics;
 using RonSijm.AnaalIJzer.VisualStudio.Options;
 using RonSijm.AnaalIJzer.VisualStudio.Styling;
@@ -13,15 +12,15 @@ namespace RonSijm.AnaalIJzer.VisualStudio.Graphs;
 
 internal sealed class ArchitectureGraphToolWindowControl : UserControl
 {
-	private readonly ArchitectureGraphEditorControl editor;
-	private JoinableTask? renderTask;
+	private readonly ArchitectureGraphEditorControl _editor;
+	private JoinableTask? _renderTask;
 
 	public ArchitectureGraphToolWindowControl()
 	{
 		var root = new Grid();
 		ArchitectureVisualStudioTheme.ApplyToToolWindow(root);
 		ArchitectureVisualStudioTheme.ApplyBackground(root);
-		editor = new ArchitectureGraphEditorControl(
+		_editor = new ArchitectureGraphEditorControl(
 			ArchitectureGraphToolWindowState.Current,
 			ArchitectureVisualStudioOptions.Current.DependencyGraphFocusMode,
 			ArchitectureVisualStudioTheme.CreateEditorTheme(root),
@@ -29,7 +28,7 @@ internal sealed class ArchitectureGraphToolWindowControl : UserControl
 			ArchitectureVisualStudioLog.Warning,
 			snapshotReloader: ReloadSnapshot,
 			snapshotPublisher: ArchitectureGraphToolWindowState.Publish);
-		root.Children.Add(editor);
+		root.Children.Add(_editor);
 		Content = root;
 		Loaded += (_, _) => Subscribe();
 		Unloaded += (_, _) => Unsubscribe();
@@ -46,13 +45,13 @@ internal sealed class ArchitectureGraphToolWindowControl : UserControl
 	{
 		ArchitectureGraphToolWindowState.Changed -= StateChanged;
 		ArchitectureVisualStudioOptions.Changed -= StateChanged;
-		renderTask = null;
+		_renderTask = null;
 	}
 
 	private void StateChanged(object? sender, EventArgs e)
 	{
 #pragma warning disable VSSDK007
-		renderTask = ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+		_renderTask = ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
 #pragma warning restore VSSDK007
 		{
 			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
@@ -62,7 +61,7 @@ internal sealed class ArchitectureGraphToolWindowControl : UserControl
 
 	private void Render()
 	{
-		editor.UpdateSnapshot(
+		_editor.UpdateSnapshot(
 			ArchitectureGraphToolWindowState.Current,
 			ArchitectureVisualStudioOptions.Current.DependencyGraphFocusMode);
 	}

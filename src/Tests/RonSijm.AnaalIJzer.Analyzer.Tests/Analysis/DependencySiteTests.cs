@@ -1,4 +1,5 @@
-using RonSijm.AnaalIJzer.Testing;
+using RonSijm.AnaalIJzer.Analyzer.Tests.Testing;
+using RonSijm.AnaalIJzer.Core.Findings;
 
 namespace RonSijm.AnaalIJzer.Analyzer.Tests.Analysis;
 
@@ -328,7 +329,7 @@ public sealed class DependencySiteTests
 		diagnostics
 			.Where(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency)
 			.Select(d => d.Properties["Site"])
-			.Should().BeEquivalentTo(["GenericInvocation", "Local"]);
+			.Should().BeEquivalentTo("GenericInvocation", "Local");
 	}
 
 	[Fact]

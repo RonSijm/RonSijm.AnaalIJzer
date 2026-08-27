@@ -1,6 +1,6 @@
-using RonSijm.AnaalIJzer.Engine.DependencyRules;
+using RonSijm.AnaalIJzer.Core.DependencyRules;
 
-namespace RonSijm.AnaalIJzer.Engine.ApiSurface;
+namespace RonSijm.AnaalIJzer.Core.ApiSurface.Engine.Policies;
 
 public readonly struct ApiSurfaceLayerRule(
 	string layerPath,

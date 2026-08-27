@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
 using System.Windows;
 using System.Windows.Controls;
-using RonSijm.AnaalIJzer.Indicators;
 using RonSijm.AnaalIJzer.Core.Editor.Snapshots;
+using RonSijm.AnaalIJzer.Core.Indicators;
 using RonSijm.AnaalIJzer.VisualStudio.Styling;
 
 namespace RonSijm.AnaalIJzer.VisualStudio.Editor.LayerIndicators;

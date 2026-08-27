@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.Analysis.ApiSurface.Model;
+using RonSijm.AnaalIJzer.Core.ApiSurface.Analysis.Model;
 
 namespace RonSijm.AnaalIJzer.Core.ApiSurface.Tests.ApiSurface;
 

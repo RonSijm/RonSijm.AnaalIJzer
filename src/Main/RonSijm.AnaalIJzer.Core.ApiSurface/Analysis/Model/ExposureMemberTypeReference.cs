@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis;
 
-namespace RonSijm.AnaalIJzer.Analysis.ApiSurface.Model;
+namespace RonSijm.AnaalIJzer.Core.ApiSurface.Analysis.Model;
 
 public readonly struct ExposureMemberTypeReference(string segmentName, ITypeSymbol type, string site, Location? location)
 {

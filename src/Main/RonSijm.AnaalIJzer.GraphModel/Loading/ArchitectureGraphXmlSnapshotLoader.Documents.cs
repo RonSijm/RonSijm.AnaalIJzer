@@ -1,9 +1,10 @@
 using System.Collections.Immutable;
 using System.Xml.Linq;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Document;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Sources;
 
-namespace RonSijm.AnaalIJzer.Graphing.Loading;
+namespace RonSijm.AnaalIJzer.GraphModel.Loading;
 
 public static partial class ArchitectureGraphXmlSnapshotLoader
 {
@@ -23,41 +24,47 @@ public static partial class ArchitectureGraphXmlSnapshotLoader
 		documents.Add(new ConfigurationDocumentPart(root, fullPath, sourceKind));
 		foreach (var include in root.Elements().Where(element => IsElement(element, "Include")))
 		{
-			var includePath = include.Attribute("path")?.Value?.Trim();
-			if (string.IsNullOrWhiteSpace(includePath))
+			if (include.Attribute("path")?.Value is not string includePathValue)
 			{
 				continue;
 			}
 
-			var includedFullPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(fullPath) ?? string.Empty, includePath));
-			var includedSource = new ArchitectureConfigurationSource(ArchitectureConfigurationSourceKind.XmlFile, includedFullPath);
-			if (!ArchitectureConfigurationDocumentLoader.TryReadConfigurationDocument(includedSource, out var includedDocument, out var message) || includedDocument?.Root is null)
+			includePathValue = includePathValue.Trim();
+			if (string.IsNullOrWhiteSpace(includePathValue))
 			{
-				throw new InvalidOperationException(message);
+				continue;
 			}
 
-			if (!IsElement(includedDocument.Root, "ArchitecturalLevels"))
+			var includedPaths = ArchitectureConfigurationIncludeResolver.ResolveFileSystemPaths(fullPath, includePathValue);
+			if (includedPaths.Length == 0)
 			{
-				throw new InvalidOperationException("Included AnaalIJzer configuration does not have an <ArchitecturalLevels> root element: " + includedFullPath);
+				throw new InvalidOperationException(ArchitectureConfigurationIncludeResolver.CreateMissingIncludeMessage(includePathValue));
 			}
 
-			CollectConfigurationDocuments(includedDocument.Root, includedFullPath, ArchitectureConfigurationSourceKind.XmlFile, documents, visitedPaths);
+			foreach (var includedFullPath in includedPaths)
+			{
+				var includedSource = new ArchitectureConfigurationSource(ArchitectureConfigurationSourceKind.XmlFile, includedFullPath);
+				if (!ArchitectureConfigurationDocumentLoader.TryReadConfigurationDocument(includedSource, out var includedDocument, out var message) || includedDocument?.Root is null)
+				{
+					throw new InvalidOperationException(message);
+				}
+
+				if (!IsElement(includedDocument.Root, "ArchitecturalLevels"))
+				{
+					throw new InvalidOperationException("Included AnaalIJzer configuration does not have an <ArchitecturalLevels> root element: " + includedFullPath);
+				}
+
+				CollectConfigurationDocuments(includedDocument.Root, includedFullPath, ArchitectureConfigurationSourceKind.XmlFile, documents, visitedPaths);
+			}
 		}
 	}
 
-	private sealed class ConfigurationDocumentPart
+	private sealed class ConfigurationDocumentPart(XElement root, string sourcePath, ArchitectureConfigurationSourceKind sourceKind)
 	{
-		public ConfigurationDocumentPart(XElement root, string sourcePath, ArchitectureConfigurationSourceKind sourceKind)
-		{
-			Root = root;
-			SourcePath = sourcePath;
-			SourceKind = sourceKind;
-		}
+		public XElement Root { get; } = root;
 
-		public XElement Root { get; }
+		public string SourcePath { get; } = sourcePath;
 
-		public string SourcePath { get; }
-
-		public ArchitectureConfigurationSourceKind SourceKind { get; }
+		public ArchitectureConfigurationSourceKind SourceKind { get; } = sourceKind;
 	}
 }

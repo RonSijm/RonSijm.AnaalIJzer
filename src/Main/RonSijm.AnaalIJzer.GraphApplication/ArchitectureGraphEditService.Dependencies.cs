@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
 using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 
 namespace RonSijm.AnaalIJzer.GraphApplication;
 

@@ -9,24 +9,24 @@ public sealed partial class ArchitectureGraphEditorControl
 {
 	private void RenderSelection(ArchitectureGraphSelection selection)
 	{
-		currentSelection = selection;
-		inspectorPanel.Child = selection.Kind switch
+		_currentSelection = selection;
+		_inspectorPanel.Child = selection.Kind switch
 		{
 			ArchitectureGraphSelectionKind.Layer => CreateLayerInspector(selection),
 			ArchitectureGraphSelectionKind.DependencyRule => CreateDependencyRuleInspector(selection),
 			ArchitectureGraphSelectionKind.CodeEvidence => CreateCodeEvidenceInspector(selection),
 			_ => CreateEmptyInspector(selection)
 		};
-		inspectorScrollViewer.ScrollToTop();
+		_inspectorScrollViewer.ScrollToTop();
 	}
 
 	private UIElement CreateEmptyInspector(ArchitectureGraphSelection selection)
 	{
 		var panel = CreateInspectorShell(selection);
 		panel.Children.Add(CreateHintTextBlock("Click a layer node or dependency connection to edit its settings.", new Thickness(0, 8, 0, 0)));
-		if (snapshot.HasConfiguration && !snapshot.HasConfigurationIssues)
+		if (_snapshot.HasConfiguration && !_snapshot.HasConfigurationIssues)
 		{
-			AddRootConfigurationEditor(panel, snapshot.ConfigurationSource);
+			AddRootConfigurationEditor(panel, _snapshot.ConfigurationSource);
 		}
 
 		return panel;

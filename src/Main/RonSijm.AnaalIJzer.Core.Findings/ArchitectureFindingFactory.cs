@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 
-namespace RonSijm.AnaalIJzer.Findings;
+namespace RonSijm.AnaalIJzer.Core.Findings;
 
 public static class ArchitectureFindingFactory
 {

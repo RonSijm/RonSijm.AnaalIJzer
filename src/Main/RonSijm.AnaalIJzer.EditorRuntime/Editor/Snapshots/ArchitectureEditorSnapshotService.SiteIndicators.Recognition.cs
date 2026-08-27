@@ -2,14 +2,13 @@ using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
-using RonSijm.AnaalIJzer.Definitions;
-using RonSijm.AnaalIJzer.Engine.DependencyRules;
-using RonSijm.AnaalIJzer.Indicators;
-using ProjectAnalyzerConfig = RonSijm.AnaalIJzer.Model.AnalyzerConfig;
-using RonSijm.AnaalIJzer.Engine.LayerModel;
-using RonSijm.AnaalIJzer.Core.Editor.Snapshots;
+using RonSijm.AnaalIJzer.Core.Findings;
+using RonSijm.AnaalIJzer.Core.Indicators;
+using RonSijm.AnaalIJzer.Core.LayerModel;
+using RonSijm.AnaalIJzer.Core.RuntimeConfig.Engine.DependencyRules;
+using ProjectAnalyzerConfig = RonSijm.AnaalIJzer.Core.RuntimeConfig.Config.Model.AnalyzerConfig;
 
-namespace RonSijm.AnaalIJzer.EditorRuntime.Snapshots;
+namespace RonSijm.AnaalIJzer.EditorRuntime.Editor.Snapshots;
 
 public static partial class ArchitectureEditorSnapshotService
 {

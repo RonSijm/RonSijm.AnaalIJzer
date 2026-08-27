@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.BuildMetadata;
-using RonSijm.AnaalIJzer.Config.Parsing;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 
 namespace RonSijm.AnaalIJzer.Core.BuildMetadata.Tests;
 

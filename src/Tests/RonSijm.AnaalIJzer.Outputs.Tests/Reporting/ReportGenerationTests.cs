@@ -1,11 +1,13 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
-using RonSijm.AnaalIJzer.Config.Parsing;
-using RonSijm.AnaalIJzer.Documentation;
+using RonSijm.AnaalIJzer.Core.Configuration.Compilation.Parsing;
+using RonSijm.AnaalIJzer.Core.Findings;
+using RonSijm.AnaalIJzer.Core.Violations;
+using RonSijm.AnaalIJzer.Outputs.Documentation;
 using RonSijm.AnaalIJzer.Outputs.Tests.TestSupport;
-using RonSijm.AnaalIJzer.Violations;
-using AnalyzerConfiguration = RonSijm.AnaalIJzer.Model.AnalyzerConfig;
+using RonSijm.AnaalIJzer.Outputs.Violations;
+using AnalyzerConfiguration = RonSijm.AnaalIJzer.Core.RuntimeConfig.Config.Model.AnalyzerConfig;
 
 namespace RonSijm.AnaalIJzer.Outputs.Tests.Reporting;
 
@@ -474,7 +476,7 @@ public sealed class ReportGenerationTests
 		var additionalText = new TestAdditionalText("Architecture.anl", config);
 
 		var result = ArchitecturalConfigParser.Parse(
-			ImmutableArray.Create<AdditionalText>(additionalText),
+            [additionalText],
 			CancellationToken.None);
 
 		return result;

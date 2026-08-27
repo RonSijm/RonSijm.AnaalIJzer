@@ -1,6 +1,7 @@
 using RonSijm.AnaalIJzer.ConfigurationEditing.Document;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
-using RonSijm.AnaalIJzer.Workspace;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Sources;
+using RonSijm.AnaalIJzer.Workspace.Analysis;
 
 namespace RonSijm.AnaalIJzer.GraphWorkspace;
 

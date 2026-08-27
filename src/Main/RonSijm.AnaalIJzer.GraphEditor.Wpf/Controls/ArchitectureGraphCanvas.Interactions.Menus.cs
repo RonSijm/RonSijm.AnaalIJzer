@@ -12,7 +12,7 @@ internal sealed partial class ArchitectureGraphCanvas
 	private ContextMenu CreateConnectionContextMenu()
 	{
 		var menu = new ContextMenu();
-		theme.ApplyToContextMenu(menu);
+		_theme.ApplyToContextMenu(menu);
 		menu.Opened += ConnectionContextMenuOpened;
 		var remove = new MenuItem { Header = "Remove connection" };
 		remove.SetBinding(MenuItem.CommandProperty, CreateConnectionMenuBinding(nameof(NodifyGraphConnectionViewModel.RemoveCommand)));
@@ -29,13 +29,13 @@ internal sealed partial class ArchitectureGraphCanvas
 		var allowedSites = new MenuItem { Header = "allowedSites" };
 		allowedSites.SetBinding(ItemsControl.ItemsSourceProperty, CreateConnectionMenuBinding(nameof(NodifyGraphConnectionViewModel.AllowedSiteOptions)));
 		allowedSites.SetBinding(UIElement.IsEnabledProperty, CreateConnectionMenuBinding(nameof(NodifyGraphConnectionViewModel.CanEditRule), BindingMode.OneWay));
-		allowedSites.ItemContainerStyle = CreateSiteOptionStyle(theme);
+		allowedSites.ItemContainerStyle = CreateSiteOptionStyle(_theme);
 		menu.Items.Add(allowedSites);
 
 		var blockedSites = new MenuItem { Header = "blockedSites" };
 		blockedSites.SetBinding(ItemsControl.ItemsSourceProperty, CreateConnectionMenuBinding(nameof(NodifyGraphConnectionViewModel.BlockedSiteOptions)));
 		blockedSites.SetBinding(UIElement.IsEnabledProperty, CreateConnectionMenuBinding(nameof(NodifyGraphConnectionViewModel.CanEditRule), BindingMode.OneWay));
-		blockedSites.ItemContainerStyle = CreateSiteOptionStyle(theme);
+		blockedSites.ItemContainerStyle = CreateSiteOptionStyle(_theme);
 		menu.Items.Add(blockedSites);
 
 		return menu;
@@ -44,12 +44,12 @@ internal sealed partial class ArchitectureGraphCanvas
 	private ContextMenu CreateCanvasContextMenu()
 	{
 		var menu = new ContextMenu();
-		theme.ApplyToContextMenu(menu);
+		_theme.ApplyToContextMenu(menu);
 		var addLayer = new MenuItem
 		{
 			Header = "Add root layer...",
-			IsEnabled = group.ConfigurationSource.CanEdit,
-			Command = new DelegateCommand(_ => AddRootLayerFromCanvas(), _ => group.ConfigurationSource.CanEdit)
+			IsEnabled = _group.ConfigurationSource.CanEdit,
+			Command = new DelegateCommand(_ => AddRootLayerFromCanvas(), _ => _group.ConfigurationSource.CanEdit)
 		};
 		menu.Items.Add(addLayer);
 
@@ -60,21 +60,21 @@ internal sealed partial class ArchitectureGraphCanvas
 	{
 		try
 		{
-			if (!group.ConfigurationSource.CanEdit)
+			if (!_group.ConfigurationSource.CanEdit)
 			{
 				ReportEditResult(ArchitectureConfigurationEditResult.Failure("This configuration source is not editable."));
 				return;
 			}
 
-			var request = layerCreationHandler();
+			var request = _layerCreationHandler();
 			if (request is null)
 			{
 				return;
 			}
 
-			logger?.LogInformation("Adding root layer '{LayerName}' from graph background menu.", request.Name);
-			var result = editService.AddLayer(
-				group.ConfigurationSource,
+			_logger?.LogInformation("Adding root layer '{LayerName}' from graph background menu.", request.Name);
+			var result = _editService.AddLayer(
+				_group.ConfigurationSource,
 				string.Empty,
 				request.Name,
 				request.MatcherKind,
@@ -83,7 +83,7 @@ internal sealed partial class ArchitectureGraphCanvas
 		}
 		catch (Exception exception)
 		{
-			logger?.LogError(exception, "Failed to add root layer from graph background menu.");
+			_logger?.LogError(exception, "Failed to add root layer from graph background menu.");
 			ReportEditResult(ArchitectureConfigurationEditResult.Failure("Adding the layer failed. See the graph editor log for details."));
 		}
 	}
@@ -101,7 +101,7 @@ internal sealed partial class ArchitectureGraphCanvas
 	private ContextMenu CreateNodeContextMenu()
 	{
 		var menu = new ContextMenu();
-		theme.ApplyToContextMenu(menu);
+		_theme.ApplyToContextMenu(menu);
 		menu.Opened += NodeContextMenuOpened;
 		var addChild = new MenuItem { Header = "Add child layer..." };
 		addChild.SetBinding(MenuItem.CommandProperty, CreateConnectionMenuBinding(nameof(NodifyGraphNodeViewModel.AddChildLayerCommand)));

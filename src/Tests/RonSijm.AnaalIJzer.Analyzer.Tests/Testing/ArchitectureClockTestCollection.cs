@@ -1,6 +1,4 @@
-using Xunit;
-
-namespace RonSijm.AnaalIJzer.Testing;
+namespace RonSijm.AnaalIJzer.Analyzer.Tests.Testing;
 
 [CollectionDefinition(Name, DisableParallelization = true)]
 public sealed class ArchitectureClockTestCollection

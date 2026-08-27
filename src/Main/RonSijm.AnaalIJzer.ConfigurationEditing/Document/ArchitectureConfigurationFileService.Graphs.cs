@@ -146,43 +146,37 @@ public static partial class ArchitectureConfigurationFileService
 		return result;
 	}
 
-	private sealed class GraphComponent
+	private sealed class GraphComponent(IReadOnlyList<string> layerNames, List<ConfigurationElement> elements)
 	{
-		public GraphComponent(IReadOnlyList<string> layerNames, List<ConfigurationElement> elements)
-		{
-			LayerNames = layerNames;
-			Elements = elements;
-		}
+		public IReadOnlyList<string> LayerNames { get; } = layerNames;
 
-		public IReadOnlyList<string> LayerNames { get; }
-
-		public List<ConfigurationElement> Elements { get; }
+		public List<ConfigurationElement> Elements { get; } = elements;
 	}
 
 	private sealed class DisjointSet
 	{
-		private readonly Dictionary<string, string> parents;
+		private readonly Dictionary<string, string> _parents;
 
 		public DisjointSet(IEnumerable<string> values)
 		{
-			parents = values.ToDictionary(value => value, value => value, StringComparer.Ordinal);
+			_parents = values.ToDictionary(value => value, value => value, StringComparer.Ordinal);
 		}
 
 		public string Find(string value)
 		{
-			if (!parents.TryGetValue(value, out var parent))
+			if (!_parents.TryGetValue(value, out var parent))
 			{
-				parents[value] = value;
+				_parents[value] = value;
 
 				return value;
 			}
 
 			if (parent != value)
 			{
-				parents[value] = Find(parent);
+				_parents[value] = Find(parent);
 			}
 
-			var result = parents[value];
+			var result = _parents[value];
 
 			return result;
 		}
@@ -193,7 +187,7 @@ public static partial class ArchitectureConfigurationFileService
 			var rightRoot = Find(right);
 			if (leftRoot != rightRoot)
 			{
-				parents[rightRoot] = leftRoot;
+				_parents[rightRoot] = leftRoot;
 			}
 		}
 	}

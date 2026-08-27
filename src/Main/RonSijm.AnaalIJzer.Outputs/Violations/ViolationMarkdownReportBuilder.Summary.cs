@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace RonSijm.AnaalIJzer.Violations;
+namespace RonSijm.AnaalIJzer.Outputs.Violations;
 
 internal static partial class ViolationMarkdownReportBuilder
 {

@@ -1,6 +1,7 @@
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.Indicators;
 using RonSijm.AnaalIJzer.Core.Editor.Snapshots;
+using RonSijm.AnaalIJzer.Core.Findings;
+using RonSijm.AnaalIJzer.Core.Indicators;
 
 namespace RonSijm.AnaalIJzer.EditorRuntime.Tests.Editor.Snapshots;
 

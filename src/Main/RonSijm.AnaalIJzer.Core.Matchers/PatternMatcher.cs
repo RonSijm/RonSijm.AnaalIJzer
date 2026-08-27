@@ -1,13 +1,17 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.Conditions;
+using RonSijm.AnaalIJzer.Core.Matchers.Conditions;
+using RonSijm.AnaalIJzer.Core.Matchers.Declarations;
 
-namespace RonSijm.AnaalIJzer.Conditions;
+namespace RonSijm.AnaalIJzer.Core.Matchers;
 
 /// <summary>
 ///     A pattern rule containing one or more conditions. Every condition must match.
 /// </summary>
-public readonly struct PatternMatcher(MatchTarget target, ImmutableArray<MatchCondition> conditions)
+public readonly struct PatternMatcher(
+	MatchTarget target,
+	ImmutableArray<MatchCondition> conditions,
+	ImmutableArray<DeclarationMatcher> requiredDeclarations = default)
 {
 	public PatternMatcher(MatchTarget target, MatchKind kind, string value) : this(target, [new MatchCondition(kind, value)])
 	{
@@ -17,8 +21,10 @@ public readonly struct PatternMatcher(MatchTarget target, ImmutableArray<MatchCo
 
     public ImmutableArray<MatchCondition> Conditions { get; } = conditions;
 
+	public ImmutableArray<DeclarationMatcher> RequiredDeclarations { get; } = requiredDeclarations;
+
     public bool IsExactTypeName => Target == MatchTarget.TypeName && Conditions.Any(condition => condition.Kind == MatchKind.Equals);
-	public bool IsPureExactTypeName => IsExactTypeName && Conditions.Length == 1;
+	public bool IsPureExactTypeName => IsExactTypeName && Conditions.Length == 1 && RequiredDeclarations.IsDefaultOrEmpty;
 
 	/// <summary>
 	///     Attempts to match against <paramref name="typeName" /> / <paramref name="namespaceName" />,
@@ -46,6 +52,11 @@ public readonly struct PatternMatcher(MatchTarget target, ImmutableArray<MatchCo
 			{
 				matchedSuffix = condition.Value;
 			}
+		}
+
+		if (!DeclarationMatcherEvaluator.MatchesAll(symbol as INamedTypeSymbol, RequiredDeclarations))
+		{
+			return null;
 		}
 
 		var result = matchedSuffix ?? string.Empty;

@@ -1,26 +1,21 @@
-using RonSijm.AnaalIJzer.Testing;
+using RonSijm.AnaalIJzer.Analyzer.Tests.Testing;
+using RonSijm.AnaalIJzer.Core.Findings;
 
 namespace RonSijm.AnaalIJzer.Analyzer.Tests.Matching;
 
 public sealed class CombinedMatcherTests
 {
-	public static TheoryData<string, string> DeclaredTypeKinds
-    {
-        get
-        {
-            return new()
-            {
-                { "Class", "public class Target { }" },
-                { "Interface", "public interface Target { }" },
-                { "Struct", "public struct Target { }" },
-                { "Record", "public record Target;" },
-                { "RecordStruct", "public record struct Target;" },
-                { "Enum", "public enum Target { Value }" },
-                { "Delegate", "public delegate void Target();" },
-                { "iNtErFaCe", "public interface Target { }" }
-            };
-        }
-    }
+	public static TheoryData<string, string> DeclaredTypeKinds => new()
+	{
+		{ "Class", "public class Target { }" },
+		{ "Interface", "public interface Target { }" },
+		{ "Struct", "public struct Target { }" },
+		{ "Record", "public record Target;" },
+		{ "RecordStruct", "public record struct Target;" },
+		{ "Enum", "public enum Target { Value }" },
+		{ "Delegate", "public delegate void Target();" },
+		{ "iNtErFaCe", "public interface Target { }" }
+	};
 
     [Theory]
 	[MemberData(nameof(DeclaredTypeKinds))]

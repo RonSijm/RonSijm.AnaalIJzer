@@ -1,6 +1,6 @@
-using RonSijm.AnaalIJzer.BuildMetadata;
-using RonSijm.AnaalIJzer.Testing;
-using RonSijm.AnaalIJzer;
+using RonSijm.AnaalIJzer.Analyzer.Tests.Testing;
+using RonSijm.AnaalIJzer.Core.BuildMetadata;
+using RonSijm.AnaalIJzer.Core.Findings;
 
 namespace RonSijm.AnaalIJzer.Analyzer.Tests.Analysis;
 

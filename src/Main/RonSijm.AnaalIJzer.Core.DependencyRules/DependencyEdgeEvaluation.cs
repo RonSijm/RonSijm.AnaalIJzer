@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer.Engine.DependencyRules;
+namespace RonSijm.AnaalIJzer.Core.DependencyRules;
 
 public enum DependencyDenialKind
 {
@@ -24,15 +24,9 @@ public readonly struct DependencyEdgeEvaluation(bool isAllowed, string denialRea
 
 	public string ToPath { get; } = toPath;
 
-	public bool IsDeniedBySiteFilter
-	{
-		get { return DenialKind == DependencyDenialKind.SiteFilter; }
-	}
+	public bool IsDeniedBySiteFilter => DenialKind == DependencyDenialKind.SiteFilter;
 
-	public bool IsDeniedByBlockedEdge
-	{
-		get { return DenialKind == DependencyDenialKind.BlockedEdge; }
-	}
+	public bool IsDeniedByBlockedEdge => DenialKind == DependencyDenialKind.BlockedEdge;
 
 	public static DependencyEdgeEvaluation Denied(string reason, DependencyDenialKind denialKind, string scopePath, string fromPath, string toPath)
 	{

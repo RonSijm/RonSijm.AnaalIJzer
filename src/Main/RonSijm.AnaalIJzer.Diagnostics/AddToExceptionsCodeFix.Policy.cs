@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Xml;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis.Text;
-using RonSijm.AnaalIJzer.Exceptions;
+using RonSijm.AnaalIJzer.Core.Exceptions;
 
 namespace RonSijm.AnaalIJzer.Diagnostics;
 

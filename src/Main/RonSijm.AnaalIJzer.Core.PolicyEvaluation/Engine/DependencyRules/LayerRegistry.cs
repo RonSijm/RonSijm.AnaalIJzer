@@ -1,35 +1,37 @@
-using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.Engine.ApiSurface;
-using RonSijm.AnaalIJzer.Conditions;
-using RonSijm.AnaalIJzer.Contracts;
-using RonSijm.AnaalIJzer.Definitions;
-using RonSijm.AnaalIJzer.Engine.Policies;
-using RonSijm.AnaalIJzer.Engine.EntryPoints;
-using RonSijm.AnaalIJzer.Inheritance;
-using RonSijm.AnaalIJzer.Model;
-using RonSijm.AnaalIJzer.SourceLocations;
-using RonSijm.AnaalIJzer.SymbolFacts;
-using RonSijm.AnaalIJzer.Engine.Visibility;
-using RonSijm.AnaalIJzer.Engine.LayerModel;
+using RonSijm.AnaalIJzer.Core.EntryPoints;
+using RonSijm.AnaalIJzer.Core.LayerModel;
 
-namespace RonSijm.AnaalIJzer.Engine.DependencyRules;
+namespace RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.DependencyRules;
 
 /// <summary>
 ///     Owns the two-tier type-to-layer lookup (exact-name fast path + pattern list)
 ///     together with the <see cref="FindLayer" /> and exception-evaluation logic
-///     that was previously inlined on <see cref="Model.AnalyzerConfig" />.
+///     that was previously inlined on <see cref="AnalyzerConfig" />.
 /// </summary>
-public readonly partial struct LayerRegistry(
-	CompiledLayerCatalog catalog)
+public readonly partial struct LayerRegistry
 {
-	public bool HasLayers { get; } = catalog.HasLayers;
-	public bool HasContractPolicies { get; } = catalog.HasContractPolicies;
-	public bool HasInheritancePolicies { get; } = catalog.HasInheritancePolicies;
-	public bool HasVisibilityPolicies { get; } = catalog.HasVisibilityPolicies;
-	public bool HasApiSurfacePolicies { get; } = catalog.HasApiSurfacePolicies;
-	public bool HasEntryPointPolicies { get; } = catalog.HasEntryPointPolicies;
-	public bool HasSourceLocationPolicies { get; } = catalog.HasSourceLocationPolicies;
+	private readonly CompiledLayerCatalog _catalog;
+
+	public LayerRegistry(CompiledLayerCatalog catalog)
+	{
+		_catalog = catalog;
+		HasLayers = catalog.HasLayers;
+		HasContractPolicies = catalog.HasContractPolicies;
+		HasInheritancePolicies = catalog.HasInheritancePolicies;
+		HasVisibilityPolicies = catalog.HasVisibilityPolicies;
+		HasApiSurfacePolicies = catalog.HasApiSurfacePolicies;
+		HasEntryPointPolicies = catalog.HasEntryPointPolicies;
+		HasSourceLocationPolicies = catalog.HasSourceLocationPolicies;
+	}
+
+	public bool HasLayers { get; }
+	public bool HasContractPolicies { get; }
+	public bool HasInheritancePolicies { get; }
+	public bool HasVisibilityPolicies { get; }
+	public bool HasApiSurfacePolicies { get; }
+	public bool HasEntryPointPolicies { get; }
+	public bool HasSourceLocationPolicies { get; }
 
 	/// <summary>
 	///     Finds the layer for a type.
@@ -66,7 +68,7 @@ public readonly partial struct LayerRegistry(
 				continue;
 			}
 
-			if (!catalog.NodesByPath.TryGetValue(boundary.Name, out var node) || node.EntryPointPolicies.IsDefaultOrEmpty)
+			if (!_catalog.NodesByPath.TryGetValue(boundary.Name, out var node) || node.EntryPointPolicies.IsDefaultOrEmpty)
 			{
 				continue;
 			}

@@ -1,15 +1,14 @@
 using System.Collections.Immutable;
 using System.Xml;
 using System.Xml.Linq;
-using RonSijm.AnaalIJzer.Conditions;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Document;
-using RonSijm.AnaalIJzer.Definitions;
-using RonSijm.AnaalIJzer.Engine.DependencyRules;
-using RonSijm.AnaalIJzer.Engine.EntryPoints;
-using RonSijm.AnaalIJzer.Exceptions;
-using RonSijm.AnaalIJzer.Engine.LayerModel;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+using RonSijm.AnaalIJzer.Core.EntryPoints;
+using RonSijm.AnaalIJzer.Core.Exceptions;
+using RonSijm.AnaalIJzer.Core.LayerModel;
+using RonSijm.AnaalIJzer.Core.Matchers.Conditions;
 
-namespace RonSijm.AnaalIJzer.Config.Parsing;
+namespace RonSijm.AnaalIJzer.Core.Configuration.Compilation.Parsing;
 
 public static partial class ArchitecturalConfigParser
 {

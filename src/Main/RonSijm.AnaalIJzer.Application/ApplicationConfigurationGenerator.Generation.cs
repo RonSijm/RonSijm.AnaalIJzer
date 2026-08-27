@@ -1,6 +1,9 @@
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
+using RonSijm.AnaalIJzer.Core.Indicators;
+using RonSijm.AnaalIJzer.Core.Observations;
+using RonSijm.AnaalIJzer.Workspace.Analysis;
 
 namespace RonSijm.AnaalIJzer.Application;
 

@@ -45,6 +45,24 @@ Both attributes accept comma-separated simple or fully qualified type names.
 <InheritancePolicy typeKinds="Class" requiredBaseTypes="AggregateRoot" requiredInterfaces="IAuditedEntity" />
 ```
 
+#### Combining with structural class matchers
+
+`<InheritancePolicy>` becomes especially useful when the layer itself is defined by a structural class matcher:
+
+```xml
+<Layer name="PizzaProviderRequests">
+  <Class endsWith="Request">
+    <Property exactName="PizzaId" typeName="PizzaId" />
+  </Class>
+
+  <InheritancePolicy
+    typeKinds="Class"
+    requiredInterfaces="IPizzaProvider" />
+</Layer>
+```
+
+That reads as: request types that own a `PizzaId` property must implement `IPizzaProvider`. A `DrinkRequest` does not match the layer just because it ends with `Request`, so the inheritance rule never applies to it. This is useful for drop-in rule packs where a recognizable request shape should imply another contract.
+
 #### Nested layers
 
 Inheritance policies apply to the owning layer and all descendants. Parent and child policies are cumulative:
@@ -72,4 +90,4 @@ The child policy cannot override an outer denial. The first failure is reported 
 
 Arse includes inheritance-policy findings in `inspect`, `report`, generated documentation, and code evidence. The standalone WPF editor and Visual Studio graph inspector expose the same settings at layer scope.
 
-**Example project:** [`Example.Arch019.InheritancePolicy`](../../Examples/Diagnostics/Example.Arch019.InheritancePolicy)
+**Example projects:** [`Example.Arch019.InheritancePolicy`](../../Examples/Diagnostics/Example.Arch019.InheritancePolicy), [`Example.StructuralDeclarationMatchers`](../../Examples/Features/Example.StructuralDeclarationMatchers)

@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
 using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 
 namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
 
@@ -24,9 +25,9 @@ public sealed partial class ArchitectureGraphEditorControl
 		var move = new Button { Content = "Move layer", Margin = new Thickness(0, 4, 0, 0), IsEnabled = handle.CanEdit };
 		move.Click += (_, _) =>
 		{
-			if (confirmationHandler("Move layer '" + handle.LayerPath + "' to parent path '" + (string.IsNullOrWhiteSpace(moveTarget.Text) ? "root" : moveTarget.Text.Trim()) + "'?"))
+			if (_confirmationHandler("Move layer '" + handle.LayerPath + "' to parent path '" + (string.IsNullOrWhiteSpace(moveTarget.Text) ? "root" : moveTarget.Text.Trim()) + "'?"))
 			{
-				HandleEditResult(editService.MoveLayer(handle, moveTarget.Text), true);
+				HandleEditResult(_editService.MoveLayer(handle, moveTarget.Text), true);
 			}
 		};
 		panel.Children.Add(move);
@@ -34,9 +35,9 @@ public sealed partial class ArchitectureGraphEditorControl
 		remove.Margin = new Thickness(0, 8, 0, 0);
 		remove.Click += (_, _) =>
 		{
-			if (confirmationHandler("Remove layer '" + handle.LayerPath + "' and its nested settings?"))
+			if (_confirmationHandler("Remove layer '" + handle.LayerPath + "' and its nested settings?"))
 			{
-				HandleEditResult(editService.RemoveLayer(handle), true);
+				HandleEditResult(_editService.RemoveLayer(handle), true);
 			}
 		};
 		panel.Children.Add(remove);
@@ -70,7 +71,7 @@ public sealed partial class ArchitectureGraphEditorControl
 			var attributes = string.IsNullOrWhiteSpace(allowedSites.Text)
 				? ImmutableDictionary<string, string>.Empty
 				: ImmutableDictionary<string, string>.Empty.Add("allowedSites", allowedSites.Text.Trim());
-			HandleEditResult(editService.AddNameRule(handle, kind.SelectedItem?.ToString() ?? "RequireMatchingNames", attributes), true);
+			HandleEditResult(_editService.AddNameRule(handle, kind.SelectedItem as string ?? "RequireMatchingNames", attributes), true);
 		};
 		panel.Children.Add(add);
 	}
@@ -98,7 +99,7 @@ public sealed partial class ArchitectureGraphEditorControl
 				return;
 			}
 
-			HandleEditResult(editService.AddLayer(source, parentPath, name.Text, matcherKind.SelectedItem?.ToString() ?? "Class", parsedAttributes));
+			HandleEditResult(_editService.AddLayer(source, parentPath, name.Text, matcherKind.SelectedItem as string ?? "Class", parsedAttributes));
 		};
 		panel.Children.Add(add);
 	}

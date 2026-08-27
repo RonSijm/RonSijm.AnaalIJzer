@@ -1,12 +1,11 @@
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using System.Windows.Threading;
 using RonSijm.AnaalIJzer.Graphing.Building;
-using RonSijm.AnaalIJzer.Graphing.Model;
 using RonSijm.AnaalIJzer.Graphing.ViewModels;
 using RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
 using RonSijm.AnaalIJzer.Graphing.Wpf.Exporting;
+using RonSijm.AnaalIJzer.GraphModel.Model;
 
 namespace RonSijm.AnaalIJzer.GraphEditor.Standalone;
 
@@ -43,15 +42,15 @@ internal sealed partial class GraphImageExportCommand
 		});
 		var border = new Border
 		{
-			Width = width,
-			Height = Math.Min(height, 420),
+			Width = _width,
+			Height = Math.Min(_height, 420),
 			Padding = new Thickness(24),
 			Background = SystemColors.WindowBrush,
 			BorderBrush = SystemColors.ActiveBorderBrush,
 			BorderThickness = new Thickness(1),
 			Child = stack
 		};
-		var size = new Size(width, Math.Min(height, 420));
+		var size = new Size(_width, Math.Min(_height, 420));
 		border.Measure(size);
 		border.Arrange(new Rect(size));
 		border.UpdateLayout();
@@ -79,14 +78,14 @@ internal sealed partial class GraphImageExportCommand
 			snapshot.Evidence.HasEvidence);
 		if (groups.Length == 0)
 		{
-			var fallbackSize = new Size(width, height);
+			var fallbackSize = new Size(_width, _height);
 
 			return fallbackSize;
 		}
 
 		var contentWidth = groups.Max(CalculateGroupExportWidth);
 		var contentHeight = groups.Sum(CalculateGroupExportHeight);
-		var exportWidth = Math.Min(width, Math.Max(ExportMinimumWidth, contentWidth));
+		var exportWidth = Math.Min(_width, Math.Max(ExportMinimumWidth, contentWidth));
 		var exportHeight = Math.Max(ExportMinimumHeight, contentHeight);
 		var result = new Size(Math.Ceiling(exportWidth), Math.Ceiling(exportHeight));
 

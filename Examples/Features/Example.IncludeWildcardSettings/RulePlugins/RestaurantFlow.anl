@@ -1,0 +1,5 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd">
+  <AllowedDependency from="Waiter" to="Chef" />
+  <AllowedDependency from="Chef" to="Pantry" />
+</ArchitecturalLevels>

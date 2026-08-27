@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.Indicators;
+using RonSijm.AnaalIJzer.Core.Indicators;
 
-namespace RonSijm.AnaalIJzer.Engine.DependencyRules;
+namespace RonSijm.AnaalIJzer.Core.DependencyRules;
 
 public readonly struct DependencySiteFilter(
 	ImmutableHashSet<string> allowedSites,
@@ -13,20 +13,11 @@ public readonly struct DependencySiteFilter(
 
 	public static DependencySiteFilter All { get; } = new(EmptySites, EmptySites);
 
-	public ImmutableHashSet<string> AllowedSites
-	{
-		get { return _allowedSites ?? EmptySites; }
-	}
+	public ImmutableHashSet<string> AllowedSites => _allowedSites ?? EmptySites;
 
-	public ImmutableHashSet<string> BlockedSites
-	{
-		get { return _blockedSites ?? EmptySites; }
-	}
+	public ImmutableHashSet<string> BlockedSites => _blockedSites ?? EmptySites;
 
-	public bool HasFilter
-	{
-		get { return AllowedSites.Count > 0 || BlockedSites.Count > 0; }
-	}
+	public bool HasFilter => AllowedSites.Count > 0 || BlockedSites.Count > 0;
 
 	public bool Allows(string site)
 	{

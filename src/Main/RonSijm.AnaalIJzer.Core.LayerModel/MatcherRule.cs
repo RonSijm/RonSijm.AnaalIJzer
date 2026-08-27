@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.Definitions;
+using RonSijm.AnaalIJzer.Core.Exceptions;
 
-namespace RonSijm.AnaalIJzer.Engine.LayerModel;
+namespace RonSijm.AnaalIJzer.Core.LayerModel;
 
 /// <summary>
 ///     The layer assignment + optional exception list produced by a single

@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 using System.Text;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 
 namespace RonSijm.AnaalIJzer.ConfigurationEditing.Tests.Editing;
 
@@ -38,12 +38,12 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 
 	private sealed class TemporaryDirectory : IDisposable
 	{
-		private readonly string path = Path.Combine(Path.GetTempPath(), "AnaalIJzerVsixTests", Guid.NewGuid().ToString("N"));
+		private readonly string _path = Path.Combine(Path.GetTempPath(), "AnaalIJzerVsixTests", Guid.NewGuid().ToString("N"));
 
 		public string WriteFile(string fileName, string content, Encoding? encoding = null)
 		{
-			Directory.CreateDirectory(path);
-			var filePath = Path.Combine(path, fileName);
+			Directory.CreateDirectory(_path);
+			var filePath = Path.Combine(_path, fileName);
 			File.WriteAllText(filePath, content, encoding ?? Encoding.UTF8);
 
 			return filePath;
@@ -51,17 +51,17 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 
 		public string GetPath(string fileName)
 		{
-			Directory.CreateDirectory(path);
-			var result = Path.Combine(path, fileName);
+			Directory.CreateDirectory(_path);
+			var result = Path.Combine(_path, fileName);
 
 			return result;
 		}
 
 		public void Dispose()
 		{
-			if (Directory.Exists(path))
+			if (Directory.Exists(_path))
 			{
-				Directory.Delete(path, true);
+				Directory.Delete(_path, true);
 			}
 		}
 	}

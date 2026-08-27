@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 
-namespace RonSijm.AnaalIJzer.Contracts;
+namespace RonSijm.AnaalIJzer.Core.Contracts.Contracts;
 
 public readonly struct ContractDeclarationShape(
 	string declaredSymbolName,

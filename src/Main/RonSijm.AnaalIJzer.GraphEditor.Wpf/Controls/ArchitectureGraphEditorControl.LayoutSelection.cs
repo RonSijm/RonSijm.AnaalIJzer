@@ -1,11 +1,11 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
-using RonSijm.AnaalIJzer.Graphing.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 using RonSijm.AnaalIJzer.Graphing.ViewModels;
 using RonSijm.AnaalIJzer.GraphEditor.Wpf.Layout;
 using RonSijm.AnaalIJzer.GraphApplication.Selection;
+using RonSijm.AnaalIJzer.GraphModel.Model;
 
 namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
 
@@ -14,13 +14,13 @@ public sealed partial class ArchitectureGraphEditorControl
 	private void EnsureLayoutState(ArchitectureConfigurationSource source)
 	{
 		var sourceKey = ArchitectureGraphLayoutState.CreateSourceKey(source);
-		if (string.Equals(layoutState.SourceKey, sourceKey, StringComparison.Ordinal))
+		if (string.Equals(_layoutState.SourceKey, sourceKey, StringComparison.Ordinal))
 		{
 			return;
 		}
 
-		layoutState.Save();
-		layoutState = ArchitectureGraphLayoutState.Load(source, warningLogger);
+		_layoutState.Save();
+		_layoutState = ArchitectureGraphLayoutState.Load(source, _warningLogger);
 	}
 
 	private ArchitectureGraphSelection RemapSelection(ArchitectureGraphSelection selection)
@@ -37,7 +37,7 @@ public sealed partial class ArchitectureGraphEditorControl
 
 	private ArchitectureGraphSelection RemapLayerSelection(ArchitectureGraphSelection selection)
 	{
-		var layer = snapshot.Layers.FirstOrDefault(item => string.Equals(item.Path, selection.LayerHandle.LayerPath, StringComparison.Ordinal));
+		var layer = _snapshot.Layers.FirstOrDefault(item => string.Equals(item.Path, selection.LayerHandle.LayerPath, StringComparison.Ordinal));
 		var result = layer is null ? ArchitectureGraphSelection.None : ArchitectureGraphSelection.ForLayer(layer.EditHandle);
 
 		return result;
@@ -46,13 +46,13 @@ public sealed partial class ArchitectureGraphEditorControl
 	private ArchitectureGraphSelection RemapDependencySelection(ArchitectureGraphSelection selection)
 	{
 		var handle = selection.DependencyHandle;
-		var rule = snapshot.Rules.FirstOrDefault(item =>
+		var rule = _snapshot.Rules.FirstOrDefault(item =>
 			string.Equals(item.Kind, handle.ElementKind, StringComparison.Ordinal)
 			&& string.Equals(item.ScopePath, handle.ScopePath, StringComparison.Ordinal)
 			&& string.Equals(item.ConfiguredFrom, handle.ConfiguredFrom, StringComparison.Ordinal)
 			&& string.Equals(item.ConfiguredTo, handle.ConfiguredTo, StringComparison.Ordinal)
 			&& (handle.XmlLineNumber <= 0 || item.XmlLineNumber == handle.XmlLineNumber));
-		rule ??= snapshot.Rules.FirstOrDefault(item =>
+		rule ??= _snapshot.Rules.FirstOrDefault(item =>
 			string.Equals(item.Kind, handle.ElementKind, StringComparison.Ordinal)
 			&& string.Equals(item.ScopePath, handle.ScopePath, StringComparison.Ordinal)
 			&& string.Equals(item.ConfiguredFrom, handle.ConfiguredFrom, StringComparison.Ordinal)

@@ -1,7 +1,7 @@
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
-using RonSijm.AnaalIJzer.Graphing.Loading;
+using RonSijm.AnaalIJzer.GraphModel.Loading;
 using RonSijm.AnaalIJzer.VisualStudio.Diagnostics;
 
 namespace RonSijm.AnaalIJzer.VisualStudio.Graphs;

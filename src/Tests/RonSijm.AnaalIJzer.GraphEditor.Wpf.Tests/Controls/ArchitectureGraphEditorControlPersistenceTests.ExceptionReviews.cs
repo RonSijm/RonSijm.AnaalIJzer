@@ -1,8 +1,8 @@
 using System.Globalization;
 using System.Windows.Controls;
 using AwesomeAssertions;
-using RonSijm.AnaalIJzer.Graphing.Loading;
 using RonSijm.AnaalIJzer.GraphApplication.Selection;
+using RonSijm.AnaalIJzer.GraphModel.Loading;
 using Xunit;
 
 namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests.Controls;
@@ -65,7 +65,7 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 			var snapshot = ArchitectureGraphXmlSnapshotLoader.Load(path);
 			var control = CreateControl(snapshot);
 
-			FindVisualDescendants<Expander>(control).Select(expander => expander.Header?.ToString()).Should().Contain([
+			FindVisualDescendants<Expander>(control).Select(expander => GetText(expander.Header)).Should().Contain([
 				"[Invalid] Class typeName=\"OutdoorKitchen\"",
 				"[Expired] Class typeName=\"ExpiredKitchen\""]);
 
@@ -73,7 +73,7 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 			FindCheckBoxByContent(control, "Expired").IsChecked = false;
 			DrainDispatcher();
 
-			FindVisualDescendants<Expander>(control).Select(expander => expander.Header?.ToString()).Should().NotContain([
+			FindVisualDescendants<Expander>(control).Select(expander => GetText(expander.Header)).Should().NotContain([
 				"[Invalid] Class typeName=\"OutdoorKitchen\"",
 				"[Expired] Class typeName=\"ExpiredKitchen\""]);
 			GetVisualText(control).Should().Contain("No exception reviews match the current filter.");

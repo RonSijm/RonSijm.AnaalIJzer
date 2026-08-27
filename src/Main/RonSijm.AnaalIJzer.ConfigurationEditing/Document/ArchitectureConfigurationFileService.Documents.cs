@@ -1,5 +1,7 @@
 using System.Xml;
 using System.Xml.Linq;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Sources;
 
 namespace RonSijm.AnaalIJzer.ConfigurationEditing.Document;
 
@@ -65,8 +67,16 @@ public static partial class ArchitectureConfigurationFileService
 				throw new ArchitectureConfigurationFileOperationException($"Include without a path in {path}.");
 			}
 
-			var resolvedInclude = GetAbsolutePath(includePath!, Path.GetDirectoryName(path)!);
-			CollectFile(resolvedInclude, documents, elements, visited, cancellationToken);
+			var resolvedIncludes = ArchitectureConfigurationIncludeResolver.ResolveFileSystemPaths(path, includePath!);
+			if (resolvedIncludes.Length == 0)
+			{
+				throw new ArchitectureConfigurationFileOperationException(ArchitectureConfigurationIncludeResolver.CreateMissingIncludeMessage(includePath!));
+			}
+
+			foreach (var resolvedInclude in resolvedIncludes)
+			{
+				CollectFile(resolvedInclude, documents, elements, visited, cancellationToken);
+			}
 		}
 	}
 
@@ -183,39 +193,22 @@ public static partial class ArchitectureConfigurationFileService
 		return result;
 	}
 
-	private sealed class ConfigurationDocument
+	private sealed class ConfigurationDocument(XElement root, string path)
 	{
-		public ConfigurationDocument(XElement root, string path)
-		{
-			Root = root;
-			Path = path;
-		}
+		public XElement Root { get; } = root;
 
-		public XElement Root { get; }
-
-		public string Path { get; }
+		public string Path { get; } = path;
 	}
 
-	private sealed class ConfigurationElement
+	private sealed class ConfigurationElement(XElement element)
 	{
-		public ConfigurationElement(XElement element)
-		{
-			Element = element;
-		}
-
-		public XElement Element { get; }
+		public XElement Element { get; } = element;
 	}
 
-	private sealed class FlattenedConfiguration
+	private sealed class FlattenedConfiguration(IReadOnlyList<ConfigurationDocument> documents, IReadOnlyList<ConfigurationElement> elements)
 	{
-		public FlattenedConfiguration(IReadOnlyList<ConfigurationDocument> documents, IReadOnlyList<ConfigurationElement> elements)
-		{
-			Documents = documents;
-			Elements = elements;
-		}
+		public IReadOnlyList<ConfigurationDocument> Documents { get; } = documents;
 
-		public IReadOnlyList<ConfigurationDocument> Documents { get; }
-
-		public IReadOnlyList<ConfigurationElement> Elements { get; }
+		public IReadOnlyList<ConfigurationElement> Elements { get; } = elements;
 	}
 }

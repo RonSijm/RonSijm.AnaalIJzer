@@ -1,6 +1,9 @@
 using Microsoft.CodeAnalysis;
+using RonSijm.AnaalIJzer.Core.Findings;
+using RonSijm.AnaalIJzer.Core.Violations;
+using RonSijm.AnaalIJzer.Diagnostics;
 
-namespace RonSijm.AnaalIJzer.Violations;
+namespace RonSijm.AnaalIJzer.Outputs.Violations;
 
 internal static class ViolationRecordFactory
 {

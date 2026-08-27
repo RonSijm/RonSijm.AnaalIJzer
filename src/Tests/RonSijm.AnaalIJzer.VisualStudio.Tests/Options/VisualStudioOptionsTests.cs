@@ -3,9 +3,9 @@ using System.IO;
 using System.IO.Compression;
 using AwesomeAssertions;
 using Microsoft.CodeAnalysis.Text;
-using RonSijm.AnaalIJzer.Graphing.Model;
-using RonSijm.AnaalIJzer.Indicators;
 using RonSijm.AnaalIJzer.Core.Editor.Snapshots;
+using RonSijm.AnaalIJzer.Core.Indicators;
+using RonSijm.AnaalIJzer.GraphModel.Model;
 using RonSijm.AnaalIJzer.VisualStudio.Editor.LayerIndicators;
 using RonSijm.AnaalIJzer.VisualStudio.Options;
 using RonSijm.AnaalIJzer.VisualStudio.Shell.Commands;
@@ -299,12 +299,12 @@ public sealed class VisualStudioOptionsTests
 			new TextSpan(0, 10),
 			"PizzaKitchen",
 			"Application",
-			ImmutableArray.Create("Application"),
+            ["Application"],
 			null,
 			1,
 			true,
-			ImmutableArray.Create("* (any layer)", "Controller"),
-			ImmutableArray.Create("*", "Repository"));
+            ["* (any layer)", "Controller"],
+            ["*", "Repository"]);
 
 		return result;
 	}

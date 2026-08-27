@@ -1,33 +1,29 @@
 using Microsoft.CodeAnalysis;
 
-namespace RonSijm.AnaalIJzer.ObservedDependencies;
+namespace RonSijm.AnaalIJzer.Core.Observations;
 
-public readonly struct ObservedDependency
+public readonly struct ObservedDependency(
+	string callerTypeName,
+	string callerLayer,
+	string dependencyTypeName,
+	string dependencyLayer,
+	string site,
+	Location location,
+	string? sourceProjectName = null)
 {
-	public ObservedDependency(string callerTypeName, string callerLayer, string dependencyTypeName, string dependencyLayer, string site, Location location, string? sourceProjectName = null)
-	{
-		CallerTypeName = callerTypeName;
-		CallerLayer = callerLayer;
-		DependencyTypeName = dependencyTypeName;
-		DependencyLayer = dependencyLayer;
-		Site = site;
-		Location = location;
-		SourceProjectName = sourceProjectName;
-	}
+	public string CallerTypeName { get; } = callerTypeName;
 
-	public string CallerTypeName { get; }
+	public string CallerLayer { get; } = callerLayer;
 
-	public string CallerLayer { get; }
+	public string DependencyTypeName { get; } = dependencyTypeName;
 
-	public string DependencyTypeName { get; }
+	public string DependencyLayer { get; } = dependencyLayer;
 
-	public string DependencyLayer { get; }
+	public string Site { get; } = site;
 
-	public string Site { get; }
+	public Location Location { get; } = location;
 
-	public Location Location { get; }
-
-	public string? SourceProjectName { get; }
+	public string? SourceProjectName { get; } = sourceProjectName;
 
 	public bool IsCycleCandidate
 	{

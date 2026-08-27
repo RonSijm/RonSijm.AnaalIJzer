@@ -1,5 +1,6 @@
-using RonSijm.AnaalIJzer.Exceptions;
-using RonSijm.AnaalIJzer.Testing;
+using RonSijm.AnaalIJzer.Analyzer.Tests.Testing;
+using RonSijm.AnaalIJzer.Core.Exceptions;
+using RonSijm.AnaalIJzer.Core.Findings;
 
 namespace RonSijm.AnaalIJzer.Analyzer.Tests.Analysis;
 

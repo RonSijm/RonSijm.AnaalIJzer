@@ -2,7 +2,6 @@ using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using RonSijm.AnaalIJzer.VisualStudio.Diagnostics;
 using RonSijm.AnaalIJzer.VisualStudio.Graphs;
-using RonSijm.AnaalIJzer.VisualStudio.Options;
 
 namespace RonSijm.AnaalIJzer.VisualStudio.Editor.Tags;
 
@@ -23,7 +22,7 @@ internal sealed partial class ArchitectureTagger
 
 	private void ViewGotAggregateFocus(object sender, EventArgs e)
 	{
-		ArchitectureGraphToolWindowState.Publish(snapshot);
+		ArchitectureGraphToolWindowState.Publish(_snapshot);
 	}
 
 	private void ViewClosed(object sender, EventArgs e)
@@ -39,9 +38,9 @@ internal sealed partial class ArchitectureTagger
 
 	private void QueueRefresh(TimeSpan delay)
 	{
-		refreshCancellation?.Cancel();
+		_refreshCancellation?.Cancel();
 		var cancellation = new CancellationTokenSource();
-		refreshCancellation = cancellation;
+		_refreshCancellation = cancellation;
 		_ = RefreshAsync(delay, cancellation.Token);
 	}
 
@@ -54,13 +53,13 @@ internal sealed partial class ArchitectureTagger
 				await Task.Delay(delay, cancellationToken);
 			}
 
-			var result = await snapshotProvider.CreateSnapshotAsync(buffer, cancellationToken);
+			var result = await _snapshotProvider.CreateSnapshotAsync(_buffer, cancellationToken);
 			if (cancellationToken.IsCancellationRequested)
 			{
 				return;
 			}
 
-			snapshot = result;
+			_snapshot = result;
 			ArchitectureVisualStudioLog.Info(
 				"ArchitectureTagger refreshed. HasConfiguration="
 				+ result.HasConfiguration
@@ -73,9 +72,9 @@ internal sealed partial class ArchitectureTagger
 				+ ", NameRules="
 				+ result.NameRuleIndicators.Length
 				+ ".");
-			if (view.HasAggregateFocus)
+			if (_view.HasAggregateFocus)
 			{
-				ArchitectureGraphToolWindowState.Publish(snapshot);
+				ArchitectureGraphToolWindowState.Publish(_snapshot);
 			}
 
 			RaiseTagsChanged();
@@ -91,7 +90,7 @@ internal sealed partial class ArchitectureTagger
 
 	private void RaiseTagsChanged()
 	{
-		var currentSnapshot = buffer.CurrentSnapshot;
+		var currentSnapshot = _buffer.CurrentSnapshot;
 		var span = new SnapshotSpan(currentSnapshot, 0, currentSnapshot.Length);
 		TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(span));
 	}

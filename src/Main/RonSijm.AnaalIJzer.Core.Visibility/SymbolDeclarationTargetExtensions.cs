@@ -1,7 +1,6 @@
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.Engine.Visibility;
 
-namespace RonSijm.AnaalIJzer.SymbolFacts;
+namespace RonSijm.AnaalIJzer.Core.Visibility;
 
 public static class SymbolDeclarationTargetExtensions
 {

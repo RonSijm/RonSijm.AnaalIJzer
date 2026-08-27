@@ -1,8 +1,8 @@
 using Microsoft.CodeAnalysis;
 
-namespace RonSijm.AnaalIJzer.Symbols;
+namespace RonSijm.AnaalIJzer.Core.Matchers.Symbols;
 
-public static class INamedTypeSymbolNameExtensions
+public static class NamedTypeSymbolNameExtensions
 {
 	public static bool NameMatches(this INamedTypeSymbol symbol, string value)
 	{

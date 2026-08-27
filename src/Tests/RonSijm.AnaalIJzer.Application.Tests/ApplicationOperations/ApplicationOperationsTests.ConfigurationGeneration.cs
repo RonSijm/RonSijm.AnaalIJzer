@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using RonSijm.AnaalIJzer.Workspace.Analysis;
 
 namespace RonSijm.AnaalIJzer.Application.Tests.ApplicationOperations;
 

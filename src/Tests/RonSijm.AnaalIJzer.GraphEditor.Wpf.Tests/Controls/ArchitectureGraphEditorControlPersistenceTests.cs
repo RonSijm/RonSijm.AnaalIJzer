@@ -2,7 +2,7 @@ using System.IO;
 using System.Windows;
 using AwesomeAssertions;
 using Nodify;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 using RonSijm.AnaalIJzer.GraphApplication.Selection;
 using Xunit;
 
@@ -137,7 +137,9 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 				""");
 			var control = CreateControl(LoadInlineSnapshot(path));
 
-			FindVisualDescendants<Node>(control).Select(item => GetDataContextProperty(item, "Path")).Should().Contain(new[] { "Customer", "Waiter" });
+			FindVisualDescendants<Node>(control).Select(item => GetDataContextProperty(item, "Path")).Should().Contain([
+                "Customer", "Waiter"
+            ]);
 			FindVisualDescendants<Connection>(control).Should().ContainSingle();
 		});
 	}

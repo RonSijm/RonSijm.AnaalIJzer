@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer.Engine.DependencyRules;
+namespace RonSijm.AnaalIJzer.Core.DependencyRules;
 
 public enum DependencyRuleKind
 {
@@ -30,35 +30,17 @@ public readonly struct DependencyEdge(string scopePath, string from, string to, 
 
 	public int XmlLinePosition { get; } = xmlLinePosition;
 
-	public bool IsAllowed
-	{
-		get { return Kind == DependencyRuleKind.Allowed; }
-	}
+	public bool IsAllowed => Kind == DependencyRuleKind.Allowed;
 
-	public bool IsBlocked
-	{
-		get { return Kind == DependencyRuleKind.Blocked; }
-	}
+	public bool IsBlocked => Kind == DependencyRuleKind.Blocked;
 
-	public bool IsExplicit
-	{
-		get { return From != "*" && To != "*"; }
-	}
+	public bool IsExplicit => From != "*" && To != "*";
 
-	public bool IsWildcardTarget
-	{
-		get { return From == "*" && To != "*"; }
-	}
+	public bool IsWildcardTarget => From == "*" && To != "*";
 
-	public bool IsWildcardSource
-	{
-		get { return From != "*" && To == "*"; }
-	}
+	public bool IsWildcardSource => From != "*" && To == "*";
 
-	public bool IsAllowAny
-	{
-		get { return From == "*" && To == "*"; }
-	}
+	public bool IsAllowAny => From == "*" && To == "*";
 
 	public bool AllowsSite(string site)
 	{

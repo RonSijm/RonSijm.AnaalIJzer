@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.Symbols;
+using RonSijm.AnaalIJzer.Core.Matchers.Symbols;
 
-namespace RonSijm.AnaalIJzer.Inheritance;
+namespace RonSijm.AnaalIJzer.Core.Inheritance.Policies;
 
 public readonly struct InheritancePolicy(
 	string ownerLayerPath,
@@ -43,7 +43,10 @@ public readonly struct InheritancePolicy(
 			             + OwnerLayerPath
 			             + "' requires a base type matching "
 			             + string.Join(" or ", RequiredBaseTypes.OrderBy(item => item, StringComparer.Ordinal));
-			var result = new InheritancePolicyEvaluation(this, InheritanceViolationKind.MissingRequiredBaseType, reason);
+			var missingTypeNames = RequiredBaseTypes
+				.OrderBy(item => item, StringComparer.Ordinal)
+				.ToImmutableArray();
+			var result = new InheritancePolicyEvaluation(this, InheritanceViolationKind.MissingRequiredBaseType, reason, missingTypeNames);
 
 			return result;
 		}
@@ -59,7 +62,7 @@ public readonly struct InheritancePolicy(
 			             + "' requires implemented interface"
 			             + (missingInterfaces.Length == 1 ? " " : "s ")
 			             + string.Join(", ", missingInterfaces);
-			var result = new InheritancePolicyEvaluation(this, InheritanceViolationKind.MissingRequiredInterface, reason);
+			var result = new InheritancePolicyEvaluation(this, InheritanceViolationKind.MissingRequiredInterface, reason, [.. missingInterfaces]);
 
 			return result;
 		}

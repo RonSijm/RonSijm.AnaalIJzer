@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.Exceptions;
-using RonSijm.AnaalIJzer.Model;
+using RonSijm.AnaalIJzer.Core.Exceptions;
+using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Config.Model;
 
-namespace RonSijm.AnaalIJzer.Config.Compilation;
+namespace RonSijm.AnaalIJzer.Core.Configuration.Compilation.Compilation;
 
 internal readonly struct ArchitectureConfigurationRootSettings
 {

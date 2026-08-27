@@ -2,11 +2,12 @@ using System.Collections.Immutable;
 using System.Text.Json;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.BuildMetadata;
-using RonSijm.AnaalIJzer.Config.Parsing;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Document;
+using RonSijm.AnaalIJzer.Core.BuildMetadata;
+using RonSijm.AnaalIJzer.Core.Configuration.Compilation.Parsing;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Sources;
+using RonSijm.AnaalIJzer.Workspace.Support;
 
-namespace RonSijm.AnaalIJzer.Workspace;
+namespace RonSijm.AnaalIJzer.Workspace.Analysis;
 
 internal sealed partial class ProjectAnalysisHost
 {
@@ -55,7 +56,7 @@ internal sealed partial class ProjectAnalysisHost
 		var results = ImmutableArray.CreateBuilder<AdditionalText>();
 		var seenPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-		AddFallbackConfigurationFile(results, seenPaths, effectiveSeedConfigPath!, cancellationToken);
+		AddFallbackConfigurationFile(results, seenPaths, effectiveSeedConfigPath, cancellationToken);
 
 		var configDirectory = Path.GetDirectoryName(effectiveSeedConfigPath);
 		if (string.IsNullOrWhiteSpace(configDirectory))
@@ -63,7 +64,7 @@ internal sealed partial class ProjectAnalysisHost
 			return results.ToImmutable();
 		}
 
-		foreach (var directory in EnumerateFallbackConfigurationDirectories(configDirectory!))
+		foreach (var directory in EnumerateFallbackConfigurationDirectories(configDirectory))
 		{
 			foreach (var path in Directory.EnumerateFiles(directory, "*.anl", SearchOption.TopDirectoryOnly))
 			{

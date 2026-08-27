@@ -1,10 +1,9 @@
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer;
-using RonSijm.AnaalIJzer.Exceptions;
-using RonSijm.AnaalIJzer.Findings;
-using RonSijm.AnaalIJzer.Model;
-using RonSijm.AnaalIJzer.ObservedDependencies;
-using AnalyzerConfiguration = RonSijm.AnaalIJzer.Model.AnalyzerConfig;
+using RonSijm.AnaalIJzer.Core.Exceptions;
+using RonSijm.AnaalIJzer.Core.Findings;
+using RonSijm.AnaalIJzer.Core.Observations;
+using RonSijm.AnaalIJzer.Engine.Analysis.Topology.ObservedDependencies;
+using RonSijm.AnaalIJzer.Workspace.Analysis;
 
 namespace RonSijm.AnaalIJzer.Application;
 
@@ -60,14 +59,14 @@ internal static partial class ArchitectureHealthReportGenerator
 				ArchitecturalDiagnosticIds.ExceptionReview,
 				ArchitectureExceptionEvaluator.CreateStaleMessage(definition, projects.Count > 1 ? "solution" : "project"),
 				FormatExceptionLocation(definition.XmlPath, definition.XmlLineNumber),
-				ArchitectureExceptionStatus.Stale.ToString(),
-				ArchitectureExceptionStatus.Stale.ToString()));
+				nameof(ArchitectureExceptionStatus.Stale),
+				nameof(ArchitectureExceptionStatus.Stale)));
 		}
 
 		foreach (var type in types)
 		{
 			var matchingLayers = matcherRules
-				.Where(rule => !rule.IsException && rule.ParentKind == "Layer" && RuleMatches(rule, type))
+				.Where(rule => rule is { IsException: false, ParentKind: "Layer" } && RuleMatches(rule, type))
 				.Select(rule => rule.Item.LayerPath)
 				.Distinct(StringComparer.Ordinal)
 				.OrderBy(layer => layer, StringComparer.Ordinal)

@@ -1,5 +1,5 @@
 using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.Emit;
+using RonSijm.AnaalIJzer.Core.Inheritance.Policies;
 
 namespace RonSijm.AnaalIJzer.Core.Inheritance.Tests.Policies;
 
@@ -34,7 +34,7 @@ public sealed class InheritancePolicyTests
 		var evaluation = policy.Evaluate(symbol);
 
 		evaluation.Should().NotBeNull();
-		evaluation!.Value.ViolationKind.Should().Be(InheritanceViolationKind.MissingRequiredBaseType);
+		evaluation.Value.ViolationKind.Should().Be(InheritanceViolationKind.MissingRequiredBaseType);
 		evaluation.Value.Reason.Should().Contain("requires a base type matching Entity");
 	}
 
@@ -99,7 +99,7 @@ public sealed class InheritancePolicyTests
 		var evaluation = policy.Evaluate(symbol);
 
 		evaluation.Should().NotBeNull();
-		evaluation!.Value.ViolationKind.Should().Be(InheritanceViolationKind.MissingRequiredInterface);
+		evaluation.Value.ViolationKind.Should().Be(InheritanceViolationKind.MissingRequiredInterface);
 		evaluation.Value.Reason.Should().Contain("IAuditedEntity");
 	}
 
@@ -152,6 +152,6 @@ public sealed class InheritancePolicyTests
 
 		result.Should().NotBeNull();
 
-		return result!;
+		return result;
 	}
 }

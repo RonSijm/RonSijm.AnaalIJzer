@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.Conditions;
-using RonSijm.AnaalIJzer.Engine.DependencyRules;
+using RonSijm.AnaalIJzer.Core.DependencyRules;
+using RonSijm.AnaalIJzer.Core.Matchers;
 
-namespace RonSijm.AnaalIJzer.Engine.NameRules;
+namespace RonSijm.AnaalIJzer.Core.NameRules;
 
 public sealed class NameMatchingRule(
 	NameRuleKind kind,

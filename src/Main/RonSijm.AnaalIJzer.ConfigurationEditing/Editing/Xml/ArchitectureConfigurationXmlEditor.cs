@@ -32,7 +32,7 @@ internal static partial class ArchitectureConfigurationXmlEditor
 		return result;
 	}
 
-	internal static string FormatElementSummary(string elementKind, ImmutableDictionary<string, string> attributes)
+	private static string FormatElementSummary(string elementKind, ImmutableDictionary<string, string> attributes)
 	{
 		var attributeText = attributes.Count == 0
 			? string.Empty
@@ -42,7 +42,7 @@ internal static partial class ArchitectureConfigurationXmlEditor
 		return result;
 	}
 
-	internal static string FormatChildXml(XElement element)
+	private static string FormatChildXml(XElement element)
 	{
 		if (!element.Nodes().Any())
 		{

@@ -1,13 +1,13 @@
-using RonSijm.AnaalIJzer.Graphing.Loading;
-using RonSijm.AnaalIJzer.Graphing.Model;
-using RonSijm.AnaalIJzer.Workspace;
+using RonSijm.AnaalIJzer.GraphModel.Loading;
+using RonSijm.AnaalIJzer.GraphModel.Model;
+using RonSijm.AnaalIJzer.Workspace.Analysis;
 
 namespace RonSijm.AnaalIJzer.GraphWorkspace;
 
 public sealed class ArchitectureGraphWorkspaceSnapshotLoader(string configuration = "Release")
 {
-	private readonly string configuration = string.IsNullOrWhiteSpace(configuration) ? "Release" : configuration;
-	private readonly WorkspaceAnalysisService workspace = new(configuration);
+	private readonly string _configuration = string.IsNullOrWhiteSpace(configuration) ? "Release" : configuration;
+	private readonly WorkspaceAnalysisService _workspace = new(configuration);
 
 	public async Task<ArchitectureGraphSnapshot> LoadAsync(string path, CancellationToken cancellationToken = default)
 	{
@@ -48,14 +48,14 @@ public sealed class ArchitectureGraphWorkspaceSnapshotLoader(string configuratio
 
 	private async Task<ProjectAnalysisResult> AnalyzeProjectAsync(string projectPath, CancellationToken cancellationToken)
 	{
-		var result = await ExecuteAsync(() => workspace.AnalyzeProjectAsync(projectPath, cancellationToken));
+		var result = await ExecuteAsync(() => _workspace.AnalyzeProjectAsync(projectPath, cancellationToken));
 
 		return result;
 	}
 
 	private async Task<SolutionAnalysisResult> AnalyzeSolutionAsync(string solutionPath, CancellationToken cancellationToken)
 	{
-		var result = await ExecuteAsync(() => workspace.AnalyzeSolutionAsync(solutionPath, cancellationToken));
+		var result = await ExecuteAsync(() => _workspace.AnalyzeSolutionAsync(solutionPath, cancellationToken));
 
 		return result;
 	}

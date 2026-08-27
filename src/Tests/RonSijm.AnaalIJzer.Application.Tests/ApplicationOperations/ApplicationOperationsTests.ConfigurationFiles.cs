@@ -1,4 +1,4 @@
-using RonSijm.AnaalIJzer.Documentation;
+using RonSijm.AnaalIJzer.Outputs.Documentation;
 
 namespace RonSijm.AnaalIJzer.Application.Tests.ApplicationOperations;
 
@@ -212,6 +212,124 @@ public sealed partial class ApplicationOperationsTests
 			documentation.Should().Contain("Repository");
 			documentation.Should().Contain("Services may use repositories");
 			documentation.Should().NotContain("## Code Evidence");
+		}
+		finally
+		{
+			Directory.Delete(tempDirectory, true);
+		}
+	}
+
+	[Fact]
+	public async Task ApplicationRunner_GeneratesDocumentationFromXmlWithWildcardIncludes()
+	{
+		var cancellationToken = TestContext.Current.CancellationToken;
+		var tempDirectory = Path.Combine(Path.GetTempPath(), $"AnaalIJzer-wildcard-tooling-test-{Guid.NewGuid():N}");
+		Directory.CreateDirectory(tempDirectory);
+
+		try
+		{
+			var pluginsDirectory = Path.Combine(tempDirectory, "RulePlugins");
+			Directory.CreateDirectory(pluginsDirectory);
+			var configPath = Path.Combine(tempDirectory, "Architecture.anl");
+			var layersPath = Path.Combine(pluginsDirectory, "RestaurantLayers.anl");
+			var flowPath = Path.Combine(pluginsDirectory, "RestaurantFlow.anl");
+			var outputPath = Path.Combine(tempDirectory, "architecture.md");
+			await File.WriteAllTextAsync(configPath, """
+			                                         <ArchitecturalLevels description="Root settings">
+			                                           <Include path="*.anl" description="Load every visible rule pack." />
+			                                         </ArchitecturalLevels>
+			                                         """, cancellationToken);
+			await File.WriteAllTextAsync(layersPath, """
+			                                          <ArchitecturalLevels>
+			                                            <Layer name="Waiter" description="Takes the order">
+			                                              <Class endsWith="Waiter" />
+			                                            </Layer>
+			                                            <Layer name="Chef" description="Prepares the meal">
+			                                              <Class endsWith="Chef" />
+			                                            </Layer>
+			                                            <Layer name="Pantry" description="Stores ingredients">
+			                                              <Class endsWith="Pantry" />
+			                                            </Layer>
+			                                          </ArchitecturalLevels>
+			                                          """, cancellationToken);
+			await File.WriteAllTextAsync(flowPath, """
+			                                        <ArchitecturalLevels>
+			                                          <AllowedDependency from="Waiter" to="Chef" description="Waiters call chefs." />
+			                                          <AllowedDependency from="Chef" to="Pantry" description="Chefs can fetch ingredients." />
+			                                        </ArchitecturalLevels>
+			                                        """, cancellationToken);
+
+			var result = await new ApplicationRunner().ExecuteAsync(new ApplicationRequest(ApplicationOperationKind.Documentation)
+			{
+				InputKind = ApplicationInputKind.ConfigurationFile,
+				InputPaths = [configPath],
+				OutputPath = outputPath
+			}, cancellationToken);
+
+			result.OutputPath.Should().Be(outputPath);
+			var documentation = await File.ReadAllTextAsync(outputPath, cancellationToken);
+			documentation.Should().Contain("Waiter");
+			documentation.Should().Contain("Chef");
+			documentation.Should().Contain("Pantry");
+			documentation.Should().Contain("Waiters call chefs");
+			documentation.Should().Contain("Chefs can fetch ingredients");
+		}
+		finally
+		{
+			Directory.Delete(tempDirectory, true);
+		}
+	}
+
+	[Fact]
+	public async Task ApplicationRunner_MergesConfigurationsWithWildcardIncludes()
+	{
+		var cancellationToken = TestContext.Current.CancellationToken;
+		var tempDirectory = Path.Combine(Path.GetTempPath(), $"AnaalIJzer-merge-wildcard-test-{Guid.NewGuid():N}");
+		Directory.CreateDirectory(tempDirectory);
+
+		try
+		{
+			var pluginsDirectory = Path.Combine(tempDirectory, "RulePlugins");
+			Directory.CreateDirectory(pluginsDirectory);
+			var firstPath = Path.Combine(tempDirectory, "Architecture.anl");
+			var secondPath = Path.Combine(tempDirectory, "ExtraRules.anl");
+			var layersPath = Path.Combine(pluginsDirectory, "RestaurantLayers.anl");
+			var flowPath = Path.Combine(pluginsDirectory, "RestaurantFlow.anl");
+			var outputPath = Path.Combine(tempDirectory, "Merged.anl");
+			await File.WriteAllTextAsync(firstPath, """
+			                                         <ArchitecturalLevels>
+			                                           <Include path="*.anl" />
+			                                         </ArchitecturalLevels>
+			                                         """, cancellationToken);
+			await File.WriteAllTextAsync(layersPath, """
+			                                          <ArchitecturalLevels>
+			                                            <Layer name="Waiter"><Class endsWith="Waiter" /></Layer>
+			                                            <Layer name="Chef"><Class endsWith="Chef" /></Layer>
+			                                          </ArchitecturalLevels>
+			                                          """, cancellationToken);
+			await File.WriteAllTextAsync(flowPath, """
+			                                        <ArchitecturalLevels>
+			                                          <AllowedDependency from="Waiter" to="Chef" />
+			                                        </ArchitecturalLevels>
+			                                        """, cancellationToken);
+			await File.WriteAllTextAsync(secondPath, """
+			                                         <ArchitecturalLevels>
+			                                           <Layer name="Pantry"><Class endsWith="Pantry" /></Layer>
+			                                         </ArchitecturalLevels>
+			                                         """, cancellationToken);
+
+			await new ApplicationRunner().ExecuteAsync(new ApplicationRequest(ApplicationOperationKind.MergeConfig)
+			{
+				InputKind = ApplicationInputKind.ConfigurationFile,
+				InputPaths = [firstPath, secondPath],
+				OutputPath = outputPath
+			}, cancellationToken);
+
+			var merged = await File.ReadAllTextAsync(outputPath, cancellationToken);
+			merged.Should().Contain("<Layer name=\"Waiter\">");
+			merged.Should().Contain("<Layer name=\"Chef\">");
+			merged.Should().Contain("<Layer name=\"Pantry\">");
+			merged.Should().Contain("<AllowedDependency from=\"Waiter\" to=\"Chef\" />");
 		}
 		finally
 		{

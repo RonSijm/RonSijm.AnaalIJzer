@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using RonSijm.AnaalIJzer.Findings;
 
 namespace RonSijm.AnaalIJzer.Core.Findings.Tests.Findings;
 

@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
+using RonSijm.AnaalIJzer.Core.Matchers.ProjectArchitecture;
 
-namespace RonSijm.AnaalIJzer.ProjectArchitecture;
+namespace RonSijm.AnaalIJzer.Core.ProjectArchitecture;
 
 public readonly struct ProjectGroup(
 	string name,

@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer.Findings;
+namespace RonSijm.AnaalIJzer.Core.Findings;
 
 public static class ArchitectureFindingCodes
 {

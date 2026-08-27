@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 
-namespace RonSijm.AnaalIJzer.Contracts;
+namespace RonSijm.AnaalIJzer.Core.Contracts.Contracts;
 
 public readonly struct ContractPolicy(
 	string ownerLayerPath,
@@ -73,7 +73,7 @@ public readonly struct ContractPolicy(
 			{
 				if (!AllowedPropertyAccessors.Contains(accessor))
 				{
-					var result = new ContractPolicyEvaluation(this, ContractViolationKind.DisallowedPropertyAccessor, $"the ContractPolicy in layer '{OwnerLayerPath}' allows only property accessors {FormatPropertyAccessors(AllowedPropertyAccessors)}");
+					var result = new ContractPolicyEvaluation(this, ContractViolationKind.DisallowedPropertyAccessor, $"the ContractPolicy in layer '{OwnerLayerPath}' allows only property accessors {FormatPropertyAccessors(AllowedPropertyAccessors)}", accessor);
 
 					return result;
 				}

@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis;
 
-namespace RonSijm.AnaalIJzer.Findings;
+namespace RonSijm.AnaalIJzer.Core.Findings;
 
 public enum ArchitectureFindingSeverity
 {

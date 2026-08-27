@@ -1,3 +1,5 @@
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+
 namespace RonSijm.AnaalIJzer.ConfigurationEditing.Model;
 
 public sealed class ArchitectureLayerEditHandle(

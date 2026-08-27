@@ -1,7 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <Import Project="../../../build/Settings/NuGetVersioning.props" />
-
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <LangVersion>latest</LangVersion>
@@ -15,7 +13,7 @@
         <EnableArchitecturalLevelAnalyzer>false</EnableArchitecturalLevelAnalyzer>
         <!-- Keep AssemblyVersion stable so the VSIX-bundled copy of this DLL always has a
              different CLR identity from any older NuGet-installed version already loaded into
-             the VS process. PackageVersion (in NuGetVersioning.props) increments normally. -->
+             the VS process. PackageVersion increments normally. -->
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
     </PropertyGroup>
 
@@ -38,14 +36,6 @@
         <DebugType>embedded</DebugType>
         <IncludeSymbols>false</IncludeSymbols>
     </PropertyGroup>
-
-    <ItemGroup>
-        <Compile Remove="ArchitecturalLevelAnalyzer.cs" />
-        <Compile Remove="ArchitecturalLevelAnalyzer.ConfigurationLocations.cs" />
-        <Compile Remove="ArchitecturalLevelAnalyzer.ConfigurationReporting.cs" />
-        <Compile Remove="ArchitecturalLevelAnalyzer.ObservedCycles.cs" />
-        <Compile Remove="Analysis\**\*.cs" />
-    </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Diagnostics\RonSijm.AnaalIJzer.Diagnostics.csproj" />

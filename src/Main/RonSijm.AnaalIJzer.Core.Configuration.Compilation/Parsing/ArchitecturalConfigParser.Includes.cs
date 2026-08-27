@@ -1,8 +1,4 @@
-using RonSijm.AnaalIJzer.Model;
+namespace RonSijm.AnaalIJzer.Core.Configuration.Compilation.Parsing;
 
-namespace RonSijm.AnaalIJzer.Config.Parsing;
-
-public static partial class ArchitecturalConfigParser
-{
-}
+public static partial class ArchitecturalConfigParser;
 

@@ -1,5 +1,4 @@
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using Microsoft.Extensions.Logging;
 using RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
@@ -23,13 +22,13 @@ internal sealed partial class ArchitectureGraphCanvas
 		{
 			if (sender is FrameworkElement { DataContext: NodifyGraphNodeViewModel node })
 			{
-				logger?.LogDebug("Selected layer node '{LayerPath}'.", node.Path);
-				selectionHandler?.Invoke(ArchitectureGraphSelection.ForLayer(node.EditHandle));
+				_logger?.LogDebug("Selected layer node '{LayerPath}'.", node.Path);
+				_selectionHandler?.Invoke(ArchitectureGraphSelection.ForLayer(node.EditHandle));
 			}
 		}
 		catch (Exception exception)
 		{
-			logger?.LogError(exception, "Failed to select layer node.");
+			_logger?.LogError(exception, "Failed to select layer node.");
 			ReportEditResult(ArchitectureConfigurationEditResult.Failure("Selecting the layer failed. See the graph editor log for details."));
 			e.Handled = true;
 		}
@@ -41,13 +40,13 @@ internal sealed partial class ArchitectureGraphCanvas
 		{
 			if (sender is FrameworkElement { DataContext: NodifyGraphBoundaryViewModel boundary })
 			{
-				logger?.LogDebug("Selected layer boundary '{LayerPath}'.", boundary.Path);
-				selectionHandler?.Invoke(ArchitectureGraphSelection.ForLayer(boundary.EditHandle));
+				_logger?.LogDebug("Selected layer boundary '{LayerPath}'.", boundary.Path);
+				_selectionHandler?.Invoke(ArchitectureGraphSelection.ForLayer(boundary.EditHandle));
 			}
 		}
 		catch (Exception exception)
 		{
-			logger?.LogError(exception, "Failed to select layer boundary.");
+			_logger?.LogError(exception, "Failed to select layer boundary.");
 			ReportEditResult(ArchitectureConfigurationEditResult.Failure("Selecting the layer failed. See the graph editor log for details."));
 			e.Handled = true;
 		}
@@ -59,8 +58,8 @@ internal sealed partial class ArchitectureGraphCanvas
 		{
 			if (sender is FrameworkElement { DataContext: NodifyGraphConnectionViewModel connection })
 			{
-				logger?.LogDebug("Selected dependency connection '{Kind}' from '{From}' to '{To}'.", connection.Kind, connection.From, connection.To);
-				selectionHandler?.Invoke(connection.IsEvidence
+				_logger?.LogDebug("Selected dependency connection '{Kind}' from '{From}' to '{To}'.", connection.Kind, connection.From, connection.To);
+				_selectionHandler?.Invoke(connection.IsEvidence
 					? ArchitectureGraphSelection.ForCodeEvidence(connection.From, connection.To, connection.LabelText, connection.EvidenceDetails)
 					: ArchitectureGraphSelection.ForDependency(connection.EditHandle));
 				e.Handled = true;
@@ -68,7 +67,7 @@ internal sealed partial class ArchitectureGraphCanvas
 		}
 		catch (Exception exception)
 		{
-			logger?.LogError(exception, "Failed to select dependency connection.");
+			_logger?.LogError(exception, "Failed to select dependency connection.");
 			ReportEditResult(ArchitectureConfigurationEditResult.Failure("Selecting the dependency failed. See the graph editor log for details."));
 			e.Handled = true;
 		}
@@ -76,7 +75,7 @@ internal sealed partial class ArchitectureGraphCanvas
 
 	private ArchitectureLayerCreationRequest? PromptForLayerCreation()
 	{
-		var result = ArchitectureLayerCreationDialog.Prompt(Window.GetWindow(this), theme);
+		var result = ArchitectureLayerCreationDialog.Prompt(Window.GetWindow(this), _theme);
 
 		return result;
 	}
@@ -85,13 +84,13 @@ internal sealed partial class ArchitectureGraphCanvas
 	{
 		if (result.Succeeded)
 		{
-			logger?.LogInformation("Graph edit succeeded: {Message}", result.Message);
+			_logger?.LogInformation("Graph edit succeeded: {Message}", result.Message);
 		}
 		else
 		{
-			logger?.LogWarning("Graph edit failed: {Message}", result.Message);
+			_logger?.LogWarning("Graph edit failed: {Message}", result.Message);
 		}
 
-		editResultHandler?.Invoke(result, false);
+		_editResultHandler?.Invoke(result, false);
 	}
 }

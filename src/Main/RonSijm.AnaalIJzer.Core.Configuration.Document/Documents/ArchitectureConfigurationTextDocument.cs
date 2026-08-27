@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer.ConfigurationEditing.Document;
+namespace RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
 
 public sealed class ArchitectureConfigurationTextDocument(string content, string path, bool isInlineConfiguration = false)
 {

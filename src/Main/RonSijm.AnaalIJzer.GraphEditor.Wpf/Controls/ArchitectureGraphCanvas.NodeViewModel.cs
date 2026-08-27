@@ -5,6 +5,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
 using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 using RonSijm.AnaalIJzer.GraphApplication;
 using RonSijm.AnaalIJzer.Graphing.ViewModels;
 using RonSijm.AnaalIJzer.GraphEditor.Wpf.Layout;
@@ -16,14 +17,14 @@ internal sealed partial class ArchitectureGraphCanvas
 {
 	private sealed partial class NodifyGraphNodeViewModel : INotifyPropertyChanged
 	{
-		private readonly ArchitectureGraphCanvasTheme theme;
-		private readonly IArchitectureGraphEditService editService;
-		private readonly Action<ArchitectureConfigurationEditResult, bool>? editResultHandler;
-		private readonly Func<string, bool>? confirmationHandler;
-		private readonly Func<ArchitectureLayerCreationRequest?>? layerCreationHandler;
-		private readonly ArchitectureGraphLayoutState layoutState;
-		private NodifyGraphBoundaryViewModel? containingBoundary;
-		private Point location;
+		private readonly ArchitectureGraphCanvasTheme _theme;
+		private readonly IArchitectureGraphEditService _editService;
+		private readonly Action<ArchitectureConfigurationEditResult, bool>? _editResultHandler;
+		private readonly Func<string, bool>? _confirmationHandler;
+		private readonly Func<ArchitectureLayerCreationRequest?>? _layerCreationHandler;
+		private readonly ArchitectureGraphLayoutState _layoutState;
+		private NodifyGraphBoundaryViewModel? _containingBoundary;
+		private Point _location;
 
 		private NodifyGraphNodeViewModel(
 			ArchitectureGraphNodeViewModel node,
@@ -36,12 +37,12 @@ internal sealed partial class ArchitectureGraphCanvas
 			ArchitectureGraphLayoutState layoutState,
 			ArchitectureGraphCanvasTheme theme)
 		{
-			this.theme = theme;
-			this.editService = editService;
-			this.editResultHandler = editResultHandler;
-			this.confirmationHandler = confirmationHandler;
-			this.layerCreationHandler = layerCreationHandler;
-			this.layoutState = layoutState;
+			this._theme = theme;
+			this._editService = editService;
+			this._editResultHandler = editResultHandler;
+			this._confirmationHandler = confirmationHandler;
+			this._layerCreationHandler = layerCreationHandler;
+			this._layoutState = layoutState;
 			Path = node.Path;
 			DisplayName = node.DisplayName;
 			Description = node.Description;
@@ -54,11 +55,11 @@ internal sealed partial class ArchitectureGraphCanvas
 			EditHandle = node.EditHandle;
 			HeaderBrush = headerBrush;
 			ContentBrush = contentBrush;
-			location = layoutState.GetLocation(node.Path, new Point(node.X, node.Y));
+			_location = layoutState.GetLocation(node.Path, new Point(node.X, node.Y));
 			Input = new NodifyGraphConnectorViewModel(Path, "in", false);
 			Output = new NodifyGraphConnectorViewModel(Path, "out", true);
-			Inputs = ImmutableArray.Create(Input);
-			Outputs = ImmutableArray.Create(Output);
+			Inputs = [Input];
+			Outputs = [Output];
 			AddChildLayerCommand = new DelegateCommand(_ => AddChildLayer(), _ => EditHandle.CanEdit);
 			RemoveCommand = new DelegateCommand(_ => Remove(), _ => EditHandle.CanEdit);
 		}
@@ -89,15 +90,7 @@ internal sealed partial class ArchitectureGraphCanvas
 
 		public Brush ContentBrush { get; }
 
-		public Brush Foreground
-		{
-			get
-			{
-				var result = theme.NodeForeground;
-
-				return result;
-			}
-		}
+		public Brush Foreground => _theme.NodeForeground;
 
 		public NodifyGraphConnectorViewModel Input { get; }
 
@@ -113,33 +106,17 @@ internal sealed partial class ArchitectureGraphCanvas
 
 		public Point Location
 		{
-			get { return location; }
-			set { SetLocation(value, true); }
+			get => _location;
+			set => SetLocation(value, true);
 		}
 
-		public Brush BorderBrush
-		{
-			get
-			{
-				var result = IsActive ? theme.ActiveConnection : theme.Border;
+		public Brush BorderBrush => IsActive ? _theme.ActiveConnection : _theme.Border;
 
-				return result;
-			}
-		}
-
-		public Thickness BorderThickness
-		{
-			get
-			{
-				var result = new Thickness(IsActive ? 3 : 1);
-
-				return result;
-			}
-		}
+		public Thickness BorderThickness => new(IsActive ? 3 : 1);
 
 		public void Attach(NodifyGraphBoundaryViewModel? boundary)
 		{
-			containingBoundary = boundary;
+			_containingBoundary = boundary;
 		}
 
 		public void MoveBy(Vector delta, bool constrain)
@@ -149,53 +126,53 @@ internal sealed partial class ArchitectureGraphCanvas
 
 		private void AddChildLayer()
 		{
-			var request = layerCreationHandler?.Invoke();
+			var request = _layerCreationHandler?.Invoke();
 			if (request is null)
 			{
 				return;
 			}
 
 			var source = new ArchitectureConfigurationSource(EditHandle.SourceKind, EditHandle.SourcePath);
-			var result = editService.AddLayer(source, Path, request.Name, request.MatcherKind, request.MatcherAttributes);
-			editResultHandler?.Invoke(result, false);
+			var result = _editService.AddLayer(source, Path, request.Name, request.MatcherKind, request.MatcherAttributes);
+			_editResultHandler?.Invoke(result, false);
 		}
 
 		private void Remove()
 		{
-			if (confirmationHandler is not null && !confirmationHandler("Remove layer '" + Path + "' and its nested settings?"))
+			if (_confirmationHandler is not null && !_confirmationHandler("Remove layer '" + Path + "' and its nested settings?"))
 			{
 				return;
 			}
 
-			var result = editService.RemoveLayer(EditHandle);
-			editResultHandler?.Invoke(result, true);
+			var result = _editService.RemoveLayer(EditHandle);
+			_editResultHandler?.Invoke(result, true);
 		}
 
 		private void SetLocation(Point value, bool constrain)
 		{
 			var nextLocation = constrain ? CoerceLocation(value) : value;
-			if (location == nextLocation)
+			if (_location == nextLocation)
 			{
 				return;
 			}
 
-			location = nextLocation;
-			layoutState.SetLocation(Path, location);
+			_location = nextLocation;
+			_layoutState.SetLocation(Path, _location);
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Location)));
-			containingBoundary?.RefreshMinimumSize();
+			_containingBoundary?.RefreshMinimumSize();
 		}
 
 		private Point CoerceLocation(Point value)
 		{
-			if (containingBoundary is null)
+			if (_containingBoundary is null)
 			{
 				return value;
 			}
 
-			var minX = containingBoundary.Location.X + BoundaryPaddingX;
-			var minY = containingBoundary.Location.Y + BoundaryPaddingTop;
-			var maxX = containingBoundary.Location.X + Math.Max(BoundaryPaddingX, containingBoundary.Width - NodeWidth - BoundaryPaddingX);
-			var maxY = containingBoundary.Location.Y + Math.Max(BoundaryPaddingTop, containingBoundary.Height - NodeHeight - BoundaryPaddingBottom);
+			var minX = _containingBoundary.Location.X + BoundaryPaddingX;
+			var minY = _containingBoundary.Location.Y + BoundaryPaddingTop;
+			var maxX = _containingBoundary.Location.X + Math.Max(BoundaryPaddingX, _containingBoundary.Width - NodeWidth - BoundaryPaddingX);
+			var maxY = _containingBoundary.Location.Y + Math.Max(BoundaryPaddingTop, _containingBoundary.Height - NodeHeight - BoundaryPaddingBottom);
 			var result = new Point(Clamp(value.X, minX, maxX), Clamp(value.Y, minY, maxY));
 
 			return result;

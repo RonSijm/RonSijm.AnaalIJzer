@@ -1,9 +1,8 @@
-using RonSijm.AnaalIJzer.Definitions;
-using RonSijm.AnaalIJzer.Engine.DependencyRules;
-using RonSijm.AnaalIJzer.Engine.LayerModel;
-using RonSijm.AnaalIJzer.Indicators;
+using RonSijm.AnaalIJzer.Core.DependencyRules;
+using RonSijm.AnaalIJzer.Core.Indicators;
+using RonSijm.AnaalIJzer.Core.LayerModel;
 
-namespace RonSijm.AnaalIJzer.Engine.DependencyRules;
+namespace RonSijm.AnaalIJzer.Core.RuntimeConfig.Engine.DependencyRules;
 
 public readonly struct DependencyRuleDecision(
 	string dependencyLayerName,

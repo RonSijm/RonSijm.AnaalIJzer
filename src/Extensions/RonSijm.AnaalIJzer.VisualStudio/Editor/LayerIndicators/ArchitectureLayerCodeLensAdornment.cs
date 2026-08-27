@@ -3,9 +3,9 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using Microsoft.VisualStudio.Shell;
-using RonSijm.AnaalIJzer.Indicators;
 using RonSijm.AnaalIJzer.Core.Editor.Snapshots;
-using RonSijm.AnaalIJzer.VisualStudio.Options;
+using RonSijm.AnaalIJzer.Core.Indicators;
+using RonSijm.AnaalIJzer.VisualStudio.Editor.Styling;
 using RonSijm.AnaalIJzer.VisualStudio.Styling;
 
 namespace RonSijm.AnaalIJzer.VisualStudio.Editor.LayerIndicators;

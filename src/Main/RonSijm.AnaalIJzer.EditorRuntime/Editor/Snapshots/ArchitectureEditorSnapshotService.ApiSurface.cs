@@ -1,15 +1,15 @@
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.Analysis.ApiSurface.Declarations;
-using RonSijm.AnaalIJzer.Analysis.ApiSurface.Model;
-using RonSijm.AnaalIJzer.Analysis.ApiSurface.Traversal;
-using RonSijm.AnaalIJzer.Indicators;
-using RonSijm.AnaalIJzer.SymbolFacts;
-using ProjectAnalyzerConfig = RonSijm.AnaalIJzer.Model.AnalyzerConfig;
-using RonSijm.AnaalIJzer.Core.Editor.Snapshots;
+using RonSijm.AnaalIJzer.Core.ApiSurface.Analysis.Declarations;
+using RonSijm.AnaalIJzer.Core.ApiSurface.Analysis.Model;
+using RonSijm.AnaalIJzer.Core.ApiSurface.Analysis.Traversal;
+using RonSijm.AnaalIJzer.Core.Findings;
+using RonSijm.AnaalIJzer.Core.Indicators;
+using RonSijm.AnaalIJzer.Core.Visibility;
+using ProjectAnalyzerConfig = RonSijm.AnaalIJzer.Core.RuntimeConfig.Config.Model.AnalyzerConfig;
 
-namespace RonSijm.AnaalIJzer.EditorRuntime.Snapshots;
+namespace RonSijm.AnaalIJzer.EditorRuntime.Editor.Snapshots;
 
 public static partial class ArchitectureEditorSnapshotService
 {

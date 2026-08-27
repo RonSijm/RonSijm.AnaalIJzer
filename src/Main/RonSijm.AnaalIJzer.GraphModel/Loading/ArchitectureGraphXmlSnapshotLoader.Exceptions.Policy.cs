@@ -2,7 +2,7 @@ using System.Collections.Immutable;
 using System.Globalization;
 using System.Xml.Linq;
 
-namespace RonSijm.AnaalIJzer.Graphing.Loading;
+namespace RonSijm.AnaalIJzer.GraphModel.Loading;
 
 public static partial class ArchitectureGraphXmlSnapshotLoader
 {
@@ -10,9 +10,9 @@ public static partial class ArchitectureGraphXmlSnapshotLoader
 	{
 		var matcherKind = matcher.Name.LocalName;
 		var matcherLabel = FormatMatcherLabel(matcher);
-		var reason = matcher.Attribute("reason")?.Value?.Trim();
-		var owner = matcher.Attribute("owner")?.Value?.Trim();
-		var expiresOnText = matcher.Attribute("expiresOn")?.Value?.Trim();
+		var reason = matcher.Attribute("reason")?.Value.Trim();
+		var owner = matcher.Attribute("owner")?.Value.Trim();
+		var expiresOnText = matcher.Attribute("expiresOn")?.Value.Trim();
 		if (policy.RequireReason && string.IsNullOrWhiteSpace(reason))
 		{
 			return ("Invalid", $"Architecture exception for {matcherKind} '{matcherLabel}' is missing required reason metadata");
@@ -97,22 +97,14 @@ public static partial class ArchitectureGraphXmlSnapshotLoader
 		return result;
 	}
 
-	private readonly struct LocalExceptionPolicy
+	private readonly struct LocalExceptionPolicy(bool requireReason, bool requireOwner, bool requireExpiresOn, int warnBeforeDays)
 	{
-		public LocalExceptionPolicy(bool requireReason, bool requireOwner, bool requireExpiresOn, int warnBeforeDays)
-		{
-			RequireReason = requireReason;
-			RequireOwner = requireOwner;
-			RequireExpiresOn = requireExpiresOn;
-			WarnBeforeDays = warnBeforeDays;
-		}
+		public bool RequireReason { get; } = requireReason;
 
-		public bool RequireReason { get; }
+		public bool RequireOwner { get; } = requireOwner;
 
-		public bool RequireOwner { get; }
+		public bool RequireExpiresOn { get; } = requireExpiresOn;
 
-		public bool RequireExpiresOn { get; }
-
-		public int WarnBeforeDays { get; }
+		public int WarnBeforeDays { get; } = warnBeforeDays;
 	}
 }

@@ -3,10 +3,11 @@ using System.Text;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Persistence;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Sources;
 
-namespace RonSijm.AnaalIJzer.ConfigurationEditing.Document;
+namespace RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
 
 public static class ArchitectureConfigurationDocumentLoader
 {
@@ -64,7 +65,7 @@ public static class ArchitectureConfigurationDocumentLoader
 		return null;
 	}
 
-	public static bool IsAssemblyMetadataAttribute(INamedTypeSymbol? attributeClass)
+	private static bool IsAssemblyMetadataAttribute(INamedTypeSymbol? attributeClass)
 	{
 		var result = attributeClass is not null
 		             && string.Equals(attributeClass.Name, "AssemblyMetadataAttribute", StringComparison.Ordinal)
@@ -170,7 +171,7 @@ public static class ArchitectureConfigurationDocumentLoader
 		return result;
 	}
 
-	public static string ReadXmlText(string path)
+	private static string ReadXmlText(string path)
 	{
 		using var reader = new StreamReader(path, Encoding.UTF8, true);
 		var result = reader.ReadToEnd();

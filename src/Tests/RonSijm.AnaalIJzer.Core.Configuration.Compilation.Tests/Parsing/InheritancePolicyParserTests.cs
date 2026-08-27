@@ -1,5 +1,7 @@
+using RonSijm.AnaalIJzer.Core.Configuration.Compilation.Parsing;
 using RonSijm.AnaalIJzer.Core.Configuration.Compilation.Tests.TestSupport;
-using AnalyzerConfiguration = RonSijm.AnaalIJzer.Model.AnalyzerConfig;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+using AnalyzerConfiguration = RonSijm.AnaalIJzer.Core.RuntimeConfig.Config.Model.AnalyzerConfig;
 
 namespace RonSijm.AnaalIJzer.Core.Configuration.Compilation.Tests.Parsing;
 
@@ -56,8 +58,9 @@ public sealed class InheritancePolicyParserTests
 	private static AnalyzerConfiguration ParseConfig(string configText, string configPath)
 	{
 		var result = ArchitecturalConfigParser.Parse(
-			ImmutableArray.Create<AdditionalText>(
-				new TestAdditionalText(configPath, configText)),
+            [
+                new TestAdditionalText(configPath, configText)
+            ],
 			CancellationToken.None);
 
 		return result;

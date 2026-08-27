@@ -1,14 +1,13 @@
 using Microsoft.CodeAnalysis;
 
-namespace RonSijm.AnaalIJzer.Engine.NameRules;
+namespace RonSijm.AnaalIJzer.Core.NameRules;
 
 public static class NameRuleSubjectFactory
 {
 	public static NameRuleSubject? CreateType(ITypeSymbol type)
 	{
 		var comparisonType = type;
-		if (comparisonType is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T } nullableType
-		    && nullableType.TypeArguments.Length == 1)
+		if (comparisonType is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T, TypeArguments.Length: 1 } nullableType)
 		{
 			comparisonType = nullableType.TypeArguments[0];
 		}

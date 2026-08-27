@@ -1,9 +1,9 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using RonSijm.AnaalIJzer.Core.ApiSurface.Analysis.Model;
+using RonSijm.AnaalIJzer.Core.Indicators;
 
-using RonSijm.AnaalIJzer.Analysis.ApiSurface.Model;
-
-namespace RonSijm.AnaalIJzer.Analysis.ApiSurface.Declarations;
+namespace RonSijm.AnaalIJzer.Core.ApiSurface.Analysis.Declarations;
 
 internal static partial class ApiSurfaceDeclarationWalker
 {
@@ -14,7 +14,7 @@ internal static partial class ApiSurfaceDeclarationWalker
 			.OrderBy(syntax => syntax.SyntaxTree.FilePath, StringComparer.Ordinal)
 			.ThenBy(syntax => syntax.SpanStart)
 			.ToArray();
-		if (type.TypeKind == TypeKind.Delegate && type.DelegateInvokeMethod is { } invokeMethod)
+		if (type is { TypeKind: TypeKind.Delegate, DelegateInvokeMethod: { } invokeMethod })
 		{
 			var delegateSyntax = declarations.OfType<DelegateDeclarationSyntax>().FirstOrDefault();
 			if (delegateSyntax is not null)

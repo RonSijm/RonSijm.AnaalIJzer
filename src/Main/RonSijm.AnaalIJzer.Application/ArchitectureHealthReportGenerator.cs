@@ -1,6 +1,7 @@
-using RonSijm.AnaalIJzer.Findings;
+using RonSijm.AnaalIJzer.Core.Findings;
 using RonSijm.AnaalIJzer.Outputs.Inspection;
-using AnalyzerConfiguration = RonSijm.AnaalIJzer.Model.AnalyzerConfig;
+using RonSijm.AnaalIJzer.Workspace.Analysis;
+using AnalyzerConfiguration = RonSijm.AnaalIJzer.Core.RuntimeConfig.Config.Model.AnalyzerConfig;
 
 namespace RonSijm.AnaalIJzer.Application;
 

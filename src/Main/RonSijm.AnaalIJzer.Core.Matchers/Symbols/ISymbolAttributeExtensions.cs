@@ -1,8 +1,8 @@
 using Microsoft.CodeAnalysis;
 
-namespace RonSijm.AnaalIJzer.Symbols;
+namespace RonSijm.AnaalIJzer.Core.Matchers.Symbols;
 
-public static class ISymbolAttributeExtensions
+public static class SymbolAttributeExtensions
 {
 	public static bool HasAttribute(this ISymbol symbol, string value)
 	{

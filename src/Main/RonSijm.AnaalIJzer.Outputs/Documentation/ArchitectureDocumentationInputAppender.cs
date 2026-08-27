@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace RonSijm.AnaalIJzer.Documentation;
+namespace RonSijm.AnaalIJzer.Outputs.Documentation;
 
 internal static class ArchitectureDocumentationInputAppender
 {

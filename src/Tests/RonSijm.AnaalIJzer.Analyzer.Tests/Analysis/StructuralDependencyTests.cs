@@ -1,22 +1,18 @@
-using RonSijm.AnaalIJzer.Testing;
+using RonSijm.AnaalIJzer.Analyzer.Tests.Testing;
+using RonSijm.AnaalIJzer.Core.Findings;
+using RonSijm.AnaalIJzer.Core.Indicators;
 
 namespace RonSijm.AnaalIJzer.Analyzer.Tests.Analysis;
 
 public sealed class StructuralDependencyTests
 {
-	public static TheoryData<string> StructuralSites
-    {
-        get
-        {
-            return new()
-            {
-                DependencySites.Inheritance,
-                DependencySites.InterfaceImplementation,
-                DependencySites.Attribute,
-                DependencySites.StaticMember
-            };
-        }
-    }
+	public static TheoryData<string> StructuralSites =>
+	[
+		DependencySites.Inheritance,
+		DependencySites.InterfaceImplementation,
+		DependencySites.Attribute,
+		DependencySites.StaticMember
+	];
 
     [Theory]
 	[MemberData(nameof(StructuralSites))]
@@ -140,50 +136,50 @@ public sealed class StructuralDependencyTests
 	}
 
 	private static string GetConfig(string edge = "")
-    {
-        var result = $$"""
-                 <ArchitecturalLevels>
-                   <Layer name="Caller"><Class typeName="CallerType" /></Layer>
-                   <Layer name="Dependency"><Class typeName="TargetDependency" /></Layer>
-                   {{edge}}
-                 </ArchitecturalLevels>
-                 """;
+	{
+		var result = $$"""
+		               <ArchitecturalLevels>
+		                 <Layer name="Caller"><Class typeName="CallerType" /></Layer>
+		                 <Layer name="Dependency"><Class typeName="TargetDependency" /></Layer>
+		                 {{edge}}
+		               </ArchitecturalLevels>
+		               """;
 
 		return result;
-    }
+	}
 
-    private static string GetSource(string site)
-    {
-        var result = site switch
-        {
-            DependencySites.Inheritance => """
-                                           public class TargetDependency { }
-                                           public class CallerType : TargetDependency { }
-                                           """,
-            DependencySites.InterfaceImplementation => """
-                                                       public interface TargetDependency { }
-                                                       public class CallerType : TargetDependency { }
-                                                       """,
-            DependencySites.Attribute => """
-                                         using System;
-                                         public class TargetDependency : Attribute { }
-                                         [TargetDependency]
-                                         public class CallerType { }
-                                         """,
-            DependencySites.StaticMember => """
-                                            public static class TargetDependency
-                                            {
-                                                public static void Use() { }
-                                                public static int Value => 42;
-                                            }
-                                            public class CallerType
-                                            {
-                                                public void Run() => TargetDependency.Use();
-                                            }
-                                            """,
-            _ => throw new ArgumentOutOfRangeException(nameof(site), site, null)
-        };
+	private static string GetSource(string site)
+	{
+		var result = site switch
+		{
+			DependencySites.Inheritance => """
+			                               public class TargetDependency { }
+			                               public class CallerType : TargetDependency { }
+			                               """,
+			DependencySites.InterfaceImplementation => """
+			                                           public interface TargetDependency { }
+			                                           public class CallerType : TargetDependency { }
+			                                           """,
+			DependencySites.Attribute => """
+			                             using System;
+			                             public class TargetDependency : Attribute { }
+			                             [TargetDependency]
+			                             public class CallerType { }
+			                             """,
+			DependencySites.StaticMember => """
+			                                public static class TargetDependency
+			                                {
+			                                    public static void Use() { }
+			                                    public static int Value => 42;
+			                                }
+			                                public class CallerType
+			                                {
+			                                    public void Run() => TargetDependency.Use();
+			                                }
+			                                """,
+			_ => throw new ArgumentOutOfRangeException(nameof(site), site, null)
+		};
 
 		return result;
-    }
+	}
 }

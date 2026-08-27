@@ -15,14 +15,14 @@ internal sealed partial class ArchitectureGraphCanvas
 {
 	private sealed partial class NodifyGraphConnectionViewModel : INotifyPropertyChanged
 	{
-		private readonly IArchitectureGraphEditService editService;
-		private readonly Action<ArchitectureConfigurationEditResult, bool>? editResultHandler;
-		private readonly Func<string, bool>? confirmationHandler;
-		private readonly ArchitectureGraphCanvasTheme theme;
-		private ImmutableArray<string> allowedSites;
-		private ImmutableArray<string> blockedSites;
-		private string labelText;
-		private string toolTip;
+		private readonly IArchitectureGraphEditService _editService;
+		private readonly Action<ArchitectureConfigurationEditResult, bool>? _editResultHandler;
+		private readonly Func<string, bool>? _confirmationHandler;
+		private readonly ArchitectureGraphCanvasTheme _theme;
+		private ImmutableArray<string> _allowedSites;
+		private ImmutableArray<string> _blockedSites;
+		private string _labelText;
+		private string _toolTip;
 
 		private NodifyGraphConnectionViewModel(
 			ArchitectureGraphEdgeViewModel edge,
@@ -33,10 +33,10 @@ internal sealed partial class ArchitectureGraphCanvas
 			Func<string, bool>? confirmationHandler,
 			ArchitectureGraphCanvasTheme theme)
 		{
-			this.editService = editService;
-			this.editResultHandler = editResultHandler;
-			this.confirmationHandler = confirmationHandler;
-			this.theme = theme;
+			this._editService = editService;
+			this._editResultHandler = editResultHandler;
+			this._confirmationHandler = confirmationHandler;
+			this._theme = theme;
 			Output = output;
 			Input = input;
 			From = edge.From;
@@ -51,16 +51,16 @@ internal sealed partial class ArchitectureGraphCanvas
 			ViolationCount = edge.ViolationCount;
 			ObservedUsageCount = edge.ObservedUsageCount;
 			EvidenceDetails = edge.Description ?? string.Empty;
-			allowedSites = edge.AllowedSites;
-			blockedSites = edge.BlockedSites;
-			labelText = IsEvidence ? edge.SiteText : FormatLabelText(edge.SiteText, edge.AppliesToDescendants);
-			toolTip = IsEvidence
+			_allowedSites = edge.AllowedSites;
+			_blockedSites = edge.BlockedSites;
+			_labelText = IsEvidence ? edge.SiteText : FormatLabelText(edge.SiteText, edge.AppliesToDescendants);
+			_toolTip = IsEvidence
 				? FormatEvidenceToolTip(edge.From, edge.To, edge.SiteText, EvidenceDetails)
 				: FormatEdgeToolTip(edge.Kind, edge.From, edge.To, edge.SiteText, edge.AppliesToDescendants);
 			RemoveCommand = new DelegateCommand(_ => Remove(), _ => !IsEvidence && EditHandle.CanEdit);
 			AllowAllSitesCommand = new DelegateCommand(_ => SetSites(ArchitectureSiteFilterEditMode.All, ImmutableArray<string>.Empty), _ => !IsEvidence && EditHandle.CanEdit);
-			AllowedSiteOptions = ArchitectureDependencySiteNames.All.Select(site => new NodifySiteFilterOptionViewModel(site, allowedSites.Contains(site, StringComparer.Ordinal), new DelegateCommand(_ => ToggleAllowedSite(site)))).ToImmutableArray();
-			BlockedSiteOptions = ArchitectureDependencySiteNames.All.Select(site => new NodifySiteFilterOptionViewModel(site, blockedSites.Contains(site, StringComparer.Ordinal), new DelegateCommand(_ => ToggleBlockedSite(site)))).ToImmutableArray();
+			AllowedSiteOptions = ArchitectureDependencySiteNames.All.Select(site => new NodifySiteFilterOptionViewModel(site, _allowedSites.Contains(site, StringComparer.Ordinal), new DelegateCommand(_ => ToggleAllowedSite(site)))).ToImmutableArray();
+			BlockedSiteOptions = ArchitectureDependencySiteNames.All.Select(site => new NodifySiteFilterOptionViewModel(site, _blockedSites.Contains(site, StringComparer.Ordinal), new DelegateCommand(_ => ToggleBlockedSite(site)))).ToImmutableArray();
 		}
 
 		public event PropertyChangedEventHandler? PropertyChanged;
@@ -93,42 +93,34 @@ internal sealed partial class ArchitectureGraphCanvas
 
 		public string EvidenceDetails { get; }
 
-		public bool CanEditRule
-		{
-			get
-			{
-				var result = !IsEvidence && EditHandle.CanEdit;
-
-				return result;
-			}
-		}
+		public bool CanEditRule => !IsEvidence && EditHandle.CanEdit;
 
 		public string LabelText
 		{
-			get { return labelText; }
+			get { return _labelText; }
 			private set
 			{
-				if (labelText == value)
+				if (_labelText == value)
 				{
 					return;
 				}
 
-				labelText = value;
+				_labelText = value;
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LabelText)));
 			}
 		}
 
 		public string ToolTip
 		{
-			get { return toolTip; }
+			get { return _toolTip; }
 			private set
 			{
-				if (toolTip == value)
+				if (_toolTip == value)
 				{
 					return;
 				}
 
-				toolTip = value;
+				_toolTip = value;
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ToolTip)));
 			}
 		}
@@ -141,55 +133,15 @@ internal sealed partial class ArchitectureGraphCanvas
 
 		public ImmutableArray<NodifySiteFilterOptionViewModel> BlockedSiteOptions { get; }
 
-		public bool UsesAllSites
-		{
-			get
-			{
-				var result = allowedSites.Length == 0 && blockedSites.Length == 0;
+		public bool UsesAllSites => _allowedSites.Length == 0 && _blockedSites.Length == 0;
 
-				return result;
-			}
-		}
+		public Brush Stroke => IsEvidence ? _theme.ErrorConnection : IsBlocked ? _theme.ErrorConnection : IsActive ? _theme.ActiveConnection : _theme.Connection;
 
-		public Brush Stroke
-		{
-			get
-			{
-				var result = IsEvidence ? theme.ErrorConnection : IsBlocked ? theme.ErrorConnection : IsActive ? theme.ActiveConnection : theme.Connection;
+		public double StrokeThickness => IsEvidence ? 3.2 : IsActive ? 2.8 : 1.9;
 
-				return result;
-			}
-		}
+		public DoubleCollection? StrokeDashArray => IsEvidence ? new DoubleCollection([2, 3]) : IsBlocked ? new DoubleCollection([4, 3]) : null;
 
-		public double StrokeThickness
-		{
-			get
-			{
-				var result = IsEvidence ? 3.2 : IsActive ? 2.8 : 1.9;
-
-				return result;
-			}
-		}
-
-		public DoubleCollection? StrokeDashArray
-		{
-			get
-			{
-				var result = IsEvidence ? new DoubleCollection([2, 3]) : IsBlocked ? new DoubleCollection([4, 3]) : null;
-
-				return result;
-			}
-		}
-
-		public Brush TextBackground
-		{
-			get
-			{
-				var result = IsEvidence ? theme.ErrorConnection : IsBlocked ? theme.ErrorConnection : IsActive ? theme.ActiveConnection : theme.Connection;
-
-				return result;
-			}
-		}
+		public Brush TextBackground => IsEvidence ? _theme.ErrorConnection : IsBlocked ? _theme.ErrorConnection : IsActive ? _theme.ActiveConnection : _theme.Connection;
 
 		public static NodifyGraphConnectionViewModel Create(
 			ArchitectureGraphEdgeViewModel edge,

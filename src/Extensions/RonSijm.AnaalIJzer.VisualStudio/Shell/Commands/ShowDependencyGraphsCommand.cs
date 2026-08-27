@@ -1,5 +1,4 @@
 using System.ComponentModel.Design;
-using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using RonSijm.AnaalIJzer.VisualStudio.Diagnostics;
@@ -9,11 +8,11 @@ namespace RonSijm.AnaalIJzer.VisualStudio.Shell.Commands;
 
 internal sealed class ShowDependencyGraphsCommand
 {
-	private readonly AsyncPackage package;
+	private readonly AsyncPackage _package;
 
 	private ShowDependencyGraphsCommand(AsyncPackage package, OleMenuCommandService commandService)
 	{
-		this.package = package;
+		this._package = package;
 		var commandId = new CommandID(PackageIds.CommandSet, PackageIds.ShowDependencyGraphsCommandId);
 		commandService.AddCommand(new OleMenuCommand(Execute, commandId));
 		ArchitectureVisualStudioLog.Info("Registered command: AnaalIJzer.ShowDependencyGraphs.");
@@ -35,14 +34,14 @@ internal sealed class ShowDependencyGraphsCommand
 	private void Execute(object sender, EventArgs e)
 	{
 		ThreadHelper.ThrowIfNotOnUIThread();
-		_ = package.JoinableTaskFactory.RunAsync(ShowDependencyGraphsAsync);
+		_ = _package.JoinableTaskFactory.RunAsync(ShowDependencyGraphsAsync);
 	}
 
 	private async Task ShowDependencyGraphsAsync()
 	{
 		try
 		{
-			await ArchitectureGraphToolWindowOpener.OpenCurrentAsync(package);
+			await ArchitectureGraphToolWindowOpener.OpenCurrentAsync(_package);
 		}
 		catch (Exception exception)
 		{
@@ -53,9 +52,9 @@ internal sealed class ShowDependencyGraphsCommand
 
 	private async Task ShowFailureAsync(Exception exception)
 	{
-		await package.JoinableTaskFactory.SwitchToMainThreadAsync(package.DisposalToken);
+		await _package.JoinableTaskFactory.SwitchToMainThreadAsync(_package.DisposalToken);
 		VsShellUtilities.ShowMessageBox(
-			package,
+			_package,
 			"The AnaalIJzer dependency graph window could not be opened.\r\n\r\n" + exception.Message,
 			"AnaalIJzer Dependency Graphs",
 			OLEMSGICON.OLEMSGICON_CRITICAL,

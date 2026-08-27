@@ -1,9 +1,8 @@
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.Definitions;
-using RonSijm.AnaalIJzer.Engine.EntryPoints;
-using RonSijm.AnaalIJzer.Engine.LayerModel;
+using RonSijm.AnaalIJzer.Core.EntryPoints;
+using RonSijm.AnaalIJzer.Core.LayerModel;
 
-namespace RonSijm.AnaalIJzer.Engine.DependencyRules;
+namespace RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.DependencyRules;
 
 public readonly partial struct LayerRegistry
 {

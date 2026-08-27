@@ -50,7 +50,7 @@ public sealed partial class ArchitectureGraphEditorControl
 		var result = new XElement("TransitiveExposure", new XAttribute("maxDepth", depth));
 		if (!string.IsNullOrWhiteSpace(description))
 		{
-			result.Add(new XAttribute("description", description!.Trim()));
+			result.Add(new XAttribute("description", description.Trim()));
 		}
 
 		return result;
@@ -65,7 +65,7 @@ public sealed partial class ArchitectureGraphEditorControl
 		}
 		if (!string.IsNullOrWhiteSpace(description))
 		{
-			builder["description"] = description!.Trim();
+			builder["description"] = description.Trim();
 		}
 
 		return builder.ToImmutable();

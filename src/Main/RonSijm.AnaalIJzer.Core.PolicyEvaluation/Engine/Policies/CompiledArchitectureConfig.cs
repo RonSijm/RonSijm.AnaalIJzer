@@ -1,11 +1,13 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.Config.Parsing;
-using RonSijm.AnaalIJzer.Engine.DependencyRules;
-using RonSijm.AnaalIJzer.Exceptions;
-using RonSijm.AnaalIJzer.Model;
-using RonSijm.AnaalIJzer.ProjectArchitecture;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+using RonSijm.AnaalIJzer.Core.DependencyRules;
+using RonSijm.AnaalIJzer.Core.Exceptions;
+using RonSijm.AnaalIJzer.Core.LayerModel;
+using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Config.Model;
+using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.DependencyRules;
+using RonSijm.AnaalIJzer.Core.ProjectArchitecture;
 
-namespace RonSijm.AnaalIJzer.Engine.Policies;
+namespace RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.Policies;
 
 public readonly struct CompiledArchitectureConfig(
 	CompiledLayerCatalog layerCatalog,

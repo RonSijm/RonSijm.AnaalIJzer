@@ -5,15 +5,15 @@ namespace RonSijm.AnaalIJzer.Arse;
 
 internal sealed record CommandOptions
 {
-	public ApplicationInputKind? InputKind { get; private init; }
-	public IReadOnlyList<string> InputPaths { get; private init; } = [];
-	public string? OutputPath { get; private init; }
-	public string Configuration { get; private init; } = "Release";
-	public ConfigurationGenerationOptions GenerationOptions { get; private init; } = new();
-	public bool IncludeCodeEvidence { get; private init; }
-	public bool IncludeDocumentationInput { get; private init; }
-	public bool GenerateDocumentation { get; private init; }
-	public bool Force { get; private init; }
+	private ApplicationInputKind? InputKind { get; init; }
+	private IReadOnlyList<string> InputPaths { get; init; } = [];
+	private string? OutputPath { get; init; }
+	private string Configuration { get; init; } = "Release";
+	private ConfigurationGenerationOptions GenerationOptions { get; init; } = new();
+	private bool IncludeCodeEvidence { get; init; }
+	private bool IncludeDocumentationInput { get; init; }
+	private bool GenerateDocumentation { get; init; }
+	private bool Force { get; init; }
 
 	public static CommandOptions Parse(string[] args)
 	{
@@ -142,4 +142,5 @@ internal sealed record CommandOptions
 		return args[++index];
 	}
 }
+
 internal sealed class CommandLineException(string message) : Exception(message);

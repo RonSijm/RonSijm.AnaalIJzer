@@ -1,24 +1,22 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.Conditions;
-using RonSijm.AnaalIJzer.Definitions;
-using RonSijm.AnaalIJzer.Model;
-using RonSijm.AnaalIJzer.Engine.LayerModel;
+using RonSijm.AnaalIJzer.Core.LayerModel;
+using RonSijm.AnaalIJzer.Core.Matchers;
 
-namespace RonSijm.AnaalIJzer.Engine.DependencyRules;
+namespace RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.DependencyRules;
 
 public readonly partial struct LayerRegistry
 {
 	private bool TryFindGlobalForbiddenMatch(string typeName, string namespaceName, ITypeSymbol? symbol, out MatcherRule rule, out string? matchedSuffix)
 	{
-		if (catalog.ForbiddenTypeNames.TryGetValue(typeName, out rule)
+		if (_catalog.ForbiddenTypeNames.TryGetValue(typeName, out rule)
 		    && !IsExcepted(rule.Exceptions, typeName, namespaceName, symbol))
 		{
 			matchedSuffix = null;
 			return true;
 		}
 
-		return TryFindPolicyMatch(catalog.ForbiddenMatchers, typeName, namespaceName, symbol, out rule, out matchedSuffix);
+		return TryFindPolicyMatch(_catalog.ForbiddenMatchers, typeName, namespaceName, symbol, out rule, out matchedSuffix);
 	}
 
 	private static bool MatchesAnyPolicy(ImmutableArray<(PatternMatcher Matcher, MatcherRule Rule)> matchers, string typeName, string namespaceName, ITypeSymbol? symbol)

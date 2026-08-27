@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 using System.Globalization;
-using RonSijm.AnaalIJzer.Indicators;
 using RonSijm.AnaalIJzer.Core.Editor.Snapshots;
+using RonSijm.AnaalIJzer.Core.Indicators;
 
 namespace RonSijm.AnaalIJzer.Core.Editor.QuickInfo;
 

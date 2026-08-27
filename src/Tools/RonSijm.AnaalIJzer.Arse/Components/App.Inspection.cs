@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
 using System.Text;
 using Microsoft.AspNetCore.Components.Web;
-using RonSijm.AnaalIJzer.Findings;
 using RonSijm.AnaalIJzer.Application;
+using RonSijm.AnaalIJzer.Core.Findings;
 using Spectre.Console;
 
 namespace RonSijm.AnaalIJzer.Arse.Components;

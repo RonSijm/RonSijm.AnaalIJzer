@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 
-namespace RonSijm.AnaalIJzer.Engine.ApiSurface;
+namespace RonSijm.AnaalIJzer.Core.ApiSurface.Engine.Policies;
 
 public readonly struct ApiSurfaceLayerSelection(string layerPath, ImmutableArray<string> layerPaths)
 {
@@ -10,10 +10,7 @@ public readonly struct ApiSurfaceLayerSelection(string layerPath, ImmutableArray
 
 	public ImmutableArray<string> LayerPaths { get; } = layerPaths;
 
-	public bool IsRecognized
-	{
-		get { return !string.IsNullOrEmpty(LayerPath); }
-	}
+	public bool IsRecognized => !string.IsNullOrEmpty(LayerPath);
 
 	public bool Selects(string configuredLayerPath)
 	{

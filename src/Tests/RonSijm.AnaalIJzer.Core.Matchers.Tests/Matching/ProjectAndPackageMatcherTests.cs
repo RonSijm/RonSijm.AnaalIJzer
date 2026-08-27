@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.Conditions;
-using RonSijm.AnaalIJzer.ProjectArchitecture;
+using RonSijm.AnaalIJzer.Core.Matchers.Conditions;
+using RonSijm.AnaalIJzer.Core.Matchers.ProjectArchitecture;
 
 namespace RonSijm.AnaalIJzer.Core.Matchers.Tests.Matching;
 

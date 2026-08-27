@@ -1,7 +1,7 @@
 using AwesomeAssertions;
 using RonSijm.AnaalIJzer.Application;
 
-namespace RonSijm.AnaalIJzer.IntegrationTests;
+namespace RonSijm.AnaalIJzer.IntegrationTests.Support;
 
 internal static class ExampleApplicationOperations
 {

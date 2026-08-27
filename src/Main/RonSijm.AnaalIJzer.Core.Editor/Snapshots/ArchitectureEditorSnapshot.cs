@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.Graphing.Model;
-using RonSijm.AnaalIJzer.Indicators;
+using RonSijm.AnaalIJzer.Core.Indicators;
+using RonSijm.AnaalIJzer.GraphModel.Model;
 
 namespace RonSijm.AnaalIJzer.Core.Editor.Snapshots;
 

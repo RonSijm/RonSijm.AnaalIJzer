@@ -48,7 +48,7 @@ public sealed partial class ApplicationOperationsTests
 			if (index >= repositoryCallerStart)
 			{
 				dependency = index <= managerCallerCount
-					? $"CandyShop.Managers.CandyManager manager, CandyShop.Repositories.CandyRepository repository"
+					? "CandyShop.Managers.CandyManager manager, CandyShop.Repositories.CandyRepository repository"
 					: "CandyShop.Repositories.CandyRepository repository";
 			}
 			else

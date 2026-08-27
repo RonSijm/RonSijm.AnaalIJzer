@@ -1,12 +1,11 @@
-using System.Collections.Immutable;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media.Effects;
 using Microsoft.VisualStudio.Shell;
-using RonSijm.AnaalIJzer.Indicators;
 using RonSijm.AnaalIJzer.Core.Editor.Snapshots;
+using RonSijm.AnaalIJzer.Core.Indicators;
 using RonSijm.AnaalIJzer.VisualStudio.Options;
 using RonSijm.AnaalIJzer.VisualStudio.Styling;
 
@@ -14,14 +13,14 @@ namespace RonSijm.AnaalIJzer.VisualStudio.Editor.LayerIndicators;
 
 internal static partial class ArchitectureLayerCodeLensPopout
 {
-	private static Popup? currentPopup;
+	private static Popup? _currentPopup;
 
 	internal static void Show(ArchitectureLayerIndicator indicator, FrameworkElement placementTarget)
 	{
 		ThreadHelper.ThrowIfNotOnUIThread();
-		if (currentPopup is not null)
+		if (_currentPopup is not null)
 		{
-			currentPopup.IsOpen = false;
+			_currentPopup.IsOpen = false;
 		}
 
 		var options = ArchitectureVisualStudioOptions.Current;
@@ -37,13 +36,13 @@ internal static partial class ArchitectureLayerCodeLensPopout
 		popup.Child = root;
 		popup.Closed += (_, _) =>
 		{
-			if (ReferenceEquals(currentPopup, popup))
+			if (ReferenceEquals(_currentPopup, popup))
 			{
-				currentPopup = null;
+				_currentPopup = null;
 			}
 		};
 		popup.Opened += (_, _) => root.Focus();
-		currentPopup = popup;
+		_currentPopup = popup;
 		popup.IsOpen = true;
 	}
 

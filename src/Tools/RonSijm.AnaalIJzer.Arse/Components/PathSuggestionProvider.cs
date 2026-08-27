@@ -62,6 +62,6 @@ internal static partial class PathSuggestionProvider
 			completionValue = input;
 		}
 
-		return new PathSuggestionSet(matches.Take(MaximumSuggestions).ToArray(), completionValue);
+		return new PathSuggestionSet([..matches.Take(MaximumSuggestions)], completionValue);
 	}
 }

@@ -1,8 +1,9 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 
-namespace RonSijm.AnaalIJzer.ConfigurationEditing.Document;
+namespace RonSijm.AnaalIJzer.Core.Configuration.Document.Sources;
 
 public static class ArchitectureConfigurationSourceDiscovery
 {

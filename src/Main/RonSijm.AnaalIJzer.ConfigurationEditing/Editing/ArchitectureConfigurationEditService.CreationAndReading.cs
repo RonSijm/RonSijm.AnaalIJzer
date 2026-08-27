@@ -1,7 +1,7 @@
 using System.Xml.Linq;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Document;
 using RonSijm.AnaalIJzer.ConfigurationEditing.Editing.Registration;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 
 namespace RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
 

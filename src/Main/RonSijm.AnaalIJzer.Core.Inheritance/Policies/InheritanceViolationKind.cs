@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer.Inheritance;
+namespace RonSijm.AnaalIJzer.Core.Inheritance.Policies;
 
 public enum InheritanceViolationKind
 {

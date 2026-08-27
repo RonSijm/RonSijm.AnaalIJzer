@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer.ProjectArchitecture;
+namespace RonSijm.AnaalIJzer.Core.ProjectArchitecture;
 
 public enum ProjectReferenceRuleKind
 {

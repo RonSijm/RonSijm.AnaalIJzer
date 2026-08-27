@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer.Exceptions;
+namespace RonSijm.AnaalIJzer.Core.Exceptions;
 
 public readonly struct ArchitectureExceptionMetadata(string? reason, string? owner, string? expiresOnText, DateTime? expiresOn)
 {

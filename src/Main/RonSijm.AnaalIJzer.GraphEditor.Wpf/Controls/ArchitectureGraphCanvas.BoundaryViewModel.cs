@@ -5,6 +5,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
 using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 using RonSijm.AnaalIJzer.GraphApplication;
 using RonSijm.AnaalIJzer.Graphing.ViewModels;
 using RonSijm.AnaalIJzer.GraphEditor.Wpf.Layout;
@@ -16,16 +17,16 @@ internal sealed partial class ArchitectureGraphCanvas
 {
 	private sealed partial class NodifyGraphBoundaryViewModel : INotifyPropertyChanged
 	{
-		private readonly IArchitectureGraphEditService editService;
-		private readonly Action<ArchitectureConfigurationEditResult, bool>? editResultHandler;
-		private readonly Func<string, bool>? confirmationHandler;
-		private readonly Func<ArchitectureLayerCreationRequest?>? layerCreationHandler;
-		private readonly ArchitectureGraphLayoutState layoutState;
-		private ImmutableArray<NodifyGraphNodeViewModel> directNodes = ImmutableArray<NodifyGraphNodeViewModel>.Empty;
-		private ImmutableArray<NodifyGraphBoundaryViewModel> directBoundaries = ImmutableArray<NodifyGraphBoundaryViewModel>.Empty;
-		private NodifyGraphBoundaryViewModel? parentBoundary;
-		private Point location;
-		private Size actualSize;
+		private readonly IArchitectureGraphEditService _editService;
+		private readonly Action<ArchitectureConfigurationEditResult, bool>? _editResultHandler;
+		private readonly Func<string, bool>? _confirmationHandler;
+		private readonly Func<ArchitectureLayerCreationRequest?>? _layerCreationHandler;
+		private readonly ArchitectureGraphLayoutState _layoutState;
+		private ImmutableArray<NodifyGraphNodeViewModel> _directNodes = ImmutableArray<NodifyGraphNodeViewModel>.Empty;
+		private ImmutableArray<NodifyGraphBoundaryViewModel> _directBoundaries = ImmutableArray<NodifyGraphBoundaryViewModel>.Empty;
+		private NodifyGraphBoundaryViewModel? _parentBoundary;
+		private Point _location;
+		private Size _actualSize;
 
 		private NodifyGraphBoundaryViewModel(
 			ArchitectureGraphBoundaryViewModel boundary,
@@ -38,11 +39,11 @@ internal sealed partial class ArchitectureGraphCanvas
 			ArchitectureGraphLayoutState layoutState,
 			ArchitectureGraphCanvasTheme theme)
 		{
-			this.editService = editService;
-			this.editResultHandler = editResultHandler;
-			this.confirmationHandler = confirmationHandler;
-			this.layerCreationHandler = layerCreationHandler;
-			this.layoutState = layoutState;
+			this._editService = editService;
+			this._editResultHandler = editResultHandler;
+			this._confirmationHandler = confirmationHandler;
+			this._layerCreationHandler = layerCreationHandler;
+			this._layoutState = layoutState;
 			Path = boundary.Path;
 			DisplayName = boundary.DisplayName;
 			Description = boundary.Description;
@@ -53,8 +54,8 @@ internal sealed partial class ArchitectureGraphCanvas
 			ExceptionReviewCount = boundary.ExceptionReviewCount;
 			ExceptionReviewSummaries = boundary.ExceptionReviewSummaries;
 			EditHandle = boundary.EditHandle;
-			location = layoutState.GetLocation(boundary.Path, new Point(boundary.X, boundary.Y));
-			actualSize = layoutState.GetSize(boundary.Path, new Size(boundary.Width, boundary.Height));
+			_location = layoutState.GetLocation(boundary.Path, new Point(boundary.X, boundary.Y));
+			_actualSize = layoutState.GetSize(boundary.Path, new Size(boundary.Width, boundary.Height));
 			Background = background;
 			BorderBrush = borderBrush;
 			HeaderBrush = borderBrush;
@@ -97,45 +98,33 @@ internal sealed partial class ArchitectureGraphCanvas
 
 		public Point Location
 		{
-			get { return location; }
-			set { SetLocation(value, true, true); }
+			get => _location;
+			set => SetLocation(value, true, true);
 		}
 
 		public Size ActualSize
 		{
-			get { return actualSize; }
+			get { return _actualSize; }
 			set
 			{
 				var nextSize = CoerceSize(value);
-				if (actualSize == nextSize)
+				if (_actualSize == nextSize)
 				{
 					return;
 				}
 
-				actualSize = nextSize;
+				_actualSize = nextSize;
 				NotifySizeChanged();
 			}
 		}
 
-		public double Width
-		{
-			get { return ActualSize.Width; }
-		}
+		public double Width => ActualSize.Width;
 
-		public double Height
-		{
-			get { return ActualSize.Height; }
-		}
+		public double Height => ActualSize.Height;
 
-		public double MinimumWidth
-		{
-			get { return CalculateMinimumSize().Width; }
-		}
+		public double MinimumWidth => CalculateMinimumSize().Width;
 
-		public double MinimumHeight
-		{
-			get { return CalculateMinimumSize().Height; }
-		}
+		public double MinimumHeight => CalculateMinimumSize().Height;
 
 		public Brush Background { get; }
 
@@ -145,22 +134,14 @@ internal sealed partial class ArchitectureGraphCanvas
 
 		public Brush Foreground { get; }
 
-		public Thickness BorderThickness
-		{
-			get
-			{
-				var result = new Thickness(IsActive ? 2.5 : 1.2);
-
-				return result;
-			}
-		}
+		public Thickness BorderThickness => new(IsActive ? 2.5 : 1.2);
 
 		public void Attach(NodifyGraphBoundaryViewModel? parent, ImmutableArray<NodifyGraphNodeViewModel> nodes, ImmutableArray<NodifyGraphBoundaryViewModel> boundaries)
 		{
-			parentBoundary = parent;
-			directNodes = nodes;
-			directBoundaries = boundaries;
-			ActualSize = actualSize;
+			_parentBoundary = parent;
+			_directNodes = nodes;
+			_directBoundaries = boundaries;
+			ActualSize = _actualSize;
 			NotifyMinimumSizeChanged();
 		}
 
@@ -172,9 +153,9 @@ internal sealed partial class ArchitectureGraphCanvas
 		public void RefreshMinimumSize()
 		{
 			var minimumSize = CalculateMinimumSize();
-			if (actualSize.Width < minimumSize.Width || actualSize.Height < minimumSize.Height)
+			if (_actualSize.Width < minimumSize.Width || _actualSize.Height < minimumSize.Height)
 			{
-				ActualSize = actualSize;
+				ActualSize = _actualSize;
 				return;
 			}
 
@@ -183,26 +164,26 @@ internal sealed partial class ArchitectureGraphCanvas
 
 		private void AddChildLayer()
 		{
-			var request = layerCreationHandler?.Invoke();
+			var request = _layerCreationHandler?.Invoke();
 			if (request is null)
 			{
 				return;
 			}
 
 			var source = new ArchitectureConfigurationSource(EditHandle.SourceKind, EditHandle.SourcePath);
-			var result = editService.AddLayer(source, Path, request.Name, request.MatcherKind, request.MatcherAttributes);
-			editResultHandler?.Invoke(result, false);
+			var result = _editService.AddLayer(source, Path, request.Name, request.MatcherKind, request.MatcherAttributes);
+			_editResultHandler?.Invoke(result, false);
 		}
 
 		private void Remove()
 		{
-			if (confirmationHandler is not null && !confirmationHandler("Remove layer '" + Path + "' and its nested settings?"))
+			if (_confirmationHandler is not null && !_confirmationHandler("Remove layer '" + Path + "' and its nested settings?"))
 			{
 				return;
 			}
 
-			var result = editService.RemoveLayer(EditHandle);
-			editResultHandler?.Invoke(result, true);
+			var result = _editService.RemoveLayer(EditHandle);
+			_editResultHandler?.Invoke(result, true);
 		}
 	}
 }

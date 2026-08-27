@@ -14,6 +14,23 @@ Defines a named group of types. The `name` attribute is referenced by `<AllowedD
 
 Each `<Class>`, `<Namespace>`, or `<Assembly>` child is a matcher. Attributes on one element are combined with **AND**; separate elements are alternatives combined with **OR**. A type is assigned to a layer when every condition on any one matcher element succeeds. Exact class-name matchers take precedence; remaining matchers are evaluated in configuration order.
 
+For `<Class>`, you can also add inner declaration matchers when the type itself is not enough and you want to describe a recognizable shape:
+
+```xml
+<Layer name="PizzaProviderRequests">
+  <Class endsWith="Request">
+    <Property exactName="PizzaId" typeName="PizzaId" />
+    <Field exactName="_tenantId" typeName="TenantId" />
+  </Class>
+</Layer>
+```
+
+That means:
+
+- the outer `<Class>` still matches the type itself;
+- each inner declaration element must be satisfied by at least one owned declaration of that kind;
+- sibling declaration elements are combined with **AND**.
+
 A `<Layer>` may also set `requireRecognizedDependencies`. That requirement applies only to callers classified into that layer or one of its nested layers:
 
 ```xml
@@ -147,9 +164,41 @@ One or more matcher attributes are allowed per element. Every attribute on that 
 
 The first rule matches only interfaces whose names start with `I` and end with `Repository`. To express alternatives, add another `<Class>` element. Missing matchers, unsupported attributes, unknown `typeKind` values, and invalid regular expressions report ARCH006.
 
+#### Structural declaration matchers
+
+Inner declaration elements on `<Class>` reuse the same matcher attributes, but they split the meaning slightly:
+
+- name-style attributes such as `exactName`, `startsWith`, `endsWith`, `contains`, and `regex` apply to the declaration name;
+- semantic type attributes such as `typeName`, `exactFullName`, `inherits`, `implements`, and `typeKind` apply to that declaration's associated type;
+- `withAttribute` and `withAccessModifier` apply to the declaration symbol itself.
+
+Supported declaration matcher elements are:
+
+| Element | Matches |
+|---|---|
+| `<Type>` | The type declaration itself |
+| `<NestedType>` | A nested class, interface, struct, record, enum, or delegate |
+| `<Constructor>` | An explicit instance or static constructor |
+| `<Method>` | An ordinary method or explicit interface implementation |
+| `<Property>` | A property or indexer |
+| `<Field>` | A field |
+| `<Event>` | An event |
+| `<Operator>` | A user-defined operator |
+| `<Conversion>` | An implicit or explicit conversion operator |
+
+This makes "shape" rules possible without inventing a special-purpose matcher per scenario:
+
+```xml
+<Class endsWith="Request">
+  <Property exactName="PizzaId" typeName="PizzaId" />
+</Class>
+```
+
+That matches request types that own a `PizzaId` property of type `PizzaId`. It does not match requests that only have `DrinkId`, and it does not match requests that expose `PizzaId` through a differently named property.
+
 String matches are **case-sensitive** and applied to the full declared name (so `IOrderRepository` matches `endsWith="Repository"`). `regex` uses `Regex.IsMatch` semantics, so it matches anywhere in the subject unless the pattern is anchored with `^` / `$`; invalid patterns report ARCH006. Patterns are compiled once and cached, so the cost is paid only on first use.
 
-**Example projects:** [`Example.AssemblyMatcher`](../../Examples/Features/Example.AssemblyMatcher), [`Example.CombinedMatchers`](../../Examples/Features/Example.CombinedMatchers)
+**Example projects:** [`Example.AssemblyMatcher`](../../Examples/Features/Example.AssemblyMatcher), [`Example.CombinedMatchers`](../../Examples/Features/Example.CombinedMatchers), [`Example.StructuralDeclarationMatchers`](../../Examples/Features/Example.StructuralDeclarationMatchers)
 
 
 ```xml

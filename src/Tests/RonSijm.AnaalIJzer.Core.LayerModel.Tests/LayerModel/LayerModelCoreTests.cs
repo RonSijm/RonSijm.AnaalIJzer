@@ -1,17 +1,15 @@
 using System.Collections.Immutable;
-using RonSijm.AnaalIJzer.Conditions;
-using RonSijm.AnaalIJzer.Contracts;
-using RonSijm.AnaalIJzer.Definitions;
-using RonSijm.AnaalIJzer.Engine.ApiSurface;
-using RonSijm.AnaalIJzer.Engine.DependencyRules;
-using RonSijm.AnaalIJzer.Engine.EntryPoints;
-using RonSijm.AnaalIJzer.Engine.LayerModel;
-using RonSijm.AnaalIJzer.Engine.NameRules;
-using RonSijm.AnaalIJzer.Engine.Policies;
-using RonSijm.AnaalIJzer.Engine.Visibility;
-using RonSijm.AnaalIJzer.Inheritance;
-using RonSijm.AnaalIJzer.SourceLocations;
-using RonSijm.AnaalIJzer.SymbolFacts;
+using RonSijm.AnaalIJzer.Core.ApiSurface.Engine.Policies;
+using RonSijm.AnaalIJzer.Core.Contracts.Contracts;
+using RonSijm.AnaalIJzer.Core.DependencyRules;
+using RonSijm.AnaalIJzer.Core.EntryPoints;
+using RonSijm.AnaalIJzer.Core.Exceptions;
+using RonSijm.AnaalIJzer.Core.Inheritance.Policies;
+using RonSijm.AnaalIJzer.Core.Matchers;
+using RonSijm.AnaalIJzer.Core.Matchers.Conditions;
+using RonSijm.AnaalIJzer.Core.NameRules;
+using RonSijm.AnaalIJzer.Core.SourceLocations;
+using RonSijm.AnaalIJzer.Core.Visibility;
 
 namespace RonSijm.AnaalIJzer.Core.LayerModel.Tests.LayerModel;
 
@@ -76,20 +74,21 @@ public sealed class LayerModelCoreTests
 		var node = new LayerNode(
 			LayerDefinition.Normal("Kitchen", null),
 			ImmutableArray<(PatternMatcher Matcher, MatcherRule Rule)>.Empty,
-			ImmutableArray.Create(
-				new LayerNode(
+            [
+                new LayerNode(
 					LayerDefinition.Normal("Kitchen/Sauce", null),
 					ImmutableArray<(PatternMatcher Matcher, MatcherRule Rule)>.Empty,
 					ImmutableArray<LayerNode>.Empty,
 					ImmutableArray<(PatternMatcher Matcher, MatcherRule Rule)>.Empty,
 					ImmutableArray<(PatternMatcher Matcher, MatcherRule Rule)>.Empty,
 					ImmutableArray<NameMatchingRule>.Empty,
-					ImmutableArray.Create(CreateContractPolicy()),
-					ImmutableArray.Create(CreateInheritancePolicy()),
-					ImmutableArray.Create(CreateVisibilityPolicy()),
-					ImmutableArray.Create(CreateApiSurfacePolicy()),
-					ImmutableArray.Create(CreateEntryPointPolicy()),
-					ImmutableArray.Create(CreateSourceLocationPolicy()))),
+                    [CreateContractPolicy()],
+                    [CreateInheritancePolicy()],
+                    [CreateVisibilityPolicy()],
+                    [CreateApiSurfacePolicy()],
+                    [CreateEntryPointPolicy()],
+                    [CreateSourceLocationPolicy()])
+            ],
 			ImmutableArray<(PatternMatcher Matcher, MatcherRule Rule)>.Empty,
 			ImmutableArray<(PatternMatcher Matcher, MatcherRule Rule)>.Empty,
 			ImmutableArray<NameMatchingRule>.Empty,
@@ -169,7 +168,8 @@ public sealed class LayerModelCoreTests
 		var result = new ApiSurfacePolicy(
 			"Kitchen",
 			false,
-			ImmutableArray.Create(new ApiSurfaceLayerRule("DiningRoom", "/DiningRoom", new DependencySiteFilter(ImmutableHashSet<string>.Empty, ImmutableHashSet<string>.Empty), null, "Architecture.anl", 12, 3)),
+            [new ApiSurfaceLayerRule("DiningRoom", "/DiningRoom", new DependencySiteFilter(ImmutableHashSet<string>.Empty, ImmutableHashSet<string>.Empty), null, "Architecture.anl", 12, 3)
+            ],
 			ImmutableArray<ApiSurfaceLayerRule>.Empty,
 			null,
 			null,

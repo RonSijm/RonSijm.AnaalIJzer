@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 using System.Text;
-using RonSijm.AnaalIJzer.Findings;
+using RonSijm.AnaalIJzer.Core.Findings;
 
 namespace RonSijm.AnaalIJzer.Outputs.Inspection;
 
@@ -27,7 +27,7 @@ internal static class ArchitectureHealthReportBuilder
 		if (findings.Count == 0)
 		{
 			sb.AppendLine("No configuration, classification, dependency-graph, or rule-usage problems were found.");
-			var emptyResult = new ArchitectureHealthReport(sb.ToString(), 0, ImmutableArray<ArchitectureFinding>.Empty);
+			var emptyResult = new ArchitectureHealthReport(sb.ToString(), 0, []);
 
 			return emptyResult;
 		}
@@ -42,7 +42,7 @@ internal static class ArchitectureHealthReportBuilder
 		var result = new ArchitectureHealthReport(
 			sb.ToString(),
 			findings.Count,
-			findings.ToImmutableArray());
+			[..findings]);
 
 		return result;
 	}

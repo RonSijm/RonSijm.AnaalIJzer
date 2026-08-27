@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer.Conditions;
+namespace RonSijm.AnaalIJzer.Core.Matchers.Conditions;
 
 public enum MatchKind
 {

@@ -1,6 +1,5 @@
 using System.Windows.Media;
 using RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
 using RonSijm.AnaalIJzer.GraphApplication;
 using RonSijm.AnaalIJzer.Graphing.ViewModels;
 using RonSijm.AnaalIJzer.GraphEditor.Wpf.Layout;

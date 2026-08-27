@@ -1,6 +1,6 @@
 using System.Text;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Document;
-using RonSijm.AnaalIJzer.Documentation;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
+using RonSijm.AnaalIJzer.Outputs.Documentation;
 
 namespace RonSijm.AnaalIJzer.Application;
 

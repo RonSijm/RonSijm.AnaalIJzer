@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer.Exceptions;
+namespace RonSijm.AnaalIJzer.Core.Exceptions;
 
 public enum ArchitectureExceptionStatus
 {

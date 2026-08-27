@@ -1,4 +1,4 @@
-namespace RonSijm.AnaalIJzer.Testing;
+namespace RonSijm.AnaalIJzer.Analyzer.Tests.Testing;
 
 public static class TestConfigs
 {

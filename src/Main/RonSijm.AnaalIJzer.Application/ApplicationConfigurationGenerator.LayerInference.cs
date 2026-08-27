@@ -1,12 +1,4 @@
-using System.Collections.Immutable;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.Text;
-using RonSijm.AnaalIJzer;
-using AnalyzerConfiguration = RonSijm.AnaalIJzer.Model.AnalyzerConfig;
 
 namespace RonSijm.AnaalIJzer.Application;
 

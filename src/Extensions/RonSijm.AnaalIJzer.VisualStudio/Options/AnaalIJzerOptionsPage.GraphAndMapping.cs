@@ -1,6 +1,6 @@
 using System.ComponentModel;
-using RonSijm.AnaalIJzer.Graphing.Model;
 using RonSijm.AnaalIJzer.Core.Editor.Snapshots;
+using RonSijm.AnaalIJzer.GraphModel.Model;
 
 namespace RonSijm.AnaalIJzer.VisualStudio.Options;
 

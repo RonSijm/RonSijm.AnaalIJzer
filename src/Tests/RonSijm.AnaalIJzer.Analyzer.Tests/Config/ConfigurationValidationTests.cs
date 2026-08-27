@@ -1,4 +1,5 @@
-using RonSijm.AnaalIJzer.Testing;
+using RonSijm.AnaalIJzer.Analyzer.Tests.Testing;
+using RonSijm.AnaalIJzer.Core.Findings;
 
 namespace RonSijm.AnaalIJzer.Analyzer.Tests.Config;
 
@@ -81,6 +82,21 @@ public sealed class ConfigurationValidationTests
 		                      """;
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class CallerType { }", config);
+
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InvalidConfiguration);
+	}
+
+	[Fact]
+	public async Task MissingWildcardInclude_ReportsARCH006()
+	{
+		const string config = """
+		                      <ArchitecturalLevels>
+		                        <Include path="*.anl" />
+		                        <Layer name="Caller"><Class typeName="CallerType" /></Layer>
+		                      </ArchitecturalLevels>
+		                      """;
+
+		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class CallerType { }", ("Architecture.anl", config));
 
 		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InvalidConfiguration);
 	}

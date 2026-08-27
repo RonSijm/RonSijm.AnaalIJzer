@@ -1,4 +1,6 @@
-namespace RonSijm.AnaalIJzer.Model;
+using Microsoft.CodeAnalysis;
+
+namespace RonSijm.AnaalIJzer.Core.PolicyEvaluation.Config.Model;
 
 /// <summary>
 ///     Holds the opt-in output settings (violation report and architecture documentation)

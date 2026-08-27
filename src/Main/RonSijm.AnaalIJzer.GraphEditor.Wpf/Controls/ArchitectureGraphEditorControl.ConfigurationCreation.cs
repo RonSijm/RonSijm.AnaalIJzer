@@ -2,10 +2,9 @@ using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Extensions.Logging;
 using RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
-using RonSijm.AnaalIJzer.Graphing.Loading;
-using RonSijm.AnaalIJzer.Graphing.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 using RonSijm.AnaalIJzer.GraphApplication.Selection;
+using RonSijm.AnaalIJzer.GraphModel.Loading;
 
 namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
 
@@ -17,7 +16,7 @@ public sealed partial class ArchitectureGraphEditorControl
 		var panel = new StackPanel();
 		panel.Children.Add(CreateSectionTitle("Create architecture settings"));
 		panel.Children.Add(CreateHintTextBlock("No AnaalIJzer settings were found for the current context. Create an Architecture.anl file first, then add layers and dependency rules from the graph editor.", new Thickness(0, 2, 0, 8)));
-		if (snapshot.ConfigurationCreationTargets.Length == 0)
+		if (_snapshot.ConfigurationCreationTargets.Length == 0)
 		{
 			panel.Children.Add(CreateHintTextBlock("No project, source folder, or solution folder was available for creating Architecture.anl.", new Thickness(0, 0, 0, 0)));
 			border.Child = panel;
@@ -25,7 +24,7 @@ public sealed partial class ArchitectureGraphEditorControl
 			return border;
 		}
 
-		foreach (var target in snapshot.ConfigurationCreationTargets)
+		foreach (var target in _snapshot.ConfigurationCreationTargets)
 		{
 			panel.Children.Add(CreateConfigurationCreationTargetButton(target));
 		}
@@ -41,11 +40,11 @@ public sealed partial class ArchitectureGraphEditorControl
 		var panel = new StackPanel();
 		panel.Children.Add(CreateSectionTitle("Start the graph"));
 		panel.Children.Add(CreateHintTextBlock("This configuration is valid, but it has no layers yet. Add the first layer to turn it into an editable dependency graph.", new Thickness(0, 2, 0, 8)));
-		AddReadOnlyRow(panel, "Source", snapshot.ConfigurationSource.CanEdit ? snapshot.ConfigurationSource.Path : "Not editable");
+		AddReadOnlyRow(panel, "Source", _snapshot.ConfigurationSource.CanEdit ? _snapshot.ConfigurationSource.Path : "Not editable");
 		var addLayer = new Button
 		{
 			Content = "Add first layer",
-			IsEnabled = snapshot.ConfigurationSource.CanEdit,
+			IsEnabled = _snapshot.ConfigurationSource.CanEdit,
 			MinWidth = 120,
 			Margin = new Thickness(0, 10, 0, 0),
 			HorizontalAlignment = HorizontalAlignment.Left
@@ -67,8 +66,8 @@ public sealed partial class ArchitectureGraphEditorControl
 			MaxWidth = 760,
 			HorizontalAlignment = HorizontalAlignment.Left
 		};
-		theme.ApplyBackground(result);
-		theme.ApplyBorder(result, false);
+		_theme.ApplyBackground(result);
+		_theme.ApplyBorder(result, false);
 
 		return result;
 	}
@@ -100,7 +99,7 @@ public sealed partial class ArchitectureGraphEditorControl
 	{
 		try
 		{
-			var result = editService.CreateConfiguration(target);
+			var result = _editService.CreateConfiguration(target);
 			if (!result.Succeeded)
 			{
 				HandleEditResult(result, true, false);
@@ -108,33 +107,33 @@ public sealed partial class ArchitectureGraphEditorControl
 			}
 
 			var reloaded = ArchitectureGraphXmlSnapshotLoader.Load(target.Source);
-			snapshot = reloaded;
-			snapshotPublisher?.Invoke(reloaded);
-			EnsureLayoutState(snapshot.ConfigurationSource);
+			_snapshot = reloaded;
+			_snapshotPublisher?.Invoke(reloaded);
+			EnsureLayoutState(_snapshot.ConfigurationSource);
 			Render();
 			RenderSelection(ArchitectureGraphSelection.None);
-			statusText.Text = result.Message;
-			statusText.Foreground = theme.SuccessForeground;
-			infoLogger?.Invoke(result.Message);
+			_statusText.Text = result.Message;
+			_statusText.Foreground = _theme.SuccessForeground;
+			_infoLogger?.Invoke(result.Message);
 		}
 		catch (Exception exception)
 		{
-			logger?.LogError(exception, "Failed to create AnaalIJzer configuration at {Path}.", target.Source.Path);
+			_logger?.LogError(exception, "Failed to create AnaalIJzer configuration at {Path}.", target.Source.Path);
 			HandleEditResult(ArchitectureConfigurationEditResult.Failure(exception.Message), true, false);
 		}
 	}
 
 	private void PromptAddRootLayer()
 	{
-		var request = layerCreationHandler?.Invoke()
-		              ?? ArchitectureLayerCreationDialog.Prompt(Window.GetWindow(this), theme.CanvasTheme);
+		var request = _layerCreationHandler?.Invoke()
+		              ?? ArchitectureLayerCreationDialog.Prompt(Window.GetWindow(this), _theme.CanvasTheme);
 		if (request is null)
 		{
 			return;
 		}
 
-		var result = editService.AddLayer(
-			snapshot.ConfigurationSource,
+		var result = _editService.AddLayer(
+			_snapshot.ConfigurationSource,
 			string.Empty,
 			request.Name,
 			request.MatcherKind,

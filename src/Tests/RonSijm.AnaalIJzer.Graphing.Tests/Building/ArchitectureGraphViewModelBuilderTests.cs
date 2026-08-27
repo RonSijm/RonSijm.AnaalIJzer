@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 using AwesomeAssertions;
-using RonSijm.AnaalIJzer.Graphing.Model;
-using RonSijm.AnaalIJzer.Graphing.ViewModels;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+using RonSijm.AnaalIJzer.GraphModel.Model;
 using Xunit;
 
 namespace RonSijm.AnaalIJzer.Graphing.Tests.Building;
@@ -16,11 +16,11 @@ public sealed class ArchitectureGraphViewModelBuilderTests
 		var groups = ArchitectureGraphViewModelBuilder.Build(snapshot, ArchitectureGraphFocusMode.HighlightCurrent);
 
 		groups.Should().HaveCount(4);
-		AssertionExtensions.Should((string)groups[0].Title).Contain("Customer");
-		AssertionExtensions.Should((bool)groups[0].IsHighlighted).BeTrue();
-		AssertionExtensions.Should((bool)groups[1].IsHighlighted).BeFalse();
-		AssertionExtensions.Should((string)groups[3].Title).Be("Wildcard and global rules");
-		AssertionExtensions.Should((bool)groups[3].IsHighlighted).BeTrue();
+		groups[0].Title.Should().Contain("Customer");
+		groups[0].IsHighlighted.Should().BeTrue();
+		groups[1].IsHighlighted.Should().BeFalse();
+		groups[3].Title.Should().Be("Wildcard and global rules");
+		groups[3].IsHighlighted.Should().BeTrue();
 	}
 
 	[Fact]
@@ -31,9 +31,9 @@ public sealed class ArchitectureGraphViewModelBuilderTests
 		var groups = ArchitectureGraphViewModelBuilder.Build(snapshot, ArchitectureGraphFocusMode.HighlightCurrent);
 		var restaurantGraph = groups[0];
 
-		ImmutableArrayExtensions.Select(restaurantGraph.Nodes, node => node.Path).Should().Equal("Customer", "Waiter", "Chef");
+		restaurantGraph.Nodes.Select(node => node.Path).Should().Equal("Customer", "Waiter", "Chef");
 		restaurantGraph.Nodes.Should().OnlyContain(node => node.X >= 0 && node.Y >= 0);
-		ImmutableArrayExtensions.Select(restaurantGraph.Edges, edge => edge.From + "->" + edge.To).Should().Equal("Customer->Waiter", "Waiter->Chef");
+		restaurantGraph.Edges.Select(edge => edge.From + "->" + edge.To).Should().Equal("Customer->Waiter", "Waiter->Chef");
 		restaurantGraph.Edges.Should().OnlyContain(edge => !edge.IsBlocked);
 	}
 
@@ -46,7 +46,7 @@ public sealed class ArchitectureGraphViewModelBuilderTests
 
 		groups.Should().HaveCount(2);
 		groups.Should().OnlyContain(group => group.IsActive);
-		ImmutableArrayExtensions.Select(groups, group => group.Title).Should().Contain("Wildcard and global rules");
+		groups.Select(group => group.Title).Should().Contain("Wildcard and global rules");
 	}
 
 	[Fact]
@@ -67,14 +67,14 @@ public sealed class ArchitectureGraphViewModelBuilderTests
 			new ArchitectureGraphLayer("Customer", "Customer", "Orders food.", 0, 1, true, "C:\\settings\\Architecture.anl", ArchitectureConfigurationSourceKind.XmlFile, 12),
 			new ArchitectureGraphLayer("Waiter", "Waiter", "Takes orders.", 0, 2, false, "C:\\settings\\Architecture.anl", ArchitectureConfigurationSourceKind.XmlFile, 13));
 		var rules = ImmutableArray.Create(new ArchitectureGraphRule("Customer", "Waiter", string.Empty, "AllowedDependency", "all sites", false, false, true, sourcePath: "C:\\settings\\Architecture.anl", sourceKind: ArchitectureConfigurationSourceKind.XmlFile, xmlLineNumber: 13, description: "Customers ask waiters."));
-		var snapshot = new ArchitectureGraphSnapshot(true, false, layers, rules, ImmutableArray.Create("Customer"), ImmutableArray<string>.Empty);
+		var snapshot = new ArchitectureGraphSnapshot(true, false, layers, rules, ["Customer"], ImmutableArray<string>.Empty);
 
-		var group = ImmutableArrayExtensions.Single(ArchitectureGraphViewModelBuilder.Build(snapshot, ArchitectureGraphFocusMode.ShowAll));
+		var group = ArchitectureGraphViewModelBuilder.Build(snapshot, ArchitectureGraphFocusMode.ShowAll).Single();
 
-		AssertionExtensions.Should((string)ImmutableArrayExtensions.Single(group.Nodes, node => node.Path == "Customer").EditHandle.LayerPath).Be("Customer");
-		AssertionExtensions.Should((int)ImmutableArrayExtensions.Single(group.Nodes, node => node.Path == "Customer").EditHandle.XmlLineNumber).Be(12);
-		ImmutableArrayExtensions.Single(group.Edges).EditHandle.Description.Should().Be("Customers ask waiters.");
-		AssertionExtensions.Should((int)ImmutableArrayExtensions.Single(group.Edges).EditHandle.XmlLineNumber).Be(13);
+		group.Nodes.Single(node => node.Path == "Customer").EditHandle.LayerPath.Should().Be("Customer");
+		group.Nodes.Single(node => node.Path == "Customer").EditHandle.XmlLineNumber.Should().Be(12);
+		group.Edges.Single().EditHandle.Description.Should().Be("Customers ask waiters.");
+		group.Edges.Single().EditHandle.XmlLineNumber.Should().Be(13);
 	}
 
 	[Fact]
@@ -86,18 +86,18 @@ public sealed class ArchitectureGraphViewModelBuilderTests
 			new ArchitectureGraphLayer("Application/Implementation", "Implementation", "Application implementation", 1, 3, false),
 			new ArchitectureGraphLayer("Crosscutting", "Crosscutting", null, 0, 4, false));
 		var rules = ImmutableArray.Create(new ArchitectureGraphRule("Application/Implementation", "Application/Contracts", "Application", "AllowedDependency", "Inheritance", false, false, true));
-		var snapshot = new ArchitectureGraphSnapshot(true, false, layers, rules, ImmutableArray.Create("Application/Contracts"), ImmutableArray<string>.Empty);
+		var snapshot = new ArchitectureGraphSnapshot(true, false, layers, rules, ["Application/Contracts"], ImmutableArray<string>.Empty);
 
-		var group = ImmutableArrayExtensions.Single(ArchitectureGraphViewModelBuilder.Build(snapshot, ArchitectureGraphFocusMode.HighlightCurrent), group => ImmutableArrayExtensions.Any(group.Nodes, node => node.Path == "Application/Contracts"));
-		var boundary = ImmutableArrayExtensions.Single(group.Boundaries);
+		var group = ArchitectureGraphViewModelBuilder.Build(snapshot, ArchitectureGraphFocusMode.HighlightCurrent).Single(group => group.Nodes.Any(node => node.Path == "Application/Contracts"));
+		var boundary = group.Boundaries.Single();
 
-		AssertionExtensions.Should((string)boundary.Path).Be("Application");
-		AssertionExtensions.Should((bool)boundary.IsActive).BeTrue();
-		ImmutableArrayExtensions.Select(group.Nodes, node => node.Path).Should().NotContain("Application");
-		AssertionExtensions.Should((double)boundary.X).BeLessThan(ImmutableArrayExtensions.Where(group.Nodes, node => node.Path.StartsWith("Application", StringComparison.Ordinal)).Min(node => node.X));
-		AssertionExtensions.Should((double)boundary.Y).BeLessThan(ImmutableArrayExtensions.Where(group.Nodes, node => node.Path.StartsWith("Application", StringComparison.Ordinal)).Min(node => node.Y));
-		AssertionExtensions.Should((double)boundary.Width).BeGreaterThan(170);
-		AssertionExtensions.Should((double)boundary.Height).BeGreaterThan(72);
+		boundary.Path.Should().Be("Application");
+		boundary.IsActive.Should().BeTrue();
+		group.Nodes.Select(node => node.Path).Should().NotContain("Application");
+		boundary.X.Should().BeLessThan(group.Nodes.Where(node => node.Path.StartsWith("Application", StringComparison.Ordinal)).Min(node => node.X));
+		boundary.Y.Should().BeLessThan(group.Nodes.Where(node => node.Path.StartsWith("Application", StringComparison.Ordinal)).Min(node => node.Y));
+		boundary.Width.Should().BeGreaterThan(170);
+		boundary.Height.Should().BeGreaterThan(72);
 	}
 
 	[Fact]
@@ -108,15 +108,15 @@ public sealed class ArchitectureGraphViewModelBuilderTests
 			new ArchitectureGraphLayer("Application/Contracts", "Contracts", "Public application contracts", 1, 2, true),
 			new ArchitectureGraphLayer("Crosscutting", "Crosscutting", null, 0, 3, false));
 		var rules = ImmutableArray.Create(new ArchitectureGraphRule("Application", "Crosscutting", string.Empty, "AllowedDependency", "all sites", false, false, true));
-		var snapshot = new ArchitectureGraphSnapshot(true, false, layers, rules, ImmutableArray.Create("Application/Contracts"), ImmutableArray<string>.Empty);
+		var snapshot = new ArchitectureGraphSnapshot(true, false, layers, rules, ["Application/Contracts"], ImmutableArray<string>.Empty);
 
-		var group = ImmutableArrayExtensions.Single(ArchitectureGraphViewModelBuilder.Build(snapshot, ArchitectureGraphFocusMode.HighlightCurrent));
+		var group = ArchitectureGraphViewModelBuilder.Build(snapshot, ArchitectureGraphFocusMode.HighlightCurrent).Single();
 
-		ImmutableArrayExtensions.Select(group.Boundaries, boundary => boundary.Path).Should().Contain("Application");
-		ImmutableArrayExtensions.Select(group.Nodes, node => node.Path).Should().NotContain("Application");
-		ImmutableArrayExtensions.Select(group.Nodes, node => node.Path).Should().Contain("Application/Contracts");
-		ImmutableArrayExtensions.Select(group.Nodes, node => node.Path).Should().Contain("Crosscutting");
-		ImmutableArrayExtensions.Select(group.Edges, edge => edge.From + "->" + edge.To).Should().Contain("Application->Crosscutting");
+		group.Boundaries.Select(boundary => boundary.Path).Should().Contain("Application");
+		group.Nodes.Select(node => node.Path).Should().NotContain("Application");
+		group.Nodes.Select(node => node.Path).Should().Contain("Application/Contracts");
+		group.Nodes.Select(node => node.Path).Should().Contain("Crosscutting");
+		group.Edges.Select(edge => edge.From + "->" + edge.To).Should().Contain("Application->Crosscutting");
 	}
 
 	[Fact]
@@ -135,19 +135,19 @@ public sealed class ArchitectureGraphViewModelBuilderTests
 			new ArchitectureGraphRule("Billing/Implementation", "Billing/Contracts", "Billing", "AllowedDependency", "Inheritance", false, false, false),
 			new ArchitectureGraphRule("Ordering/Implementation", "Billing/Contracts", string.Empty, "AllowedDependency", "Constructor", false, false, false),
 			new ArchitectureGraphRule("Billing/Implementation", "Framework", string.Empty, "AllowedDependency", "Constructor", false, false, false));
-		var snapshot = new ArchitectureGraphSnapshot(true, false, layers, rules, ImmutableArray.Create("Ordering/Implementation"), ImmutableArray<string>.Empty);
+		var snapshot = new ArchitectureGraphSnapshot(true, false, layers, rules, ["Ordering/Implementation"], ImmutableArray<string>.Empty);
 
-		var group = ImmutableArrayExtensions.Single(ArchitectureGraphViewModelBuilder.Build(snapshot, ArchitectureGraphFocusMode.ShowAll), group => ImmutableArrayExtensions.Any(group.Nodes, node => node.Path == "Ordering/Implementation"));
-		var ordering = ImmutableArrayExtensions.Single(group.Boundaries, boundary => boundary.Path == "Ordering");
-		var billing = ImmutableArrayExtensions.Single(group.Boundaries, boundary => boundary.Path == "Billing");
+		var group = ArchitectureGraphViewModelBuilder.Build(snapshot, ArchitectureGraphFocusMode.ShowAll).Single(group => group.Nodes.Any(node => node.Path == "Ordering/Implementation"));
+		var ordering = group.Boundaries.Single(boundary => boundary.Path == "Ordering");
+		var billing = group.Boundaries.Single(boundary => boundary.Path == "Billing");
 
 		Overlaps(ordering, billing).Should().BeFalse();
-		ImmutableArrayExtensions.Select(group.Nodes, node => node.Path).Should().NotContain("Ordering");
-		ImmutableArrayExtensions.Select(group.Nodes, node => node.Path).Should().NotContain("Billing");
-		AssertionExtensions.Should((double)ImmutableArrayExtensions.Single(group.Nodes, node => node.Path == "Ordering/Implementation").X).BeLessThan(ImmutableArrayExtensions.Single(group.Nodes, node => node.Path == "Ordering/Contracts").X);
-		AssertionExtensions.Should((double)ImmutableArrayExtensions.Single(group.Nodes, node => node.Path == "Billing/Implementation").X).BeLessThan(ImmutableArrayExtensions.Single(group.Nodes, node => node.Path == "Billing/Contracts").X);
-		AssertBoundaryContainsNodes(ordering, ImmutableArrayExtensions.Where(group.Nodes, node => node.Path == "Ordering" || node.Path.StartsWith("Ordering/", StringComparison.Ordinal)));
-		AssertBoundaryContainsNodes(billing, ImmutableArrayExtensions.Where(group.Nodes, node => node.Path == "Billing" || node.Path.StartsWith("Billing/", StringComparison.Ordinal)));
+		group.Nodes.Select(node => node.Path).Should().NotContain("Ordering");
+		group.Nodes.Select(node => node.Path).Should().NotContain("Billing");
+		group.Nodes.Single(node => node.Path == "Ordering/Implementation").X.Should().BeLessThan(group.Nodes.Single(node => node.Path == "Ordering/Contracts").X);
+		group.Nodes.Single(node => node.Path == "Billing/Implementation").X.Should().BeLessThan(group.Nodes.Single(node => node.Path == "Billing/Contracts").X);
+		AssertBoundaryContainsNodes(ordering, group.Nodes.Where(node => node.Path == "Ordering" || node.Path.StartsWith("Ordering/", StringComparison.Ordinal)));
+		AssertBoundaryContainsNodes(billing, group.Nodes.Where(node => node.Path == "Billing" || node.Path.StartsWith("Billing/", StringComparison.Ordinal)));
 	}
 
 	[Fact]
@@ -178,31 +178,31 @@ public sealed class ArchitectureGraphViewModelBuilderTests
 			new ArchitectureGraphRule("Ports", "DatabaseConnections", string.Empty, "AllowedDependency", "all sites", false, false, false),
 			new ArchitectureGraphRule("DatabaseFactory", "Database", string.Empty, "AllowedDependency", "all sites", false, false, false),
 			new ArchitectureGraphRule("DatabaseFactory", "DatabaseConnections", string.Empty, "AllowedDependency", "all sites", false, false, false));
-		var snapshot = new ArchitectureGraphSnapshot(true, false, layers, rules, ImmutableArray.Create("Application", "Application/Implementation"), ImmutableArray<string>.Empty);
+		var snapshot = new ArchitectureGraphSnapshot(true, false, layers, rules, ["Application", "Application/Implementation"], ImmutableArray<string>.Empty);
 
-		var group = ImmutableArrayExtensions.Single(ArchitectureGraphViewModelBuilder.Build(snapshot, ArchitectureGraphFocusMode.ShowAll), group => ImmutableArrayExtensions.Any(group.Nodes, node => node.Path == "Controller"));
-		var controller = ImmutableArrayExtensions.Single(group.Nodes, node => node.Path == "Controller");
-		var application = ImmutableArrayExtensions.Single(group.Boundaries, boundary => boundary.Path == "Application");
-		var auth = ImmutableArrayExtensions.Single(group.Nodes, node => node.Path == "Auth");
-		var serviceAgent = ImmutableArrayExtensions.Single(group.Nodes, node => node.Path == "ServiceAgent");
-		var ports = ImmutableArrayExtensions.Single(group.Boundaries, boundary => boundary.Path == "Ports");
-		var databaseFactory = ImmutableArrayExtensions.Single(group.Nodes, node => node.Path == "DatabaseFactory");
-		var database = ImmutableArrayExtensions.Single(group.Nodes, node => node.Path == "Database");
-		var laneCount = ImmutableArrayExtensions.Select(group.Nodes, node => node.Y)
-			.Concat<double>(ImmutableArrayExtensions.Select(group.Boundaries, boundary => boundary.Y))
+		var group = ArchitectureGraphViewModelBuilder.Build(snapshot, ArchitectureGraphFocusMode.ShowAll).Single(group => group.Nodes.Any(node => node.Path == "Controller"));
+		var controller = group.Nodes.Single(node => node.Path == "Controller");
+		var application = group.Boundaries.Single(boundary => boundary.Path == "Application");
+		var auth = group.Nodes.Single(node => node.Path == "Auth");
+		var serviceAgent = group.Nodes.Single(node => node.Path == "ServiceAgent");
+		var ports = group.Boundaries.Single(boundary => boundary.Path == "Ports");
+		var databaseFactory = group.Nodes.Single(node => node.Path == "DatabaseFactory");
+		var database = group.Nodes.Single(node => node.Path == "Database");
+		var laneCount = group.Nodes.Select(node => node.Y)
+			.Concat(group.Boundaries.Select(boundary => boundary.Y))
 			.Distinct()
 			.Count();
 
-		AssertionExtensions.Should((double)controller.X).BeLessThan(application.X);
+		controller.X.Should().BeLessThan(application.X);
 		Right(application).Should().BeLessThan(ports.X);
-		AssertionExtensions.Should((double)auth.X).BeGreaterThan(application.X);
-		AssertionExtensions.Should((double)auth.X).BeLessThan(ports.X);
+		auth.X.Should().BeGreaterThan(application.X);
+		auth.X.Should().BeLessThan(ports.X);
 		Right(ports).Should().BeLessThan(databaseFactory.X);
-		AssertionExtensions.Should((double)databaseFactory.X).BeLessThan(database.X);
+		databaseFactory.X.Should().BeLessThan(database.X);
 		Overlaps(application, ports).Should().BeFalse();
 		laneCount.Should().BeGreaterThan(1);
-		AssertionExtensions.Should((double)auth.Y).NotBe(application.Y);
-		AssertionExtensions.Should((double)serviceAgent.Y).NotBe(ports.Y);
+		auth.Y.Should().NotBe(application.Y);
+		serviceAgent.Y.Should().NotBe(ports.Y);
 	}
 
 	[Fact]
@@ -212,10 +212,11 @@ public sealed class ArchitectureGraphViewModelBuilderTests
 			new ArchitectureGraphLayer("Customer", "Customer", null, 0, 1, true),
 			new ArchitectureGraphLayer("Chef", "Chef", null, 0, 2, false));
 		var evidence = new ArchitectureGraphEvidence(
-			ImmutableArray.Create(
+			[
 				new ArchitectureGraphTypeEvidence("Customer", "CustomerType", "CustomerType", "CustomerType.cs", 1),
-				new ArchitectureGraphTypeEvidence("Chef", "ChefType", "ChefType", "ChefType.cs", 1)),
-			ImmutableArray.Create(
+				new ArchitectureGraphTypeEvidence("Chef", "ChefType", "ChefType", "ChefType.cs", 1)
+			],
+			[
 				new ArchitectureGraphDependencyEvidence(
 					"Customer",
 					"Chef",
@@ -237,20 +238,21 @@ public sealed class ArchitectureGraphViewModelBuilderTests
 					null,
 					"allowed by configured dependency rules",
 					"CustomerType.cs",
-					4)));
+					4)
+			]);
 		var snapshot = new ArchitectureGraphSnapshot(
 			true,
 			false,
 			layers,
 			ImmutableArray<ArchitectureGraphRule>.Empty,
-			ImmutableArray.Create("Customer"),
+			["Customer"],
 			ImmutableArray<string>.Empty,
 			evidence: evidence);
 
 		var group = ArchitectureGraphViewModelBuilder.Build(snapshot, ArchitectureGraphFocusMode.ShowAll, includeEvidence: true).Should().ContainSingle().Subject;
 
-		ImmutableArrayExtensions.Single(group.Nodes, node => node.Path == "Customer").TypeCount.Should().Be(1);
-		ImmutableArrayExtensions.Single(group.Nodes, node => node.Path == "Customer").OutgoingViolationCount.Should().Be(1);
+		group.Nodes.Single(node => node.Path == "Customer").TypeCount.Should().Be(1);
+		group.Nodes.Single(node => node.Path == "Customer").OutgoingViolationCount.Should().Be(1);
 		var evidenceEdge = group.Edges.Should().ContainSingle(edge => edge.IsEvidence).Subject;
 		evidenceEdge.From.Should().Be("Customer");
 		evidenceEdge.To.Should().Be("Chef");
@@ -266,7 +268,7 @@ public sealed class ArchitectureGraphViewModelBuilderTests
 			new ArchitectureGraphLayer("QuerySurface", "QuerySurface", null, 0, 2, false));
 		var evidence = new ArchitectureGraphEvidence(
 			ImmutableArray<ArchitectureGraphTypeEvidence>.Empty,
-			ImmutableArray.Create(
+			[
 				new ArchitectureGraphDependencyEvidence(
 					"Application",
 					"QuerySurface",
@@ -279,13 +281,14 @@ public sealed class ArchitectureGraphViewModelBuilderTests
 					"CandyService.cs",
 					12,
 					"CandyService.OrderRaw -> CandyReceipt.RawQuery -> LollyQueryable",
-					1)));
+					1)
+			]);
 		var snapshot = new ArchitectureGraphSnapshot(
 			true,
 			false,
 			layers,
 			ImmutableArray<ArchitectureGraphRule>.Empty,
-			ImmutableArray.Create("Application"),
+			["Application"],
 			ImmutableArray<string>.Empty,
 			evidence: evidence);
 
@@ -303,7 +306,8 @@ public sealed class ArchitectureGraphViewModelBuilderTests
 			new ArchitectureGraphLayer("Chef", "Chef", null, 0, 2, false));
 		var evidence = new ArchitectureGraphEvidence(
 			ImmutableArray<ArchitectureGraphTypeEvidence>.Empty,
-			ImmutableArray.Create(new ArchitectureGraphDependencyEvidence(
+			[
+				new ArchitectureGraphDependencyEvidence(
 				"Customer",
 				"Chef",
 				"CustomerType",
@@ -313,13 +317,14 @@ public sealed class ArchitectureGraphViewModelBuilderTests
 				"ARCH001",
 				"no allowed dependency is configured",
 				"CustomerType.cs",
-				3)));
+				3)
+			]);
 		var snapshot = new ArchitectureGraphSnapshot(
 			true,
 			false,
 			layers,
 			ImmutableArray<ArchitectureGraphRule>.Empty,
-			ImmutableArray.Create("Customer"),
+			["Customer"],
 			ImmutableArray<string>.Empty,
 			evidence: evidence);
 
@@ -344,7 +349,7 @@ public sealed class ArchitectureGraphViewModelBuilderTests
 			false,
 			layers,
 			ImmutableArray<ArchitectureGraphRule>.Empty,
-			ImmutableArray.Create("Application/Contracts"),
+			["Application/Contracts"],
 			ImmutableArray<string>.Empty,
 			exceptionReviews: exceptionReviews);
 
@@ -380,7 +385,7 @@ public sealed class ArchitectureGraphViewModelBuilderTests
 			false,
 			layers,
 			rules,
-			ImmutableArray.Create("Waiter"),
+			["Waiter"],
 			ImmutableArray<string>.Empty);
 
 		return result;
@@ -390,10 +395,10 @@ public sealed class ArchitectureGraphViewModelBuilderTests
 	{
 		foreach (var node in nodes)
 		{
-			AssertionExtensions.Should((double)node.X).BeGreaterThan(boundary.X);
-			AssertionExtensions.Should((double)node.Y).BeGreaterThan(boundary.Y);
-			AssertionExtensions.Should((double)(node.X + 170)).BeLessThan(boundary.X + boundary.Width);
-			AssertionExtensions.Should((double)(node.Y + 72)).BeLessThan(boundary.Y + boundary.Height);
+			node.X.Should().BeGreaterThan(boundary.X);
+			node.Y.Should().BeGreaterThan(boundary.Y);
+			(node.X + 170).Should().BeLessThan(boundary.X + boundary.Width);
+			(node.Y + 72).Should().BeLessThan(boundary.Y + boundary.Height);
 		}
 	}
 

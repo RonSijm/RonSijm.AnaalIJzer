@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 
-namespace RonSijm.AnaalIJzer.Engine.EntryPoints;
+namespace RonSijm.AnaalIJzer.Core.EntryPoints;
 
 public readonly struct BoundaryEntryPointPolicy(
 	string ownerLayerPath,

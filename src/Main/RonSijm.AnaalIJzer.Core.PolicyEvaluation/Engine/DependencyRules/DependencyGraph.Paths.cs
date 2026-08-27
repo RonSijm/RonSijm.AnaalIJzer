@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
+using RonSijm.AnaalIJzer.Core.DependencyRules;
 
-namespace RonSijm.AnaalIJzer.Engine.DependencyRules;
+namespace RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.DependencyRules;
 
 public readonly partial struct DependencyGraph
 {

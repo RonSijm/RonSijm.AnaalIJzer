@@ -1,10 +1,10 @@
 using Microsoft.CodeAnalysis;
 
-namespace RonSijm.AnaalIJzer.Symbols;
+namespace RonSijm.AnaalIJzer.Core.Matchers.Symbols;
 
-public static class ITypeSymbolAccessModifierExtensions
+public static class TypeSymbolAccessModifierExtensions
 {
-	public static bool HasAccessModifier(this ITypeSymbol symbol, string value)
+	public static bool HasAccessModifier(this ISymbol symbol, string value)
 	{
 		var result = true;
 		foreach (var token in value.Split([' ', '\t'], StringSplitOptions.RemoveEmptyEntries))
@@ -19,7 +19,7 @@ public static class ITypeSymbolAccessModifierExtensions
 		return result;
 	}
 
-	private static bool MatchesSingleModifier(this ITypeSymbol symbol, string token)
+	private static bool MatchesSingleModifier(this ISymbol symbol, string token)
 	{
 		var result = token.ToLowerInvariant() switch
 		{
@@ -27,10 +27,14 @@ public static class ITypeSymbolAccessModifierExtensions
 			"internal" => symbol.DeclaredAccessibility == Accessibility.Internal,
 			"private" => symbol.DeclaredAccessibility == Accessibility.Private,
 			"protected" => symbol.DeclaredAccessibility == Accessibility.Protected,
-			"sealed" => symbol.IsSealed,
-			"abstract" => symbol.IsAbstract,
-			"static" => symbol.IsStatic,
-			"record" => symbol.IsRecord,
+			"sealed" => symbol is INamedTypeSymbol { IsSealed: true } or IMethodSymbol { IsSealed: true },
+			"abstract" => symbol is INamedTypeSymbol { IsAbstract: true } or IMethodSymbol { IsAbstract: true },
+			"static" => symbol is INamedTypeSymbol { IsStatic: true }
+			            or IMethodSymbol { IsStatic: true }
+			            or IPropertySymbol { IsStatic: true }
+			            or IFieldSymbol { IsStatic: true }
+			            or IEventSymbol { IsStatic: true },
+			"record" => symbol is INamedTypeSymbol { IsRecord: true },
 			_ => false
 		};
 

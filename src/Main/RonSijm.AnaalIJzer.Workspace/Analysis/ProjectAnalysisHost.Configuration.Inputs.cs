@@ -1,8 +1,10 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.ConfigurationEditing.Document;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Sources;
+using RonSijm.AnaalIJzer.Workspace.Support;
 
-namespace RonSijm.AnaalIJzer.Workspace;
+namespace RonSijm.AnaalIJzer.Workspace.Analysis;
 
 internal sealed partial class ProjectAnalysisHost
 {
