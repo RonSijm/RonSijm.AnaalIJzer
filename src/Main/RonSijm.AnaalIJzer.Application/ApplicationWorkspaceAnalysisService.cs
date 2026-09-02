@@ -1,4 +1,5 @@
 using RonSijm.AnaalIJzer.Core.RuntimeConfig.Config.Model;
+using RonSijm.AnaalIJzer.Workspace.Analysis.ConfigurationFixes;
 using RonSijm.AnaalIJzer.Workspace.Analysis;
 
 namespace RonSijm.AnaalIJzer.Application;
@@ -45,6 +46,34 @@ internal sealed class ApplicationWorkspaceAnalysisService(string configuration)
 		var representativeProject = Execute(() => _workspace.EnsureSolutionHasLayers(result));
 
 		return representativeProject;
+	}
+
+	public async Task<ConfigurationFixCollectionResult> FindProjectConfigurationFixesAsync(ApplicationRequest request, CancellationToken cancellationToken)
+	{
+		var result = await ExecuteAsync(() => _workspace.FindProjectConfigurationFixesAsync(request.InputPaths[0], cancellationToken));
+
+		return result;
+	}
+
+	public async Task<ConfigurationFixCollectionResult> FindSolutionConfigurationFixesAsync(ApplicationRequest request, CancellationToken cancellationToken)
+	{
+		var result = await ExecuteAsync(() => _workspace.FindSolutionConfigurationFixesAsync(request.InputPaths[0], cancellationToken));
+
+		return result;
+	}
+
+	public async Task<ConfigurationFixApplyResult> ApplyProjectConfigurationFixAsync(ApplicationRequest request, CancellationToken cancellationToken)
+	{
+		var result = await ExecuteAsync(() => _workspace.ApplyProjectConfigurationFixAsync(request.InputPaths[0], request.FixId!, cancellationToken));
+
+		return result;
+	}
+
+	public async Task<ConfigurationFixApplyResult> ApplySolutionConfigurationFixAsync(ApplicationRequest request, CancellationToken cancellationToken)
+	{
+		var result = await ExecuteAsync(() => _workspace.ApplySolutionConfigurationFixAsync(request.InputPaths[0], request.FixId!, cancellationToken));
+
+		return result;
 	}
 
 	private static async Task<T> ExecuteAsync<T>(Func<Task<T>> callback)

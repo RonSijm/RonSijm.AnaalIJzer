@@ -14,6 +14,10 @@ internal sealed partial class ArchitectureGraphCanvas
 		var menu = new ContextMenu();
 		_theme.ApplyToContextMenu(menu);
 		menu.Opened += ConnectionContextMenuOpened;
+		var fixes = new MenuItem { Header = "Show configuration fixes" };
+		fixes.SetBinding(MenuItem.CommandProperty, CreateConnectionMenuBinding(nameof(NodifyGraphConnectionViewModel.ShowConfigurationFixesCommand)));
+		menu.Items.Add(fixes);
+		menu.Items.Add(new Separator());
 		var remove = new MenuItem { Header = "Remove connection" };
 		remove.SetBinding(MenuItem.CommandProperty, CreateConnectionMenuBinding(nameof(NodifyGraphConnectionViewModel.RemoveCommand)));
 		remove.SetBinding(UIElement.IsEnabledProperty, CreateConnectionMenuBinding(nameof(NodifyGraphConnectionViewModel.CanEditRule), BindingMode.OneWay));
@@ -103,6 +107,10 @@ internal sealed partial class ArchitectureGraphCanvas
 		var menu = new ContextMenu();
 		_theme.ApplyToContextMenu(menu);
 		menu.Opened += NodeContextMenuOpened;
+		var fixes = new MenuItem { Header = "Show configuration fixes" };
+		fixes.SetBinding(MenuItem.CommandProperty, CreateConnectionMenuBinding(nameof(NodifyGraphNodeViewModel.ShowConfigurationFixesCommand)));
+		menu.Items.Add(fixes);
+		menu.Items.Add(new Separator());
 		var addChild = new MenuItem { Header = "Add child layer..." };
 		addChild.SetBinding(MenuItem.CommandProperty, CreateConnectionMenuBinding(nameof(NodifyGraphNodeViewModel.AddChildLayerCommand)));
 		menu.Items.Add(addChild);

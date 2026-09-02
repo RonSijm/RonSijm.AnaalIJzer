@@ -17,6 +17,22 @@ internal static class ArchitecturalDiagnostics
 	internal const string PropertyDepLayerName = ArchitectureDiagnosticProperties.PropertyDepLayerName;
 	internal const string PropertyViolationReason = ArchitectureDiagnosticProperties.PropertyViolationReason;
 	internal const string PropertyComment = ArchitectureDiagnosticProperties.PropertyComment;
+	internal const string PropertyDependencyDenialKind = ArchitectureDiagnosticProperties.PropertyDependencyDenialKind;
+	internal const string PropertyDependencySiteFilterMode = ArchitectureDiagnosticProperties.PropertyDependencySiteFilterMode;
+	internal const string PropertyDependencyRuleKind = ArchitectureDiagnosticProperties.PropertyDependencyRuleKind;
+	internal const string PropertyDependencyRuleXmlLine = ArchitectureDiagnosticProperties.PropertyDependencyRuleXmlLine;
+	internal const string PropertyDependencyRuleXmlCol = ArchitectureDiagnosticProperties.PropertyDependencyRuleXmlCol;
+	internal const string PropertyDependencyRuleXmlPath = ArchitectureDiagnosticProperties.PropertyDependencyRuleXmlPath;
+	internal const string PropertyDependencyRuleScopePath = ArchitectureDiagnosticProperties.PropertyDependencyRuleScopePath;
+	internal const string PropertyDependencyRuleConfiguredFrom = ArchitectureDiagnosticProperties.PropertyDependencyRuleConfiguredFrom;
+	internal const string PropertyDependencyRuleConfiguredTo = ArchitectureDiagnosticProperties.PropertyDependencyRuleConfiguredTo;
+	internal const string PropertyReverseDependencyRuleKind = ArchitectureDiagnosticProperties.PropertyReverseDependencyRuleKind;
+	internal const string PropertyReverseDependencyRuleXmlLine = ArchitectureDiagnosticProperties.PropertyReverseDependencyRuleXmlLine;
+	internal const string PropertyReverseDependencyRuleXmlCol = ArchitectureDiagnosticProperties.PropertyReverseDependencyRuleXmlCol;
+	internal const string PropertyReverseDependencyRuleXmlPath = ArchitectureDiagnosticProperties.PropertyReverseDependencyRuleXmlPath;
+	internal const string PropertyReverseDependencyRuleScopePath = ArchitectureDiagnosticProperties.PropertyReverseDependencyRuleScopePath;
+	internal const string PropertyReverseDependencyRuleConfiguredFrom = ArchitectureDiagnosticProperties.PropertyReverseDependencyRuleConfiguredFrom;
+	internal const string PropertyReverseDependencyRuleConfiguredTo = ArchitectureDiagnosticProperties.PropertyReverseDependencyRuleConfiguredTo;
 	internal const string PropertySourceName = ArchitectureDiagnosticProperties.PropertySourceName;
 	internal const string PropertyTargetName = ArchitectureDiagnosticProperties.PropertyTargetName;
 	internal const string PropertySourceProjectPath = ArchitectureDiagnosticProperties.PropertySourceProjectPath;
@@ -48,6 +64,8 @@ internal static class ArchitecturalDiagnostics
 	internal const string PropertyContractViolationKind = ArchitectureDiagnosticProperties.PropertyContractViolationKind;
 	internal const string PropertyContractPropertyAccessor = ArchitectureDiagnosticProperties.PropertyContractPropertyAccessor;
 	internal const string PropertyInheritanceViolationKind = ArchitectureDiagnosticProperties.PropertyInheritanceViolationKind;
+	internal const string PropertyReturnValueRuleTarget = ArchitectureDiagnosticProperties.PropertyReturnValueRuleTarget;
+	internal const string PropertyReturnValueRule = ArchitectureDiagnosticProperties.PropertyReturnValueRule;
 	internal const string PropertyRequiredInheritanceTypeName = ArchitectureDiagnosticProperties.PropertyRequiredInheritanceTypeName;
 	internal const string PropertyBoundaryLayerName = ArchitectureDiagnosticProperties.PropertyBoundaryLayerName;
 	internal const string PropertyMatchedEntryPoint = ArchitectureDiagnosticProperties.PropertyMatchedEntryPoint;
@@ -56,6 +74,7 @@ internal static class ArchitecturalDiagnostics
 	internal const string PropertyCycleLength = ArchitectureDiagnosticProperties.PropertyCycleLength;
 	internal const string PropertyObservedSites = ArchitectureDiagnosticProperties.PropertyObservedSites;
 	internal const string PropertyCycleScope = ArchitectureDiagnosticProperties.PropertyCycleScope;
+	internal const string PropertyCycleRuleCandidates = ArchitectureDiagnosticProperties.PropertyCycleRuleCandidates;
 	internal const string PropertyExceptionMatcherKind = ArchitectureDiagnosticProperties.PropertyExceptionMatcherKind;
 	internal const string PropertyExceptionMatcherLabel = ArchitectureDiagnosticProperties.PropertyExceptionMatcherLabel;
 	internal const string PropertyExceptionReason = ArchitectureDiagnosticProperties.PropertyExceptionReason;
@@ -84,4 +103,5 @@ internal static class ArchitecturalDiagnostics
 	internal static readonly DiagnosticDescriptor ExceptionReview = new(ArchitecturalDiagnosticIds.ExceptionReview, "Architecture exception requires review", "{0}", "Architecture", DiagnosticSeverity.Warning, true, "A configured architecture exception is missing required metadata, has expired, or is close to expiry.", HelpLinkBase + "arch017--architecture-exception-requires-review", customTags: ["CompilationEnd"]);
 	internal static readonly DiagnosticDescriptor ObservedDependencyCycle = new(ArchitecturalDiagnosticIds.ObservedDependencyCycle, "Observed architectural dependency cycle", "Observed architectural dependency cycle: {0}", "Architecture", DiagnosticSeverity.Error, true, "Observed source dependencies currently form a cycle between configured layers.", HelpLinkBase + "arch018--observed-architectural-dependency-cycle", customTags: ["CompilationEnd"]);
 	internal static readonly DiagnosticDescriptor InheritancePolicyViolation = new(ArchitecturalDiagnosticIds.InheritancePolicyViolation, "Architectural inheritance policy violation", "'{0}' (layer {1}) violates inheritance policy at {2}: {3}", "Architecture", DiagnosticSeverity.Error, true, "A layer-scoped InheritancePolicy rejected the declared base-type or interface contract of a type.", HelpLinkBase + "arch019--inheritance-policy-violation");
+	internal static readonly DiagnosticDescriptor ReturnValuePolicyViolation = new(ArchitecturalDiagnosticIds.ReturnValuePolicyViolation, "Architectural return-value policy violation", "'{0}' (layer {1}) violates return-value policy at {2}: {3}", "Architecture", DiagnosticSeverity.Error, true, "A layer-scoped ReturnValuePolicy rejected a configured direct method return expression.", HelpLinkBase + "arch020--return-value-policy-violation");
 }

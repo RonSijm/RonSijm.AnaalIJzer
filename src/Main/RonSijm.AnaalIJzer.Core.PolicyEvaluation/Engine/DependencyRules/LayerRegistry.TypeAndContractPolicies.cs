@@ -1,7 +1,9 @@
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using RonSijm.AnaalIJzer.Core.Contracts.Contracts;
 using RonSijm.AnaalIJzer.Core.Inheritance.Policies;
 using RonSijm.AnaalIJzer.Core.LayerModel;
+using RonSijm.AnaalIJzer.Core.ReturnValues.Policies;
 
 namespace RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.DependencyRules;
 
@@ -81,6 +83,28 @@ public readonly partial struct LayerRegistry
 			foreach (var policy in node.InheritancePolicies)
 			{
 				var result = policy.Evaluate(symbol);
+				if (result is not null)
+				{
+					return result;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	public ReturnValuePolicyEvaluation? EvaluateReturnValuePolicies(LayerMatch layerMatch, ExpressionSyntax expression, SemanticModel semanticModel, CancellationToken cancellationToken)
+	{
+		foreach (var layer in layerMatch.Layers)
+		{
+			if (!_catalog.NodesByPath.TryGetValue(layer.Name, out var node))
+			{
+				continue;
+			}
+
+			foreach (var policy in node.ReturnValuePolicies)
+			{
+				var result = policy.Evaluate(expression, semanticModel, cancellationToken);
 				if (result is not null)
 				{
 					return result;

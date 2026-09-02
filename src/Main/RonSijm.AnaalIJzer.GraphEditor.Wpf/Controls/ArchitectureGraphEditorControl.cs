@@ -34,11 +34,17 @@ public sealed partial class ArchitectureGraphEditorControl : UserControl
 	private readonly Action<ArchitectureGraphSnapshot>? _snapshotPublisher;
 	private readonly Func<string, bool> _confirmationHandler;
 	private readonly Func<ArchitectureLayerCreationRequest?>? _layerCreationHandler;
+	private readonly Func<CancellationToken, Task<ArchitectureGraphConfigurationFixCollection>>? _configurationFixLoader;
+	private readonly Func<string, CancellationToken, Task<ArchitectureGraphConfigurationFixApplyResult>>? _configurationFixApplier;
 	private ArchitectureGraphSelection _currentSelection = ArchitectureGraphSelection.None;
 	private ArchitectureGraphSnapshot _snapshot;
 	private ArchitectureGraphLayoutState _layoutState;
 	private ArchitectureGraphFocusMode _focusMode;
 	private readonly bool _useExportSizing;
+	private ArchitectureGraphConfigurationFixCollection _configurationFixes = ArchitectureGraphConfigurationFixCollection.Empty;
+	private string? _selectedConfigurationFixId;
+	private bool _isLoadingConfigurationFixes;
+	private bool _isApplyingConfigurationFix;
 
 	public bool HasExportableGraphs
 	{
@@ -60,7 +66,9 @@ public sealed partial class ArchitectureGraphEditorControl : UserControl
 		Func<ArchitectureGraphSnapshot, ArchitectureGraphSnapshot>? snapshotReloader = null,
 		Action<ArchitectureGraphSnapshot>? snapshotPublisher = null,
 		Func<string, bool>? confirmationHandler = null,
-		bool useExportSizing = false)
+		bool useExportSizing = false,
+		Func<CancellationToken, Task<ArchitectureGraphConfigurationFixCollection>>? configurationFixLoader = null,
+		Func<string, CancellationToken, Task<ArchitectureGraphConfigurationFixApplyResult>>? configurationFixApplier = null)
 		: this(
 			snapshot,
 			focusMode,
@@ -73,7 +81,9 @@ public sealed partial class ArchitectureGraphEditorControl : UserControl
 			snapshotPublisher,
 			confirmationHandler,
 			layerCreationHandler: null,
-			useExportSizing)
+			useExportSizing,
+			configurationFixLoader,
+			configurationFixApplier)
 	{
 	}
 
@@ -89,7 +99,9 @@ public sealed partial class ArchitectureGraphEditorControl : UserControl
 		Action<ArchitectureGraphSnapshot>? snapshotPublisher,
 		Func<string, bool>? confirmationHandler,
 		Func<ArchitectureLayerCreationRequest?>? layerCreationHandler,
-		bool useExportSizing = false)
+		bool useExportSizing = false,
+		Func<CancellationToken, Task<ArchitectureGraphConfigurationFixCollection>>? configurationFixLoader = null,
+		Func<string, CancellationToken, Task<ArchitectureGraphConfigurationFixApplyResult>>? configurationFixApplier = null)
 	{
 		this._snapshot = snapshot ?? ArchitectureGraphSnapshot.Empty;
 		this._focusMode = focusMode;
@@ -103,6 +115,8 @@ public sealed partial class ArchitectureGraphEditorControl : UserControl
 		this._confirmationHandler = confirmationHandler ?? Confirm;
 		this._layerCreationHandler = layerCreationHandler;
 		this._useExportSizing = useExportSizing;
+		this._configurationFixLoader = configurationFixLoader;
+		this._configurationFixApplier = configurationFixApplier;
 		_layoutState = ArchitectureGraphLayoutState.Load(this._snapshot.ConfigurationSource, warningLogger);
 		logger?.LogDebug("Creating architecture graph editor control. Has configuration: {HasConfiguration}. Focus mode: {FocusMode}.", this._snapshot.HasConfiguration, this._focusMode);
 		var editorRoot = CreateEditorRoot();
@@ -123,6 +137,10 @@ public sealed partial class ArchitectureGraphEditorControl : UserControl
 		_layoutState.Save();
 		_snapshot = nextSnapshot;
 		_focusMode = nextFocusMode;
+		_configurationFixes = ArchitectureGraphConfigurationFixCollection.Empty;
+		_selectedConfigurationFixId = null;
+		_isLoadingConfigurationFixes = false;
+		_isApplyingConfigurationFix = false;
 		EnsureLayoutState(_snapshot.ConfigurationSource);
 		Render();
 	}

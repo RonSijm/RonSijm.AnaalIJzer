@@ -76,6 +76,33 @@ public sealed class ArchitectureGraphEditServiceTests
 		File.ReadAllText(path).Should().Contain("allowedSites=\"MethodReturn, New\"");
 	}
 
+	[Fact]
+	public void AddReturnValuePolicy_PersistsThroughGraphEditService()
+	{
+		using var directory = new TemporaryDirectory();
+		var path = directory.WriteFile(
+			"Architecture.anl",
+			"""
+			<ArchitecturalLevels>
+			  <Layer name="Kitchen"><Class endsWith="Kitchen" /></Layer>
+			</ArchitecturalLevels>
+			""");
+		var handle = new ArchitectureLayerEditHandle(ArchitectureConfigurationSourceKind.XmlFile, path, 0, "Kitchen", "Kitchen", string.Empty, null);
+		var service = new ArchitectureGraphEditService();
+
+		var result = service.AddReturnValuePolicy(
+			handle,
+			ImmutableDictionary<string, string>.Empty.Add("description", "No sentinel meals."),
+			"""
+			<Literal value="null" />
+			<Invocation withAttribute="CanBeNullAttribute" />
+			""");
+
+		result.Succeeded.Should().BeTrue(result.Message);
+		File.ReadAllText(path).Should().Contain("<ReturnValuePolicy description=\"No sentinel meals.\"");
+		File.ReadAllText(path).Should().Contain("<Literal value=\"null\" />");
+	}
+
 	private sealed class TemporaryDirectory : IDisposable
 	{
 		private readonly string _path = Path.Combine(Path.GetTempPath(), "AnaalIJzerGraphEditingTests", Guid.NewGuid().ToString("N"));

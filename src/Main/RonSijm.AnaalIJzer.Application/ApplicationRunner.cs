@@ -15,6 +15,8 @@ public sealed class ApplicationRunner
 			ApplicationOperationKind.Documentation => await ApplicationDocumentationOperations.GenerateDocumentationAsync(request, workspace, cancellationToken),
 			ApplicationOperationKind.Report => await ApplicationDocumentationOperations.GenerateReportAsync(request, workspace, cancellationToken),
 			ApplicationOperationKind.Inspect => await ApplicationInspectionOperations.InspectArchitectureAsync(request, workspace, cancellationToken),
+			ApplicationOperationKind.Fixes => await ApplicationFixOperations.FindConfigurationFixesAsync(request, workspace, cancellationToken),
+			ApplicationOperationKind.ApplyFix => await ApplicationFixOperations.ApplyConfigurationFixAsync(request, workspace, cancellationToken),
 			ApplicationOperationKind.MergeConfig => await ApplicationConfigurationFileOperations.MergeConfigAsync(request, cancellationToken),
 			ApplicationOperationKind.SplitConfig => await ApplicationConfigurationFileOperations.SplitConfigAsync(request, cancellationToken),
 			ApplicationOperationKind.FormatConfig => await ApplicationConfigurationFileOperations.FormatConfigAsync(request, cancellationToken),

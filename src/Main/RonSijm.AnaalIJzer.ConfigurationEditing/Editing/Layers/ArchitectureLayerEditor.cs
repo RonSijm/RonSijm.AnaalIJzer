@@ -84,6 +84,13 @@ internal static class ArchitectureLayerEditor
 		return result;
 	}
 
+	internal static ArchitectureConfigurationDocumentOperationResult AddReturnValuePolicy(ArchitectureLayerEditHandle handle, ImmutableDictionary<string, string> attributes, string childXml)
+	{
+		var result = ArchitectureLayerPolicyEditor.AddReturnValuePolicy(handle, attributes, childXml);
+
+		return result;
+	}
+
 	internal static ArchitectureConfigurationDocumentOperationResult AddApiSurfacePolicy(ArchitectureLayerEditHandle handle, ImmutableDictionary<string, string> attributes, string childXml)
 	{
 		var result = ArchitectureLayerPolicyEditor.AddApiSurfacePolicy(handle, attributes, childXml);

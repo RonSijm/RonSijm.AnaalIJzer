@@ -24,5 +24,6 @@ internal static class ArchitectureConfigurationXmlNames
 	public const string RequireDeclarationNameMatchesTypeElementName = "RequireDeclarationNameMatchesType";
 	public const string VisibilityPolicyElementName = "VisibilityPolicy";
 	public const string InheritancePolicyElementName = "InheritancePolicy";
+	public const string ReturnValuePolicyElementName = "ReturnValuePolicy";
 	public const string ApiSurfaceElementName = "ApiSurface";
 }

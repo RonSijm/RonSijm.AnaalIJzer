@@ -32,7 +32,7 @@ public partial class App
 
 	private int RunFocusOrder(ApplicationOperationDefinition operation, ApplicationInputDefinition input)
 	{
-		var result = operation.Kind == ApplicationOperationKind.Inspect
+		var result = operation.Kind is ApplicationOperationKind.Inspect or ApplicationOperationKind.Fixes
 			? FirstCommandOptionFocusOrder(input)
 			: OutputFocusOrder(operation, input) + 1;
 

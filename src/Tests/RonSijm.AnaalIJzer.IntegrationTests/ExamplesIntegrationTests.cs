@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+using RonSijm.AnaalIJzer.Core.Indicators;
 using RonSijm.AnaalIJzer.IntegrationTests.Support;
 using Xunit;
 
@@ -80,6 +81,27 @@ public sealed class ExamplesIntegrationTests
 		snapshot.LayerIndicators.Should().Contain(indicator => indicator.TypeName == "HungryCustomer" && indicator.LayerPath == "Customer");
 		snapshot.LayerIndicators.Should().Contain(indicator => indicator.TypeName == "TableWaiter" && indicator.LayerPath == "Waiter");
 		snapshot.LayerIndicators.Should().Contain(indicator => indicator.TypeName == "IIngredientPantry" && indicator.LayerPath == "Pantry");
+	}
+
+	[Fact]
+	public async Task VisualStudioSiteDiagnosticsExample_ProvidesEverySupportedSite()
+	{
+		var context = ExampleRepositoryContext.Discover();
+		var projectPath = context.GetExampleProjectPath("Documentation/Example.VisualStudioSiteDiagnostics");
+
+		using var host = new ExampleProjectAnalysisHost();
+		var snapshot = await host.CreateEditorSnapshotAsync(projectPath, "All_Site_Diagnostics_Showcase.cs", TestContext.Current.CancellationToken);
+		var actualSites = snapshot.SiteIndicators
+			.Where(indicator => indicator.CallerTypeName == "AllSiteDiagnosticsShowcase")
+			.Select(indicator => indicator.Site)
+			.ToHashSet(StringComparer.Ordinal);
+		var missingSites = ArchitectureDependencySites.All
+			.Where(site => !actualSites.Contains(site))
+			.ToArray();
+
+		snapshot.HasConfiguration.Should().BeTrue();
+		snapshot.HasConfigurationIssues.Should().BeFalse();
+		missingSites.Should().BeEmpty("the Visual Studio showcase should provide every site controlled by Layer Information and Site Diagnostics settings");
 	}
 
 	[Fact]

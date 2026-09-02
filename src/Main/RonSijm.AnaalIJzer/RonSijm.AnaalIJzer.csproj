@@ -26,7 +26,7 @@
         <RepositoryType>git</RepositoryType>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageIcon>icon.png</PackageIcon>
+        <PackageIcon>icon-analyzer.png</PackageIcon>
         <DevelopmentDependency>true</DevelopmentDependency>
         <!-- Prevent the DLL from landing in lib/ — it belongs in analyzers/ only -->
         <IncludeBuildOutput>false</IncludeBuildOutput>
@@ -49,7 +49,7 @@
 
     <ItemGroup>
         <None Include="..\..\..\README.md" Pack="true" PackagePath="\" />
-        <None Include="..\..\..\build\Settings\icon.png" Pack="true" PackagePath="\" Visible="false" />
+        <None Include="..\..\..\build\Settings\icon-analyzer.png" Pack="true" PackagePath="\" Visible="false" />
         <None Include="..\..\..\build\Settings\RonSijm.AnaalIJzer.props" Pack="true" PackagePath="buildTransitive\RonSijm.AnaalIJzer.props" Visible="false" />
         <None Include="..\..\..\build\Settings\RonSijm.AnaalIJzer.targets" Pack="true" PackagePath="buildTransitive\RonSijm.AnaalIJzer.targets" Visible="false" />
         <None Remove="bin\Debug\netstandard2.0\\RonSijm.AnaalIJzer.dll" />
@@ -72,6 +72,7 @@
             RonSijm.AnaalIJzer.Core.Visibility;
             RonSijm.AnaalIJzer.Core.Contracts;
             RonSijm.AnaalIJzer.Core.Inheritance;
+            RonSijm.AnaalIJzer.Core.ReturnValues;
             RonSijm.AnaalIJzer.Core.Exceptions;
             RonSijm.AnaalIJzer.Core.BuildMetadata;
             RonSijm.AnaalIJzer.Core.Indicators;

@@ -5,6 +5,7 @@ using RonSijm.AnaalIJzer.Core.EntryPoints;
 using RonSijm.AnaalIJzer.Core.Inheritance.Policies;
 using RonSijm.AnaalIJzer.Core.Matchers;
 using RonSijm.AnaalIJzer.Core.NameRules;
+using RonSijm.AnaalIJzer.Core.ReturnValues.Policies;
 using RonSijm.AnaalIJzer.Core.SourceLocations;
 using RonSijm.AnaalIJzer.Core.Visibility;
 
@@ -23,7 +24,8 @@ public sealed class LayerNode(
 	ImmutableArray<VisibilityPolicy> visibilityPolicies,
 	ImmutableArray<ApiSurfacePolicy> apiSurfacePolicies,
 	ImmutableArray<BoundaryEntryPointPolicy> entryPointPolicies,
-	ImmutableArray<SourceLocationPolicy> sourceLocationPolicies)
+	ImmutableArray<SourceLocationPolicy> sourceLocationPolicies,
+	ImmutableArray<ReturnValuePolicy> returnValuePolicies = default)
 {
 	public LayerDefinition Definition { get; } = definition;
 
@@ -48,6 +50,8 @@ public sealed class LayerNode(
 	public ImmutableArray<BoundaryEntryPointPolicy> EntryPointPolicies { get; } = entryPointPolicies;
 
 	public ImmutableArray<SourceLocationPolicy> SourceLocationPolicies { get; } = sourceLocationPolicies;
+
+	public ImmutableArray<ReturnValuePolicy> ReturnValuePolicies { get; } = returnValuePolicies.IsDefault ? ImmutableArray<ReturnValuePolicy>.Empty : returnValuePolicies;
 
 	public bool HasMatchers { get; } = !matchers.IsDefaultOrEmpty;
 }

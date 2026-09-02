@@ -21,6 +21,7 @@ public partial class App
 		_generatedDocumentation = DoNotGenerateDocumentation;
 		_inputInclusion = DoNotIncludeInput;
 		ClearInspectionResult();
+		ClearFixResult();
 		ClearStatus();
 
 		return Task.CompletedTask;
@@ -50,6 +51,7 @@ public partial class App
 		_outputPath = string.Empty;
 		_codeEvidence = StaticDocumentation;
 		ClearInspectionResult();
+		ClearFixResult();
 		ClearStatus();
 
 		return Task.CompletedTask;

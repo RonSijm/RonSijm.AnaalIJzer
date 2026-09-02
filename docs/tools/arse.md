@@ -19,6 +19,9 @@ arse report        --project src\MyApp\MyApp.csproj --output docs\architectural-
 arse report        --solution src\MyApp.slnx --output docs\architectural-violations.md --force
 arse inspect       --project src\MyApp\MyApp.csproj --output docs\architecture-health.md --force
 arse inspect       --solution src\MyApp.slnx --output docs\architecture-health.md --force
+arse fixes         --project src\MyApp\MyApp.csproj
+arse fixes         --solution src\MyApp.slnx --output docs\architecture-fixes.md --force
+arse apply-fix     --project src\MyApp\MyApp.csproj --fix-id fix-abc123
 arse merge-config  --config Shared.anl --config Project.anl --output Architecture.anl --force
 arse split-config  --config Architecture.anl --output ArchitectureRules --force
 arse format-config --config Architecture.anl
@@ -124,5 +127,11 @@ The manifest includes every generated file, so it remains a complete replacement
 `format-config` normalizes the XML formatting of an `.anl` file. Without `--output`, it formats the input file in place. Use `--output` when you want to preview the normalized version beside the original.
 
 `explain-config` writes a compact Markdown walkthrough of a settings file in XML order: root settings, includes, layers, matchers, dependency rules, type policies and name rules. It is intentionally shorter than generated architecture documentation and useful during review when you want to understand what a ruleset says before loading a project.
+
+`fixes` lists configuration-backed proposals from the same Roslyn fixer catalog used by the IDE. One diagnostic may offer several proposals, for example adding a missing `AllowedDependency`, widening `allowedSites`, or relaxing `blockedSites`. Arse shows the proposals with stable ids, a risk label, the target file, and a preview diff so you can review them before applying anything.
+
+`apply-fix` applies one of those proposal ids back to the owning settings source. If the rule came from an included `.anl`, Arse edits that included file. If the project uses inline `AssemblyMetadata("AnaalIJzerSettings", ...)`, Arse rewrites only the metadata string in the owning source file. After applying a fix, Arse reruns the proposal collection so you can immediately see what remains.
+
+The executable coverage lives in [`src/Tests/RonSijm.AnaalIJzer.Application.Tests/ApplicationOperations/ApplicationOperationsTests.ConfigurationFixes.cs`](../../src/Tests/RonSijm.AnaalIJzer.Application.Tests/ApplicationOperations/ApplicationOperationsTests.ConfigurationFixes.cs). Those tests exercise both file-based and inline settings projects end to end: list proposals, apply one fix, and verify that the proposal list becomes empty afterward.
 
 Arse's interactive and headless modes share `RonSijm.AnaalIJzer.Application`. Its `ToolOperationCatalog`, `ToolRequest` and `ToolRunner` own the available operations, supported inputs, validation and execution behavior, keeping both modes in feature parity.

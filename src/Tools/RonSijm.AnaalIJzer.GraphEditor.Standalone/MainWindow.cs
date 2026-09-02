@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using Microsoft.Extensions.Logging;
 using RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
 using RonSijm.AnaalIJzer.GraphModel.Model;
@@ -22,6 +23,7 @@ internal sealed partial class MainWindow : Window
 		_logger = loggerFactory.CreateLogger<MainWindow>();
 		this._logPath = logPath;
 		Title = "AnaalIJzer Graph Editor";
+		Icon = BitmapFrame.Create(new Uri("pack://application:,,,/icon-graph-editor.png", UriKind.Absolute));
 		Width = 1280;
 		Height = 860;
 		_logger.LogInformation("Creating main window. Initial path: {InitialPath}", initialPath);
@@ -59,7 +61,9 @@ internal sealed partial class MainWindow : Window
 			logger: loggerFactory.CreateLogger<ArchitectureGraphEditorControl>(),
 			snapshotReloader: _ => LoadSnapshotFromCurrentPath(),
 			infoLogger: message => _status.Text = message,
-			warningLogger: message => _status.Text = message);
+			warningLogger: message => _status.Text = message,
+			configurationFixLoader: LoadConfigurationFixesAsync,
+			configurationFixApplier: ApplyConfigurationFixAsync);
 		root.Children.Add(_editor);
 		Content = root;
 		if (!string.IsNullOrWhiteSpace(initialPath))

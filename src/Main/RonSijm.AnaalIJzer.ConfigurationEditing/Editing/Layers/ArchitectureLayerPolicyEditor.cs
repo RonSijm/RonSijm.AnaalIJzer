@@ -90,6 +90,67 @@ internal static class ArchitectureLayerPolicyEditor
 		return result;
 	}
 
+	internal static ArchitectureConfigurationDocumentOperationResult AddReturnValuePolicy(ArchitectureLayerEditHandle handle, ImmutableDictionary<string, string> attributes, string childXml)
+	{
+		if (attributes.Keys.Any(attributeName => attributeName is not "description" and not "comment"))
+		{
+			return ArchitectureConfigurationDocumentOperationResult.Failure("ReturnValuePolicy supports description and comment attributes. Configure forbidden returned expressions as child matchers.");
+		}
+
+		if (!ArchitectureConfigurationXmlEditor.TryCreateAttributes(attributes, out var xAttributes, out var attributeMessage))
+		{
+			return ArchitectureConfigurationDocumentOperationResult.Failure(attributeMessage);
+		}
+
+		if (!ArchitectureConfigurationXmlEditor.TryParseChildNodes(childXml, out var childNodes, out var childMessage))
+		{
+			return ArchitectureConfigurationDocumentOperationResult.Failure(childMessage);
+		}
+
+		var meaningfulChildNodes = childNodes
+			.Where(node => node is not XText text || !string.IsNullOrWhiteSpace(text.Value))
+			.ToArray();
+		var rules = meaningfulChildNodes.OfType<XElement>().ToArray();
+		if (rules.Length == 0 || rules.Length != meaningfulChildNodes.Length || rules.Any(IsInvalidReturnValueRule))
+		{
+			return ArchitectureConfigurationDocumentOperationResult.Failure("ReturnValuePolicy requires one or more Literal, Invocation, New, Identifier, or MemberAccess matcher children with supported matcher attributes.");
+		}
+
+		var result = ArchitectureLayerMutationExecutor.EditLayer(
+			handle,
+			(_, layer) =>
+			{
+				layer.Add(new XElement(ArchitectureConfigurationXmlNames.ReturnValuePolicyElementName, xAttributes, rules));
+				var editResult = ArchitectureConfigurationDocumentOperationResult.Success("Added ReturnValuePolicy to layer " + handle.LayerPath + ".");
+
+				return editResult;
+			});
+
+		return result;
+	}
+
+	private static bool IsInvalidReturnValueRule(XElement rule)
+	{
+		if (rule.Name.LocalName is not ("Literal" or "Invocation" or "New" or "Identifier" or "MemberAccess"))
+		{
+			return true;
+		}
+
+		var result = rule.Attributes().Any(attribute => !IsReturnValueRuleAttribute(attribute.Name.LocalName, rule.Name.LocalName));
+
+		return result;
+	}
+
+	private static bool IsReturnValueRuleAttribute(string attributeName, string ruleKind)
+	{
+		var result = attributeName is "description" or "comment" or "typeName" or "exactName" or "exactFullName"
+			or "inherits" or "implements" or "withAttribute" or "withAccessModifier" or "typeKind" or "endsWith"
+			or "startsWith" or "contains" or "regex"
+			|| ruleKind == "Literal" && attributeName == "value";
+
+		return result;
+	}
+
 	internal static ArchitectureConfigurationDocumentOperationResult AddApiSurfacePolicy(ArchitectureLayerEditHandle handle, ImmutableDictionary<string, string> attributes, string childXml)
 	{
 		if (!ArchitectureConfigurationXmlEditor.TryCreateAttributes(attributes, out var xAttributes, out var attributeMessage))

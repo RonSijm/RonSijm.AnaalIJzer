@@ -10,6 +10,17 @@ namespace RonSijm.AnaalIJzer.Workspace.Tests.Workspace;
 
 public sealed class WorkspaceAnalysisServiceTests
 {
+	[Theory]
+	[InlineData("[Failure] Msbuild failed: Audit source 'nuget.org' did not provide any vulnerability data.", true)]
+	[InlineData("[Failure] Msbuild failed: Error occurred while getting package vulnerability data: Unable to load the service index.", true)]
+	[InlineData("[Failure] Msbuild failed: The project file could not be found.", false)]
+	public void IsIgnorableWorkspaceFailure_RecognizesOnlyNuGetAuditTransportFailures(string diagnosticText, bool expected)
+	{
+		var result = ProjectAnalysisHost.IsIgnorableWorkspaceFailure(diagnosticText);
+
+		result.Should().Be(expected);
+	}
+
 	[Fact]
 	public async Task AnalyzeProjectAsync_Throws_WhenProjectFileDoesNotExist()
 	{

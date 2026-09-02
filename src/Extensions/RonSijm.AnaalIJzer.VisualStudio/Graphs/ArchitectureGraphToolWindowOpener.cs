@@ -33,7 +33,7 @@ internal static class ArchitectureGraphToolWindowOpener
 			await package.JoinableTaskFactory.SwitchToMainThreadAsync(package.DisposalToken);
 
 			var snapshot = ArchitectureGraphXmlSnapshotLoader.Load(path);
-			ArchitectureGraphToolWindowState.Publish(snapshot);
+			ArchitectureGraphToolWindowState.PublishDetached(snapshot);
 			await ShowWindowAsync(package);
 		}
 		catch (Exception exception)

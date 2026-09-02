@@ -6,6 +6,7 @@ using RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
 using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
 using RonSijm.AnaalIJzer.ConfigurationEditing.Sites;
 using RonSijm.AnaalIJzer.GraphApplication;
+using RonSijm.AnaalIJzer.GraphApplication.Selection;
 using RonSijm.AnaalIJzer.Graphing.ViewModels;
 using RonSijm.AnaalIJzer.Graphing.Wpf.Styling;
 
@@ -17,6 +18,7 @@ internal sealed partial class ArchitectureGraphCanvas
 	{
 		private readonly IArchitectureGraphEditService _editService;
 		private readonly Action<ArchitectureConfigurationEditResult, bool>? _editResultHandler;
+		private readonly Action<ArchitectureGraphSelection>? _selectionHandler;
 		private readonly Func<string, bool>? _confirmationHandler;
 		private readonly ArchitectureGraphCanvasTheme _theme;
 		private ImmutableArray<string> _allowedSites;
@@ -30,11 +32,13 @@ internal sealed partial class ArchitectureGraphCanvas
 			NodifyGraphConnectorViewModel input,
 			IArchitectureGraphEditService editService,
 			Action<ArchitectureConfigurationEditResult, bool>? editResultHandler,
+			Action<ArchitectureGraphSelection>? selectionHandler,
 			Func<string, bool>? confirmationHandler,
 			ArchitectureGraphCanvasTheme theme)
 		{
 			this._editService = editService;
 			this._editResultHandler = editResultHandler;
+			this._selectionHandler = selectionHandler;
 			this._confirmationHandler = confirmationHandler;
 			this._theme = theme;
 			Output = output;
@@ -59,6 +63,7 @@ internal sealed partial class ArchitectureGraphCanvas
 				: FormatEdgeToolTip(edge.Kind, edge.From, edge.To, edge.SiteText, edge.AppliesToDescendants);
 			RemoveCommand = new DelegateCommand(_ => Remove(), _ => !IsEvidence && EditHandle.CanEdit);
 			AllowAllSitesCommand = new DelegateCommand(_ => SetSites(ArchitectureSiteFilterEditMode.All, ImmutableArray<string>.Empty), _ => !IsEvidence && EditHandle.CanEdit);
+			ShowConfigurationFixesCommand = new DelegateCommand(_ => ShowConfigurationFixes(), _ => _selectionHandler is not null);
 			AllowedSiteOptions = ArchitectureDependencySiteNames.All.Select(site => new NodifySiteFilterOptionViewModel(site, _allowedSites.Contains(site, StringComparer.Ordinal), new DelegateCommand(_ => ToggleAllowedSite(site)))).ToImmutableArray();
 			BlockedSiteOptions = ArchitectureDependencySiteNames.All.Select(site => new NodifySiteFilterOptionViewModel(site, _blockedSites.Contains(site, StringComparer.Ordinal), new DelegateCommand(_ => ToggleBlockedSite(site)))).ToImmutableArray();
 		}
@@ -129,6 +134,8 @@ internal sealed partial class ArchitectureGraphCanvas
 
 		public ICommand AllowAllSitesCommand { get; }
 
+		public ICommand ShowConfigurationFixesCommand { get; }
+
 		public ImmutableArray<NodifySiteFilterOptionViewModel> AllowedSiteOptions { get; }
 
 		public ImmutableArray<NodifySiteFilterOptionViewModel> BlockedSiteOptions { get; }
@@ -149,10 +156,11 @@ internal sealed partial class ArchitectureGraphCanvas
 			NodifyGraphConnectorViewModel input,
 			IArchitectureGraphEditService editService,
 			Action<ArchitectureConfigurationEditResult, bool>? editResultHandler,
+			Action<ArchitectureGraphSelection>? selectionHandler,
 			Func<string, bool>? confirmationHandler,
 			ArchitectureGraphCanvasTheme theme)
 		{
-			var result = new NodifyGraphConnectionViewModel(edge, output, input, editService, editResultHandler, confirmationHandler, theme);
+			var result = new NodifyGraphConnectionViewModel(edge, output, input, editService, editResultHandler, selectionHandler, confirmationHandler, theme);
 
 			return result;
 		}

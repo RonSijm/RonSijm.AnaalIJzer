@@ -151,4 +151,41 @@ public sealed class ArchitectureConfigurationExplainerTests
 			}
 		}
 	}
+
+	[Fact]
+	public void Explainer_ExplainsGenericReturnValueMatchers()
+	{
+		var path = Path.Combine(Path.GetTempPath(), "AnaalIJzer-" + Guid.NewGuid().ToString("N") + ".anl");
+		try
+		{
+			File.WriteAllText(
+				path,
+				"""
+				<ArchitecturalLevels>
+				  <Layer name="Kitchen">
+				    <Class endsWith="Kitchen" />
+				    <ReturnValuePolicy description="No sentinel meals.">
+				      <Literal value="null" />
+				      <Literal value="" />
+				      <Invocation withAttribute="JetBrains.Annotations.CanBeNullAttribute" />
+				    </ReturnValuePolicy>
+				  </Layer>
+				</ArchitecturalLevels>
+				""");
+
+			var markdown = ArchitectureConfigurationExplainer.GenerateMarkdown(path);
+
+			markdown.Should().Contain("Return-value policy forbids configured direct returned expressions");
+			markdown.Should().Contain("Forbids returned literal value=\"null\"");
+			markdown.Should().Contain("Forbids returned invocation withAttribute=\"JetBrains.Annotations.CanBeNullAttribute\"");
+			markdown.Should().Contain("No sentinel meals.");
+		}
+		finally
+		{
+			if (File.Exists(path))
+			{
+				File.Delete(path);
+			}
+		}
+	}
 }

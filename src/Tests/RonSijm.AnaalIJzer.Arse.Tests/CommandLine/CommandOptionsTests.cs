@@ -25,6 +25,17 @@ public sealed class CommandOptionsTests
 	}
 
 	[Fact]
+	public void Parse_AcceptsFixIdForApplyFix()
+	{
+		var options = CommandOptions.Parse(["--solution", "src\\MyApp.slnx", "--fix-id", "fix-123"]);
+		var request = options.ToRequest(ApplicationOperationKind.ApplyFix);
+
+		request.InputKind.Should().Be(ApplicationInputKind.Solution);
+		request.InputPaths.Should().Equal("src\\MyApp.slnx");
+		request.FixId.Should().Be("fix-123");
+	}
+
+	[Fact]
 	public void Parse_RejectsMixedProjectAndSolutionInput()
 	{
 		var parse = () => CommandOptions.Parse(["--project", "src\\MyApp.csproj", "--solution", "src\\MyApp.slnx"]);

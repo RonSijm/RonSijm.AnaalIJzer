@@ -14,6 +14,7 @@ using RonSijm.AnaalIJzer.Engine.Analysis.Topology.ProjectArchitecture;
 using RonSijm.AnaalIJzer.Engine.Analysis.TypePolicies.ApiSurface;
 using RonSijm.AnaalIJzer.Engine.Analysis.TypePolicies.Contracts;
 using RonSijm.AnaalIJzer.Engine.Analysis.TypePolicies.Inheritance;
+using RonSijm.AnaalIJzer.Engine.Analysis.TypePolicies.ReturnValues;
 using RonSijm.AnaalIJzer.Engine.Analysis.TypePolicies.Visibility;
 
 namespace RonSijm.AnaalIJzer.Engine;
@@ -37,6 +38,7 @@ public sealed partial class ArchitecturalLevelAnalyzer : DiagnosticAnalyzer
 		ArchitecturalDiagnostics.VisibilityPolicyViolation,
 		ArchitecturalDiagnostics.ContractPurityViolation,
 		ArchitecturalDiagnostics.InheritancePolicyViolation,
+		ArchitecturalDiagnostics.ReturnValuePolicyViolation,
 		ArchitecturalDiagnostics.ForbiddenTransitiveExposure,
 		ArchitecturalDiagnostics.SourceLocationViolation,
 		ArchitecturalDiagnostics.BoundaryEntryPointViolation,
@@ -92,6 +94,12 @@ public sealed partial class ArchitecturalLevelAnalyzer : DiagnosticAnalyzer
 			{
 				var analyzedInheritanceSymbols = new ConcurrentDictionary<ISymbol, byte>(SymbolEqualityComparer.Default);
 				compilationContext.RegisterSymbolAction(symbolContext => InheritancePolicyAnalyzer.AnalyzeSymbol(symbolContext, config, analyzedInheritanceSymbols), SymbolKind.NamedType);
+			}
+
+			if (config.Engine.HasReturnValuePolicies)
+			{
+				compilationContext.RegisterSyntaxNodeAction(nodeContext => ReturnValuePolicyAnalyzer.AnalyzeReturnStatement(nodeContext, config), SyntaxKind.ReturnStatement);
+				compilationContext.RegisterSyntaxNodeAction(nodeContext => ReturnValuePolicyAnalyzer.AnalyzeArrowExpressionClause(nodeContext, config), SyntaxKind.ArrowExpressionClause);
 			}
 
 			if (config.Engine.HasApiSurfacePolicies)

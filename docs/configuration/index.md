@@ -4,6 +4,7 @@ The XML root element is `<ArchitecturalLevels>`. It supports the child elements 
 
 | Feature | Doc file |
 |---|---|
+| Configuration fixers | `config-fixers.md` |
 | Include files | `include.md` |
 | Layers and matchers | `layers.md` |
 | Allowed dependencies | `allowed-dependency.md` |
@@ -16,6 +17,7 @@ The XML root element is `<ArchitecturalLevels>`. It supports the child elements 
 | Visibility policies | `visibility-policies.md` |
 | Inheritance policies | `inheritance-policies.md` |
 | Contract purity | `contract-policies.md` |
+| Return-value policies | `return-value-policies.md` |
 | Project architecture | `project-architecture.md` |
 | API surface policies | `api-surface.md` |
 | Transitive API exposure | `transitive-api-exposure.md` |

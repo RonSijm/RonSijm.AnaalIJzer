@@ -39,6 +39,7 @@ internal static partial class ArchitectureDocumentationMarkdownBuilder
 		AppendInheritancePolicies(sb, config);
 		AppendVisibilityPolicies(sb, config);
 		AppendContractPolicies(sb, config);
+		AppendReturnValuePolicies(sb, config);
 		AppendApiSurfacePolicies(sb, config);
 		AppendSourceLocationPolicies(sb, config);
 		AppendBoundaryEntryPointPolicies(sb, config);

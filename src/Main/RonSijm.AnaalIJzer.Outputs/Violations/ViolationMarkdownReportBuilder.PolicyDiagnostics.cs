@@ -159,4 +159,26 @@ internal static partial class ViolationMarkdownReportBuilder
 
 		sb.AppendLine();
 	}
+
+	private static void AppendArch020(StringBuilder sb, List<ViolationRecord> violations)
+	{
+		if (violations.Count == 0)
+		{
+			return;
+		}
+
+		sb.AppendLine("## ARCH020 — Return-Value Policy Violations");
+		sb.AppendLine();
+		sb.AppendLine("These methods directly return an expression that an applicable `ReturnValuePolicy` forbids.");
+		sb.AppendLine();
+		sb.AppendLine("| Layer | Method | Expression kind | Reason |");
+		sb.AppendLine("|-------|--------|----------------|--------|");
+
+		foreach (var violation in violations)
+		{
+			sb.AppendLine($"| `{violation.CallerLayerName}` | `{violation.DependencyTypeName}` | `{violation.DeclarationTarget}` | {EscapeTable(violation.ViolationReason)} |");
+		}
+
+		sb.AppendLine();
+	}
 }

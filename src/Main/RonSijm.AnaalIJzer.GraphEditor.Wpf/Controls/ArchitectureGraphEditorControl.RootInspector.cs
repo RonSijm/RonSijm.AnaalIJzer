@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
 using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+using RonSijm.AnaalIJzer.GraphApplication.Selection;
 
 namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
 
@@ -13,6 +14,7 @@ public sealed partial class ArchitectureGraphEditorControl
 		panel.Children.Add(CreateSectionTitle("Configuration"));
 		AddReadOnlyRow(panel, "Source", source.CanEdit ? source.Path : "Not editable");
 		panel.Children.Add(CreateHintTextBlock("Edit the selected XML or inline settings from here. Changes are saved immediately to the configuration source.", new Thickness(0, 6, 0, 0)));
+		AddConfigurationFixesEditor(panel, ArchitectureGraphSelection.None);
 		var details = _editService.GetRootDetails(source);
 		if (!details.Succeeded)
 		{
