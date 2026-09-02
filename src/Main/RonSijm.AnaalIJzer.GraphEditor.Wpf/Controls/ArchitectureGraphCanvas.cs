@@ -63,7 +63,7 @@ internal sealed partial class ArchitectureGraphCanvas : UserControl
 	{
 		try
 		{
-			var graph = NodifyGraphViewModel.Create(_group, _editService, _editResultHandler, _confirmationHandler, _layerCreationHandler, _layoutState, _theme);
+			var graph = NodifyGraphViewModel.Create(_group, _editService, _editResultHandler, _selectionHandler, _confirmationHandler, _layerCreationHandler, _layoutState, _theme);
 			_logger?.LogDebug(
 				"Building Nodify canvas for '{Title}'. Nodes: {NodeCount}. Connections: {ConnectionCount}.",
 				_group.Title,

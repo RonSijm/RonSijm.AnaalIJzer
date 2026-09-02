@@ -21,6 +21,7 @@ internal static class ViolationRecordFactory
 		    or ArchitecturalDiagnosticIds.VisibilityPolicyViolation
 		    or ArchitecturalDiagnosticIds.ContractPurityViolation
 		    or ArchitecturalDiagnosticIds.InheritancePolicyViolation
+		    or ArchitecturalDiagnosticIds.ReturnValuePolicyViolation
 		    or ArchitecturalDiagnosticIds.ForbiddenTransitiveExposure
 		    or ArchitecturalDiagnosticIds.SourceLocationViolation
 		    or ArchitecturalDiagnosticIds.BoundaryEntryPointViolation
@@ -38,6 +39,7 @@ internal static class ViolationRecordFactory
 			ArchitecturalDiagnosticIds.VisibilityPolicyViolation => Get(ArchitecturalDiagnostics.PropertyDeclaredSymbolName) ?? "UnknownDeclaration",
 			ArchitecturalDiagnosticIds.ContractPurityViolation => Get(ArchitecturalDiagnostics.PropertyDeclaredSymbolName) ?? "UnknownDeclaration",
 			ArchitecturalDiagnosticIds.InheritancePolicyViolation => Get(ArchitecturalDiagnostics.PropertyDeclaredSymbolName) ?? "UnknownDeclaration",
+			ArchitecturalDiagnosticIds.ReturnValuePolicyViolation => Get(ArchitecturalDiagnostics.PropertyDeclaredSymbolName) ?? "UnknownMethod",
 			ArchitecturalDiagnosticIds.ProjectReferenceViolation => Get(ArchitecturalDiagnostics.PropertyTargetProjectName) ?? "UnknownTargetProject",
 			ArchitecturalDiagnosticIds.PackageReferenceViolation => Get(ArchitecturalDiagnostics.PropertyPackageId) ?? "UnknownPackage",
 			ArchitecturalDiagnosticIds.ObservedDependencyCycle => Get(ArchitecturalDiagnostics.PropertyCycleLayers) ?? "UnknownCycle",
@@ -76,8 +78,10 @@ internal static class ViolationRecordFactory
 			string.IsNullOrWhiteSpace(comment) ? null : comment,
 			diagnostic.Id is ArchitecturalDiagnosticIds.ApiSurfaceLeakage or ArchitecturalDiagnosticIds.ForbiddenTransitiveExposure
 				? Get(ArchitecturalDiagnostics.PropertySite)
-				: diagnostic.Id == ArchitecturalDiagnosticIds.ContractPurityViolation
+			: diagnostic.Id == ArchitecturalDiagnosticIds.ContractPurityViolation
 					? Get(ArchitecturalDiagnostics.PropertyContractViolationKind)
+					: diagnostic.Id == ArchitecturalDiagnosticIds.ReturnValuePolicyViolation
+						? Get(ArchitecturalDiagnostics.PropertyReturnValueRuleTarget)
 					: Get(ArchitecturalDiagnostics.PropertyDeclarationTarget),
 			Get(ArchitecturalDiagnostics.PropertyDeclaredAccessibility),
 			Get(ArchitecturalDiagnostics.PropertyApiMemberName),

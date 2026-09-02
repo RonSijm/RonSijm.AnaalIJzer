@@ -23,6 +23,7 @@ public sealed partial class ArchitectureGraphEditorControl
 		AddReadOnlyRow(panel, "Path", handle.LayerPath);
 		AddReadOnlyRow(panel, "Source", handle.CanEdit ? handle.SourcePath : "Not editable");
 		AddLayerCodeEvidence(panel, handle.LayerPath);
+		AddConfigurationFixesEditor(panel, selection);
 		panel.Children.Add(CreateSectionTitle("Name"));
 		var name = new TextBox { Text = details.Name, IsEnabled = handle.CanEdit };
 		panel.Children.Add(name);
@@ -46,6 +47,7 @@ public sealed partial class ArchitectureGraphEditorControl
             ["Class", "Namespace"]);
 		AddNameRuleEditors(panel, details.NameRules, handle);
 		AddInheritancePolicyEditors(panel, details.InheritancePolicies, handle);
+		AddReturnValuePolicyEditors(panel, details.ReturnValuePolicies, handle);
 		AddVisibilityPolicyEditors(panel, details.VisibilityPolicies, handle);
 		AddApiSurfaceEditors(panel, details.ApiSurfacePolicies, handle);
 

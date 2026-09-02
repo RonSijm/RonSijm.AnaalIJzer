@@ -37,6 +37,9 @@ internal static partial class ArchitectureConfigurationExplainer
 				case "InheritancePolicy":
 					AppendInheritancePolicy(sb, element, depth);
 					break;
+				case "ReturnValuePolicy":
+					AppendReturnValuePolicy(sb, element, depth);
+					break;
 				case "ApiSurface":
 					AppendApiSurface(sb, element, depth);
 					break;

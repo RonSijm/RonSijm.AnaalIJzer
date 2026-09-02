@@ -17,6 +17,10 @@ Common fixes are:
 - add the exposed type to the intended contract layer;
 - deliberately adjust the `<ApiSurface>` policy or its site filter.
 
+#### IDE code fixes
+
+The IDE can add a missing `<AllowedLayer>`, widen an existing `allowedSites` list, relax `blockedSites`, and when the denial comes from `requireRecognizedTypes="true"` it can disable that requirement for the policy.
+
 Adding an `<AllowedDependency>` is not an ARCH009 fix by itself. That edge permits internal use; it does not grant permission to publish the type as API.
 
 **Example project:** [`Example.Arch009.ApiSurfaceLeakage`](../../Examples/Diagnostics/Example.Arch009.ApiSurfaceLeakage)

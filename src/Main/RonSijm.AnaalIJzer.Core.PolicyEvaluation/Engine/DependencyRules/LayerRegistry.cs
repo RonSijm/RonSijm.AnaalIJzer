@@ -19,6 +19,7 @@ public readonly partial struct LayerRegistry
 		HasLayers = catalog.HasLayers;
 		HasContractPolicies = catalog.HasContractPolicies;
 		HasInheritancePolicies = catalog.HasInheritancePolicies;
+		HasReturnValuePolicies = catalog.HasReturnValuePolicies;
 		HasVisibilityPolicies = catalog.HasVisibilityPolicies;
 		HasApiSurfacePolicies = catalog.HasApiSurfacePolicies;
 		HasEntryPointPolicies = catalog.HasEntryPointPolicies;
@@ -28,6 +29,7 @@ public readonly partial struct LayerRegistry
 	public bool HasLayers { get; }
 	public bool HasContractPolicies { get; }
 	public bool HasInheritancePolicies { get; }
+	public bool HasReturnValuePolicies { get; }
 	public bool HasVisibilityPolicies { get; }
 	public bool HasApiSurfacePolicies { get; }
 	public bool HasEntryPointPolicies { get; }

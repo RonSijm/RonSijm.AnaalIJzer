@@ -59,7 +59,7 @@ public readonly partial struct DependencyGraph
 		{
 			if (EdgeAppliesAtScope(edge, scopePath) && edge.IsBlocked && EdgeMatches(edge, from, to) && edge.AllowsSite(site))
 			{
-				return DependencyEdgeEvaluation.Denied($"{edge.ToXmlText()} explicitly blocks this dependency at {site} in {boundary}", DependencyDenialKind.BlockedEdge, scopePath, from, to);
+				return DependencyEdgeEvaluation.Denied($"{edge.ToXmlText()} explicitly blocks this dependency at {site} in {boundary}", DependencyDenialKind.BlockedEdge, scopePath, from, to, edge);
 			}
 		}
 
@@ -80,7 +80,7 @@ public readonly partial struct DependencyGraph
 
 		if (rejectedEdge is { } edgeRejectedBySite)
 		{
-			return DependencyEdgeEvaluation.Denied($"{edgeRejectedBySite.ToXmlText()} is configured, but {edgeRejectedBySite.SiteFilter.GetDenialReason(site)} in {boundary}", DependencyDenialKind.SiteFilter, scopePath, from, to);
+			return DependencyEdgeEvaluation.Denied($"{edgeRejectedBySite.ToXmlText()} is configured, but {edgeRejectedBySite.SiteFilter.GetDenialReason(site)} in {boundary}", DependencyDenialKind.SiteFilter, scopePath, from, to, edgeRejectedBySite);
 		}
 
 		return DependencyEdgeEvaluation.Denied($"no allowed dependency gate from '{from}' to '{to}' is configured in {boundary}", DependencyDenialKind.MissingEdge, scopePath, from, to);

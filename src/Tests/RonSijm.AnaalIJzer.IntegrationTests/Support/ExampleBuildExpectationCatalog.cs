@@ -24,6 +24,9 @@ internal static class ExampleBuildExpectationCatalog
 		ExpectFile("Diagnostics/Example.Arch016.BoundaryEntryPoints", (ArchitecturalDiagnosticIds.BoundaryEntryPointViolation, 1)),
 		ExpectFile("Diagnostics/Example.Arch018.ObservedCycle", (ArchitecturalDiagnosticIds.ObservedDependencyCycle, 1)),
 		Expect("Diagnostics/Example.Arch019.InheritancePolicy", (ArchitecturalDiagnosticIds.InheritancePolicyViolation, 1)),
+		Expect("Diagnostics/Example.Arch020.ExplicitNullReturn", (ArchitecturalDiagnosticIds.ReturnValuePolicyViolation, 1)),
+		Expect("Diagnostics/Example.Arch020.AnnotatedInvocationReturn", (ArchitecturalDiagnosticIds.ReturnValuePolicyViolation, 1)),
+		Expect("Diagnostics/Example.Arch020.ConfiguredLiteralReturns", (ArchitecturalDiagnosticIds.ReturnValuePolicyViolation, 3)),
 		ExpectFile("Features/Example.AllowedSites", (ArchitecturalDiagnosticIds.IllegalLevelDependency, 26)),
 		Expect("Features/Example.AllowedTypes", (ArchitecturalDiagnosticIds.ForbiddenDependency, 1)),
 		ExpectFile("Features/Example.ArchitectureHealth"),
@@ -57,6 +60,7 @@ internal static class ExampleBuildExpectationCatalog
 		ExpectFile("Scenarios/Example.RepositoryQuerySurface", (ArchitecturalDiagnosticIds.IllegalLevelDependency, 2)),
 		ExpectFile("Documentation/Example.DocumentationDemo", (ArchitecturalDiagnosticIds.UnrecognizedDependency, 1)),
 		Expect("Documentation/Example.ReportDemo", (ArchitecturalDiagnosticIds.IllegalLevelDependency, 1), (ArchitecturalDiagnosticIds.UnrecognizedDependency, 1), (ArchitecturalDiagnosticIds.ForbiddenDependency, 1), (ArchitecturalDiagnosticIds.WrongDirectionDependency, 1), (ArchitecturalDiagnosticIds.SameLayerDependency, 1)),
+		Expect("Documentation/Example.VisualStudioSiteDiagnostics"),
 		Expect("Features/Example.WildcardTo")
 	];
 

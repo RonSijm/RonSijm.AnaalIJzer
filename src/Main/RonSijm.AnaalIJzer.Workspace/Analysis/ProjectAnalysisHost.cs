@@ -27,9 +27,10 @@ internal sealed partial class ProjectAnalysisHost : IDisposable
 		});
 		_workspace.WorkspaceFailed += (_, args) =>
 		{
-			if (args.Diagnostic.Kind == WorkspaceDiagnosticKind.Failure)
+			var diagnosticText = args.Diagnostic.ToString();
+			if (args.Diagnostic.Kind == WorkspaceDiagnosticKind.Failure && !IsIgnorableWorkspaceFailure(diagnosticText))
 			{
-				_workspaceFailures.Add(args.Diagnostic.ToString());
+				_workspaceFailures.Add(diagnosticText);
 			}
 		};
 	}
@@ -116,6 +117,16 @@ internal sealed partial class ProjectAnalysisHost : IDisposable
 	public void Dispose()
 	{
 		_workspace.Dispose();
+	}
+
+	internal IReadOnlyList<string> WorkspaceFailures => _workspaceFailures;
+
+	internal static bool IsIgnorableWorkspaceFailure(string diagnosticText)
+	{
+		var result = diagnosticText.Contains("Audit source 'nuget.org' did not provide any vulnerability data.", StringComparison.Ordinal)
+			|| diagnosticText.Contains("Error occurred while getting package vulnerability data:", StringComparison.Ordinal);
+
+		return result;
 	}
 }
 

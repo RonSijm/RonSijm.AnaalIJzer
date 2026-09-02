@@ -49,7 +49,11 @@ internal static partial class ArchitectureConfigurationXmlEditor
 			return string.Empty;
 		}
 
-		var result = string.Join(Environment.NewLine, element.Nodes().Select(node => node.ToString(SaveOptions.DisableFormatting)));
+		var result = string.Join(
+			Environment.NewLine,
+			element.Nodes()
+				.Where(node => node is not XText text || !string.IsNullOrWhiteSpace(text.Value))
+				.Select(node => node.ToString(SaveOptions.DisableFormatting)));
 
 		return result;
 	}

@@ -27,4 +27,8 @@ Typical fixes:
 - narrow or change the policy when the public declaration is intentional;
 - move the declaration to a layer whose visibility contract matches its responsibility.
 
+#### IDE code fixes
+
+For configuration-backed fixes, the IDE can add the reported accessibility to `allowedAccessibilities`, remove it from `blockedAccessibilities`, or remove a single-value blocking policy when that is the only thing it does.
+
 **Example project:** [`Example.Arch012.VisibilityPolicy`](../../Examples/Diagnostics/Example.Arch012.VisibilityPolicy)

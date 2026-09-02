@@ -52,6 +52,13 @@ public static class ArchitectureConfigurationMatcherReader
 
 	public static bool TryReadCodeObservationMatcher(XElement element, out CodeObservationMatcher matcher)
 	{
+		var result = TryReadCodeObservationMatcher(element, false, out matcher);
+
+		return result;
+	}
+
+	public static bool TryReadCodeObservationMatcher(XElement element, bool allowSemanticConditions, out CodeObservationMatcher matcher)
+	{
 		if (!CodeObservationMatchTargetParser.TryParse(element.Name.LocalName, out var target))
 		{
 			matcher = default;
@@ -67,6 +74,19 @@ public static class ArchitectureConfigurationMatcherReader
 		TryAddCondition(element, "startsWith", MatchKind.StartsWith, conditions, MatchOperand.Declaration);
 		TryAddCondition(element, "contains", MatchKind.Contains, conditions, MatchOperand.Declaration);
 		TryAddCondition(element, "regex", MatchKind.Regex, conditions, MatchOperand.Declaration);
+		if (target == CodeObservationMatchTarget.Literal)
+		{
+			TryAddCondition(element, "value", MatchKind.Equals, conditions, MatchOperand.Declaration);
+		}
+
+		if (allowSemanticConditions)
+		{
+			TryAddCondition(element, "inherits", MatchKind.Inherits, conditions, MatchOperand.AssociatedType);
+			TryAddCondition(element, "implements", MatchKind.Implements, conditions, MatchOperand.AssociatedType);
+			TryAddCondition(element, "withAttribute", MatchKind.HasAttribute, conditions, MatchOperand.Declaration);
+			TryAddCondition(element, "withAccessModifier", MatchKind.HasAccessModifier, conditions, MatchOperand.Declaration);
+			TryAddCondition(element, "typeKind", MatchKind.HasTypeKind, conditions, MatchOperand.AssociatedType);
+		}
 
 		matcher = new CodeObservationMatcher(target, conditions.ToImmutable());
 
@@ -87,6 +107,7 @@ public static class ArchitectureConfigurationMatcherReader
 	public static string? GetPrimaryMatcherValue(XElement element)
 	{
 		var result = element.Attribute("typeName")?.Value
+			             ?? element.Attribute("value")?.Value
 		             ?? element.Attribute("exactName")?.Value
 		             ?? element.Attribute("exactFullName")?.Value
 		             ?? element.Attribute("inherits")?.Value
@@ -106,7 +127,7 @@ public static class ArchitectureConfigurationMatcherReader
 	{
 		var result = name is
 			"typeName" or "exactName" or "exactFullName" or "inherits" or "implements" or "withAttribute" or
-			"withAccessModifier" or "typeKind" or "endsWith" or "startsWith" or "contains" or "regex";
+			"withAccessModifier" or "typeKind" or "endsWith" or "startsWith" or "contains" or "regex" or "value";
 
 		return result;
 	}

@@ -14,6 +14,8 @@ public enum ApplicationOperationKind
 	Documentation,
 	Report,
 	Inspect,
+	Fixes,
+	ApplyFix,
 	MergeConfig,
 	SplitConfig,
 	FormatConfig,

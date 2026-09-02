@@ -1,4 +1,5 @@
 using RonSijm.AnaalIJzer.Core.RuntimeConfig.Config.Model;
+using RonSijm.AnaalIJzer.Workspace.Analysis.ConfigurationFixes;
 
 namespace RonSijm.AnaalIJzer.Workspace.Analysis;
 
@@ -60,6 +61,66 @@ internal sealed class WorkspaceAnalysisService(string configuration)
 		}
 
 		return representativeProject;
+	}
+
+	public async Task<ConfigurationFixCollectionResult> FindProjectConfigurationFixesAsync(string projectPath, CancellationToken cancellationToken)
+	{
+		var fullProjectPath = Path.GetFullPath(projectPath);
+		if (!File.Exists(fullProjectPath))
+		{
+			throw new InvalidOperationException($"Project file not found: {fullProjectPath}");
+		}
+
+		using var host = new ProjectAnalysisHost(_configuration);
+		var result = await host.FindProjectConfigurationFixesAsync(fullProjectPath, cancellationToken);
+		EnsureWorkspaceLoaded(host.WorkspaceFailures, "project");
+
+		return result;
+	}
+
+	public async Task<ConfigurationFixCollectionResult> FindSolutionConfigurationFixesAsync(string solutionPath, CancellationToken cancellationToken)
+	{
+		var fullSolutionPath = Path.GetFullPath(solutionPath);
+		if (!File.Exists(fullSolutionPath))
+		{
+			throw new InvalidOperationException($"Solution file not found: {fullSolutionPath}");
+		}
+
+		using var host = new ProjectAnalysisHost(_configuration);
+		var result = await host.FindSolutionConfigurationFixesAsync(fullSolutionPath, cancellationToken);
+		EnsureWorkspaceLoaded(host.WorkspaceFailures, "solution");
+
+		return result;
+	}
+
+	public async Task<ConfigurationFixApplyResult> ApplyProjectConfigurationFixAsync(string projectPath, string fixId, CancellationToken cancellationToken)
+	{
+		var fullProjectPath = Path.GetFullPath(projectPath);
+		if (!File.Exists(fullProjectPath))
+		{
+			throw new InvalidOperationException($"Project file not found: {fullProjectPath}");
+		}
+
+		using var host = new ProjectAnalysisHost(_configuration);
+		var result = await host.ApplyProjectConfigurationFixAsync(fullProjectPath, fixId, cancellationToken);
+		EnsureWorkspaceLoaded(host.WorkspaceFailures, "project");
+
+		return result;
+	}
+
+	public async Task<ConfigurationFixApplyResult> ApplySolutionConfigurationFixAsync(string solutionPath, string fixId, CancellationToken cancellationToken)
+	{
+		var fullSolutionPath = Path.GetFullPath(solutionPath);
+		if (!File.Exists(fullSolutionPath))
+		{
+			throw new InvalidOperationException($"Solution file not found: {fullSolutionPath}");
+		}
+
+		using var host = new ProjectAnalysisHost(_configuration);
+		var result = await host.ApplySolutionConfigurationFixAsync(fullSolutionPath, fixId, cancellationToken);
+		EnsureWorkspaceLoaded(host.WorkspaceFailures, "solution");
+
+		return result;
 	}
 
 	private static void EnsureWorkspaceLoaded(IReadOnlyList<string> workspaceFailures, string inputKind)

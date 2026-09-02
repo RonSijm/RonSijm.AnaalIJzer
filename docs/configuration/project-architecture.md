@@ -92,3 +92,14 @@ Roslyn does not reliably expose project-reference provenance by itself.
 The analyzer package therefore ships a `buildTransitive` target that writes a small project-reference manifest and adds it as an analyzer `AdditionalFile`.
 
 Arse and solution inspection do not need that generated manifest because they can inspect `MSBuildWorkspace` project references directly.
+
+### IDE Fix Support
+
+For deterministic cases, the config fixer layer can update project architecture rules too:
+
+- `ARCH010` can add a missing `<AllowedProjectReference from="..." to="..." />`
+- same-group `ARCH010` can add an explicit self-edge
+- blocked-edge `ARCH010` can remove the matching `<BlockedProjectReference ... />`
+- `ARCH011` can append an exact `<Package exactName="..."/>` matcher to the matched allowed package list
+
+Because `ARCH010` and `ARCH011` are compilation-end diagnostics, host UX varies a little: build reports and host tooling are the most reliable surfaces, while editor light-bulb visibility depends on how the IDE exposes `Location.None` diagnostics.

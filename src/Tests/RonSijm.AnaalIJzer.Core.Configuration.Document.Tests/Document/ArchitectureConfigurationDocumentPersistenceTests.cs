@@ -1,6 +1,7 @@
 using System.Xml.Linq;
 using RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
 using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+using RonSijm.AnaalIJzer.Core.Configuration.Document.Persistence;
 
 namespace RonSijm.AnaalIJzer.Core.Configuration.Document.Tests.Document;
 
@@ -82,6 +83,38 @@ public sealed class ArchitectureConfigurationDocumentPersistenceTests : IDisposa
 		var updatedSource = File.ReadAllText(path);
 		updatedSource.Should().Contain("name=\"{nameof(Chef)}\"");
 		updatedSource.Should().Contain("description=\"Prepares the food.\"");
+	}
+
+	[Fact]
+	public void EditConfiguration_InlineAssemblyMetadata_NormalizesWhitespaceAfterAppendingAnElement()
+	{
+		var path = Path.Combine(_tempDirectory, "AnaalIJzerSettings.cs");
+		File.WriteAllText(
+			path,
+			""""
+			using System.Reflection;
+
+			[assembly: AssemblyMetadata("AnaalIJzerSettings", """
+			<ArchitecturalLevels>
+			  <Layer name="Chef" />
+			</ArchitecturalLevels>
+			""")]
+			"""");
+
+		var result = ArchitectureConfigurationDocumentPersistence.EditConfiguration(
+			new ArchitectureConfigurationSource(ArchitectureConfigurationSourceKind.InlineAssemblyMetadata, path),
+			document =>
+			{
+				document.Root!.Add(new XElement("AllowedDependency", new XAttribute("from", "Chef"), new XAttribute("to", "Pantry")));
+				return ArchitectureConfigurationDocumentOperationResult.Success("Added a dependency.");
+			});
+
+		result.Succeeded.Should().BeTrue();
+
+		var updatedSource = File.ReadAllText(path);
+		updatedSource.Should().Contain("<AllowedDependency from=\"Chef\" to=\"Pantry\" />" + Environment.NewLine + "</ArchitecturalLevels>");
+		InlineAssemblyMetadataSettings.TryFindInlineSettings(updatedSource, out var settings, out var message).Should().BeTrue(message);
+		XDocument.Parse(settings.Xml).Root!.Element("AllowedDependency")!.Attribute("to")!.Value.Should().Be("Pantry");
 	}
 
 	public void Dispose()

@@ -8,6 +8,7 @@ internal sealed record CommandOptions
 	private ApplicationInputKind? InputKind { get; init; }
 	private IReadOnlyList<string> InputPaths { get; init; } = [];
 	private string? OutputPath { get; init; }
+	private string? FixId { get; init; }
 	private string Configuration { get; init; } = "Release";
 	private ConfigurationGenerationOptions GenerationOptions { get; init; } = new();
 	private bool IncludeCodeEvidence { get; init; }
@@ -26,6 +27,9 @@ internal sealed record CommandOptions
 				case "--output":
 				case "-o":
 					options = options with { OutputPath = ReadValue(args, ref i, arg) };
+					break;
+				case "--fix-id":
+					options = options with { FixId = ReadValue(args, ref i, arg) };
 					break;
 				case "--configuration":
 				case "-c":
@@ -93,6 +97,7 @@ internal sealed record CommandOptions
 			InputKind = InputKind,
 			InputPaths = InputPaths,
 			OutputPath = OutputPath,
+			FixId = FixId,
 			Configuration = Configuration,
 			GenerationOptions = GenerationOptions,
 			IncludeCodeEvidence = IncludeCodeEvidence,

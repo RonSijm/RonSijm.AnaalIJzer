@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
 using RonSijm.AnaalIJzer.GraphApplication;
+using RonSijm.AnaalIJzer.GraphApplication.Selection;
 using RonSijm.AnaalIJzer.Graphing.ViewModels;
 using RonSijm.AnaalIJzer.GraphEditor.Wpf.Layout;
 using RonSijm.AnaalIJzer.Graphing.Wpf.Styling;
@@ -31,19 +32,20 @@ internal sealed partial class ArchitectureGraphCanvas
 			ArchitectureGraphGroupViewModel group,
 			IArchitectureGraphEditService editService,
 			Action<ArchitectureConfigurationEditResult, bool>? editResultHandler,
+			Action<ArchitectureGraphSelection>? selectionHandler,
 			Func<string, bool>? confirmationHandler,
 			Func<ArchitectureLayerCreationRequest?>? layerCreationHandler,
 			ArchitectureGraphLayoutState layoutState,
 			ArchitectureGraphCanvasTheme theme)
 		{
-			var boundaries = group.Boundaries.Select(boundary => NodifyGraphBoundaryViewModel.Create(boundary, editService, editResultHandler, confirmationHandler, layerCreationHandler, layoutState, theme)).ToImmutableArray();
+			var boundaries = group.Boundaries.Select(boundary => NodifyGraphBoundaryViewModel.Create(boundary, editService, editResultHandler, selectionHandler, confirmationHandler, layerCreationHandler, layoutState, theme)).ToImmutableArray();
 			var boundariesByPath = boundaries.ToDictionary(boundary => boundary.Path, StringComparer.Ordinal);
-			var nodes = group.Nodes.Select(node => NodifyGraphNodeViewModel.Create(node, editService, editResultHandler, confirmationHandler, layerCreationHandler, layoutState, theme)).ToImmutableArray();
+			var nodes = group.Nodes.Select(node => NodifyGraphNodeViewModel.Create(node, editService, editResultHandler, selectionHandler, confirmationHandler, layerCreationHandler, layoutState, theme)).ToImmutableArray();
 			WireHierarchy(nodes, boundaries, boundariesByPath);
 			var endpointsByPath = CreateEndpointsByPath(nodes, boundaries);
 			var connections = group.Edges
 				.Where(edge => endpointsByPath.ContainsKey(edge.From) && endpointsByPath.ContainsKey(edge.To))
-				.Select(edge => NodifyGraphConnectionViewModel.Create(edge, endpointsByPath[edge.From].Output, endpointsByPath[edge.To].Input, editService, editResultHandler, confirmationHandler, theme))
+				.Select(edge => NodifyGraphConnectionViewModel.Create(edge, endpointsByPath[edge.From].Output, endpointsByPath[edge.To].Input, editService, editResultHandler, selectionHandler, confirmationHandler, theme))
 				.ToImmutableArray();
 			var items = boundaries.Cast<object>().Concat(nodes).ToImmutableArray();
 

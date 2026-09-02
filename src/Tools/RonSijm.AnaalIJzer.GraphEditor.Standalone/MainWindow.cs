@@ -59,7 +59,9 @@ internal sealed partial class MainWindow : Window
 			logger: loggerFactory.CreateLogger<ArchitectureGraphEditorControl>(),
 			snapshotReloader: _ => LoadSnapshotFromCurrentPath(),
 			infoLogger: message => _status.Text = message,
-			warningLogger: message => _status.Text = message);
+			warningLogger: message => _status.Text = message,
+			configurationFixLoader: LoadConfigurationFixesAsync,
+			configurationFixApplier: ApplyConfigurationFixAsync);
 		root.Children.Add(_editor);
 		Content = root;
 		if (!string.IsNullOrWhiteSpace(initialPath))

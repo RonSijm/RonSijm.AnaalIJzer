@@ -61,6 +61,8 @@ README.md
 
 ## Adding or changing a diagnostic
 
+For the full cross-product checklist, use [`docs/plans/new-archxxx-implementation-checklist.md`](../../docs/plans/new-archxxx-implementation-checklist.md). It covers analyzer behavior, schema, fixers, examples, all tooling hosts, tests, documentation, and final verification.
+
 When a new diagnostic (e.g. ARCH004) or a new config element is introduced, **all three of the following must be updated in the same change**:
 
 ### 1. Analyzer source

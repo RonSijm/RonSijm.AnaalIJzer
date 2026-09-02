@@ -58,10 +58,26 @@ public readonly partial struct DependencyGraph(ImmutableArray<DependencyEdge> de
 
 	public bool HasEdge(string scopePath, string from, string to)
 	{
-		var result = DependencyEdges.Any(edge =>
-			EdgeAppliesAtScope(edge, scopePath) && edge.IsAllowed && EdgeMatches(edge, from, to));
+		var result = TryFindAllowedEdge(scopePath, from, to, out _);
 
 		return result;
+	}
+
+	public bool TryFindAllowedEdge(string scopePath, string from, string to, out DependencyEdge edge)
+	{
+		foreach (var candidate in DependencyEdges)
+		{
+			if (!EdgeAppliesAtScope(candidate, scopePath) || !candidate.IsAllowed || !EdgeMatches(candidate, from, to))
+			{
+				continue;
+			}
+
+			edge = candidate;
+			return true;
+		}
+
+		edge = default;
+		return false;
 	}
 
 	public bool Matches(DependencyEdge edge, string from, string to)

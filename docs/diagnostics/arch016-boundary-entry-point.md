@@ -14,6 +14,10 @@ Typical causes:
 - a facade entry point is allowed only at certain sites, but the dependency appears at a blocked site;
 - nested boundaries define progressively narrower external entry doors.
 
+#### IDE code fixes
+
+The IDE can add a missing `<EntryPoint>`, add the current site to an entry point's `allowedSites`, or remove the current site from `blockedSites` when the boundary policy is too narrow for the intended call shape.
+
 Important precedence rule:
 
 - if the dependency is already illegal for the usual reasons, you still get `ARCH001`, `ARCH003`, `ARCH004`, or `ARCH005`;

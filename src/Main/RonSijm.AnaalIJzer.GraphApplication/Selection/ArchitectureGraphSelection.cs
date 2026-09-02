@@ -13,7 +13,10 @@ internal sealed class ArchitectureGraphSelection
 		ArchitectureDependencyRuleEditHandle dependencyHandle,
 		ImmutableArray<string> allowedSites,
 		ImmutableArray<string> blockedSites,
-		string evidenceDetails = "")
+		string evidenceDetails = "",
+		string relatedLayerPath = "",
+		string relatedFromLayerPath = "",
+		string relatedToLayerPath = "")
 	{
 		Kind = kind;
 		Title = title;
@@ -23,6 +26,9 @@ internal sealed class ArchitectureGraphSelection
 		AllowedSites = allowedSites;
 		BlockedSites = blockedSites;
 		EvidenceDetails = evidenceDetails;
+		RelatedLayerPath = relatedLayerPath;
+		RelatedFromLayerPath = relatedFromLayerPath;
+		RelatedToLayerPath = relatedToLayerPath;
 	}
 
 	public ArchitectureGraphSelectionKind Kind { get; }
@@ -41,6 +47,12 @@ internal sealed class ArchitectureGraphSelection
 
 	public string EvidenceDetails { get; }
 
+	public string RelatedLayerPath { get; }
+
+	public string RelatedFromLayerPath { get; }
+
+	public string RelatedToLayerPath { get; }
+
 	public static ArchitectureGraphSelection ForLayer(ArchitectureLayerEditHandle handle)
 	{
 		var title = string.IsNullOrWhiteSpace(handle.LayerPath) ? "Layer" : handle.LayerPath;
@@ -52,7 +64,8 @@ internal sealed class ArchitectureGraphSelection
 			handle,
 			ArchitectureDependencyRuleEditHandle.None,
 			ImmutableArray<string>.Empty,
-			ImmutableArray<string>.Empty);
+			ImmutableArray<string>.Empty,
+			relatedLayerPath: handle.LayerPath);
 
 		return result;
 	}
@@ -68,7 +81,9 @@ internal sealed class ArchitectureGraphSelection
 			ArchitectureLayerEditHandle.None,
 			handle,
 			handle.AllowedSites,
-			handle.BlockedSites);
+			handle.BlockedSites,
+			relatedFromLayerPath: handle.From,
+			relatedToLayerPath: handle.To);
 
 		return result;
 	}
@@ -83,7 +98,9 @@ internal sealed class ArchitectureGraphSelection
 			ArchitectureDependencyRuleEditHandle.None,
 			ImmutableArray<string>.Empty,
 			ImmutableArray<string>.Empty,
-			details);
+			details,
+			relatedFromLayerPath: from,
+			relatedToLayerPath: to);
 
 		return result;
 	}

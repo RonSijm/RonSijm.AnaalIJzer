@@ -76,6 +76,9 @@ The main [`README.md`](../README.md) explains each feature inline. The folders h
 | [`Example.Arch016.BoundaryEntryPoints`](Diagnostics/Example.Arch016.BoundaryEntryPoints) | [`ARCH016 - Boundary entry-point violation`](../README.md#arch016---boundary-entry-point-violation) |
 | [`Example.Arch018.ObservedCycle`](Diagnostics/Example.Arch018.ObservedCycle) | [`ARCH018 - Observed architectural dependency cycle`](../README.md#arch018---observed-architectural-dependency-cycle) |
 | [`Example.Arch019.InheritancePolicy`](Diagnostics/Example.Arch019.InheritancePolicy) | `InheritancePolicy` - layer-scoped required base types and interfaces. |
+| [`Example.Arch020.ExplicitNullReturn`](Diagnostics/Example.Arch020.ExplicitNullReturn) | `ReturnValuePolicy` - a configured `Literal value="null"` is not an acceptable serving decision. |
+| [`Example.Arch020.AnnotatedInvocationReturn`](Diagnostics/Example.Arch020.AnnotatedInvocationReturn) | `ReturnValuePolicy` - a configured nullable-result annotation must be handled before an invocation is returned. |
+| [`Example.Arch020.ConfiguredLiteralReturns`](Diagnostics/Example.Arch020.ConfiguredLiteralReturns) | `ReturnValuePolicy` - empty-string, numeric, and enum-zero sentinel values are configurable literal matchers. |
 
 ### Features
 
@@ -122,6 +125,7 @@ The main [`README.md`](../README.md) explains each feature inline. The folders h
 | ------ | ------------------- |
 | [`Example.DocumentationDemo`](Documentation/Example.DocumentationDemo) | [`Architecture documentation`](../README.md#architecture-documentation), [`description` attributes](../README.md#description-attributes) |
 | [`Example.ReportDemo`](Documentation/Example.ReportDemo) | [`Violation report`](../README.md#violation-report) |
+| [`Example.VisualStudioSiteDiagnostics`](Documentation/Example.VisualStudioSiteDiagnostics) | Clean, one-file demonstration of every Visual Studio Layer Information and Site Diagnostics site. |
 
 ## Running an example
 

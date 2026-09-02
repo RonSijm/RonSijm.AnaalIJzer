@@ -21,4 +21,5 @@ public static class ArchitecturalDiagnosticIds
 	public const string ExceptionReview = "ARCH017";
 	public const string ObservedDependencyCycle = "ARCH018";
 	public const string InheritancePolicyViolation = "ARCH019";
+	public const string ReturnValuePolicyViolation = "ARCH020";
 }

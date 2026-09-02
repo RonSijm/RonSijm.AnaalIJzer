@@ -56,6 +56,13 @@ public static class ArchitectureConfigurationValidator
 
 	private static void ValidateMatcherElement(XElement element, string configPath, ImmutableArray<ConfigurationIssue>.Builder issues)
 	{
+		if (IsReturnValueMatcherRule(element))
+		{
+			ValidateReturnValueMatcherRule(element, configPath, issues);
+
+			return;
+		}
+
 		if (IsCodeObservationMatcherElementName(element.Name.LocalName))
 		{
 			ValidateCodeObservationMatcherElement(element, configPath, issues);
@@ -75,6 +82,54 @@ public static class ArchitectureConfigurationValidator
 		    && configuredMatchers.Any(attribute => attribute.Name.LocalName is "typeName" or "exactFullName" or "inherits" or "implements" or "withAttribute" or "withAccessModifier" or "typeKind"))
 		{
 			AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, $"{element.Name.LocalName} supports exactName, endsWith, startsWith, contains, or regex matchers.", element, configPath);
+		}
+
+		if (element.Attribute("typeKind")?.Value is { } typeKind && !ITypeSymbolTypeKindExtension.IsSupportedTypeKind(typeKind))
+		{
+			AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, $"Unknown typeKind '{typeKind}'. Supported values: Class, Interface, Struct, Record, RecordStruct, Enum, Delegate.", element, configPath);
+		}
+
+		var regex = element.Attribute("regex")?.Value;
+		if (regex is null)
+		{
+			return;
+		}
+
+		try
+		{
+			_ = new Regex(regex, RegexOptions.CultureInvariant);
+		}
+		catch (ArgumentException ex)
+		{
+			AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, $"Invalid regular expression '{regex}': {ex.Message}", element, configPath);
+		}
+	}
+
+	private static bool IsReturnValueMatcherRule(XElement element)
+	{
+		var result = element.Parent?.Name.LocalName == "ReturnValuePolicy"
+		             && CodeObservationMatchTargetParser.TryParse(element.Name.LocalName, out _);
+
+		return result;
+	}
+
+	private static void ValidateReturnValueMatcherRule(XElement element, string configPath, ImmutableArray<ConfigurationIssue>.Builder issues)
+	{
+		if (!CodeObservationMatchTargetParser.TryParse(element.Name.LocalName, out var target)
+			|| target == CodeObservationMatchTarget.Throw)
+		{
+			AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, "ReturnValuePolicy supports Literal, Invocation, New, Identifier, and MemberAccess matcher children.", element, configPath);
+
+			return;
+		}
+
+		var unsupportedAttributes = element.Attributes()
+			.Where(attribute => IsReturnValueMatcherAttribute(attribute.Name.LocalName, target) == false)
+			.Select(attribute => attribute.Name.LocalName)
+			.ToArray();
+		if (unsupportedAttributes.Length > 0)
+		{
+			AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, $"ReturnValuePolicy {element.Name.LocalName} supports standard matcher attributes{(target == CodeObservationMatchTarget.Literal ? " and value" : string.Empty)}.", element, configPath);
 		}
 
 		if (element.Attribute("typeKind")?.Value is { } typeKind && !ITypeSymbolTypeKindExtension.IsSupportedTypeKind(typeKind))
@@ -135,6 +190,15 @@ public static class ArchitectureConfigurationValidator
 		var result = name is
 			"typeName" or "exactName" or "exactFullName" or "inherits" or "implements" or "withAttribute" or
 			"withAccessModifier" or "typeKind" or "endsWith" or "startsWith" or "contains" or "regex";
+
+		return result;
+	}
+
+	private static bool IsReturnValueMatcherAttribute(string name, CodeObservationMatchTarget target)
+	{
+		var result = IsMatcherAttribute(name)
+			|| target == CodeObservationMatchTarget.Literal && name == "value"
+			|| name is "description" or "comment";
 
 		return result;
 	}

@@ -23,6 +23,7 @@ The compose order is defined in [`docs/_readme-order.txt`](docs/_readme-order.tx
 |---|---|
 | [`docs/introduction.md`](docs/introduction.md) | Project overview, naming, restaurant example domain, and Roslyn background. |
 | [`docs/setup.md`](docs/setup.md) | NuGet setup, `.anl` settings files, inline settings, and shared project configuration. |
+| [`docs/configuration/ide-code-fixes.md`](docs/configuration/ide-code-fixes.md) | Which diagnostics have IDE fixers, what they edit, and where the analyzer tests live. |
 | [`docs/components/visual-studio-addon.md`](docs/components/visual-studio-addon.md) | Visual Studio companion extension behavior, options, graph editor, and CodeLens UI. |
 | [`docs/tools/arse.md`](docs/tools/arse.md) | Arse command/TUI usage, reports, generated config, documentation, and file associations. |
 | [`docs/components/wpf-graph-editor.md`](docs/components/wpf-graph-editor.md) | Standalone WPF graph editor usage and graph image export. |
@@ -123,18 +124,13 @@ The integration points are:
 Because the same analyzer participates in design-time and command-line compilations, the red squiggle in the editor and the error in CI come from the same rule evaluation.
 
 ---
-## Positioning and how it usually works without this project
+## Why compiler-level enforcement matters
 
-Anaal IJzer is a lightweight compile-time architecture guard for .NET.
+Anaal IJzer is a compile-time architecture and structural-policy guard for .NET. It overlaps with test-runner architecture checks such as NetArchTest and ArchUnitNET, heavyweight static-analysis platforms such as NDepend, and the old Visual Studio layer-diagram validation. It is not merely another way to write the same tests.
 
-It occupies the space between:
-- runtime architecture tests like NetArchTest / ArchUnitNET
-- heavyweight static-analysis platforms like NDepend
-- old Visual Studio layer diagram validation
+### Architecture tests are useful, but solve a different problem
 
-### The alternative: architecture tests
-
-The standard approach is to write a dedicated test project using a library such as [NetArchTest](https://github.com/BenMorris/NetArchTest) or [ArchUnitNET](https://archunitnet.readthedocs.io/):
+A common approach is to write a dedicated test project using a library such as [NetArchTest](https://github.com/BenMorris/NetArchTest) or [ArchUnitNET](https://archunitnet.readthedocs.io/):
 
 ```csharp
 // In a test project — ArchitectureTests.cs
@@ -150,17 +146,29 @@ public void Presentation_Should_Not_Depend_On_Persistence()
 }
 ```
 
-This works, but it has significant downsides:
+That is valuable for broad assertions about an assembly or a set of published types. It is not equivalent to compiler-level enforcement:
 
-1. **Slow feedback** — the violation is only visible when you run the test suite, not while you are typing. By the time CI catches it, the code is already written and often already reviewed.
+1. **Feedback and location are different.** A test reports from the test project after somebody runs it. Anaal IJzer reports on the exact source construct during design-time analysis and compilation, so the editor squiggle and CI error point to the same dependency, return expression, or declaration.
 
-2. **Wrong location** — the failure appears in a test project, not at the offending line. You see *"ArchitectureTests.Presentation_Should_Not_Depend_On_Persistence failed"*, not a red squiggle on the dependency that caused it.
+2. **Behavioural tests only see executed paths.** A `return null`, a sentinel return value, or a `throw` deep in a branch can remain invisible until a test happens to execute that path. Static type-level architecture tests can assert a relationship between types, but they do not automatically inspect every method body and every relevant syntax site.
 
-3. **Wrong concern** — structural rules do not belong in a test suite alongside behaviour tests. A failing architecture test is not a regression; it is a policy violation. Mixing them obscures both.
+3. **Complete source inspection needs a compiler host.** A test suite could add custom Roslyn or IL inspection for every return, invocation, generic argument, inheritance site, or declaration it cares about. That is effectively building a compiler inspection in a test runner. Anaal IJzer is already hosted at that point: Roslyn visits every configured matching site in the compilation, including code that no test executes.
 
-4. **Rules live in C# instead of config** — to change which layers are allowed to talk to each other you must edit code, recompile, and re-run tests. With `Architecture.anl` you edit a file and the next build picks it up.
+4. **Policy is distinct from behaviour.** A failing behaviour test says a scenario no longer works. A failing architectural policy says the code shape itself is not permitted, even when the scenario still works perfectly. Both are important, but they should be visible and owned separately.
 
-5. **Coverage gaps** — the rules only cover what someone explicitly wrote a test for. A missed `ShouldNot` call means a whole class of violations goes undetected. The analyzer enforces every edge in the graph unconditionally.
+5. **Configuration is the policy surface.** With `Architecture.anl`, layer relationships, type policies, site restrictions, and structural observations are explicit configuration. Changing the policy does not require inventing another test method or burying the rule in test code.
+
+### What Anaal IJzer adds
+
+Anaal IJzer uses Roslyn's semantic model while the compiler still knows the real symbols behind the source. This makes rules about aliases, inferred locals, generic arguments, implemented interfaces, attributes, and nested boundaries dependable rather than text-based guesses.
+
+It can also enforce configured policies inside a method body. For example, a [`ReturnValuePolicy`](docs/configuration/return-value-policies.md) can reject a direct `return null`, an empty string, an enum-zero sentinel, or the unchanged result of a method annotated as optional. The analyzer reports each matching return expression even when the method is never exercised by a test.
+
+For a rule that must hold at every relevant source site, runtime coverage cannot prove compliance unless it executes every possible path. A test can approximate that guarantee only by adding an equivalent static inspection. That is why compiler-level analysis is not a substitute for an architecture test: it is the direct enforcement mechanism for a different class of policy.
+
+### Complementary tools
+
+Architecture tests still have a place for broad checks over shipped assemblies, external binaries, or intentional test-suite-level assertions. Behavioural and integration tests remain essential for proving that the application works. Anaal IJzer complements them by making configured structural and semantic policies part of ordinary compilation, with immediate feedback at the offending line.
 
 ## Setup
 
@@ -285,7 +293,7 @@ public sealed class OrderRepository { }
 
 The analyzer recognizes `AssemblyMetadata("AnaalIJzerSettings", "...")` and reads the second constructor argument as XML. No custom helper attribute or extra package reference is needed.
 
-If both config sources exist, `Architecture.anl` wins and the inline metadata value is ignored. The "Add to exceptions" code fix edits file-based XML, including included files that own the matched rule, so inline settings are best for compact examples, not for a large team config that you expect the IDE to maintain. The simple one-file examples in this repository use `AssemblyMetadata("AnaalIJzerSettings", ...)`, and exact type-name rules use `nameof(...)` so refactors break the code at compile time instead of quietly breaking the config. Broader examples use XML files when that makes the configuration easier to read.
+If both config sources exist, `Architecture.anl` wins and the inline metadata value is ignored. Visual Studio and Rider code fixes can now edit both file-based settings and inline `AssemblyMetadata("AnaalIJzerSettings", ...)`, including the owning included file when a rule comes from `<Include>`. The simple one-file examples in this repository use `AssemblyMetadata("AnaalIJzerSettings", ...)`, and exact type-name rules use `nameof(...)` so refactors break the code at compile time instead of quietly breaking the config. Broader examples use XML files when that makes the configuration easier to read. See [IDE code fixes](docs/configuration/ide-code-fixes.md) for the supported fixer matrix.
 
 **Example project:** [`Example.InlineXml`](Examples/Features/Example.InlineXml)
 
@@ -302,9 +310,20 @@ The self-contained projects under [`Examples/`](Examples/) are referenced inline
 
 ---
 
-## Visual Studio companion extension
+## Visual Studio 2026 companion extension
 
-The analyzer already reports the actual `ARCH00X` diagnostics in Visual Studio. The companion extension adds editor-only context on top of those diagnostics: it shows which configured layer a type belongs to, and it can label dependency sites while you are reading code.
+The Visual Studio add-on is a VSIX companion for the analyzer. The analyzer remains the authority for `ARCH00X` diagnostics; the extension makes the configured architecture visible while you read and edit code.
+
+It adds four visual workflows to Visual Studio 2026:
+
+- **Layer information**: badges, CodeLens-style summaries, gutter glyphs, highlights, and QuickInfo explain configured layers.
+- **Sites Diagnostics**: optional inline labels identify architectural sites such as constructors, fields, locals, inheritance, and generic arguments.
+- **Dependency graphs**: a dockable sidebar shows the configured layer graph, follows the active file, and can focus the graph that affects it.
+- **Configuration fixes**: the graph can preview and apply the same configuration-fix proposals that appear through analyzer light bulbs and Arse.
+
+The screenshots below isolate a setting or tightly related set of settings so a reader can tell exactly what each control changes.
+
+### Install
 
 Build the VSIX from the repository root:
 
@@ -318,30 +337,278 @@ The GitHub `build-vsix.yml` workflow builds and uploads the VSIX artifact on Win
 
 The extension reads the same `Architecture.anl` or `AssemblyMetadata("AnaalIJzerSettings", ...)` configuration as the analyzer through Visual Studio's Roslyn workspace. If no AnaalIJzer config exists, it renders nothing. If the config is invalid, the extension stays quiet and leaves the existing `ARCH006` analyzer diagnostic as the source of truth.
 
+### Layer information on declarations
+
 Layer indicators are controlled from Visual Studio 2026 Settings under `AnaalIJzer > Editor`:
 
 | Option | Default | Meaning |
 |---|---:|---|
-| Show layer badges | On | Shows the resolved canonical layer path after class, interface, struct and record declarations. |
-| Show layer badges when not in layer | Off | Shows a neutral `not in layer` badge for type declarations that do not match any configured layer. |
-| Gutter glyphs | On | Shows a small layer marker beside layered type declarations. |
-| Highlight code in layer | On | Highlights layered type declaration blocks using fixed Fonts & Colors entries named `AnaalIJzer Layer 01` through `AnaalIJzer Layer 16`, plus a subtle block outline in the editor. Layer paths map to slots deterministically by configuration document order. |
-| Individual site diagnostics | Off | Each supported site has its own switch, such as `Show Constructor Site Diagnostics`, `Show Local Site Diagnostics`, `Show InterfaceImplementation Site Diagnostics`, and `Show StaticMember Site Diagnostics`. |
-| Graph focus mode | Highlight current | Controls whether the dependency graph tool window shows every graph, highlights the graph that affects the active editor, or filters to only the active graph. |
+| Show layer badges | On | Shows the resolved canonical layer path after a type declaration identifier. |
+| Show layer metadata above declarations | On | Shows a clickable CodeLens-style AnaalIJzer summary above a type declaration. |
+| Show layer badges when not in layer | Off | Shows a neutral `not in layer` badge for a type that does not match any configured layer. |
+| Show global layer rules in badge hover | Off | Includes wildcard rules such as `* (any layer)` in badge hover details. |
+| Show mini call graph in badge hover | On | Shows a compact one-to-one dependency chain in badge hover details when the graph is linear. |
+| Gutter glyphs | On | Shows a small layer marker beside a layered type declaration. |
+| Highlight code in layer | On | Shows a region-like block highlight around a layered type declaration. |
+| Tint layer declaration text | Off | Applies the older line-background tint to a layered type declaration. |
 
-You can also toggle site labels from `Extensions > IJzer > Toggle Sites Diagnostics` or command search. The command turns every site label on when none are enabled, and turns every site label off when at least one is enabled. These labels do not create or suppress diagnostics; they only make the syntax site visible while the analyzer remains responsible for compile/build errors. Site labels use separate allowed, warning, unclassified, and error colors so an allowed constructor dependency does not look the same as a site-filtered or blocked dependency.
+![AnaalIJzer editor settings](Examples/Assets/VisualStudio/editor-settings.png)
 
-Use `Extensions > IJzer > Show Dependency Graphs` or command search to open a dockable dependency-graph sidebar. The sidebar groups concrete layer rules into connected graphs and shows wildcard/global rules separately. When the active editor contains a type assigned to a layer, the configured graph focus mode can either keep all graphs visible and highlight the affected one, or show only the affected graph.
+![Layer badge](Examples/Assets/VisualStudio/layer-badge.png)
+
+![Layer metadata above a declaration](Examples/Assets/VisualStudio/layer-codelens.png)
+
+![Not in layer badge](Examples/Assets/VisualStudio/not-in-layer-badge.png)
+
+![Layer gutter glyph](Examples/Assets/VisualStudio/layer-gutter-glyph.png)
+
+![Layer block highlight](Examples/Assets/VisualStudio/layer-block-highlight.png)
+
+Hovering a layered type or dependency site also shows native Visual Studio QuickInfo. Layer QuickInfo shows the canonical path, ancestry, palette slot, description when configured, which layers may call the current layer, and which layers the current layer may call.
+
+![Layer CodeLens and QuickInfo](Examples/Assets/VisualStudio/layer-badge-hover-info.png)
+
+### Layer information and Sites Diagnostics at dependency sites
+
+Layer information and Sites Diagnostics use the same supported dependency sites but answer different questions. A layer-information label says which configured layer the referenced type belongs to. A Sites Diagnostics label says where the dependency appears in C#.
+
+`Show all layer information` enables every layer-information label. `Show all site diagnostics` enables every site label. The controls below can also be enabled independently:
+
+| Site | Layer-information control | Sites Diagnostics control |
+|---|---|---|
+| Constructor | Show Constructor Layer Information | Show Constructor Site Diagnostics |
+| Method | Show Method Layer Information | Show Method Site Diagnostics |
+| Method return | Show MethodReturn Layer Information | Show MethodReturn Site Diagnostics |
+| Field | Show Field Layer Information | Show Field Site Diagnostics |
+| Property | Show Property Layer Information | Show Property Site Diagnostics |
+| Local | Show Local Layer Information | Show Local Site Diagnostics |
+| Object creation | Show New Layer Information | Show New Site Diagnostics |
+| Generic invocation | Show GenericInvocation Layer Information | Show GenericInvocation Site Diagnostics |
+| Generic argument | Show GenericArgument Layer Information | Show GenericArgument Site Diagnostics |
+| Base class | Show Inheritance Layer Information | Show Inheritance Site Diagnostics |
+| Implemented interface | Show InterfaceImplementation Layer Information | Show InterfaceImplementation Site Diagnostics |
+| Attribute | Show Attribute Layer Information | Show Attribute Site Diagnostics |
+| Static member access | Show StaticMember Layer Information | Show StaticMember Site Diagnostics |
+
+The labels do not create or suppress diagnostics. They make the syntactic location and resolved layer visible while the analyzer remains responsible for compile/build errors. Separate allowed, warning, unclassified, and error colors make an allowed constructor dependency distinct from a site-filtered or blocked one.
+
+For a clean demonstration of every site in one editor tab, open [`Example.VisualStudioSiteDiagnostics`](Examples/Documentation/Example.VisualStudioSiteDiagnostics). It deliberately has no analyzer violations, so the layer and site labels remain easy to inspect.
+
+The constructor is the smallest useful site example: its Site Diagnostics label identifies the dependency location without changing the analyzer's build result.
+
+![Constructor Site Diagnostics](Examples/Assets/VisualStudio/site-diagnostics-constructor.png)
+
+![All Layer Information sites](Examples/Assets/VisualStudio/site-layer-information-all-sites.png)
+
+### Dependency graphs
+
+Use `Extensions > IJzer > Show Dependency Graphs` or command search to open a dockable dependency-graph sidebar. The sidebar groups concrete layer rules into connected graphs and shows wildcard/global rules separately. The graph is the same reusable WPF editor hosted by the standalone graph editor. It supports layer grouping, user-controlled layout, connector-based dependency creation, right-click editing, nested-boundary visualization, and PNG export.
+
+![Dependency graph without code evidence](Examples/Assets/VisualStudio/graph-no-code.png)
+
+| Option | Default | Meaning |
+|---|---:|---|
+| Graph focus mode | Highlight current | Chooses `Show all graphs`, `Highlight current graph`, or `Filter to current graph` for the active editor. |
+| Open .anl files in diagram editor | On | Opens or selects an `.anl` settings file in the graph editor automatically. |
+| Include code evidence | Off | Includes matching project types and observed violations in graph snapshots. |
+
+![Dependency graph with code evidence](Examples/Assets/VisualStudio/graph-with-code.png)
+
+### Configuration fixes from the graph
+
+When the graph comes from an active C# document in a loaded Visual Studio project, it exposes `Configuration fixes` in both the root inspector and the selected layer or connection inspector. The same shared configuration-fix proposal catalog is used by Roslyn light bulbs, `arse fixes`, and the standalone graph editor. It can:
+
+- scan the active project for fixable AnaalIJzer diagnostics;
+- show the target file, risk level, and preview diff for each proposal;
+- apply one selected proposal and immediately refresh the graph.
+
+You can also right-click a layer or dependency connection and jump straight to the scoped fixer view for that selection. The proposal list is filtered to the selected layer or dependency pair, so you do not have to scan every fix in the active project by hand.
+
+Detached `.anl` files still open in the graph editor, but they do not automatically have enough Roslyn project context to offer analyzer-backed configuration fixes.
+
+### Status and troubleshooting
 
 Use `Extensions > IJzer > Show Status` if the editor appears quiet. It analyzes the active document and reports whether the file is part of Visual Studio's Roslyn workspace, whether settings were found, how many layer/site indicators were produced, and whether configuration issues are suppressing visual adornments.
 
-Hovering a layered type or dependency site shows native Visual Studio QuickInfo. Layer QuickInfo shows the canonical path, ancestry, palette slot, description when configured, which layers may call the current layer, and which layers the current layer may call. Site QuickInfo shows the site name, caller, dependency, status, diagnostic ID when present, and the same denial reason used by the analyzer snapshot.
-
 The companion writes diagnostic logs to Visual Studio's Activity Log and to an Output window pane named `AnaalIJzer`. If settings, menu commands, or editor visuals do not appear, start Visual Studio with logging enabled, reproduce the issue, and search the Activity Log for `AnaalIJzer`. If there are no `AnaalIJzer` entries at all, the VSIX package is not loading; if package initialization is present but no tagger entries appear, the editor MEF component is not being created for the active C# view.
+
+For local validation, use the [Visual Studio companion manual acceptance checklist](docs/visual-studio-companion-manual-acceptance.md). If no adornments appear, run `Extensions > IJzer > Show Status` first. The extension reads analyzer `AdditionalFiles`, inline `AssemblyMetadata("AnaalIJzerSettings", ...)`, and as an editor-only convenience the nearest `Architecture.anl` above the active document; if the config is invalid, the companion intentionally renders nothing and leaves the `ARCH006` diagnostic as the source of truth.
+
+### Technical notes
 
 The VSIX uses classic Visual Studio editor extension points: MEF taggers, glyphs, inline adornments, option pages and Fonts & Colors format definitions. The shared snapshot logic lives in the analyzer assembly under `RonSijm.AnaalIJzer.Editor`, so the extension does not duplicate config parsing or layer matching.
 
-For local validation, use the [Visual Studio companion manual acceptance checklist](docs/visual-studio-companion-manual-acceptance.md). If no adornments appear, run `Extensions > IJzer > Show Status` first. The extension reads analyzer `AdditionalFiles`, inline `AssemblyMetadata("AnaalIJzerSettings", ...)`, and as an editor-only convenience the nearest `Architecture.anl` above the active document; if the config is invalid, the companion intentionally renders nothing and leaves the `ARCH006` diagnostic as the source of truth.
+## IDE code fixes
+
+Visual Studio and Rider can now apply AnaalIJzer fixes against both:
+
+- file-based `Architecture.anl`;
+- inline `AssemblyMetadata("AnaalIJzerSettings", ...)`.
+
+The analyzer still owns the diagnostics. The code-fix layer only proposes deterministic edits that are local, previewable, and unlikely to invent architecture by accident.
+
+There are two families of fixes:
+
+- **source fixes** change C# code directly;
+- **configuration fixes** change `Architecture.anl` or inline `AssemblyMetadata`.
+
+Arse reuses the same configuration-fix catalog headlessly through `arse fixes` and `arse apply-fix`. That means the light-bulb suggestions you see in the IDE and the proposal list you can review in CI or a terminal come from the same underlying fix implementations.
+
+The Visual Studio dependency-graph tool window now reuses that same shared catalog as well. From `Extensions > IJzer > Show Dependency Graphs`, the graph can load fix proposals for the active project, preview the config diff, and apply one proposal without leaving the graph view. The root inspector shows the full project list, while selecting or right-clicking a layer or dependency connection switches to a filtered selection-scoped view.
+
+For the broader mental model, ownership rules, and risk labels, see [Configuration fixers](docs/configuration/config-fixers.md).
+
+### Support matrix
+
+| Diagnostic | IDE fix support | Covered by tests |
+|---|---|---|
+| `ARCH001` | add missing `<AllowedDependency>`; extend `allowedSites`; relax `blockedSites`; add exception | `DependencyRuleCodeFixTests.cs`, `AddToExceptionsCodeFixTests.cs` |
+| `ARCH002` | classify the unknown dependency into an existing layer; remove the current site from `requireRecognizedDependencies` globally or for the current caller layer | `RecognizedDependencyCodeFixTests.cs` |
+| `ARCH003` | forbidden rule match: rename via `<Fix Rename="...">` or add exception; allow-list failure: add exact `<Class typeName="..."/>` to every applicable `<Allowed>` list | `RenameCodeFixTests.cs`, `AllowedTypePolicyCodeFixTests.cs`, `AddToExceptionsCodeFixTests.cs` |
+| `ARCH004` | add the forward `<AllowedDependency>`; flip the exact configured reverse `<AllowedDependency>` when one concrete reverse rule exists; repair site filters; add exception | `DependencyRuleCodeFixTests.cs`, `AddToExceptionsCodeFixTests.cs` |
+| `ARCH005` | add a same-layer self-edge, optionally site-scoped; add exception | `DependencyRuleCodeFixTests.cs`, `AddToExceptionsCodeFixTests.cs` |
+| `ARCH007` | for each concrete allowed edge in a configured cycle: add a matching blocking edge, or remove that allowed edge; the user chooses the edge | `CycleDependencyCodeFixTests.cs` |
+| `ARCH008` | rename the declaration when the rule compares declaration name to semantic type; add `<Allow from="..." to="..."/>` mappings, including a site-scoped variant for `RequireMatchingNames` | `DeclarationNameCodeFixTests.cs`, `NameRuleAllowMappingCodeFixTests.cs` |
+| `ARCH009` | add or widen `<ApiSurface><AllowedLayer ... /></ApiSurface>`; relax `blockedSites`; disable `requireRecognizedTypes` when that is the denial | `ApiSurfacePolicyCodeFixTests.cs` |
+| `ARCH010` | add a missing `<AllowedProjectReference>`; add an explicit same-group self-edge; remove the matching blocking `<BlockedProjectReference>` rule | `ProjectArchitectureCodeFixTests.cs` |
+| `ARCH011` | append an exact `<Package exactName="..."/>` matcher to the matched allowed package list | `PackagePolicyCodeFixTests.cs` |
+| `ARCH012` | add the reported visibility to `allowedAccessibilities`; remove it from `blockedAccessibilities`; remove a single-value blocking policy entirely | `VisibilityPolicyCodeFixTests.cs` |
+| `ARCH013` | remove a disallowed property setter when the violation is exactly that accessor | `ContractPurityCodeFixTests.cs` |
+| `ARCH014` | the same `ApiSurface` configuration fixes as `ARCH009` | `ApiSurfacePolicyCodeFixTests.cs` |
+| `ARCH015` | add an exact `<Source exactName="..."/>` rule to the owning layer | `SourceLocationCodeFixTests.cs` |
+| `ARCH016` | add a boundary `<EntryPoint>`; add a required site to `allowedSites`; remove the current site from `blockedSites` | `BoundaryEntryPointCodeFixTests.cs` |
+| `ARCH018` | no configuration fix: this reports an observed source-code cycle, which configuration editing cannot honestly repair | `ExampleConfigurationFixIntegrationTests.cs` |
+| `ARCH019` | add a single required base type or a single required interface when the change is unambiguous | `InheritancePolicyCodeFixTests.cs` |
+| `ARCH020` | no automatic fix: a forbidden return expression does not tell the analyzer which domain result should replace it | `ReturnValuePolicyAnalyzerTests.cs` |
+
+### Deliberate limits
+
+- `ARCH010` and `ARCH011` are compilation-end diagnostics. The config edits exist and are covered by analyzer tests, but whether an IDE host shows them as ordinary editor light bulbs depends on how that host surfaces `Location.None` diagnostics.
+- `ARCH013`, `ARCH019`, and `ARCH020` stay intentionally narrow. If the analyzer cannot tell which one deterministic edit is the right one, it does not guess.
+- Configuration fixers preserve the owning source where possible:
+  - if a rule came from an included `.anl`, that included file is edited;
+  - if the config came from inline `AssemblyMetadata`, the source file containing the assembly attribute is rewritten.
+
+For a light-bulb-friendly baseline, start with the analyzer tests in `src/Tests/RonSijm.AnaalIJzer.Analyzer.Tests/Diagnostics/`.
+
+For the end-to-end headless path, see `src/Tests/RonSijm.AnaalIJzer.Application.Tests/ApplicationOperations/ApplicationOperationsTests.ConfigurationFixes.cs`.
+
+For real example-project coverage, including expected proposal titles for included `.anl`, inline `AssemblyMetadata`, site filters, name rules, source locations, and project architecture scenarios, see `src/Tests/RonSijm.AnaalIJzer.IntegrationTests/ExampleConfigurationFixIntegrationTests.cs`.
+
+For Visual Studio graph-window state coverage, including preserving the active project context across graph refreshes, see `src/Tests/RonSijm.AnaalIJzer.VisualStudio.Tests/Graphs/ArchitectureGraphToolWindowStateTests.cs`.
+
+## Configuration fixers
+
+Configuration fixers are the part of AnaalIJzer that edit the architecture settings instead of editing your C# code.
+
+For a configured cycle (`ARCH007`), the fixer presents the exact allowed edges in the cycle and lets you choose one to block or remove. It does not choose an architectural direction on your behalf. An observed source-code cycle (`ARCH018`) has no configuration fixer: changing a rule would not remove the code dependency that created it.
+
+That distinction matters:
+
+- a **source fix** changes code, such as renaming a declaration;
+- a **configuration fix** changes `Architecture.anl` or inline `AssemblyMetadata("AnaalIJzerSettings", ...)`.
+
+Use configuration fixers when the code is acceptable but the rule set needs a narrow, explicit update.
+
+### What they are for
+
+The fixers are designed for maintenance work that is repetitive but still deterministic:
+
+- add one missing `<AllowedDependency>`;
+- append one missing `allowedSites` token;
+- remove one blocking `blockedSites` token;
+- classify one unknown dependency into an existing layer;
+- add one exception entry;
+- add one allow-list or boundary entry-point item.
+
+They are intentionally conservative. They do not try to redesign the architecture for you.
+When there is more than one plausible architecture edit, they should present named choices and let you pick one.
+
+### Where they work
+
+The same shared fixer catalog is reused by three hosts:
+
+| Host | What you can do |
+|---|---|
+| Visual Studio / Rider light bulbs | apply source fixes and configuration fixes from diagnostics |
+| Visual Studio dependency graph | preview and apply configuration fixes from the active project, including layer- and dependency-scoped graph selections |
+| Arse | list proposals with `arse fixes` and apply one with `arse apply-fix` |
+| WPF graph editor | load, preview, filter, and apply configuration fixes from project or solution input |
+
+The host UI changes, but the proposal generation is shared. That keeps the terminal, graph editor, and IDE from disagreeing about what a safe config change looks like.
+
+### Ownership rules
+
+Every proposal targets the real owning source:
+
+- if the rule came from the root `Architecture.anl`, that file is edited;
+- if the rule came from an included `.anl`, that included file is edited;
+- if the rule came from inline `AssemblyMetadata`, the source file that contains that assembly attribute is edited.
+
+That way the fix does not silently flatten includes or move rules into the wrong file.
+
+### Risk labels
+
+Each proposal is ranked as one of these:
+
+- `Safe`: a narrow edit with one obvious meaning;
+- `Guided`: still deterministic, but it changes policy more directly;
+- `High risk`: technically valid, but broad enough that you should read it carefully first.
+
+In practice:
+
+- adding a single missing site token is `Safe`;
+- adding a new `<AllowedDependency>` is usually `Guided`;
+- flipping one exact reverse `<AllowedDependency>` for `ARCH004` is `Guided`;
+- widening API-surface policy is `High risk`.
+
+### Typical flow
+
+1. AnaalIJzer reports a diagnostic.
+2. The fixer catalog checks whether a deterministic config edit exists.
+3. A proposal is created with title, reason, target file, and preview diff.
+4. The host shows that proposal.
+5. You choose whether to apply it.
+6. The project or config is analyzed again.
+
+The important part is that the UI never edits XML text directly. It applies the same structured edit model the other hosts use.
+
+### Selection-scoped graph fixes
+
+The graph editors support two views of the same proposal list:
+
+- a **root view** with every proposal found for the current project or solution;
+- a **selection-scoped view** filtered to the chosen layer or dependency pair.
+
+In the Visual Studio graph and the standalone WPF graph editor, right-clicking a layer or dependency connection and choosing `Show configuration fixes` switches directly to that filtered view.
+
+That is useful when a large project has many proposals but you are only investigating one boundary.
+
+### Current diagnostic coverage
+
+The current configuration-fix coverage is documented in [IDE code fixes](docs/configuration/ide-code-fixes.md). That page is the support matrix; this page is the mental model.
+
+### Where to verify it
+
+The feature is intentionally covered at several levels:
+
+- analyzer fixer tests: `src/Tests/RonSijm.AnaalIJzer.Analyzer.Tests/Diagnostics/`
+- application-level project and solution flows: `src/Tests/RonSijm.AnaalIJzer.Application.Tests/ApplicationOperations/ApplicationOperationsTests.ConfigurationFixes.cs`
+- real example-project expectations: `src/Tests/RonSijm.AnaalIJzer.IntegrationTests/ExampleConfigurationFixIntegrationTests.cs`
+- WPF graph-editor selection filtering: `src/Tests/RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests/Controls/ArchitectureGraphEditorControlPersistenceTests.ConfigurationFixSelection.cs`
+- Visual Studio graph context preservation: `src/Tests/RonSijm.AnaalIJzer.VisualStudio.Tests/Graphs/ArchitectureGraphToolWindowStateTests.cs`
+- Arse command-line support: `src/Tests/RonSijm.AnaalIJzer.Arse.Tests/`
+
+### When not to use one
+
+Sometimes the right fix is still a code change, not a config change:
+
+- renaming a declaration so it matches a naming rule;
+- moving a type into the correct file or folder;
+- extracting an interface or projection to the right layer;
+- deleting a bad dependency instead of allowing it.
+
+AnaalIJzer should help with both kinds of repair, but it should not use a config escape hatch when the code is simply wrong.
 
 ## Arse TUI
 
@@ -364,6 +631,9 @@ arse report        --project src\MyApp\MyApp.csproj --output docs\architectural-
 arse report        --solution src\MyApp.slnx --output docs\architectural-violations.md --force
 arse inspect       --project src\MyApp\MyApp.csproj --output docs\architecture-health.md --force
 arse inspect       --solution src\MyApp.slnx --output docs\architecture-health.md --force
+arse fixes         --project src\MyApp\MyApp.csproj
+arse fixes         --solution src\MyApp.slnx --output docs\architecture-fixes.md --force
+arse apply-fix     --project src\MyApp\MyApp.csproj --fix-id fix-abc123
 arse merge-config  --config Shared.anl --config Project.anl --output Architecture.anl --force
 arse split-config  --config Architecture.anl --output ArchitectureRules --force
 arse format-config --config Architecture.anl
@@ -470,6 +740,12 @@ The manifest includes every generated file, so it remains a complete replacement
 
 `explain-config` writes a compact Markdown walkthrough of a settings file in XML order: root settings, includes, layers, matchers, dependency rules, type policies and name rules. It is intentionally shorter than generated architecture documentation and useful during review when you want to understand what a ruleset says before loading a project.
 
+`fixes` lists configuration-backed proposals from the same Roslyn fixer catalog used by the IDE. One diagnostic may offer several proposals, for example adding a missing `AllowedDependency`, widening `allowedSites`, or relaxing `blockedSites`. Arse shows the proposals with stable ids, a risk label, the target file, and a preview diff so you can review them before applying anything.
+
+`apply-fix` applies one of those proposal ids back to the owning settings source. If the rule came from an included `.anl`, Arse edits that included file. If the project uses inline `AssemblyMetadata("AnaalIJzerSettings", ...)`, Arse rewrites only the metadata string in the owning source file. After applying a fix, Arse reruns the proposal collection so you can immediately see what remains.
+
+The executable coverage lives in [`src/Tests/RonSijm.AnaalIJzer.Application.Tests/ApplicationOperations/ApplicationOperationsTests.ConfigurationFixes.cs`](src/Tests/RonSijm.AnaalIJzer.Application.Tests/ApplicationOperations/ApplicationOperationsTests.ConfigurationFixes.cs). Those tests exercise both file-based and inline settings projects end to end: list proposals, apply one fix, and verify that the proposal list becomes empty afterward.
+
 Arse's interactive and headless modes share `RonSijm.AnaalIJzer.Application`. Its `ToolOperationCatalog`, `ToolRequest` and `ToolRunner` own the available operations, supported inputs, validation and execution behavior, keeping both modes in feature parity.
 
 ## WPF graph editor component
@@ -496,6 +772,10 @@ The editor is source-aware. It can edit XML settings files and inline `AssemblyM
 - editing allowed/blocked dependency kind, site filters, descriptions and descendant cascading;
 - editing layer matchers, scoped type policies, includes and root settings from the inspector.
 - exporting the currently rendered graph surface to a PNG image.
+
+When the standalone harness is opened from a `.csproj`, `.sln`, or `.slnx`, the graph exposes `Configuration fixes` in both the root inspector and the selected layer or connection inspector. That panel uses the same shared configuration-fix catalog as the Roslyn light bulbs and `arse fixes`, shows preview diffs, and can apply one proposal and immediately reload the diagram.
+
+Right-clicking a layer or connection also offers a direct `Show configuration fixes` entry point. The resulting inspector view filters the loaded proposal list to the selected layer or dependency pair.
 
 The component itself is not a Roslyn analyzer. It edits the configuration model through `RonSijm.AnaalIJzer.ConfigurationEditing`, and hosts decide where snapshots come from. Visual Studio builds snapshots from the active Roslyn workspace. The standalone harness treats `Architecture.anl` as the normal settings file and can also open project, solution, and legacy `.xml` inputs. Project and solution inputs use the shared MSBuildWorkspace tooling host, choose the first project with an AnaalIJzer configuration as the editable settings source, and overlay solution-wide code evidence on the diagram.
 
@@ -544,7 +824,7 @@ The GitHub `build_main.yml` workflow builds this Windows-only editor, uploads `b
 
 The standalone graph editor is not shipped as a `dotnet tool install` package. The .NET SDK does not support `PackAsTool` for WPF or WindowsDesktop projects, so Arse remains the command-line dotnet tool while the graph editor is distributed as a Windows executable artifact and hosted inside the Visual Studio extension.
 
-The WPF behavior is covered by `RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests`, including persistence from visual edits, inline-settings edits, context menus, connector-created dependencies, layout preservation, group collapse and theme behavior.
+The WPF behavior is covered by `RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests`, including persistence from visual edits, inline-settings edits, context menus, connector-created dependencies, layout preservation, group collapse, theme behavior, and shared configuration-fix preview/apply behavior, including selection-scoped filtering.
 
 ## Configuration mental model
 
@@ -656,6 +936,7 @@ The XML root element is `<ArchitecturalLevels>`. It supports the child elements 
 
 | Feature | Doc file |
 |---|---|
+| Configuration fixers | `config-fixers.md` |
 | Include files | `include.md` |
 | Layers and matchers | `layers.md` |
 | Allowed dependencies | `allowed-dependency.md` |
@@ -668,6 +949,7 @@ The XML root element is `<ArchitecturalLevels>`. It supports the child elements 
 | Visibility policies | `visibility-policies.md` |
 | Inheritance policies | `inheritance-policies.md` |
 | Contract purity | `contract-policies.md` |
+| Return-value policies | `return-value-policies.md` |
 | Project architecture | `project-architecture.md` |
 | API surface policies | `api-surface.md` |
 | Transitive API exposure | `transitive-api-exposure.md` |
@@ -1331,7 +1613,7 @@ When a dependency matches a rule **and** matches any of that rule's exceptions, 
 </Layer>
 ```
 
-The intent is the **ratchet pattern**: lock in current violations as a baseline so the rule blocks *new* offenders without forcing a flag-day rewrite. (Unlike you - ) this mechanism is **deliberately** dumb — it does not track when an exception was added, expire it, or report on it.
+The intent is the **ratchet pattern**: lock in current violations as a baseline so the rule blocks *new* offenders without forcing a flag-day rewrite. This mechanism is deliberately simple: it does not track when an exception was added, expire it, or report on it.
 
 **Example project:** [`Example.Exceptions`](Examples/Features/Example.Exceptions)
 
@@ -1385,7 +1667,9 @@ public class OrderManager(OrderStore store) { }
 
 #### Code fix
 
-When the config comes from an `Architecture.anl` additional file, ARCH001/ARCH003/ARCH004/ARCH005 diagnostics register an **"Add '`TypeName`' to exceptions"** code action that appends the offending type to the originating rule's `<Exceptions>` block (creating the block if needed). Existing comments and most whitespace in the XML are preserved. Inline `AssemblyMetadata("AnaalIJzerSettings", ...)` config has no file for the IDE to edit, so this code action is not offered there. ARCH002 has no such action — it fires precisely *because* a dependency isn't classified, and adding it to an exceptions list wouldn't change that; the fix is to add the type to a `<Layer>` instead.
+Forbidden-rule diagnostics with an originating matcher register an **"Add '`TypeName`' to exceptions"** code action that appends the offending type to that matcher's `<Exceptions>` block, creating the block if needed. This works for both `Architecture.anl` and inline `AssemblyMetadata("AnaalIJzerSettings", ...)`, and if the matcher came from an included file the fix edits that owning file instead of the top-level one.
+
+Allow-list failures are different: there is no single matcher to except, so the IDE offers an **allow-list** fixer instead that adds an exact `<Class typeName="..."/>` matcher to every applicable `<Allowed>` list. ARCH002 also has no exception action; it offers layer classification or `requireRecognizedDependencies` relaxation because that is what actually resolves the finding.
 
 #### Nesting
 
@@ -1920,6 +2204,55 @@ Arse includes contract-purity findings in `inspect`, `report`, generated documen
 - [`Example.Arch013.ContractPurity`](Examples/Diagnostics/Example.Arch013.ContractPurity) - getter-only contract properties; setters trigger `ARCH013`.
 - [`Example.Arch013.ContractPurity.MethodBodyNotAllowed`](Examples/Diagnostics/Example.Arch013.ContractPurity.MethodBodyNotAllowed) - contract methods stay signature-only; default interface method bodies trigger `ARCH013`.
 
+### Return-value policies
+
+`<ReturnValuePolicy>` rejects configured **direct return expressions** from methods in its owning layer and descendants. It is useful when a particular return value is a sentinel that hides a decision the method should make explicitly.
+
+It does not impose a universal “never return null” opinion. You decide which returned expressions are unacceptable:
+
+```xml
+<Layer name="Kitchen">
+  <Class endsWith="Kitchen" />
+
+  <ReturnValuePolicy description="The kitchen makes serving decisions before returning to the waiter.">
+    <Literal value="null" description="No invisible empty plate." />
+    <Literal value="" description="No empty menu name." />
+    <Literal value="42" description="No magic slice-count fallback." />
+    <Literal value="0" description="No unnamed enum-zero status." />
+    <Invocation withAttribute="JetBrains.Annotations.CanBeNullAttribute"
+                description="Optional lookup results get a real fallback." />
+  </ReturnValuePolicy>
+</Layer>
+```
+
+Sibling matcher elements are alternatives: returning a value matching **any** one produces `ARCH020`. Attributes on one matcher are combined, just like layer matchers.
+
+#### Supported direct return matchers
+
+| Child element | Matches | Typical use |
+|---|---|---|
+| `<Literal>` | A direct literal, including `null`, `""`, numeric values, booleans, and enum casts | `<Literal value="null" />`, `<Literal value="0" />` |
+| `<Invocation>` | A direct method invocation | `<Invocation withAttribute="JetBrains.Annotations.CanBeNullAttribute" />` |
+| `<New>` | A direct `new` / target-typed `new()` result | Forbid returning a raw mutable implementation |
+| `<Identifier>` | A directly returned identifier | Forbid returning a known sentinel variable |
+| `<MemberAccess>` | A directly returned property or field access | Forbid a static `None` / `Empty` member where appropriate |
+
+`Literal` has a dedicated `value` attribute. It deliberately supports an empty value, so `<Literal value="" />` means an empty string. Numeric enum casts are unwrapped before matching, so `<Literal value="0" />` also catches `return (PizzaStatus)0;`.
+
+The usual matcher attributes also work where Roslyn can resolve the expression: `typeName`, `exactName`, `exactFullName`, `endsWith`, `startsWith`, `contains`, `regex`, `inherits`, `implements`, `withAttribute`, `withAccessModifier`, and `typeKind`. For example, the annotation matcher above uses the invoked method symbol’s attribute name. That remains configuration-driven: AnaalIJzer does not reference `JetBrains.Annotations`.
+
+The analyzer only rejects values returned **unchanged**. A handling expression such as `lookup.FindPizza() ?? Pizza.Margherita` is not a direct `Invocation` return, because the kitchen has made an explicit fallback decision.
+
+Return-value policies are cumulative through nested layers. An outer policy applies to a child layer, and a child cannot cancel an outer forbidden expression.
+
+There is intentionally no code fix for `ARCH020`: the configuration identifies an unacceptable result, but only the application can decide the correct replacement.
+
+**Focused examples:**
+
+- [`Example.Arch020.ExplicitNullReturn`](Examples/Diagnostics/Example.Arch020.ExplicitNullReturn) - `Literal value="null"` rejects a direct null return.
+- [`Example.Arch020.AnnotatedInvocationReturn`](Examples/Diagnostics/Example.Arch020.AnnotatedInvocationReturn) - an annotation matcher rejects returning an optional lookup unchanged.
+- [`Example.Arch020.ConfiguredLiteralReturns`](Examples/Diagnostics/Example.Arch020.ConfiguredLiteralReturns) - empty-string, numeric, and enum-zero sentinels are configuration values.
+
 ## Project Architecture
 
 `ProjectArchitecture` adds rules for `.csproj` references.
@@ -2014,6 +2347,17 @@ Roslyn does not reliably expose project-reference provenance by itself.
 The analyzer package therefore ships a `buildTransitive` target that writes a small project-reference manifest and adds it as an analyzer `AdditionalFile`.
 
 Arse and solution inspection do not need that generated manifest because they can inspect `MSBuildWorkspace` project references directly.
+
+### IDE Fix Support
+
+For deterministic cases, the config fixer layer can update project architecture rules too:
+
+- `ARCH010` can add a missing `<AllowedProjectReference from="..." to="..." />`
+- same-group `ARCH010` can add an explicit self-edge
+- blocked-edge `ARCH010` can remove the matching `<BlockedProjectReference ... />`
+- `ARCH011` can append an exact `<Package exactName="..."/>` matcher to the matched allowed package list
+
+Because `ARCH010` and `ARCH011` are compilation-end diagnostics, host UX varies a little: build reports and host tooling are the most reliable surfaces, while editor light-bulb visibility depends on how the IDE exposes `Location.None` diagnostics.
 
 ## API surface policies
 
@@ -2436,7 +2780,7 @@ Every XML element that participates in the ruleset can carry a `description` att
 
 ## Diagnostics
 
-The analyzer ships with nineteen diagnostic IDs. The three dependency-direction rules (ARCH001/004/005) are split by the reason a dependency is illegal, while ARCH006 and ARCH007 protect the integrity of the configuration itself. Dependency, name-rule, and API-surface diagnostics expose their syntactic site through the `Site` property.
+The analyzer ships with twenty diagnostic IDs. The three dependency-direction rules (ARCH001/004/005) are split by the reason a dependency is illegal, while ARCH006 and ARCH007 protect the integrity of the configuration itself. Dependency, name-rule, API-surface, and return-value diagnostics expose their syntactic site through the `Site` property where applicable.
 
 | ID      | Meaning                                                      |
 |---------|--------------------------------------------------------------|
@@ -2459,6 +2803,7 @@ The analyzer ships with nineteen diagnostic IDs. The three dependency-direction 
 | ARCH017 | Architecture exception metadata, expiry, or stale state requires review |
 | ARCH018 | Observed source dependencies form a cycle between configured layers |
 | ARCH019 | Declared base type or implemented interfaces violate a layer inheritance policy |
+| ARCH020 | A direct returned expression violates a layer return-value policy |
 
 The example projects referenced inline below are self-contained and deliberately broken so Visual Studio, Rider and `dotnet build` show the corresponding `ARCH00X` error.
 
@@ -2573,6 +2918,10 @@ With `requireRecognizedDependencies="Constructor"`, only `IOrderRepository` must
 
 At the root, the setting is site-scoped for every layered caller. On a layer, it is site-scoped for callers in that layer and its descendants, which is useful when only one area of a legacy codebase is ready to require fully classified dependencies. Recognized dependencies still pass through normal type policies and layer-edge rules.
 
+#### IDE code fixes
+
+When the dependency really does belong to a known role, the IDE can classify it into an existing layer by adding an exact `<Class typeName="..."/>` matcher. When the site was enforced too aggressively, the IDE can also remove the current site from `requireRecognizedDependencies` either globally or for the current caller layer.
+
 ### `enforceAcyclic` attribute
 
 Set `enforceAcyclic="true"` to require explicit allowed dependency edges to form an acyclic graph. A cycle reports ARCH007 before code needs to use every permitted direction:
@@ -2591,7 +2940,7 @@ Wildcard and self-edges are excluded because they do not describe a finite direc
 
 ### ARCH003 - Type policy violation
 
-Reported when a dependency type matches an applicable `<Forbidden>` pattern or does not match an applicable `<Allowed>` list. If a `<Fix Rename="…">` is configured on a forbidden pattern, Visual Studio and Rider will offer a one-click rename code-fix. When a forbidden rule comes from `Architecture.anl`, a second "Add '`TypeName`' to exceptions" code action is offered. An allow-list failure has no single originating matcher to except, so that code action is not offered.
+Reported when a dependency type matches an applicable `<Forbidden>` pattern or does not match an applicable `<Allowed>` list. If a `<Fix Rename="…">` is configured on a forbidden pattern, Visual Studio and Rider will offer a one-click rename code-fix. Forbidden-rule matches can also add the type to that rule's `<Exceptions>` block. Allow-list failures use a different fixer: the IDE can add an exact `<Class typeName="..."/>` matcher to every applicable `<Allowed>` list.
 
 **Example output:**
 ```
@@ -2807,6 +3156,10 @@ Common fixes are:
 - add the exposed type to the intended contract layer;
 - deliberately adjust the `<ApiSurface>` policy or its site filter.
 
+#### IDE code fixes
+
+The IDE can add a missing `<AllowedLayer>`, widen an existing `allowedSites` list, relax `blockedSites`, and when the denial comes from `requireRecognizedTypes="true"` it can disable that requirement for the policy.
+
 Adding an `<AllowedDependency>` is not an ARCH009 fix by itself. That edge permits internal use; it does not grant permission to publish the type as API.
 
 **Example project:** [`Example.Arch009.ApiSurfaceLeakage`](Examples/Diagnostics/Example.Arch009.ApiSurfaceLeakage)
@@ -2839,6 +3192,16 @@ Project 'Shop.Web' (project group Presentation) may not reference project 'Shop.
 - classify the unrecognized project with a `ProjectGroup`
 - add an explicit self-edge if same-group references are intentionally allowed
 
+### IDE Fix Support
+
+When both project groups are already recognized, the config fixer layer can:
+
+- add the missing `<AllowedProjectReference from="..." to="..." />`
+- add an explicit same-group self-edge
+- remove the matching blocking `<BlockedProjectReference ... />`
+
+Because `ARCH010` is reported at compilation end, whether that action appears as a normal editor light bulb depends on the host. The edit logic itself is tested in `ProjectArchitectureCodeFixTests.cs`.
+
 ### Not The Same As
 
 - `ARCH001`: illegal type dependency in code
@@ -2846,6 +3209,51 @@ Project 'Shop.Web' (project group Presentation) may not reference project 'Shop.
 - `ARCH005`: same-layer type dependency in code
 
 `ARCH010` can fire even when no source file currently uses the referenced project.
+
+## ARCH011: Package Reference Violation
+
+`ARCH011` reports an illegal NuGet package reference under `ProjectArchitecture`.
+
+This is a project-topology and dependency-policy rule, not a type-usage rule.
+
+### Example
+
+```text
+Project 'Shop.Domain' (project group Domain) may not reference package 'Microsoft.Extensions.Logging' 9.0.0: the package does not match the Allowed package list for project group 'Domain'
+```
+
+### Typical Causes
+
+- a project group has an allow-list package policy and the package does not match any allowed matcher
+- a package matches a forbidden package matcher
+- `requireRecognizedProjects="true"` is enabled and the source project matches no `ProjectGroup`
+- a direct package reference is legal but its transitive package is still denied when `includeTransitive="true"` is active
+
+### Typical Fixes
+
+- remove the package reference from the project
+- move the dependency to a project group where that package belongs
+- widen the allowed package list if the dependency is intentional
+- re-scope the forbidden package matcher if it is too broad
+- classify the source project with a `ProjectGroup` when recognition is the actual issue
+
+### IDE Fix Support
+
+For the deterministic allow-list case, the config fixer layer can append an exact matcher such as:
+
+```xml
+<Package exactName="Microsoft.Extensions.Logging" />
+```
+
+That fix is only offered when the current violation is specifically an allowed-list miss. If a forbidden matcher rejected the package, the fixer does not guess by weakening that rule.
+
+Because `ARCH011` is reported at compilation end, host UX depends on how the IDE surfaces `Location.None` diagnostics. The edit logic itself is covered by `PackagePolicyCodeFixTests.cs`.
+
+### Not The Same As
+
+- `ARCH003`: forbidden type usage in C# code
+- `ARCH010`: illegal direct project reference
+- `ARCH001`: illegal type dependency between layers
 
 ### ARCH012 - Visibility policy violation
 
@@ -2875,6 +3283,10 @@ Typical fixes:
 - reduce the declaration's accessibility;
 - narrow or change the policy when the public declaration is intentional;
 - move the declaration to a layer whose visibility contract matches its responsibility.
+
+#### IDE code fixes
+
+For configuration-backed fixes, the IDE can add the reported accessibility to `allowedAccessibilities`, remove it from `blockedAccessibilities`, or remove a single-value blocking policy when that is the only thing it does.
 
 **Example project:** [`Example.Arch012.VisibilityPolicy`](Examples/Diagnostics/Example.Arch012.VisibilityPolicy)
 
@@ -2970,6 +3382,10 @@ Typical fixes:
 - split mixed-responsibility partial declarations;
 - if the layout is intentional, add an explicit `<Source>` rule that documents it.
 
+#### IDE code fix
+
+The IDE can add an exact `<Source exactName="..."/>` matcher for the reported file path to the owning layer's `<SourceLocations>` block. For inline metadata config, the assembly attribute is rewritten in place.
+
 Important: folders do not classify layers by themselves. `ARCH015` only runs after the type has already been matched into a layer by the normal layer matchers.
 
 See [`Example.SourceLocations`](Examples/Features/Example.SourceLocations) for a small build-verified sample.
@@ -2989,6 +3405,10 @@ Typical causes:
 - a controller reaches into an implementation layer instead of a contract layer;
 - a facade entry point is allowed only at certain sites, but the dependency appears at a blocked site;
 - nested boundaries define progressively narrower external entry doors.
+
+#### IDE code fixes
+
+The IDE can add a missing `<EntryPoint>`, add the current site to an entry point's `allowedSites`, or remove the current site from `blockedSites` when the boundary policy is too narrow for the intended call shape.
 
 Important precedence rule:
 
@@ -3103,6 +3523,41 @@ Typical fixes:
 
 **Example project:** [`Example.Arch019.InheritancePolicy`](Examples/Diagnostics/Example.Arch019.InheritancePolicy)
 
+### ARCH020 - Return-value policy violation
+
+Reported when a method belongs to a layer with an applicable `<ReturnValuePolicy>` and returns a configured forbidden expression unchanged.
+
+Example:
+
+```text
+'PrepareMysteryPizza' (layer Kitchen) violates return-value policy at MethodReturn:
+the ReturnValuePolicy in layer 'Kitchen' blocks returned literal value="null"
+```
+
+The diagnostic is reported on the return expression. It can cover `null`, an empty string, a numeric or enum sentinel, a specific member access, object creation, or a direct call selected by semantic matcher attributes.
+
+Diagnostic properties include:
+
+- `CallerTypeName`
+- `CallerLayerName`
+- `DeclaredSymbolName`
+- `Site` (`MethodReturn`)
+- `ReturnValueRuleTarget`
+- `ReturnValueRule`
+- `ViolationReason`
+- the originating rule path, line, and column
+
+Typical fixes:
+
+- return a meaningful value rather than the configured sentinel;
+- turn an optional lookup into an explicit fallback or error result before returning it;
+- move the method outside the layer only when that layer policy does not apply to it;
+- narrow the policy only when that direct return is intentionally allowed.
+
+There is no automatic code fix. The policy tells AnaalIJzer what must not escape the method; it cannot know which domain-specific value, result type, fallback, or exception behavior is correct.
+
+**Focused examples:** [`Example.Arch020.ExplicitNullReturn`](Examples/Diagnostics/Example.Arch020.ExplicitNullReturn), [`Example.Arch020.AnnotatedInvocationReturn`](Examples/Diagnostics/Example.Arch020.AnnotatedInvocationReturn), and [`Example.Arch020.ConfiguredLiteralReturns`](Examples/Diagnostics/Example.Arch020.ConfiguredLiteralReturns).
+
 ### Diagnostic properties
 
 Every dependency diagnostic (ARCH001, ARCH004, ARCH005), name-rule diagnostic (ARCH008), and API-surface diagnostic (ARCH009 and ARCH014) carries a `Site` property in `Diagnostic.Properties` indicating where the issue was found. This lets code-fix providers, custom reporters and CI dashboards filter or group by dependency style without re-parsing the source.
@@ -3110,6 +3565,8 @@ Every dependency diagnostic (ARCH001, ARCH004, ARCH005), name-rule diagnostic (A
 ARCH012 describes declarations rather than dependency sites. It exposes `DeclarationTarget`, `DeclaredAccessibility`, and `DeclaredSymbolName` alongside the caller layer and rule-origin properties.
 
 ARCH019 also describes declarations rather than dependency sites. It exposes `DeclaredSymbolName` and `InheritanceViolationKind` alongside the caller layer and rule-origin properties.
+
+ARCH020 exposes `Site` as `MethodReturn`, together with `DeclaredSymbolName`, `ReturnValueRuleTarget`, and `ReturnValueRule` so reports can distinguish a forbidden literal from an invocation or member-access matcher.
 
 ARCH009 additionally exposes `ApiMemberName`, identifying the externally visible declaration that published the dependency type.
 
