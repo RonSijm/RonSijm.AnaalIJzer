@@ -24,7 +24,7 @@ Example:
 </ArchitecturalLevels>
 ```
 
-That configuration is still legal as a configured graph. It only becomes `ARCH018` when code really uses both directions and closes the cycle.
+That configuration is still legal as a configured graph. It only becomes `ARCH018` when code really uses both directions and closes the cycle. Permission for two layers to talk both ways is cheap; a codebase where neither can be changed without the other is the expensive part.
 
 Restaurant version:
 

@@ -306,8 +306,8 @@ public sealed class ExceptionsTests
 		// block makes a matched type fall through to "no layer" — which is exactly
 		// the ARCH002 condition. Excepting an unknown type from a non-matching rule
 		// changes nothing. The supported bypass is positive classification (add the
-		// type to a layer via <Class typeName="..." />). The code-fix surface reflects
-		// this: ARCH002 is not in FixableDiagnosticIds.
+		// type to a layer via <Class typeName="..." />) or relaxing the recognized-site
+		// requirement for the current site. Exceptions are still not the bypass.
 		const string config = """
 		                      <ArchitecturalLevels requireRecognizedDependencies="Constructor">
 		                          <Layer name="Application">
@@ -337,7 +337,7 @@ public sealed class ExceptionsTests
 
 		new ArchitecturalLevelCodeFixProvider()
 			.FixableDiagnosticIds
-			.Should().NotContain(ArchitecturalDiagnosticIds.UnrecognizedDependency);
+			.Should().Contain(ArchitecturalDiagnosticIds.UnrecognizedDependency);
 	}
 
 	[Fact]

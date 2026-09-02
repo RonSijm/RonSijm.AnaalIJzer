@@ -60,9 +60,9 @@ public class OrderService(IOrderRepository repository) { }
 public class AdminEndpoint(IOrderRepository repository) { }
 ```
 
-`path` is resolved relative to the settings file that declares the include. Included files can include other files; files already seen during the current parse are skipped so accidental cycles do not loop forever.
+`path` is resolved relative to the settings file that declares the include. Included files can include other files; files already seen during the current parse are skipped so accidental cycles do not loop forever. Two rule files that include each other is a rite of passage, not a reason for the build to hang.
 
-Wildcard patterns are also supported. A bare file-name wildcard such as `<Include path="*.anl" />` loads every visible `.anl` file that was passed to the analyzer as an `AdditionalFile`, so a project can keep drop-in rule packs in a local folder. A path wildcard such as `<Include path="RulePlugins/*.anl" />` is resolved relative to the declaring config file.
+Wildcard patterns are also supported. A bare file-name wildcard such as `<Include path="*.anl" />` loads every visible `.anl` file that was passed to the analyzer as an `AdditionalFile`, so a project can keep drop-in rule packs in a local folder. A path wildcard such as `<Include path="RulePlugins/*.anl" />` is resolved relative to the declaring config file. The wildcard only sees what MSBuild handed to Roslyn, so an unregistered rule pack is invisible rather than merely ignored.
 
 ```xml
 <ArchitecturalLevels>

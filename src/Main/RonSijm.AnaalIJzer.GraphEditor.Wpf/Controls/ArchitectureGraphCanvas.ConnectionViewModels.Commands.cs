@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
+using RonSijm.AnaalIJzer.GraphApplication.Selection;
 
 namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
 
@@ -21,6 +22,17 @@ internal sealed partial class ArchitectureGraphCanvas
 
 			var result = _editService.RemoveDependency(EditHandle);
 			ReportEditResult(result, true);
+		}
+
+		private void ShowConfigurationFixes()
+		{
+			if (IsEvidence)
+			{
+				_selectionHandler?.Invoke(ArchitectureGraphSelection.ForCodeEvidence(From, To, SiteText, EvidenceDetails));
+				return;
+			}
+
+			_selectionHandler?.Invoke(ArchitectureGraphSelection.ForDependency(EditHandle));
 		}
 
 		private void ToggleAllowedSite(string site)

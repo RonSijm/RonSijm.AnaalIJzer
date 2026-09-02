@@ -2,7 +2,7 @@
 
 `<InheritancePolicy>` requires declarations in a layer to inherit a specific base type or implement specific interfaces. It is opt-in and separate from dependency permission, visibility, and contract purity.
 
-Use it when a layer has a semantic base contract that every declaration must follow:
+Use it when a layer has a semantic base contract that every declaration must follow. The usual alternative is a base type everyone remembers to inherit, except in the one entity that was added the week before a release:
 
 ```xml
 <Layer name="PersistenceEntities">

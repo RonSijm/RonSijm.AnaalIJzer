@@ -16,6 +16,7 @@
     <PackageId>RonSijm.AnaalIJzer.Arse</PackageId>
     <Description>Architecture Rules, Settings, and Evidence. Interactive and headless architecture tooling for RonSijm.AnaalIJzer.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon-arse.png</PackageIcon>
     <PackageTags>architecture;analyzer;cli;tui;razorconsole;documentation;mermaid</PackageTags>
     <PackageProjectUrl>https://github.com/RonSijm/RonSijm.AnaalIJzer</PackageProjectUrl>
     <RepositoryUrl>https://github.com/RonSijm/RonSijm.AnaalIJzer</RepositoryUrl>
@@ -39,6 +40,7 @@
 
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" />
+    <None Include="..\..\..\build\Settings\icon-arse.png" Pack="true" PackagePath="\" Visible="false" />
   </ItemGroup>
 
 </Project>

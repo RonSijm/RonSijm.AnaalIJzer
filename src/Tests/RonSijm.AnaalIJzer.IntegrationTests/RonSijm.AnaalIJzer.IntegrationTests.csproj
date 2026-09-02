@@ -26,6 +26,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Engine\RonSijm.AnaalIJzer.Engine.csproj" />
+        <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Core.ReturnValues\RonSijm.AnaalIJzer.Core.ReturnValues.csproj" />
         <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Workspace\RonSijm.AnaalIJzer.Workspace.csproj" />
         <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Application\RonSijm.AnaalIJzer.Application.csproj" />
         <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.EditorRuntime\RonSijm.AnaalIJzer.EditorRuntime.csproj" />

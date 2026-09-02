@@ -19,4 +19,6 @@ public class DiagnosticsController(IHealthRepository health) : ControllerBase { 
 
 To silence one *category* across an entire project without touching individual files, add the ID to `<NoWarn>` in the `.csproj` - for example `<NoWarn>$(NoWarn);ARCH005</NoWarn>` to allow same-layer dependencies while keeping ARCH001 and ARCH004 as errors.
 
+Write the justification either way. A suppression with a reason is a documented decision; a bare `#pragma` is a puzzle left for whoever opens the file next year.
+
 ---

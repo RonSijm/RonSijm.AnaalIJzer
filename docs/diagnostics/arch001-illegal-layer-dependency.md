@@ -8,7 +8,7 @@ error ARCH001: 'ImpatientCustomer' (layer Customer) may not depend on 'IChef'
   (layer Chef): no <AllowedDependency from="Customer" to="Chef"/> is configured
 ```
 
-If an edge exists but a site filter excludes the current site, the diagnostic names that instead:
+If an edge exists but a site filter excludes the current site, the diagnostic names that instead - the most common surprise on this rule, because the dependency itself is permitted, just not in that shape:
 
 ```text
 error ARCH001: 'AllowedLocalSiteExample' (layer Caller) may not depend on 'AllowedLocalType'

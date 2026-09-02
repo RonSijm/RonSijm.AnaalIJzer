@@ -22,7 +22,7 @@ public partial class App : ComponentBase
 	private const string AssociateAnlFiles = "Associate .anl files with Arse";
 	private const string UnassociateAnlFiles = "Unassociate .anl files from Arse";
 
-	private static readonly string[] OperationOptions = [..ApplicationOperationCatalog.All.Select(operation => operation.DisplayName), AssociateAnlFiles, UnassociateAnlFiles];
+	private static readonly string[] OperationOptions = [..ApplicationOperationCatalog.All.Where(operation => operation.Kind != ApplicationOperationKind.ApplyFix).Select(operation => operation.DisplayName), AssociateAnlFiles, UnassociateAnlFiles];
 	private static readonly string[] OverwriteOptions = [DoNotOverwrite, Overwrite];
 	private static readonly string[] GenerationStrategyOptions = [SnapshotStrategy, HelpfulStrategy, ConventionsStrategy];
 	private static readonly string[] CodeEvidenceOptions = [StaticDocumentation, IncludeCodeEvidence];
@@ -50,6 +50,10 @@ public partial class App : ComponentBase
 	private Color _statusColor = Color.Grey58;
 	private string? _inspectionReport;
 	private ImmutableArray<ArchitectureFinding> _inspectionFindings = ImmutableArray<ArchitectureFinding>.Empty;
+	private string? _fixReport;
+	private ImmutableArray<ApplicationConfigurationFixProposal> _fixProposals = ImmutableArray<ApplicationConfigurationFixProposal>.Empty;
+	private string? _selectedFixProposal;
+	private bool _selectingFixOutput;
 	private string _inspectionSummary = string.Empty;
 	private Color _inspectionColor = Color.Grey58;
 	private bool _selectingInspectionOutput;
@@ -63,9 +67,9 @@ public partial class App : ComponentBase
 	private ApplicationRunner ApplicationRunner { get; set; } = null!;
 
 	private ApplicationOperationDefinition? CurrentOperation
-    {
-        get { return _selectedOperation is null ? null : ApplicationOperationCatalog.All.SingleOrDefault(operation => operation.DisplayName == _selectedOperation); }
-    }
+	{
+		get { return _selectedOperation is null ? null : ApplicationOperationCatalog.All.SingleOrDefault(operation => operation.DisplayName == _selectedOperation); }
+	}
 
 	private bool IsFileAssociationOperation
 	{
@@ -74,41 +78,42 @@ public partial class App : ComponentBase
 			var result = _selectedOperation is AssociateAnlFiles or UnassociateAnlFiles;
 
 			return result;
+		}
 	}
-}
-    private ApplicationInputDefinition? CurrentInput
-    {
-        get { return _selectedInput is null ? null : ApplicationInputCatalog.All.Single(input => input.DisplayName == _selectedInput); }
-    }
 
-    private string[] CurrentInputOptions
-    {
-        get { return CurrentOperation?.SupportedInputs.Select(kind => ApplicationInputCatalog.Get(kind).DisplayName).ToArray() ?? []; }
-    }
+	private ApplicationInputDefinition? CurrentInput
+	{
+		get { return _selectedInput is null ? null : ApplicationInputCatalog.All.Single(input => input.DisplayName == _selectedInput); }
+	}
 
-    private IReadOnlyCollection<string> CurrentInputFileExtensions
-    {
-        get
-        {
-            return CurrentInput?.Kind switch
-            {
-                ApplicationInputKind.Project => ProjectFileExtensions,
-                ApplicationInputKind.Solution => SolutionFileExtensions,
-                _ => ArchitectureConfigFileExtensions
-            };
-        }
-    }
+	private string[] CurrentInputOptions
+	{
+		get { return CurrentOperation?.SupportedInputs.Select(kind => ApplicationInputCatalog.Get(kind).DisplayName).ToArray() ?? []; }
+	}
+
+	private IReadOnlyCollection<string> CurrentInputFileExtensions
+	{
+		get
+		{
+			return CurrentInput?.Kind switch
+			{
+				ApplicationInputKind.Project => ProjectFileExtensions,
+				ApplicationInputKind.Solution => SolutionFileExtensions,
+				_ => ArchitectureConfigFileExtensions
+			};
+		}
+	}
 
 	private IReadOnlyCollection<string> CurrentOutputFileExtensions
-    {
-        get
-        {
-            return CurrentOperation?.Kind switch
-            {
-                ApplicationOperationKind.GenerateConfig or ApplicationOperationKind.ExportConfig or ApplicationOperationKind.MergeConfig or ApplicationOperationKind.FormatConfig => ArchitectureConfigFileExtensions,
-                ApplicationOperationKind.Documentation or ApplicationOperationKind.Report or ApplicationOperationKind.Inspect or ApplicationOperationKind.ExplainConfig => MarkdownFileExtensions,
-                _ => []
-            };
-        }
-    }
+	{
+		get
+		{
+			return CurrentOperation?.Kind switch
+			{
+				ApplicationOperationKind.GenerateConfig or ApplicationOperationKind.ExportConfig or ApplicationOperationKind.MergeConfig or ApplicationOperationKind.FormatConfig => ArchitectureConfigFileExtensions,
+				ApplicationOperationKind.Documentation or ApplicationOperationKind.Report or ApplicationOperationKind.Inspect or ApplicationOperationKind.ExplainConfig or ApplicationOperationKind.Fixes => MarkdownFileExtensions,
+				_ => []
+			};
+		}
+	}
 }

@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using RonSijm.AnaalIJzer.Core.ApiSurface.Engine.Policies;
 using RonSijm.AnaalIJzer.Core.Contracts.Contracts;
 using RonSijm.AnaalIJzer.Core.EntryPoints;
@@ -7,6 +8,7 @@ using RonSijm.AnaalIJzer.Core.Inheritance.Policies;
 using RonSijm.AnaalIJzer.Core.LayerModel;
 using RonSijm.AnaalIJzer.Core.NameRules;
 using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.DependencyRules;
+using RonSijm.AnaalIJzer.Core.ReturnValues.Policies;
 using RonSijm.AnaalIJzer.Core.SourceLocations;
 using RonSijm.AnaalIJzer.Core.Visibility;
 
@@ -20,6 +22,7 @@ public readonly struct ArchitecturePolicyEngine(
 	public bool HasLayers => _registry.HasLayers;
 	public bool HasContractPolicies => _registry.HasContractPolicies;
 	public bool HasInheritancePolicies => _registry.HasInheritancePolicies;
+	public bool HasReturnValuePolicies => _registry.HasReturnValuePolicies;
 	public bool HasVisibilityPolicies => _registry.HasVisibilityPolicies;
 	public bool HasApiSurfacePolicies => _registry.HasApiSurfacePolicies;
 	public bool HasEntryPointPolicies => _registry.HasEntryPointPolicies;
@@ -56,6 +59,13 @@ public readonly struct ArchitecturePolicyEngine(
 	public InheritancePolicyEvaluation? EvaluateInheritancePolicies(LayerMatch layerMatch, INamedTypeSymbol symbol)
 	{
 		var result = _registry.EvaluateInheritancePolicies(layerMatch, symbol);
+
+		return result;
+	}
+
+	public ReturnValuePolicyEvaluation? EvaluateReturnValuePolicies(LayerMatch layerMatch, ExpressionSyntax expression, SemanticModel semanticModel, CancellationToken cancellationToken)
+	{
+		var result = _registry.EvaluateReturnValuePolicies(layerMatch, expression, semanticModel, cancellationToken);
 
 		return result;
 	}

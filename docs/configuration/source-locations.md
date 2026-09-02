@@ -5,6 +5,8 @@
 - layer matchers answer "what role does this type have?";
 - source locations answer "does that role live in the right project or folder?"
 
+Folder structure is the first thing a newcomer reads and among the last things anyone keeps honest.
+
 Restaurant version:
 
 - the type may still be a `Chef`;

@@ -16,7 +16,11 @@ public sealed partial class ArchitecturalLevelAnalyzer
 			var descriptor = issue.Kind == ConfigurationIssueKind.CyclicDependencyGraph
 				? ArchitecturalDiagnostics.CyclicDependencyGraph
 				: ArchitecturalDiagnostics.InvalidConfiguration;
-			context.ReportDiagnostic(Diagnostic.Create(descriptor, CreateConfigurationLocation(issue, additionalFiles, context.CancellationToken), issue.Message));
+			context.ReportDiagnostic(Diagnostic.Create(
+				descriptor,
+				CreateConfigurationLocation(issue, additionalFiles, context.CancellationToken),
+				issue.Properties,
+				issue.Message));
 		}
 	}
 

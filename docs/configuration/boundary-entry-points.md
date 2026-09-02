@@ -44,6 +44,8 @@ Rules:
 - nested boundaries are cumulative from outermost to innermost;
 - entry points never grant a dependency that `<AllowedDependency>` would deny.
 
+A door is only meaningful in a wall that already exists.
+
 ### Selector forms
 
 Each `<EntryPoint>` uses exactly one selector form:

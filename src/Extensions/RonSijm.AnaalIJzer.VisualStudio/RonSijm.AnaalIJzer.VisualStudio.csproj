@@ -58,7 +58,7 @@
             <IncludeInVSIX>true</IncludeInVSIX>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
-        <Content Include="..\..\..\build\Settings\icon.png" Link="icon.png">
+        <Content Include="..\..\..\build\Settings\icon-visual-studio.png" Link="icon-visual-studio.png">
             <IncludeInVSIX>true</IncludeInVSIX>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>

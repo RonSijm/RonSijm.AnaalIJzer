@@ -139,6 +139,36 @@ public sealed class ArchitectureConfigurationMatcherReaderTests
 	}
 
 	[Fact]
+	public void TryReadCodeObservationMatcher_WithSemanticConditionsUsesTheDeclarationSymbol()
+	{
+		var element = XElement.Parse("""<Invocation withAttribute="CanBeNull" />""");
+
+		var success = ArchitectureConfigurationMatcherReader.TryReadCodeObservationMatcher(element, allowSemanticConditions: true, out var matcher);
+
+		success.Should().BeTrue();
+		matcher.Conditions.Should().BeEquivalentTo(
+		[
+			new MatchCondition(MatchKind.HasAttribute, "CanBeNull", MatchOperand.Declaration)
+		],
+		options => options.WithStrictOrdering());
+	}
+
+	[Fact]
+	public void TryReadCodeObservationMatcher_LiteralValueUsesTheDeclarationSymbol()
+	{
+		var element = XElement.Parse("""<Literal value="null" />""");
+
+		var success = ArchitectureConfigurationMatcherReader.TryReadCodeObservationMatcher(element, out var matcher);
+
+		success.Should().BeTrue();
+		matcher.Conditions.Should().BeEquivalentTo(
+		[
+			new MatchCondition(MatchKind.Equals, "null", MatchOperand.Declaration)
+		],
+		options => options.WithStrictOrdering());
+	}
+
+	[Fact]
 	public void TryReadMatcher_NamespaceMatcher_ReadsExactAndPatternConditions()
 	{
 		var element = XElement.Parse("""<Namespace exactName="Shop.Ordering" startsWith="Shop." />""");

@@ -49,7 +49,7 @@ internal static class Program
 			return;
 		}
 
-		var app = new Application();
+		var app = new System.Windows.Application();
 		RegisterExceptionLogging(app, logger);
 		try
 		{
@@ -86,7 +86,7 @@ internal static class Program
 			return;
 		}
 
-		var app = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
+		var app = new System.Windows.Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
 		RegisterExceptionLogging(app, logger);
 		var previousSynchronizationContext = SynchronizationContext.Current;
 		SynchronizationContext.SetSynchronizationContext(null);
@@ -107,7 +107,7 @@ internal static class Program
 		}
 	}
 
-	private static void RegisterExceptionLogging(Application app, ILogger logger)
+	private static void RegisterExceptionLogging(System.Windows.Application app, ILogger logger)
 	{
 		app.DispatcherUnhandledException += (_, args) =>
 		{

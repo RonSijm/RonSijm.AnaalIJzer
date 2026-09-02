@@ -89,6 +89,7 @@ public static partial class ArchitecturalConfigParser
 			var nameRules = ParseNameRules(layerEl.Elements("NameRules"), canonicalPath, xmlPath, issues);
 			var contractPolicies = ParseContractPolicies(layerEl.Elements("ContractPolicy"), canonicalPath, xmlPath, issues);
 			var inheritancePolicies = ParseInheritancePolicies(layerEl.Elements("InheritancePolicy"), canonicalPath, xmlPath, issues);
+			var returnValuePolicies = ParseReturnValuePolicies(layerEl.Elements("ReturnValuePolicy"), canonicalPath, xmlPath, issues);
 			var visibilityPolicies = ParseVisibilityPolicies(layerEl.Elements("VisibilityPolicy"), canonicalPath, xmlPath, issues);
 			var apiSurfacePolicies = ParseApiSurfacePolicies(layerEl.Elements("ApiSurface"), canonicalPath, xmlPath, declaredLayerPaths, issues);
 			var entryPointPolicies = ParseBoundaryEntryPointPolicies(layerEl.Elements("EntryPoints"), canonicalPath, xmlPath, nodesByPath, exceptionPolicy, exceptionDefinitions, exceptionReviews, issues);
@@ -98,7 +99,7 @@ public static partial class ArchitecturalConfigParser
 				AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, $"Layer '{canonicalPath}' does not contain a matcher or nested layer.", layerEl, xmlPath);
 			}
 
-			var node = new LayerNode(definition, matchers.ToImmutable(), children, allowedTypeMatchers, forbiddenTypeMatchers, nameRules, contractPolicies, inheritancePolicies, visibilityPolicies, apiSurfacePolicies, entryPointPolicies, sourceLocationPolicies);
+			var node = new LayerNode(definition, matchers.ToImmutable(), children, allowedTypeMatchers, forbiddenTypeMatchers, nameRules, contractPolicies, inheritancePolicies, visibilityPolicies, apiSurfacePolicies, entryPointPolicies, sourceLocationPolicies, returnValuePolicies);
 			nodes.Add(node);
 			nodesByPath[canonicalPath] = node;
 		}

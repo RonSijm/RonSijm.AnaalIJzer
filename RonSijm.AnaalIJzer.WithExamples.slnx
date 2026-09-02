@@ -19,6 +19,9 @@
     <Project Path="Examples/Diagnostics/Example.Arch016.BoundaryEntryPoints/Example.Arch016.BoundaryEntryPoints.csproj" />
     <Project Path="Examples/Diagnostics/Example.Arch018.ObservedCycle/Example.Arch018.ObservedCycle.csproj" />
     <Project Path="Examples/Diagnostics/Example.Arch019.InheritancePolicy/Example.Arch019.InheritancePolicy.csproj" />
+    <Project Path="Examples/Diagnostics/Example.Arch020.ExplicitNullReturn/Example.Arch020.ExplicitNullReturn.csproj" />
+    <Project Path="Examples/Diagnostics/Example.Arch020.AnnotatedInvocationReturn/Example.Arch020.AnnotatedInvocationReturn.csproj" />
+    <Project Path="Examples/Diagnostics/Example.Arch020.ConfiguredLiteralReturns/Example.Arch020.ConfiguredLiteralReturns.csproj" />
   </Folder>
   <Folder Name="/Examples/Features/">
     <Project Path="Examples/Features/Example.AllowedSites/Example.AllowedSites.csproj" />
@@ -49,6 +52,7 @@
   <Folder Name="/Examples/Documentation/">
     <Project Path="Examples/Documentation/Example.DocumentationDemo/Example.DocumentationDemo.csproj" />
     <Project Path="Examples/Documentation/Example.ReportDemo/Example.ReportDemo.csproj" />
+    <Project Path="Examples/Documentation/Example.VisualStudioSiteDiagnostics/Example.VisualStudioSiteDiagnostics.csproj" />
   </Folder>
   <Folder Name="/Examples/Scenarios/">
     <Project Path="Examples/Scenarios/Example.HonestTypeEndpointNames/Example.HonestTypeEndpointNames.csproj" />
@@ -97,6 +101,7 @@
     <Project Path="src/Main/RonSijm.AnaalIJzer.Core.NameRules/RonSijm.AnaalIJzer.Core.NameRules.csproj" />
     <Project Path="src/Main/RonSijm.AnaalIJzer.Core.PolicyEvaluation/RonSijm.AnaalIJzer.Core.PolicyEvaluation.csproj" />
     <Project Path="src/Main/RonSijm.AnaalIJzer.Core.ProjectArchitecture/RonSijm.AnaalIJzer.Core.ProjectArchitecture.csproj" />
+    <Project Path="src/Main/RonSijm.AnaalIJzer.Core.ReturnValues/RonSijm.AnaalIJzer.Core.ReturnValues.csproj" />
     <Project Path="src/Main/RonSijm.AnaalIJzer.Core.SourceLocations/RonSijm.AnaalIJzer.Core.SourceLocations.csproj" />
     <Project Path="src/Main/RonSijm.AnaalIJzer.Core.Visibility/RonSijm.AnaalIJzer.Core.Visibility.csproj" />
   </Folder>
@@ -141,6 +146,7 @@
     <Project Path="src/Tests/RonSijm.AnaalIJzer.Core.RuntimeConfig.Tests/RonSijm.AnaalIJzer.Core.RuntimeConfig.Tests.csproj" />
     <Project Path="src/Tests/RonSijm.AnaalIJzer.Core.Visibility.Tests/RonSijm.AnaalIJzer.Core.Visibility.Tests.csproj" />
     <Project Path="src/Tests/RonSijm.AnaalIJzer.Core.Inheritance.Tests/RonSijm.AnaalIJzer.Core.Inheritance.Tests.csproj" />
+    <Project Path="src/Tests/RonSijm.AnaalIJzer.Core.ReturnValues.Tests/RonSijm.AnaalIJzer.Core.ReturnValues.Tests.csproj" />
     <Project Path="src/Tests/RonSijm.AnaalIJzer.Core.Violations.Tests/RonSijm.AnaalIJzer.Core.Violations.Tests.csproj" />
     <Project Path="src/Tests/RonSijm.AnaalIJzer.GraphModel.Tests/RonSijm.AnaalIJzer.GraphModel.Tests.csproj" />
     <Project Path="src/Tests/RonSijm.AnaalIJzer.GraphApplication.Tests/RonSijm.AnaalIJzer.GraphApplication.Tests.csproj" />

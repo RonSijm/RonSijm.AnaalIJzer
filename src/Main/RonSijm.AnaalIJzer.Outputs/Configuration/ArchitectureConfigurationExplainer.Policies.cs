@@ -81,6 +81,17 @@ internal static partial class ArchitectureConfigurationExplainer
 		AppendDescription(sb, element, depth + 1);
 	}
 
+	private static void AppendReturnValuePolicy(StringBuilder sb, XElement element, int depth)
+	{
+		AppendLine(sb, depth, "- Return-value policy forbids configured direct returned expressions.");
+		AppendDescription(sb, element, depth + 1);
+		foreach (var matcher in element.Elements().Where(child => child.Name.LocalName is "Literal" or "Invocation" or "New" or "Identifier" or "MemberAccess"))
+		{
+			AppendLine(sb, depth + 1, "- Forbids returned " + matcher.Name.LocalName.ToLowerInvariant() + " " + FormatMatcher(matcher) + ".");
+			AppendDescription(sb, matcher, depth + 2);
+		}
+	}
+
 	private static void AppendApiSurface(StringBuilder sb, XElement element, int depth)
 	{
 		var requiresRecognition = string.Equals(element.Attribute("requireRecognizedTypes")?.Value, "true", StringComparison.OrdinalIgnoreCase)

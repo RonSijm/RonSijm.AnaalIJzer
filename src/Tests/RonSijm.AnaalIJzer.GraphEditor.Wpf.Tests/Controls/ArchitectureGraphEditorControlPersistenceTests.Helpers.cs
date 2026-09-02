@@ -20,7 +20,9 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 		ArchitectureGraphSnapshot snapshot,
 		Func<ArchitectureGraphSnapshot, ArchitectureGraphSnapshot>? snapshotReloader = null,
 		Func<string, bool>? confirmationHandler = null,
-		Func<ArchitectureLayerCreationRequest?>? layerCreationHandler = null)
+		Func<ArchitectureLayerCreationRequest?>? layerCreationHandler = null,
+		Func<CancellationToken, Task<ArchitectureGraphConfigurationFixCollection>>? configurationFixLoader = null,
+		Func<string, CancellationToken, Task<ArchitectureGraphConfigurationFixApplyResult>>? configurationFixApplier = null)
 	{
 		var control = new ArchitectureGraphEditorControl(
 			snapshot: snapshot,
@@ -33,7 +35,9 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 			snapshotReloader: snapshotReloader,
 			snapshotPublisher: null,
 			confirmationHandler: confirmationHandler,
-			layerCreationHandler: layerCreationHandler);
+			layerCreationHandler: layerCreationHandler,
+			configurationFixLoader: configurationFixLoader,
+			configurationFixApplier: configurationFixApplier);
 		control.Measure(new Size(1280, 860));
 		control.Arrange(new Rect(0, 0, 1280, 860));
 		control.UpdateLayout();
@@ -165,6 +169,14 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 	{
 		var result = FindVisualDescendants<CheckBox>(root).FirstOrDefault(checkBox => string.Equals(GetText(checkBox.Content), content, StringComparison.Ordinal));
 		result.Should().NotBeNull("the graph editor should render a checkbox named '" + content + "'");
+
+		return result;
+	}
+
+	private static Button FindButtonByContent(DependencyObject root, string content)
+	{
+		var result = FindVisualDescendants<Button>(root).FirstOrDefault(button => string.Equals(GetText(button.Content), content, StringComparison.Ordinal));
+		result.Should().NotBeNull("the graph editor should render a button named '" + content + "'");
 
 		return result;
 	}

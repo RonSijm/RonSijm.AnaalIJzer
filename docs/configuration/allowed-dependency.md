@@ -1,6 +1,6 @@
 ### `<AllowedDependency>`
 
-Declares that types in layer `from` are permitted to depend on types in layer `to`. Any dependency not covered by an explicit edge (or the special `*` wildcard) is a layering violation - see [ARCH001/ARCH004/ARCH005](#diagnostics) for how the three reasons are distinguished.
+Declares that types in layer `from` are permitted to depend on types in layer `to`. Any dependency not covered by an explicit edge (or the special `*` wildcard) is a layering violation - see [ARCH001/ARCH004/ARCH005](#diagnostics) for how the three reasons are distinguished. The default answer is "no"; permission has to be written down somewhere other than a team's collective memory.
 
 ```xml
 <AllowedDependency from="Presentation" to="Application" />
@@ -49,4 +49,4 @@ Use `to="*"` for the symmetric case - a single layer that is allowed to depend o
 <AllowedDependency from="Diagnostics" to="*" />
 ```
 
-`from="*" to="*"` is also accepted and means "every configured layer may depend on every other configured layer". Nested boundary gates still require local rules unless the edge sets `appliesToDescendants="true"`. `<Forbidden>` types are still rejected, and unknown types at sites required by root-level or caller-layer `requireRecognizedDependencies` still report ARCH002 - the wildcard only relaxes the directed-edge requirement.
+`from="*" to="*"` is also accepted and means "every configured layer may depend on every other configured layer". Nested boundary gates still require local rules unless the edge sets `appliesToDescendants="true"`. `<Forbidden>` types are still rejected, and unknown types at sites required by root-level or caller-layer `requireRecognizedDependencies` still report ARCH002 - the wildcard only relaxes the directed-edge requirement. It is a legal configuration; it has simply stopped describing an architecture and started describing a pile.

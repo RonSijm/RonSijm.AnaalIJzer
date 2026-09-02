@@ -8,7 +8,7 @@ CandyOrderingService.OrderRawLolly
     -> LollyQueryable
 ```
 
-Add `<TransitiveExposure>` to an existing `<ApiSurface>` to inspect that object graph:
+Add `<TransitiveExposure>` to an existing `<ApiSurface>` to inspect that object graph. A query surface rarely gets published through a receipt property on purpose; it arrives because that property was convenient on a Tuesday.
 
 ```xml
 <Layer name="Application">

@@ -1,6 +1,6 @@
 ## ExceptionPolicy
 
-`<ExceptionPolicy>` makes matcher exceptions temporary and reviewable.
+`<ExceptionPolicy>` makes matcher exceptions temporary and reviewable. A carve-out that nothing ever asks about again is not temporary; it is permanent with better marketing.
 
 Without it, `<Exceptions>` keep their existing behavior:
 

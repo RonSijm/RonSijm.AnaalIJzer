@@ -25,6 +25,7 @@
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.EntryPoints\RonSijm.AnaalIJzer.Core.EntryPoints.csproj" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Exceptions\RonSijm.AnaalIJzer.Core.Exceptions.csproj" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Inheritance\RonSijm.AnaalIJzer.Core.Inheritance.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.ReturnValues\RonSijm.AnaalIJzer.Core.ReturnValues.csproj" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.LayerModel\RonSijm.AnaalIJzer.Core.LayerModel.csproj" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Matchers\RonSijm.AnaalIJzer.Core.Matchers.csproj" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.NameRules\RonSijm.AnaalIJzer.Core.NameRules.csproj" />

@@ -53,32 +53,13 @@ internal static partial class ArchitectureHealthReportGenerator
 			"Assembly" => MatchTarget.Assembly,
 			_ => MatchTarget.TypeName
 		};
-		var candidates = new (string Attribute, MatchKind Kind)[]
-		{
-			("typeName", MatchKind.Equals),
-			("exactName", MatchKind.Equals),
-			("exactFullName", MatchKind.EqualsFullName),
-			("inherits", MatchKind.Inherits),
-			("implements", MatchKind.Implements),
-			("withAttribute", MatchKind.HasAttribute),
-			("withAccessModifier", MatchKind.HasAccessModifier),
-			("typeKind", MatchKind.HasTypeKind),
-			("endsWith", MatchKind.EndsWith),
-			("startsWith", MatchKind.StartsWith),
-			("contains", MatchKind.Contains),
-			("regex", MatchKind.Regex)
-		};
-		var conditions = ImmutableArray.CreateBuilder<MatchCondition>();
-		foreach (var candidate in candidates)
-		{
-			if (item.GetAttribute(candidate.Attribute) is { } value)
-			{
-				conditions.Add(new MatchCondition(candidate.Kind, value));
-			}
-		}
+		var profile = target == MatchTarget.TypeName
+			? MatcherAttributeProfile.Type
+			: MatcherAttributeProfile.NamespaceOrAssembly;
+		var conditions = MatcherAttributeCatalog.CreateConditions(item.GetAttribute, profile);
 
-		matcher = new PatternMatcher(target, conditions.ToImmutable(), requiredDeclarations);
-		var result = conditions.Count > 0;
+		matcher = new PatternMatcher(target, conditions, requiredDeclarations);
+		var result = conditions.Length > 0;
 
 		return result;
 	}
@@ -100,24 +81,12 @@ internal static partial class ArchitectureHealthReportGenerator
 				continue;
 			}
 
-			var conditions = ImmutableArray.CreateBuilder<MatchCondition>();
-			TryAddCondition(child, "typeName", MatchKind.Equals, conditions, MatchOperand.AssociatedType);
-			TryAddCondition(child, "exactName", MatchKind.Equals, conditions, MatchOperand.Declaration);
-			TryAddCondition(child, "exactFullName", MatchKind.EqualsFullName, conditions, MatchOperand.AssociatedType);
-			TryAddCondition(child, "inherits", MatchKind.Inherits, conditions, MatchOperand.AssociatedType);
-			TryAddCondition(child, "implements", MatchKind.Implements, conditions, MatchOperand.AssociatedType);
-			TryAddCondition(child, "withAttribute", MatchKind.HasAttribute, conditions, MatchOperand.Declaration);
-			TryAddCondition(child, "withAccessModifier", MatchKind.HasAccessModifier, conditions, MatchOperand.Declaration);
-			TryAddCondition(child, "typeKind", MatchKind.HasTypeKind, conditions, MatchOperand.AssociatedType);
-			TryAddCondition(child, "endsWith", MatchKind.EndsWith, conditions, MatchOperand.Declaration);
-			TryAddCondition(child, "startsWith", MatchKind.StartsWith, conditions, MatchOperand.Declaration);
-			TryAddCondition(child, "contains", MatchKind.Contains, conditions, MatchOperand.Declaration);
-			TryAddCondition(child, "regex", MatchKind.Regex, conditions, MatchOperand.Declaration);
+			var conditions = MatcherAttributeCatalog.CreateConditions(child.GetAttribute, MatcherAttributeProfile.Declaration);
 			var requiredObservations = GetRequiredObservations(items, index);
 
-			if (conditions.Count > 0)
+			if (conditions.Length > 0)
 			{
-				matchers.Add(new DeclarationMatcher(target, conditions.ToImmutable(), requiredObservations));
+				matchers.Add(new DeclarationMatcher(target, conditions, requiredObservations));
 			}
 		}
 
@@ -143,30 +112,16 @@ internal static partial class ArchitectureHealthReportGenerator
 				continue;
 			}
 
-			var conditions = ImmutableArray.CreateBuilder<MatchCondition>();
-			TryAddCondition(child, "typeName", MatchKind.Equals, conditions, MatchOperand.AssociatedType);
-			TryAddCondition(child, "exactName", MatchKind.Equals, conditions, MatchOperand.Declaration);
-			TryAddCondition(child, "exactFullName", MatchKind.EqualsFullName, conditions, MatchOperand.AssociatedType);
-			TryAddCondition(child, "endsWith", MatchKind.EndsWith, conditions, MatchOperand.Declaration);
-			TryAddCondition(child, "startsWith", MatchKind.StartsWith, conditions, MatchOperand.Declaration);
-			TryAddCondition(child, "contains", MatchKind.Contains, conditions, MatchOperand.Declaration);
-			TryAddCondition(child, "regex", MatchKind.Regex, conditions, MatchOperand.Declaration);
-			matchers.Add(new CodeObservationMatcher(target, conditions.ToImmutable()));
+			var conditions = MatcherAttributeCatalog.CreateConditions(
+				child.GetAttribute,
+				MatcherAttributeProfile.CodeObservation,
+				target == CodeObservationMatchTarget.Literal);
+			matchers.Add(new CodeObservationMatcher(target, conditions));
 		}
 
 		var result = matchers.ToImmutable();
 
 		return result;
-	}
-
-	private static void TryAddCondition(ArchitectureDocumentationItem item, string attributeName, MatchKind kind, ImmutableArray<MatchCondition>.Builder conditions, MatchOperand operand = MatchOperand.Subject)
-	{
-		if (item.GetAttribute(attributeName) is not { } value)
-		{
-			return;
-		}
-
-		conditions.Add(new MatchCondition(kind, value, operand));
 	}
 
 	private static bool RuleMatches(HealthMatcherRule rule, INamedTypeSymbol type)

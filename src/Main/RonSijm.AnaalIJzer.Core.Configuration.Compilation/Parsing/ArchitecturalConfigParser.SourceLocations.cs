@@ -65,39 +65,11 @@ public static partial class ArchitecturalConfigParser
 
 	private static bool TryReadSourceLocationRule(XElement element, string xmlPath, ImmutableArray<ConfigurationIssue>.Builder issues, out SourceLocationRule rule)
 	{
-		var conditions = ImmutableArray.CreateBuilder<MatchCondition>();
+		var conditions = MatcherAttributeCatalog.CreateConditions(
+			attributeName => element.Attribute(attributeName)?.Value,
+			MatcherAttributeProfile.ProjectOrPackage);
 
-		if (element.Attribute("typeName")?.Value is { } typeName)
-		{
-			conditions.Add(new MatchCondition(MatchKind.Equals, typeName));
-		}
-
-		if (element.Attribute("exactName")?.Value is { } exactName)
-		{
-			conditions.Add(new MatchCondition(MatchKind.Equals, exactName));
-		}
-
-		if (element.Attribute("startsWith")?.Value is { } startsWith)
-		{
-			conditions.Add(new MatchCondition(MatchKind.StartsWith, startsWith));
-		}
-
-		if (element.Attribute("endsWith")?.Value is { } endsWith)
-		{
-			conditions.Add(new MatchCondition(MatchKind.EndsWith, endsWith));
-		}
-
-		if (element.Attribute("contains")?.Value is { } contains)
-		{
-			conditions.Add(new MatchCondition(MatchKind.Contains, contains));
-		}
-
-		if (element.Attribute("regex")?.Value is { } regex)
-		{
-			conditions.Add(new MatchCondition(MatchKind.Regex, regex));
-		}
-
-		if (conditions.Count == 0)
+		if (conditions.Length == 0)
 		{
 			AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, "Source requires at least one matcher attribute.", element, xmlPath);
 			rule = default;
@@ -106,7 +78,7 @@ public static partial class ArchitecturalConfigParser
 
 		var line = (IXmlLineInfo)element;
 		rule = new SourceLocationRule(
-			conditions.ToImmutable(),
+			conditions,
 			element.Attribute("assemblyName")?.Value,
 			element.Attribute("description")?.Value,
 			xmlPath,

@@ -42,27 +42,19 @@ public static class ArchitectureConfigurationDocumentLoader
 
 	public static string? TryReadInlineConfigurationXml(Compilation? compilation)
 	{
-		if (compilation is null)
-		{
-			return null;
-		}
+		var result = FindInlineSettingsAttribute(compilation)?.ConstructorArguments[1].Value as string;
 
-		foreach (var attribute in compilation.Assembly.GetAttributes())
-		{
-			if (!IsAssemblyMetadataAttribute(attribute.AttributeClass))
-			{
-				continue;
-			}
+		return result;
+	}
 
-			if (attribute.ConstructorArguments.Length >= 2
-			    && string.Equals(attribute.ConstructorArguments[0].Value as string, InlineSettingsMetadataKey, StringComparison.Ordinal)
-			    && attribute.ConstructorArguments[1].Value is string xml)
-			{
-				return xml;
-			}
-		}
+	public static AttributeData? FindInlineSettingsAttribute(Compilation? compilation)
+	{
+		var result = compilation?.Assembly.GetAttributes().FirstOrDefault(attribute =>
+			IsAssemblyMetadataAttribute(attribute.AttributeClass)
+			&& attribute.ConstructorArguments.Length >= 2
+			&& string.Equals(attribute.ConstructorArguments[0].Value as string, InlineSettingsMetadataKey, StringComparison.Ordinal));
 
-		return null;
+		return result;
 	}
 
 	private static bool IsAssemblyMetadataAttribute(INamedTypeSymbol? attributeClass)

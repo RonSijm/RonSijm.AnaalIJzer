@@ -77,6 +77,15 @@ internal static partial class ArchitectureConfigurationXmlNavigator
 			return result;
 		}
 
+		if (handle.ContainerKind == ArchitectureConfigurationXmlNames.ReturnValuePolicyElementName)
+		{
+			var result = containerRoot
+				.Elements(ArchitectureConfigurationXmlNames.ReturnValuePolicyElementName)
+				.Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
+
+			return result;
+		}
+
 		if (handle.ContainerKind == ArchitectureConfigurationXmlNames.ApiSurfaceElementName)
 		{
 			var result = containerRoot

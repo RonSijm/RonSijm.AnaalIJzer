@@ -22,6 +22,7 @@ public sealed record ApplicationRequest(ApplicationOperationKind Operation)
 	public ApplicationInputKind? InputKind { get; init; }
 	public IReadOnlyList<string> InputPaths { get; init; } = [];
 	public string? OutputPath { get; init; }
+	public string? FixId { get; init; }
 	public string Configuration { get; init; } = "Release";
 	public ConfigurationGenerationOptions GenerationOptions { get; init; } = new();
 	public bool IncludeCodeEvidence { get; init; }
@@ -46,7 +47,19 @@ public sealed record ApplicationRunResult(
 	string Message,
 	bool HasFindings = false,
 	string? Content = null,
-	ImmutableArray<ArchitectureFinding> Findings = default);
+	ImmutableArray<ArchitectureFinding> Findings = default,
+	ImmutableArray<ApplicationConfigurationFixProposal> FixProposals = default);
+
+public sealed record ApplicationConfigurationFixProposal(
+	string Id,
+	string DiagnosticId,
+	string Title,
+	string Risk,
+	string ProjectName,
+	string TargetPath,
+	string DiagnosticMessage,
+	string PreviewDiff,
+	ImmutableDictionary<string, string> DiagnosticProperties);
 
 public sealed class ApplicationOperationException(string message) : Exception(message);
 

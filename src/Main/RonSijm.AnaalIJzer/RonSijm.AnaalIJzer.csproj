@@ -26,10 +26,13 @@
         <RepositoryType>git</RepositoryType>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageIcon>icon.png</PackageIcon>
+        <PackageIcon>icon-analyzer.png</PackageIcon>
         <DevelopmentDependency>true</DevelopmentDependency>
         <!-- Prevent the DLL from landing in lib/ — it belongs in analyzers/ only -->
         <IncludeBuildOutput>false</IncludeBuildOutput>
+        <!-- The analyzer ships its complete runtime closure under analyzers/dotnet/cs.
+             Do not turn implementation project references into consumer NuGet dependencies. -->
+        <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
         <!-- Analyzer packages conventionally embed the PDB into the DLL and ship no .snupkg.
              NuGet's symbol-collection target is gated on IncludeBuildOutput=='true', so a separate
              snupkg would be empty and get rejected by nuget.org with 400. SourceLink still works. -->
@@ -38,8 +41,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\RonSijm.AnaalIJzer.Diagnostics\RonSijm.AnaalIJzer.Diagnostics.csproj" />
-        <ProjectReference Include="..\RonSijm.AnaalIJzer.Engine\RonSijm.AnaalIJzer.Engine.csproj" />
+        <!-- These assemblies are bundled below as analyzer assets. They must not become NuGet
+             dependencies because the supporting projects are intentionally not published packages. -->
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Diagnostics\RonSijm.AnaalIJzer.Diagnostics.csproj" PrivateAssets="all" Pack="false" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Engine\RonSijm.AnaalIJzer.Engine.csproj" PrivateAssets="all" Pack="false" />
     </ItemGroup>
 
     <ItemGroup>
@@ -49,13 +54,9 @@
 
     <ItemGroup>
         <None Include="..\..\..\README.md" Pack="true" PackagePath="\" />
-        <None Include="..\..\..\build\Settings\icon.png" Pack="true" PackagePath="\" Visible="false" />
+        <None Include="..\..\..\build\Settings\icon-analyzer.png" Pack="true" PackagePath="\" Visible="false" />
         <None Include="..\..\..\build\Settings\RonSijm.AnaalIJzer.props" Pack="true" PackagePath="buildTransitive\RonSijm.AnaalIJzer.props" Visible="false" />
         <None Include="..\..\..\build\Settings\RonSijm.AnaalIJzer.targets" Pack="true" PackagePath="buildTransitive\RonSijm.AnaalIJzer.targets" Visible="false" />
-        <None Remove="bin\Debug\netstandard2.0\\RonSijm.AnaalIJzer.dll" />
-        <!-- Empty placeholder so NuGet sees a lib/netstandard2.0 folder for the declared TFM
-             (silences NU5128 without shipping a runtime assembly the consumer shouldn't reference) -->
-        <None Include="..\..\..\build\Settings\_._" Pack="true" PackagePath="lib\netstandard2.0\_._" Visible="false" />
     </ItemGroup>
 
     <ItemGroup>
@@ -72,6 +73,7 @@
             RonSijm.AnaalIJzer.Core.Visibility;
             RonSijm.AnaalIJzer.Core.Contracts;
             RonSijm.AnaalIJzer.Core.Inheritance;
+            RonSijm.AnaalIJzer.Core.ReturnValues;
             RonSijm.AnaalIJzer.Core.Exceptions;
             RonSijm.AnaalIJzer.Core.BuildMetadata;
             RonSijm.AnaalIJzer.Core.Indicators;

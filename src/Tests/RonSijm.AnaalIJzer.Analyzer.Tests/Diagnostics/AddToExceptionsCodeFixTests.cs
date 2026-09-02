@@ -353,6 +353,33 @@ public sealed class AddToExceptionsCodeFixTests
 			.Should().ContainSingle();
 	}
 
+	[Fact]
+	public async Task AddToExceptionsCodeFix_InlineSettings_UpdatesAssemblyMetadata()
+	{
+		const string source = """"
+			using System.Reflection;
+
+			[assembly: AssemblyMetadata("AnaalIJzerSettings", """
+			<ArchitecturalLevels>
+			  <Layer name="Application">
+			    <Class endsWith="Manager" />
+			  </Layer>
+			</ArchitecturalLevels>
+			""")]
+
+			public interface IPatientManager { }
+			public class OrderManager(IPatientManager other) { }
+			"""";
+
+		var updatedSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
+			source,
+			ArchitecturalDiagnosticIds.SameLayerDependency,
+			"Add 'IPatientManager' to exceptions");
+
+		updatedSource.Should().Contain("<Exceptions>");
+		updatedSource.Should().Contain("<Class typeName=\"IPatientManager\" />");
+	}
+
 	private static Diagnostic CreateDiagnosticWithProperties(ImmutableDictionary<string, string?> properties)
 	{
 		var result = Diagnostic.Create(

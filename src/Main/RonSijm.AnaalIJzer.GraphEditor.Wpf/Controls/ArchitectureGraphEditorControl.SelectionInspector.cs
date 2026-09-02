@@ -37,6 +37,7 @@ public sealed partial class ArchitectureGraphEditorControl
 		var panel = CreateInspectorShell(selection);
 		panel.Children.Add(CreateSectionTitle("Observed code"));
 		panel.Children.Add(CreateHintTextBlock("This connection comes from project code evidence. Edit code or add dependency rules to change it.", new Thickness(0, 2, 0, 6)));
+		AddConfigurationFixesEditor(panel, selection);
 		if (!string.IsNullOrWhiteSpace(selection.EvidenceDetails))
 		{
 			panel.Children.Add(new TextBlock { Text = selection.EvidenceDetails, TextWrapping = TextWrapping.Wrap, FontFamily = new FontFamily("Consolas") });

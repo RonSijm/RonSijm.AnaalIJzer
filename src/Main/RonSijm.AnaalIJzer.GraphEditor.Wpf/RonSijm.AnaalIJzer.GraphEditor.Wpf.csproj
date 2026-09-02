@@ -22,6 +22,8 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Matchers\RonSijm.AnaalIJzer.Core.Matchers.csproj"
+                          SetTargetFramework="TargetFramework=netstandard2.0" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.GraphApplication\RonSijm.AnaalIJzer.GraphApplication.csproj"
                           SetTargetFramework="TargetFramework=netstandard2.0" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Graphing.Wpf\RonSijm.AnaalIJzer.Graphing.Wpf.csproj"

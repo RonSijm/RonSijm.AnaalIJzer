@@ -32,7 +32,9 @@
       <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Core.Exceptions\RonSijm.AnaalIJzer.Core.Exceptions.csproj" />
       <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Core.Indicators\RonSijm.AnaalIJzer.Core.Indicators.csproj" />
       <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Core.BuildMetadata\RonSijm.AnaalIJzer.Core.BuildMetadata.csproj" />
+      <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Core.ReturnValues\RonSijm.AnaalIJzer.Core.ReturnValues.csproj" />
       <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Diagnostics\RonSijm.AnaalIJzer.Diagnostics.csproj" />
+      <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Engine\RonSijm.AnaalIJzer.Engine.csproj" />
       <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer\RonSijm.AnaalIJzer.csproj" />
     </ItemGroup>
 

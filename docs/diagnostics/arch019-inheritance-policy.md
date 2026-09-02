@@ -9,7 +9,7 @@ Example:
 the InheritancePolicy in layer 'PersistenceEntities' requires one of base types Entity
 ```
 
-The diagnostic is reported on the declaration identifier.
+The diagnostic is reported on the declaration identifier. The type is not wrong where it is used; it is wrong where it is declared, so that is where the squiggle goes.
 
 Diagnostic properties include:
 

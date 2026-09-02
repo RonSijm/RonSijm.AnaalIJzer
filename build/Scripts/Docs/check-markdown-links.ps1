@@ -10,6 +10,29 @@ $files = @(
 $failures = [System.Collections.Generic.List[string]]::new()
 $linkPattern = [regex]'!?\[[^\]]*\]\((?<target>[^)\s]+)(?:\s+"[^"]*")?\)'
 
+function Test-PathWithExactCasing([string]$Path) {
+    $fullPath = [System.IO.Path]::GetFullPath($Path)
+    $rootPath = [System.IO.Path]::GetPathRoot($fullPath)
+    if ([string]::IsNullOrWhiteSpace($rootPath)) {
+        return $false
+    }
+
+    $relativePath = $fullPath.Substring($rootPath.Length)
+    $segments = $relativePath.Split([char[]]@([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar), [System.StringSplitOptions]::RemoveEmptyEntries)
+    $currentPath = $rootPath
+
+    foreach ($segment in $segments) {
+        $matchingEntry = Get-ChildItem -LiteralPath $currentPath -Force | Where-Object { $_.Name -ceq $segment } | Select-Object -First 1
+        if ($null -eq $matchingEntry) {
+            return $false
+        }
+
+        $currentPath = $matchingEntry.FullName
+    }
+
+    return $true
+}
+
 foreach ($file in $files) {
     $content = Get-Content -LiteralPath $file -Raw -Encoding UTF8
     foreach ($match in $linkPattern.Matches($content)) {
@@ -38,9 +61,9 @@ foreach ($file in $files) {
             [System.IO.Path]::GetFullPath((Join-Path $baseDirectory $pathPart))
         }
 
-        if (!(Test-Path -LiteralPath $candidate)) {
+        if (!(Test-Path -LiteralPath $candidate) -or !(Test-PathWithExactCasing $candidate)) {
             $relativeFile = [System.IO.Path]::GetRelativePath($repositoryRoot, $file)
-            $failures.Add("${relativeFile}: missing markdown link target '$target'")
+            $failures.Add("${relativeFile}: missing or incorrectly cased markdown link target '$target'")
         }
     }
 }

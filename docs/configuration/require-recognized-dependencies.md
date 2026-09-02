@@ -1,6 +1,6 @@
 ﻿### `requireRecognizedDependencies` attribute
 
-`requireRecognizedDependencies` is a comma-separated list of [dependency sites](#site-filters). At each listed site, a dependency used by a layered caller must itself belong to a configured layer. An unknown type reports **ARCH002**. When the attribute is omitted, unknown types do not report ARCH002.
+`requireRecognizedDependencies` is a comma-separated list of [dependency sites](#site-filters). At each listed site, a dependency used by a layered caller must itself belong to a configured layer. An unknown type reports **ARCH002**. When the attribute is omitted, unknown types do not report ARCH002 - otherwise a brand-new config would flag every framework type in the project before lunch, and be switched off shortly after.
 
 The attribute can be placed on `<ArchitecturalLevels>` or on a `<Layer>`:
 

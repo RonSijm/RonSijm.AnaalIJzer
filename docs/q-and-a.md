@@ -9,7 +9,7 @@ If you see a message like this:
 no allowed dependency gate from 'Application/Contracts' to 'Crosscutting' is configured in boundary 'Application'
 ```
 
-then `Task` or `Nullable` has been classified into one of your configured layers. The analyzer does not treat framework types as forbidden by default. Once a matcher puts `Task`, `Nullable`, or another framework type in `Crosscutting`, normal layer and nested-boundary rules apply to it.
+then `Task` or `Nullable` has been classified into one of your configured layers. The analyzer does not treat framework types as forbidden by default; it has no particular opinion about `Task`. Something in the configuration adopted it into a layer, and the rules simply did as they were told. Once a matcher puts `Task`, `Nullable`, or another framework type in `Crosscutting`, normal layer and nested-boundary rules apply to it.
 
 The cleanest fix is usually: do not classify framework types into application architecture layers unless you really mean to. Keep `Crosscutting` scoped to your own code:
 

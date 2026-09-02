@@ -8,6 +8,8 @@ Use it when the problem is at project level rather than type level:
 - a project reference is architecturally wrong even if no code uses it yet;
 - solution topology matters separately from type dependency rules.
 
+Project references also have a habit of outliving their reason: the code that needed them is deleted, the reference stays, and two years later somebody treats it as intended design.
+
 ### Example
 
 ```xml
@@ -89,6 +91,17 @@ If either side is unrecognized, `ARCH010` reports that directly.
 
 Roslyn does not reliably expose project-reference provenance by itself.
 
-The analyzer package therefore ships a `buildTransitive` target that writes a small project-reference manifest and adds it as an analyzer `AdditionalFile`.
+The analyzer package therefore ships a `buildTransitive` target that writes a small project-reference manifest and adds it as an analyzer `AdditionalFile`. Less elegant than asking the compiler, and it has the distinct advantage of working.
 
 Arse and solution inspection do not need that generated manifest because they can inspect `MSBuildWorkspace` project references directly.
+
+### IDE Fix Support
+
+For deterministic cases, the config fixer layer can update project architecture rules too:
+
+- `ARCH010` can add a missing `<AllowedProjectReference from="..." to="..." />`
+- same-group `ARCH010` can add an explicit self-edge
+- blocked-edge `ARCH010` can remove the matching `<BlockedProjectReference ... />`
+- `ARCH011` can append an exact `<Package exactName="..."/>` matcher to the matched allowed package list
+
+Because `ARCH010` and `ARCH011` are compilation-end diagnostics, host UX varies a little: build reports and host tooling are the most reliable surfaces, while editor light-bulb visibility depends on how the IDE exposes `Location.None` diagnostics.

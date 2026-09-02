@@ -2,6 +2,8 @@
 
 Marks type patterns as explicitly disallowed. A root `<Forbidden>` policy applies globally; one nested inside a layer applies only to that layer and its descendants. When a dependency type matches an applicable forbidden pattern the analyzer reports **ARCH003** regardless of which layer the caller belongs to. An optional `<Fix Rename="…">` child element provides an automatic rename code-fix in Visual Studio / Rider.
 
+Fill in the `comment` attribute. A rule that records why `Store` lost to `Repository` gets re-litigated far less often than one that simply refuses.
+
 ```xml
 <Forbidden>
   <Class endsWith="Store" comment="Persistence types must use the Repository suffix.">

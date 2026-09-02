@@ -5,6 +5,7 @@ using RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
 using RonSijm.AnaalIJzer.GraphModel.Loading;
 using RonSijm.AnaalIJzer.GraphModel.Model;
 using RonSijm.AnaalIJzer.VisualStudio.Diagnostics;
+using RonSijm.AnaalIJzer.VisualStudio.Graphs.ConfigurationFixes;
 using RonSijm.AnaalIJzer.VisualStudio.Options;
 using RonSijm.AnaalIJzer.VisualStudio.Styling;
 
@@ -17,6 +18,8 @@ internal sealed class ArchitectureGraphToolWindowControl : UserControl
 
 	public ArchitectureGraphToolWindowControl()
 	{
+		ThreadHelper.ThrowIfNotOnUIThread();
+		var configurationFixService = ArchitectureGraphConfigurationFixService.Create();
 		var root = new Grid();
 		ArchitectureVisualStudioTheme.ApplyToToolWindow(root);
 		ArchitectureVisualStudioTheme.ApplyBackground(root);
@@ -27,7 +30,9 @@ internal sealed class ArchitectureGraphToolWindowControl : UserControl
 			ArchitectureVisualStudioLog.Info,
 			ArchitectureVisualStudioLog.Warning,
 			snapshotReloader: ReloadSnapshot,
-			snapshotPublisher: ArchitectureGraphToolWindowState.Publish);
+			snapshotPublisher: ArchitectureGraphToolWindowState.Publish,
+			configurationFixLoader: cancellationToken => configurationFixService.LoadAsync(ArchitectureGraphToolWindowState.CurrentContext, cancellationToken),
+			configurationFixApplier: (fixId, cancellationToken) => configurationFixService.ApplyAsync(ArchitectureGraphToolWindowState.CurrentContext, fixId, cancellationToken));
 		root.Children.Add(_editor);
 		Content = root;
 		Loaded += (_, _) => Subscribe();

@@ -1,6 +1,6 @@
 ### ARCH008 - Name rule violation
 
-Reported when a value movement or declaration inside a layer matches an applicable `<NameRules>` policy, but the compared names do not normalize to the same meaning and no matching `<Allow>` mapping permits that site.
+Reported when a value movement or declaration inside a layer matches an applicable `<NameRules>` policy, but the compared names do not normalize to the same meaning and no matching `<Allow>` mapping permits that site. Most findings turn out to be a misleading name rather than wrong behaviour, which is precisely the point: the name is what the next reader believes.
 
 Example message:
 

@@ -77,6 +77,13 @@ internal sealed partial class ArchitectureGraphEditService
 		return result;
 	}
 
+	public ArchitectureConfigurationEditResult AddReturnValuePolicy(ArchitectureLayerEditHandle handle, ImmutableDictionary<string, string> attributes, string childXml)
+	{
+		var result = ArchitectureConfigurationEditService.AddReturnValuePolicy(handle, attributes, childXml);
+
+		return result;
+	}
+
 	public ArchitectureConfigurationEditResult AddVisibilityPolicy(ArchitectureLayerEditHandle handle, ImmutableDictionary<string, string> attributes)
 	{
 		var result = ArchitectureConfigurationEditService.AddVisibilityPolicy(handle, attributes);

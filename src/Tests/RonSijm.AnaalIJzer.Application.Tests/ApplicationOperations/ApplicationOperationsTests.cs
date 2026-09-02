@@ -14,6 +14,8 @@ public sealed partial class ApplicationOperationsTests
 			ApplicationOperationKind.Documentation,
 			ApplicationOperationKind.Report,
 			ApplicationOperationKind.Inspect,
+			ApplicationOperationKind.Fixes,
+			ApplicationOperationKind.ApplyFix,
 			ApplicationOperationKind.MergeConfig,
 			ApplicationOperationKind.SplitConfig,
 			ApplicationOperationKind.FormatConfig,
@@ -36,11 +38,18 @@ public sealed partial class ApplicationOperationsTests
 		inspect.Supports(ApplicationInputKind.Project).Should().BeTrue();
 		inspect.Supports(ApplicationInputKind.Solution).Should().BeTrue();
 		inspect.Supports(ApplicationInputKind.ConfigurationFile).Should().BeTrue();
+		var fixes = ApplicationOperationCatalog.Get(ApplicationOperationKind.Fixes);
+		fixes.Supports(ApplicationInputKind.Project).Should().BeTrue();
+		fixes.Supports(ApplicationInputKind.Solution).Should().BeTrue();
+		var applyFix = ApplicationOperationCatalog.Get(ApplicationOperationKind.ApplyFix);
+		applyFix.Supports(ApplicationInputKind.Project).Should().BeTrue();
+		applyFix.Supports(ApplicationInputKind.Solution).Should().BeTrue();
 		ApplicationOperationCatalog.All.Should().OnlyContain(operation => operation.Supports(operation.DefaultInput));
 		ApplicationOperationCatalog.Get(ApplicationOperationKind.MergeConfig).SupportsMultipleInputs.Should().BeTrue();
 		ApplicationOperationCatalog.Get(ApplicationOperationKind.SplitConfig).OutputKind.Should().Be(ApplicationOutputKind.Directory);
 		ApplicationOperationCatalog.Find("inspect")!.Kind.Should().Be(ApplicationOperationKind.Inspect);
 		ApplicationOperationCatalog.Find("validate")!.Kind.Should().Be(ApplicationOperationKind.Inspect);
+		ApplicationOperationCatalog.Find("config-fixes")!.Kind.Should().Be(ApplicationOperationKind.Fixes);
 		ApplicationInputCatalog.Get(ApplicationInputKind.Solution).OptionName.Should().Be("--solution");
 		ApplicationInputPathParser.Parse("First.xml; Second.xml").Should().Equal("First.xml", "Second.xml");
 	}

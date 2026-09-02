@@ -22,7 +22,8 @@ internal sealed partial class ArchitectureTagger
 
 	private void ViewGotAggregateFocus(object sender, EventArgs e)
 	{
-		ArchitectureGraphToolWindowState.Publish(_snapshot);
+		var context = _snapshotProvider.CreateGraphToolWindowContext(_buffer, _snapshot);
+		ArchitectureGraphToolWindowState.Publish(context);
 	}
 
 	private void ViewClosed(object sender, EventArgs e)
@@ -74,7 +75,8 @@ internal sealed partial class ArchitectureTagger
 				+ ".");
 			if (_view.HasAggregateFocus)
 			{
-				ArchitectureGraphToolWindowState.Publish(_snapshot);
+				var context = _snapshotProvider.CreateGraphToolWindowContext(_buffer, _snapshot);
+				ArchitectureGraphToolWindowState.Publish(context);
 			}
 
 			RaiseTagsChanged();

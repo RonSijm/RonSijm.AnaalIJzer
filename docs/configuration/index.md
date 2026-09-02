@@ -1,9 +1,10 @@
 ﻿## Configuration reference
 
-The XML root element is `<ArchitecturalLevels>`. It supports the child elements and attributes documented in the feature pages below.
+The XML root element is `<ArchitecturalLevels>`. It supports the child elements and attributes documented in the feature pages below. Everything here is optional: a file that declares layers and a handful of allowed dependencies is already a complete and useful configuration, and most repositories never need the rest.
 
 | Feature | Doc file |
 |---|---|
+| Configuration fixers | `config-fixers.md` |
 | Include files | `include.md` |
 | Layers and matchers | `layers.md` |
 | Allowed dependencies | `allowed-dependency.md` |
@@ -16,6 +17,7 @@ The XML root element is `<ArchitecturalLevels>`. It supports the child elements 
 | Visibility policies | `visibility-policies.md` |
 | Inheritance policies | `inheritance-policies.md` |
 | Contract purity | `contract-policies.md` |
+| Return-value policies | `return-value-policies.md` |
 | Project architecture | `project-architecture.md` |
 | API surface policies | `api-surface.md` |
 | Transitive API exposure | `transitive-api-exposure.md` |

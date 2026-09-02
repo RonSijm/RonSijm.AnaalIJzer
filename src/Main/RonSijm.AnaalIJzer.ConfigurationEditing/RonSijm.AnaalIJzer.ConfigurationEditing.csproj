@@ -12,6 +12,8 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Matchers\RonSijm.AnaalIJzer.Core.Matchers.csproj"
+                          SetTargetFramework="TargetFramework=netstandard2.0" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Configuration.Document\RonSijm.AnaalIJzer.Core.Configuration.Document.csproj"
                           SetTargetFramework="TargetFramework=$(NetFxCompatibleProjectTargetFramework)" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />

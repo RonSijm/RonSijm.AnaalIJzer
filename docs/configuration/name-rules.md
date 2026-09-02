@@ -2,7 +2,7 @@
 
 `NameRules` are layer-scoped semantic-name policies. They do not create layer dependencies. They can check either a named value moving into a differently named target or a declaration identifier that disagrees with its own semantic type.
 
-Use this when primitive values are still necessary, but you want some of the protection people often get from "honest types":
+Use this when primitive values are still necessary, but you want some of the protection people often get from "honest types". To the compiler one `int` is exactly as meaningful as any other `int`, which is why swapped id arguments pass review so comfortably and reappear later as a production incident:
 
 ```xml
 <Layer name="Application">

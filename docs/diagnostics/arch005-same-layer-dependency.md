@@ -1,6 +1,6 @@
 ﻿### ARCH005 - Same-layer dependency
 
-Reported when two types in the same layer depend on each other and no self-edge has been configured for that layer. By default peers within a layer are not allowed to take a hard dependency on each other; this is the safest default because intra-layer fan-out tends to grow silently into cycles.
+Reported when two types in the same layer depend on each other and no self-edge has been configured for that layer. By default peers within a layer are not allowed to take a hard dependency on each other; this is the safest default because intra-layer fan-out tends to grow unnoticed into a web that no one designed and everyone maintains.
 
 To opt a single layer in to same-layer dependencies, declare an explicit self-edge:
 

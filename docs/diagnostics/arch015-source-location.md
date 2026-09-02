@@ -22,6 +22,10 @@ Typical fixes:
 - split mixed-responsibility partial declarations;
 - if the layout is intentional, add an explicit `<Source>` rule that documents it.
 
-Important: folders do not classify layers by themselves. `ARCH015` only runs after the type has already been matched into a layer by the normal layer matchers.
+#### IDE code fix
+
+The IDE can add an exact `<Source exactName="..."/>` matcher for the reported file path to the owning layer's `<SourceLocations>` block. For inline metadata config, the assembly attribute is rewritten in place.
+
+Important: folders do not classify layers by themselves. `ARCH015` only runs after the type has already been matched into a layer by the normal layer matchers. A folder tree is a claim about ownership; this rule is what checks whether the claim is still true.
 
 See [`Example.SourceLocations`](../../Examples/Features/Example.SourceLocations) for a small build-verified sample.
