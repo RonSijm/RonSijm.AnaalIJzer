@@ -74,27 +74,11 @@ public sealed partial class ArchitecturalLevelAnalyzer
 
 	private static Location? TryFindInlineSettingsAttributeLocation(Compilation compilation)
 	{
-		foreach (var attribute in compilation.Assembly.GetAttributes())
-		{
-			if (!string.Equals(attribute.AttributeClass?.ToDisplayString(), "System.Reflection.AssemblyMetadataAttribute", StringComparison.Ordinal))
-			{
-				continue;
-			}
+		var result = ArchitectureConfigurationDocumentLoader.FindInlineSettingsAttribute(compilation)
+			?.ApplicationSyntaxReference
+			?.GetSyntax()
+			.GetLocation();
 
-			if (attribute.ConstructorArguments.Length < 2
-			    || !string.Equals(attribute.ConstructorArguments[0].Value as string, ArchitectureConfigurationDocumentLoader.InlineSettingsMetadataKey, StringComparison.Ordinal))
-			{
-				continue;
-			}
-
-			var syntaxReference = attribute.ApplicationSyntaxReference;
-			var location = syntaxReference?.GetSyntax().GetLocation();
-			if (location is not null)
-			{
-				return location;
-			}
-		}
-
-		return null;
+		return result;
 	}
 }

@@ -24,6 +24,9 @@ arse report --solution path\to\Solution.slnx
 arse inspect --project path\to\Project.csproj
 arse inspect --solution path\to\Solution.slnx
 arse inspect --config path\to\Architecture.anl
+arse fixes --project path\to\Project.csproj
+arse fixes --solution path\to\Solution.slnx --output docs\architecture-fixes.md
+arse apply-fix --project path\to\Project.csproj --fix-id fix-abc123
 arse merge-config --config Shared.anl --config Project.anl --output Architecture.anl
 arse split-config --config Architecture.anl --output ArchitectureRules
 arse associate-anl
@@ -31,6 +34,8 @@ arse unassociate-anl
 ```
 
 `inspect` writes an architecture-health report and exits with code `3` when it finds issues. Its aliases are `validate`, `doctor`, and `health`. Use `--solution` when the architecture spans multiple projects.
+
+`fixes` lists configuration-backed proposals from the same Roslyn fixer catalog used by the IDE. `apply-fix` applies one proposal id and then refreshes the remaining proposal list.
 
 `associate-anl` registers `.anl` files for the current Windows user so opening one runs `arse inspect --config "%1"`. `unassociate-anl` removes only Arse's own `.anl` association.
 

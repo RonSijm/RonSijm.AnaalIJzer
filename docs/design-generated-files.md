@@ -11,4 +11,4 @@ The shared tooling engine is the explicit generation host used by both Arse mode
 - `merge-config` flattens XML files and transitive includes into one configuration.
 - `split-config` extracts disconnected dependency graphs into an include-based configuration.
 
-That keeps normal builds focused on diagnostics while still making reports and documentation easy to regenerate in CI or before committing documentation updates.
+That keeps normal builds focused on diagnostics while still making reports and documentation easy to regenerate in CI or before committing documentation updates. The split is deliberate: compiling a repository should not modify it.

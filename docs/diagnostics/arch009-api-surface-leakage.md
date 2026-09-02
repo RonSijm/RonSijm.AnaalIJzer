@@ -1,6 +1,6 @@
 ### ARCH009 - API surface leakage
 
-ARCH009 means an externally visible declaration exposes a type rejected by the owning layer's `<ApiSurface>` policy.
+ARCH009 means an externally visible declaration exposes a type rejected by the owning layer's `<ApiSurface>` policy. It tracks the gap between what your code uses and what your callers can see; callers only ever notice the second one.
 
 ```text
 'CandyOrderingService' (layer Application) exposes 'LollyQueryable'
@@ -16,6 +16,10 @@ Common fixes are:
 - make the declaration non-public when it is an implementation detail;
 - add the exposed type to the intended contract layer;
 - deliberately adjust the `<ApiSurface>` policy or its site filter.
+
+#### IDE code fixes
+
+The IDE can add a missing `<AllowedLayer>`, widen an existing `allowedSites` list, relax `blockedSites`, and when the denial comes from `requireRecognizedTypes="true"` it can disable that requirement for the policy.
 
 Adding an `<AllowedDependency>` is not an ARCH009 fix by itself. That edge permits internal use; it does not grant permission to publish the type as API.
 

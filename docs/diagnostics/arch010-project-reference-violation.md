@@ -26,10 +26,20 @@ Project 'Shop.Web' (project group Presentation) may not reference project 'Shop.
 - classify the unrecognized project with a `ProjectGroup`
 - add an explicit self-edge if same-group references are intentionally allowed
 
+### IDE Fix Support
+
+When both project groups are already recognized, the config fixer layer can:
+
+- add the missing `<AllowedProjectReference from="..." to="..." />`
+- add an explicit same-group self-edge
+- remove the matching blocking `<BlockedProjectReference ... />`
+
+Because `ARCH010` is reported at compilation end, whether that action appears as a normal editor light bulb depends on the host. The edit logic itself is tested in `ProjectArchitectureCodeFixTests.cs`.
+
 ### Not The Same As
 
 - `ARCH001`: illegal type dependency in code
 - `ARCH004`: wrong-direction type dependency in code
 - `ARCH005`: same-layer type dependency in code
 
-`ARCH010` can fire even when no source file currently uses the referenced project.
+`ARCH010` can fire even when no source file currently uses the referenced project. That is intentional: an unused reference is a standing invitation, and someone eventually accepts it.

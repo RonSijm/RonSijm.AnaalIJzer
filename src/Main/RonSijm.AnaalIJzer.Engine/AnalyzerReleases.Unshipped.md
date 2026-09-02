@@ -19,3 +19,4 @@ ARCH016 | Architecture | Error | A boundary EntryPoints policy rejected an other
 ARCH017 | Architecture | Warning | A configured architecture exception is invalid, expired, or nearing expiry and requires review
 ARCH018 | Architecture | Error | Observed source dependencies form a cycle between configured layers
 ARCH019 | Architecture | Error | A layer-scoped InheritancePolicy rejected a type that does not inherit or implement the required contract
+ARCH020 | Architecture | Error | A layer-scoped ReturnValuePolicy rejected a configured direct method return

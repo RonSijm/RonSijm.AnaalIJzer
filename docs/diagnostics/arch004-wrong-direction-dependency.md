@@ -1,6 +1,6 @@
 ﻿### ARCH004 - Wrong-direction dependency
 
-Reported when a type in layer A depends on a type in layer B and `<AllowedDependency from="B" to="A"/>` is configured - i.e. the dependency runs in the reverse direction of a configured edge.
+Reported when a type in layer A depends on a type in layer B and `<AllowedDependency from="B" to="A"/>` is configured - i.e. the dependency runs in the reverse direction of a configured edge. It gets its own ID because adding the reverse edge is such an inviting fix and so seldom the correct one.
 
 **Example output:**
 ```

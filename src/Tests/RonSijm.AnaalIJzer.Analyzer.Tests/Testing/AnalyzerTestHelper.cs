@@ -87,6 +87,28 @@ public static class AnalyzerTestHelper
 		return result;
 	}
 
+	public static async Task<string> ApplyCodeFixAsync(string source, string targetDiagnosticId, string titlePrefix)
+	{
+		var result = await ApplySelectedCodeFixAsync(
+			source,
+			[],
+			targetDiagnosticId,
+			action => action.Title.StartsWith(titlePrefix, StringComparison.Ordinal));
+
+		return result;
+	}
+
+	public static async Task<string> ApplyCodeFixAsync(string source, (string Path, string Content)[] additionalFiles, string targetDiagnosticId, string titlePrefix)
+	{
+		var result = await ApplySelectedCodeFixAsync(
+			source,
+			additionalFiles,
+			targetDiagnosticId,
+			action => action.Title.StartsWith(titlePrefix, StringComparison.Ordinal));
+
+		return result;
+	}
+
 	public static async Task<IReadOnlyList<string>> GetCodeFixTitlesAsync(string source, string levelConfig, string targetDiagnosticId)
 	{
 		var actions = await GetCodeFixActionsAsync(source, [("Architecture.anl", levelConfig)], targetDiagnosticId);
@@ -95,9 +117,67 @@ public static class AnalyzerTestHelper
 		return result;
 	}
 
+	public static async Task<IReadOnlyList<string>> GetCodeFixTitlesAsync(string source, string targetDiagnosticId)
+	{
+		var actions = await GetCodeFixActionsAsync(source, [], targetDiagnosticId);
+		var result = actions.Select(action => action.Title).ToArray();
+
+		return result;
+	}
+
+	public static async Task<IReadOnlyList<string>> GetCodeFixTitlesAsync(string source, (string Path, string Content)[] additionalFiles, string targetDiagnosticId)
+	{
+		var actions = await GetCodeFixActionsAsync(source, additionalFiles, targetDiagnosticId);
+		var result = actions.Select(action => action.Title).ToArray();
+
+		return result;
+	}
+
 	public static async Task<string> ApplyAddToExceptionsCodeFixAsync(string source, string levelConfig, string targetDiagnosticId)
 	{
 		var result = await ApplyAddToExceptionsCodeFixAsync(source, [("Architecture.anl", levelConfig)], targetDiagnosticId, "Architecture.anl");
+
+		return result;
+	}
+
+	public static async Task<string> ApplyConfigurationCodeFixAsync(string source, string levelConfig, string targetDiagnosticId, string titlePrefix, string updatedConfigPath = "Architecture.anl")
+	{
+		var result = await ApplyConfigurationCodeFixAsync(source, [("Architecture.anl", levelConfig)], targetDiagnosticId, titlePrefix, updatedConfigPath);
+
+		return result;
+	}
+
+	public static async Task<string> ApplyConfigurationCodeFixAsync(string source, (string Path, string Content)[] configs, string targetDiagnosticId, string titlePrefix, string updatedConfigPath)
+	{
+		using var workspace = new AdhocWorkspace();
+
+		var projectId = ProjectId.CreateNewId();
+		var documentId = DocumentId.CreateNewId(projectId);
+		var configDocIds = configs.ToDictionary(config => config.Path, _ => DocumentId.CreateNewId(projectId), StringComparer.OrdinalIgnoreCase);
+
+		var solution = workspace.CurrentSolution
+			.AddProject(projectId, "TestProject", "TestProject", LanguageNames.CSharp)
+			.AddMetadataReferences(projectId, BasicReferences)
+			.AddDocument(documentId, "Test.cs", source);
+
+		foreach (var config in configs)
+		{
+			solution = solution.AddAdditionalDocument(DocumentInfo.Create(configDocIds[config.Path], name: Path.GetFileName(config.Path), filePath: config.Path, loader: TextLoader.From(TextAndVersion.Create(SourceText.From(config.Content), VersionStamp.Create()))));
+		}
+
+		workspace.TryApplyChanges(solution);
+
+		var document = workspace.CurrentSolution.GetDocument(documentId)!;
+		var actions = await GetCodeFixActionsAsync(document, targetDiagnosticId);
+		var action = actions.FirstOrDefault(candidate => candidate.Title.StartsWith(titlePrefix, StringComparison.Ordinal))
+		             ?? throw new InvalidOperationException("No matching configuration code fix registered. Got: " + string.Join(", ", actions.Select(candidate => candidate.Title)));
+		var operations = await action.GetOperationsAsync(CancellationToken.None);
+		var applyOperation = operations.OfType<ApplyChangesOperation>().FirstOrDefault()
+		                     ?? throw new InvalidOperationException("Selected configuration code fix did not produce an ApplyChangesOperation.");
+		var changedDocument = applyOperation.ChangedSolution.GetAdditionalDocument(configDocIds[updatedConfigPath])
+		                     ?? throw new InvalidOperationException("Updated configuration document was not found after applying the code fix.");
+		var changedText = await changedDocument.GetTextAsync();
+		var result = changedText.ToString();
 
 		return result;
 	}

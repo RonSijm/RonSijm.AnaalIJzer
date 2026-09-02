@@ -7,6 +7,7 @@ using RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
 using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
 using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 using RonSijm.AnaalIJzer.GraphApplication;
+using RonSijm.AnaalIJzer.GraphApplication.Selection;
 using RonSijm.AnaalIJzer.Graphing.ViewModels;
 using RonSijm.AnaalIJzer.GraphEditor.Wpf.Layout;
 using RonSijm.AnaalIJzer.Graphing.Wpf.Styling;
@@ -20,6 +21,7 @@ internal sealed partial class ArchitectureGraphCanvas
 		private readonly ArchitectureGraphCanvasTheme _theme;
 		private readonly IArchitectureGraphEditService _editService;
 		private readonly Action<ArchitectureConfigurationEditResult, bool>? _editResultHandler;
+		private readonly Action<ArchitectureGraphSelection>? _selectionHandler;
 		private readonly Func<string, bool>? _confirmationHandler;
 		private readonly Func<ArchitectureLayerCreationRequest?>? _layerCreationHandler;
 		private readonly ArchitectureGraphLayoutState _layoutState;
@@ -32,6 +34,7 @@ internal sealed partial class ArchitectureGraphCanvas
 			Brush contentBrush,
 			IArchitectureGraphEditService editService,
 			Action<ArchitectureConfigurationEditResult, bool>? editResultHandler,
+			Action<ArchitectureGraphSelection>? selectionHandler,
 			Func<string, bool>? confirmationHandler,
 			Func<ArchitectureLayerCreationRequest?>? layerCreationHandler,
 			ArchitectureGraphLayoutState layoutState,
@@ -40,6 +43,7 @@ internal sealed partial class ArchitectureGraphCanvas
 			this._theme = theme;
 			this._editService = editService;
 			this._editResultHandler = editResultHandler;
+			this._selectionHandler = selectionHandler;
 			this._confirmationHandler = confirmationHandler;
 			this._layerCreationHandler = layerCreationHandler;
 			this._layoutState = layoutState;
@@ -62,6 +66,7 @@ internal sealed partial class ArchitectureGraphCanvas
 			Outputs = [Output];
 			AddChildLayerCommand = new DelegateCommand(_ => AddChildLayer(), _ => EditHandle.CanEdit);
 			RemoveCommand = new DelegateCommand(_ => Remove(), _ => EditHandle.CanEdit);
+			ShowConfigurationFixesCommand = new DelegateCommand(_ => ShowConfigurationFixes(), _ => _selectionHandler is not null);
 		}
 
 		public event PropertyChangedEventHandler? PropertyChanged;
@@ -103,6 +108,8 @@ internal sealed partial class ArchitectureGraphCanvas
 		public ICommand RemoveCommand { get; }
 
 		public ICommand AddChildLayerCommand { get; }
+
+		public ICommand ShowConfigurationFixesCommand { get; }
 
 		public Point Location
 		{
@@ -146,6 +153,11 @@ internal sealed partial class ArchitectureGraphCanvas
 
 			var result = _editService.RemoveLayer(EditHandle);
 			_editResultHandler?.Invoke(result, true);
+		}
+
+		private void ShowConfigurationFixes()
+		{
+			_selectionHandler?.Invoke(ArchitectureGraphSelection.ForLayer(EditHandle));
 		}
 
 		private void SetLocation(Point value, bool constrain)

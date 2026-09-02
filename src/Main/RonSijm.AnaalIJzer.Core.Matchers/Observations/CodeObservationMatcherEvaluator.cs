@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using RonSijm.AnaalIJzer.Core.Matchers.Conditions;
 
@@ -7,6 +8,14 @@ namespace RonSijm.AnaalIJzer.Core.Matchers.Observations;
 
 internal static class CodeObservationMatcherEvaluator
 {
+	internal static bool Matches(SyntaxNode node, CodeObservationMatcher matcher, SemanticModel semanticModel, CancellationToken cancellationToken)
+	{
+		var result = MatchesTarget(node, matcher.Target)
+			&& MatchesAllConditions(node, matcher.Conditions, semanticModel, cancellationToken);
+
+		return result;
+	}
+
 	internal static bool MatchesAll(ISymbol declarationSymbol, ImmutableArray<CodeObservationMatcher> matchers)
 	{
 		if (matchers.IsDefaultOrEmpty)
@@ -34,7 +43,7 @@ internal static class CodeObservationMatcherEvaluator
 			var declarationSyntax = syntaxReference.GetSyntax();
 			foreach (var node in GetCandidateNodes(declarationSyntax, matcher.Target))
 			{
-				if (MatchesAllConditions(node, matcher.Conditions))
+				if (MatchesAllConditions(node, matcher.Conditions, null, CancellationToken.None))
 				{
 					return true;
 				}
@@ -46,9 +55,9 @@ internal static class CodeObservationMatcherEvaluator
 		return result;
 	}
 
-	private static bool MatchesAllConditions(SyntaxNode node, ImmutableArray<MatchCondition> conditions)
+	private static bool MatchesAllConditions(SyntaxNode node, ImmutableArray<MatchCondition> conditions, SemanticModel? semanticModel, CancellationToken cancellationToken)
 	{
-		var context = CreateContext(node);
+		var context = CreateContext(node, semanticModel, cancellationToken);
 		foreach (var condition in conditions)
 		{
 			if (!condition.Matches(context))
@@ -80,17 +89,25 @@ internal static class CodeObservationMatcherEvaluator
 			CodeObservationMatchTarget.New => node is ObjectCreationExpressionSyntax or ImplicitObjectCreationExpressionSyntax,
 			CodeObservationMatchTarget.Identifier => node is IdentifierNameSyntax or GenericNameSyntax,
 			CodeObservationMatchTarget.MemberAccess => node is MemberAccessExpressionSyntax,
-			CodeObservationMatchTarget.Literal => node is LiteralExpressionSyntax,
+			CodeObservationMatchTarget.Literal => node is LiteralExpressionSyntax
+				|| node is PrefixUnaryExpressionSyntax prefix
+					&& (prefix.IsKind(SyntaxKind.UnaryMinusExpression) || prefix.IsKind(SyntaxKind.UnaryPlusExpression)),
 			_ => false
 		};
 
 		return result;
 	}
 
-	private static MatchContext CreateContext(SyntaxNode node)
+	private static MatchContext CreateContext(SyntaxNode node, SemanticModel? semanticModel, CancellationToken cancellationToken)
 	{
 		var (subjectName, associatedTypeName, associatedTypeNamespace) = GetObservationValues(node);
-		var result = new MatchContext(subjectName, string.Empty, null, associatedTypeName, associatedTypeNamespace, null);
+		var symbol = semanticModel?.GetSymbolInfo(node, cancellationToken).Symbol;
+		var type = semanticModel?.GetTypeInfo(node, cancellationToken).Type;
+		var typeName = type?.Name ?? associatedTypeName;
+		var typeNamespace = type?.ContainingNamespace is { IsGlobalNamespace: false } containingNamespace
+			? containingNamespace.ToDisplayString()
+			: associatedTypeNamespace;
+		var result = new MatchContext(subjectName, string.Empty, symbol, typeName, typeNamespace, type);
 
 		return result;
 	}
@@ -107,7 +124,8 @@ internal static class CodeObservationMatcherEvaluator
 			IdentifierNameSyntax identifier => (identifier.Identifier.ValueText, null, null),
 			GenericNameSyntax identifier => (identifier.Identifier.ValueText, null, null),
 			MemberAccessExpressionSyntax memberAccess => (memberAccess.Name.Identifier.ValueText, null, null),
-			LiteralExpressionSyntax literal => (literal.Token.ValueText.Length > 0 ? literal.Token.ValueText : literal.Token.Text, null, null),
+			LiteralExpressionSyntax literal => (GetLiteralValue(literal), null, null),
+			PrefixUnaryExpressionSyntax prefix when prefix.IsKind(SyntaxKind.UnaryMinusExpression) || prefix.IsKind(SyntaxKind.UnaryPlusExpression) => (prefix.ToString(), null, null),
 			_ => (node.ToString(), null, null)
 		};
 
@@ -170,9 +188,18 @@ internal static class CodeObservationMatcherEvaluator
 			MemberAccessExpressionSyntax memberAccess => memberAccess.Name.Identifier.ValueText,
 			MemberBindingExpressionSyntax memberBinding => memberBinding.Name.Identifier.ValueText,
 			InvocationExpressionSyntax invocation => GetInvocationName(invocation.Expression),
-			LiteralExpressionSyntax literal => literal.Token.ValueText.Length > 0 ? literal.Token.ValueText : literal.Token.Text,
+			LiteralExpressionSyntax literal => GetLiteralValue(literal),
 			_ => expression.ToString()
 		};
+
+		return result;
+	}
+
+	private static string GetLiteralValue(LiteralExpressionSyntax literal)
+	{
+		var result = literal.IsKind(SyntaxKind.NullLiteralExpression)
+			? "null"
+			: literal.Token.ValueText;
 
 		return result;
 	}

@@ -32,39 +32,11 @@ public static partial class ArchitecturalConfigParser
 
 	private static bool TryReadPackageMatcher(XElement element, string xmlPath, ImmutableArray<ConfigurationIssue>.Builder issues, out PackageMatcher matcher)
 	{
-		var conditions = ImmutableArray.CreateBuilder<MatchCondition>();
+		var conditions = MatcherAttributeCatalog.CreateConditions(
+			attributeName => element.Attribute(attributeName)?.Value,
+			MatcherAttributeProfile.ProjectOrPackage);
 
-		if (element.Attribute("typeName")?.Value is { } typeName)
-		{
-			conditions.Add(new MatchCondition(MatchKind.Equals, typeName));
-		}
-
-		if (element.Attribute("exactName")?.Value is { } exactName)
-		{
-			conditions.Add(new MatchCondition(MatchKind.Equals, exactName));
-		}
-
-		if (element.Attribute("startsWith")?.Value is { } startsWith)
-		{
-			conditions.Add(new MatchCondition(MatchKind.StartsWith, startsWith));
-		}
-
-		if (element.Attribute("endsWith")?.Value is { } endsWith)
-		{
-			conditions.Add(new MatchCondition(MatchKind.EndsWith, endsWith));
-		}
-
-		if (element.Attribute("contains")?.Value is { } contains)
-		{
-			conditions.Add(new MatchCondition(MatchKind.Contains, contains));
-		}
-
-		if (element.Attribute("regex")?.Value is { } regex)
-		{
-			conditions.Add(new MatchCondition(MatchKind.Regex, regex));
-		}
-
-		if (conditions.Count == 0)
+		if (conditions.Length == 0)
 		{
 			AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, "Package requires at least one matcher attribute.", element, xmlPath);
 			matcher = default;
@@ -73,7 +45,7 @@ public static partial class ArchitecturalConfigParser
 
 		var lineInfo = (IXmlLineInfo)element;
 		matcher = new PackageMatcher(
-			conditions.ToImmutable(),
+			conditions,
 			element.Attribute("comment")?.Value,
 			element.Attribute("description")?.Value,
 			xmlPath,
@@ -85,40 +57,12 @@ public static partial class ArchitecturalConfigParser
 
 	private static bool TryReadProjectMatcher(XElement element, out ProjectMatcher matcher)
 	{
-		var conditions = ImmutableArray.CreateBuilder<MatchCondition>();
+		var conditions = MatcherAttributeCatalog.CreateConditions(
+			attributeName => element.Attribute(attributeName)?.Value,
+			MatcherAttributeProfile.ProjectOrPackage);
 
-		if (element.Attribute("typeName")?.Value is { } typeName)
-		{
-			conditions.Add(new MatchCondition(MatchKind.Equals, typeName));
-		}
-
-		if (element.Attribute("exactName")?.Value is { } exactName)
-		{
-			conditions.Add(new MatchCondition(MatchKind.Equals, exactName));
-		}
-
-		if (element.Attribute("endsWith")?.Value is { } endsWith)
-		{
-			conditions.Add(new MatchCondition(MatchKind.EndsWith, endsWith));
-		}
-
-		if (element.Attribute("startsWith")?.Value is { } startsWith)
-		{
-			conditions.Add(new MatchCondition(MatchKind.StartsWith, startsWith));
-		}
-
-		if (element.Attribute("contains")?.Value is { } contains)
-		{
-			conditions.Add(new MatchCondition(MatchKind.Contains, contains));
-		}
-
-		if (element.Attribute("regex")?.Value is { } regex)
-		{
-			conditions.Add(new MatchCondition(MatchKind.Regex, regex));
-		}
-
-		matcher = new ProjectMatcher(conditions.ToImmutable());
-		var result = conditions.Count > 0;
+		matcher = new ProjectMatcher(conditions);
+		var result = conditions.Length > 0;
 
 		return result;
 	}

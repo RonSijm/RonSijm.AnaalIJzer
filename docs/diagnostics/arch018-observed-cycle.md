@@ -19,6 +19,8 @@ Typical causes:
 - one boundary grew a convenience reverse dependency;
 - both directions are allowed, but the current code reality has become circular.
 
+Nobody sets out to design a cycle. A cycle is what is left over after several individually reasonable decisions.
+
 Important behavior:
 
 - `ARCH018` only appears when `enforceObservedAcyclic="true"` is enabled;

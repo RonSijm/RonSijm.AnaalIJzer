@@ -28,6 +28,6 @@ Diagnostic properties include:
 - the nested member's canonical `Site`;
 - the exact policy reason and configuration origin.
 
-A direct forbidden type reports ARCH009 instead. The two diagnostics are deliberately not duplicated.
+A direct forbidden type reports ARCH009 instead. The two diagnostics are deliberately not duplicated; one complaint per leak is sufficient.
 
 **Example project:** [`Example.Arch014.TransitiveExposure`](../../Examples/Diagnostics/Example.Arch014.TransitiveExposure)

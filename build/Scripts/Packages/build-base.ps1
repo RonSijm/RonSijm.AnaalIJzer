@@ -13,7 +13,7 @@ $ErrorActionPreference = "Stop"
 $scriptDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repositoryRoot = Resolve-Path (Join-Path $scriptDirectory "..\..\..")
 $artifactRoot = Join-Path $repositoryRoot "build\Artifacts"
-$packageOutput = Join-Path $artifactRoot "packages"
+$packageOutput = Join-Path $artifactRoot "Packages"
 $analyzerProject = Join-Path $repositoryRoot "src\Main\RonSijm.AnaalIJzer\RonSijm.AnaalIJzer.csproj"
 $arseProject = Join-Path $repositoryRoot "src\Tools\RonSijm.AnaalIJzer.Arse\RonSijm.AnaalIJzer.Arse.csproj"
 $testScript = Join-Path $repositoryRoot "build\Scripts\Testing\test-all.ps1"
@@ -88,6 +88,18 @@ if (-not $SkipPack -or $PublishNuGet) {
         New-Item -ItemType Directory -Path $packageOutput | Out-Null
         Invoke-NativeCommand "dotnet" @("pack", $analyzerProject, "--configuration", $Configuration, "--no-build", "--output", $packageOutput)
         Invoke-NativeCommand "dotnet" @("pack", $arseProject, "--configuration", $Configuration, "--no-build", "--output", $packageOutput)
+    }
+
+    Invoke-Step "Verify analyzer package consumer" {
+        $analyzerPackage = Get-ChildItem -LiteralPath $packageOutput -Filter "RonSijm.AnaalIJzer.*.nupkg" |
+            Where-Object { $_.BaseName -match '^RonSijm\.AnaalIJzer\.\d' } |
+            Select-Object -First 1
+
+        if ($null -eq $analyzerPackage) {
+            throw "The analyzer package was not found in $packageOutput."
+        }
+
+        & (Join-Path $scriptDirectory "verify-analyzer-package.ps1") -PackagePath $analyzerPackage.FullName
     }
 }
 

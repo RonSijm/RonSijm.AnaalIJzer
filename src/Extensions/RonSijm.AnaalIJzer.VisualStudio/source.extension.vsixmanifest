@@ -4,7 +4,7 @@
     <Identity Id="RonSijm.AnaalIJzer.VisualStudio" Version="1.0.0" Language="en-US" Publisher="RonSijm" />
     <DisplayName>AnaalIJzer Visual Studio Companion</DisplayName>
     <Description xml:space="preserve">Editor-only architecture awareness for AnaalIJzer layer rules.</Description>
-    <Icon>icon.png</Icon>
+    <Icon>icon-visual-studio.png</Icon>
     <Tags>architecture;roslyn;analyzer;layers</Tags>
   </Metadata>
   <Installation>

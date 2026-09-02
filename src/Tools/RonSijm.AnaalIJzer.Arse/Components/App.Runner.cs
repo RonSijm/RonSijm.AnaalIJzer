@@ -38,6 +38,11 @@ public partial class App
 				Force = _overwrite == Overwrite,
 				WriteOutput = operation.Kind != ApplicationOperationKind.Inspect
 			};
+			if (operation.Kind == ApplicationOperationKind.Fixes)
+			{
+				request = request with { WriteOutput = false };
+			}
+
 			var result = await ApplicationRunner.ExecuteAsync(request);
 			if (operation.Kind == ApplicationOperationKind.Inspect)
 			{
@@ -47,6 +52,16 @@ public partial class App
 				_inspectionColor = result.HasFindings ? Color.Yellow : Color.Green;
 				_outputPath = result.OutputPath;
 				_selectingInspectionOutput = false;
+				ClearStatus();
+			}
+			else if (operation.Kind == ApplicationOperationKind.Fixes)
+			{
+				_fixReport = result.Content ?? throw new ApplicationOperationException("Configuration fixes did not return a report.");
+				_fixProposals = result.FixProposals;
+				_selectedFixProposal = _fixProposals.FirstOrDefault()?.Id;
+				_outputPath = result.OutputPath;
+				_selectingFixOutput = false;
+				ClearInspectionResult();
 				ClearStatus();
 			}
 			else
@@ -84,6 +99,7 @@ public partial class App
 		_inputInclusion = DoNotIncludeInput;
 		_overwrite = DoNotOverwrite;
 		ClearInspectionResult();
+		ClearFixResult();
 		ClearStatus();
 
 		return Task.CompletedTask;
@@ -110,5 +126,13 @@ public partial class App
 		_inspectionSummary = string.Empty;
 		_inspectionColor = Color.Grey58;
 		_selectingInspectionOutput = false;
+	}
+
+	private void ClearFixResult()
+	{
+		_fixReport = null;
+		_fixProposals = ImmutableArray<ApplicationConfigurationFixProposal>.Empty;
+		_selectedFixProposal = null;
+		_selectingFixOutput = false;
 	}
 }

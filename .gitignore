@@ -174,4 +174,5 @@ build/Artifacts/*
 /Examples/**/[Bb]uild/
 
 tmp/
-docs/plans/
+docs/plans/*
+!docs/plans/example-catalog-review.md

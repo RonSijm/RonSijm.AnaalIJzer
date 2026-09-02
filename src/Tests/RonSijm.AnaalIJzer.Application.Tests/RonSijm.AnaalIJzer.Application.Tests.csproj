@@ -23,6 +23,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Core.ReturnValues\RonSijm.AnaalIJzer.Core.ReturnValues.csproj" />
         <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Outputs\RonSijm.AnaalIJzer.Outputs.csproj" />
         <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.ConfigurationEditing\RonSijm.AnaalIJzer.ConfigurationEditing.csproj" />
         <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.GraphModel\RonSijm.AnaalIJzer.GraphModel.csproj" />

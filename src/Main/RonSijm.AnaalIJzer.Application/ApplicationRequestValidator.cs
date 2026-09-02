@@ -56,7 +56,20 @@ internal static class ApplicationRequestValidator
 
 		if (!request.WriteOutput && request.Operation != ApplicationOperationKind.Inspect)
 		{
-			throw new ApplicationOperationException("Preview without writing output is available only for architecture inspection.");
+			if (request.Operation != ApplicationOperationKind.Fixes)
+			{
+				throw new ApplicationOperationException("Preview without writing output is available only for architecture inspection and configuration fixes.");
+			}
+		}
+
+		if (request.Operation == ApplicationOperationKind.ApplyFix && string.IsNullOrWhiteSpace(request.FixId))
+		{
+			throw new ApplicationOperationException("Choose a configuration fix id with --fix-id.");
+		}
+
+		if (request.Operation != ApplicationOperationKind.ApplyFix && !string.IsNullOrWhiteSpace(request.FixId))
+		{
+			throw new ApplicationOperationException("--fix-id is supported only for apply-fix.");
 		}
 	}
 }

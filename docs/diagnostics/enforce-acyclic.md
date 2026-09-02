@@ -1,6 +1,6 @@
 ﻿### `enforceAcyclic` attribute
 
-Set `enforceAcyclic="true"` to require explicit allowed dependency edges to form an acyclic graph. A cycle reports ARCH007 before code needs to use every permitted direction:
+Set `enforceAcyclic="true"` to require explicit allowed dependency edges to form an acyclic graph. A cycle reports ARCH007 before code needs to use every permitted direction, on the grounds that a cycle you have merely authorised is still a cycle waiting for a deadline to discover it:
 
 ```xml
 <ArchitecturalLevels enforceAcyclic="true">

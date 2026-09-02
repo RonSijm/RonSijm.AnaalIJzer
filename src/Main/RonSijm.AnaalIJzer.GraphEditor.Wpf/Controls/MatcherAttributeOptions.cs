@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using RonSijm.AnaalIJzer.Core.Matchers.Conditions;
 
 namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
 
@@ -6,9 +7,10 @@ internal static class MatcherAttributeOptions
 {
 	public static ImmutableArray<string> GetNames(string? elementKind)
 	{
-		var result = string.Equals(elementKind, "Class", StringComparison.Ordinal)
-			? ImmutableArray.Create("endsWith", "startsWith", "typeName", "exactName", "exactFullName", "contains", "regex", "typeKind", "inherits", "implements", "withAttribute", "withAccessModifier")
-			: ImmutableArray.Create("startsWith", "endsWith", "exactName", "contains", "regex");
+		var profile = string.Equals(elementKind, "Class", StringComparison.Ordinal)
+			? MatcherAttributeProfile.Type
+			: MatcherAttributeProfile.NamespaceOrAssembly;
+		var result = MatcherAttributeCatalog.GetAttributeNames(profile);
 
 		return result;
 	}

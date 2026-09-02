@@ -1,6 +1,6 @@
 ### Visibility policies
 
-`<VisibilityPolicy>` restricts the declared accessibility of types and members owned by a layer. It is opt-in and does not create or block a dependency edge.
+`<VisibilityPolicy>` restricts the declared accessibility of types and members owned by a layer. It is opt-in and does not create or block a dependency edge. `public` is the reflex default in most codebases, and this is how a layer states otherwise without relying on a reviewer spotting the modifier.
 
 Use an allowlist when only a small set is acceptable:
 

@@ -354,6 +354,31 @@ public sealed class ReportGenerationTests
 	}
 
 	[Fact]
+	public void DocumentationGenerator_RendersReturnValuePolicyTable()
+	{
+		var config = ParseConfig("""
+			<ArchitecturalLevels>
+			  <Layer name="Kitchen">
+			    <Class endsWith="Kitchen" />
+			    <ReturnValuePolicy description="No sentinel meals.">
+			      <Literal value="null" description="No invisible empty plate." />
+			      <Literal value="" />
+			      <Invocation withAttribute="JetBrains.Annotations.CanBeNullAttribute" />
+			    </ReturnValuePolicy>
+			  </Layer>
+			</ArchitecturalLevels>
+			""");
+
+		var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
+
+		markdown.Should().Contain("## Return-Value Policies");
+		markdown.Should().Contain("| `Kitchen` | Literal value=\"null\" | No invisible empty plate. |");
+		markdown.Should().Contain("| `Kitchen` | Literal value=\"\" | No sentinel meals. |");
+		markdown.Should().Contain("| `Kitchen` | Invocation withAttribute=\"JetBrains.Annotations.CanBeNullAttribute\" | No sentinel meals. |");
+		markdown.Should().Contain("- **ReturnValuePolicy** `Return-value safety`");
+	}
+
+	[Fact]
 	public void DocumentationGenerator_RendersProjectArchitectureTable()
 	{
 		var config = ParseConfig("""

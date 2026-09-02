@@ -84,6 +84,13 @@ public static partial class ArchitectureConfigurationEditService
 		return result;
 	}
 
+	public static ArchitectureConfigurationEditResult AddReturnValuePolicy(ArchitectureLayerEditHandle handle, ImmutableDictionary<string, string> attributes, string childXml)
+	{
+		var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureLayerEditor.AddReturnValuePolicy(handle, attributes, childXml));
+
+		return result;
+	}
+
 	public static ArchitectureConfigurationEditResult AddApiSurfacePolicy(ArchitectureLayerEditHandle handle, ImmutableDictionary<string, string> attributes, string childXml)
 	{
 		var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureLayerEditor.AddApiSurfacePolicy(handle, attributes, childXml));

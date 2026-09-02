@@ -17,6 +17,7 @@ public sealed partial class ArchitectureGraphEditorControl
 		AddReadOnlyRow(panel, "To", handle.ConfiguredTo);
 		AddReadOnlyRow(panel, "Scope", string.IsNullOrWhiteSpace(handle.ScopePath) ? "root" : handle.ScopePath);
 		AddReadOnlyRow(panel, "Source", handle.CanEdit ? handle.SourcePath : "Not editable");
+		AddConfigurationFixesEditor(panel, selection);
 		panel.Children.Add(CreateSectionTitle("Rule kind"));
 		var kindBox = new ComboBox { Margin = new Thickness(0, 2, 0, 0), IsEnabled = handle.CanEdit };
 		kindBox.Items.Add("AllowedDependency");

@@ -72,6 +72,24 @@ public sealed class ArchitectureConfigurationDocumentLoaderTests
 	}
 
 	[Fact]
+	public void FindInlineSettingsAttribute_ReturnsTheSameMetadataUsedToReadTheConfiguration()
+	{
+		var compilation = CreateCompilation("""
+		                                  using System.Reflection;
+
+		                                  [assembly: AssemblyMetadata("Unrelated", "ignored")]
+		                                  [assembly: AssemblyMetadata("AnaalIJzerSettings", "<ArchitecturalLevels><Layer name=\"Inline\" /></ArchitecturalLevels>")]
+		                                  public class Example { }
+		                                  """);
+
+		var result = ArchitectureConfigurationDocumentLoader.FindInlineSettingsAttribute(compilation);
+
+		result.Should().NotBeNull();
+		result!.ConstructorArguments[0].Value.Should().Be("AnaalIJzerSettings");
+		result.ConstructorArguments[1].Value.Should().Be("<ArchitecturalLevels><Layer name=\"Inline\" /></ArchitecturalLevels>");
+	}
+
+	[Fact]
 	public void ContainsInlineSettingsMetadata_RecognizesAssemblyMetadataAttribute()
 	{
 		var tree = CSharpSyntaxTree.ParseText("""

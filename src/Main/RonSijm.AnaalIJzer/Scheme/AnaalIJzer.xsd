@@ -151,6 +151,7 @@
       <xs:element name="InheritancePolicy" type="InheritancePolicyType" />
       <xs:element name="VisibilityPolicy" type="VisibilityPolicyType" />
       <xs:element name="ContractPolicy" type="ContractPolicyType" />
+      <xs:element name="ReturnValuePolicy" type="ReturnValuePolicyType" />
       <xs:element name="ApiSurface" type="ApiSurfaceType" />
       <xs:element name="EntryPoints" type="EntryPointsType" />
       <xs:element name="SourceLocations" type="SourceLocationsType" />
@@ -266,6 +267,42 @@
     <xs:attribute name="allowStaticMembers" type="xs:boolean" default="false" />
     <xs:attribute name="allowNestedTypes" type="xs:boolean" default="false" />
     <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="ReturnValuePolicyType">
+    <xs:annotation>
+      <xs:documentation>
+        Rejects configured direct expressions returned from methods owned by this layer or a
+        descendant. Each child is a forbidden returned expression matcher; sibling children are
+        alternatives, while attributes on one child are combined. Literal value="null" blocks a
+        direct null return, Literal value="" blocks a direct empty-string return, and Invocation
+        withAttribute="..." blocks a returned method whose target carries that attribute. An
+        expression made safe by a conversion such as ?? a fallback is not a direct returned
+        expression for this policy.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="1" maxOccurs="unbounded">
+      <xs:element name="Literal" type="ReturnValueMatcherType" />
+      <xs:element name="Invocation" type="ReturnValueMatcherType" />
+      <xs:element name="New" type="ReturnValueMatcherType" />
+      <xs:element name="Identifier" type="ReturnValueMatcherType" />
+      <xs:element name="MemberAccess" type="ReturnValueMatcherType" />
+    </xs:choice>
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="ReturnValueMatcherType">
+    <xs:annotation>
+      <xs:documentation>
+        Matches one kind of direct returned expression. Standard matcher attributes apply to the
+        expression, its resolved symbol, and its resolved value type where applicable. Literal
+        additionally accepts value, including value="" for an empty string. Attributes on one
+        matcher are combined. Invocation withAttribute is resolved by symbol name at analysis time,
+        so the analyzer does not need a compile-time reference to the attribute assembly.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attributeGroup ref="MatchAttributes" />
+    <xs:attribute name="value" type="xs:string" />
   </xs:complexType>
 
   <xs:complexType name="TransitiveExposureType">

@@ -11,7 +11,7 @@ At the root, the allow-list applies to every dependency that belongs to a config
 </Allowed>
 ```
 
-This is useful when an architecture permits only a small vocabulary, such as command verbs. Matchers within one scope are alternatives, so the example accepts both `CreateOrderCommand` and `CancelOrderCommand` but rejects `ProcessOrderCommand`.
+This is useful when an architecture permits only a small vocabulary, such as command verbs. Matchers within one scope are alternatives, so the example accepts both `CreateOrderCommand` and `CancelOrderCommand` but rejects `ProcessOrderCommand`. Be reasonably sure the vocabulary is closed before switching this on, because every future verb has to be negotiated through this list.
 
 ```csharp
 public class CreateOrderCommand { }
@@ -49,6 +49,6 @@ Place `<Allowed>` or `<Forbidden>` inside a `<Layer>` to restrict the policy to 
 
 `ProcessOrderCommand` fails the `Command` allow-list, while `DeleteOrderQuery` matches the `Query` block-list. A type named `DeleteOrderAuditRecord` in an `Audit` layer is unaffected: the `Query` policy does not leak into sibling layers.
 
-Nested policies are cumulative. A dependency in `Ordering/Command` must satisfy allow-lists declared on both `Ordering` and `Ordering/Command`. Any matching forbidden rule denies the dependency, even when an allow-list also matches it.
+Nested policies are cumulative. A dependency in `Ordering/Command` must satisfy allow-lists declared on both `Ordering` and `Ordering/Command`. Any matching forbidden rule denies the dependency, even when an allow-list also matches it: denial wins, and there is no appeals procedure.
 
 **Example project:** [`Example.ScopedTypePolicies`](../../Examples/Features/Example.ScopedTypePolicies)

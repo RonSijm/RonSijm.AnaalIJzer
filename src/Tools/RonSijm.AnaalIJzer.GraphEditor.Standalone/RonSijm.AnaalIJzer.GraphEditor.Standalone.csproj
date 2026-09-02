@@ -19,11 +19,16 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Resource Include="..\..\..\build\Settings\icon-graph-editor.png" Link="icon-graph-editor.png" />
+    </ItemGroup>
+
+    <ItemGroup>
         <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.GraphModel\RonSijm.AnaalIJzer.GraphModel.csproj"
                           SetTargetFramework="TargetFramework=netstandard2.0" />
         <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.GraphEditor.Wpf\RonSijm.AnaalIJzer.GraphEditor.Wpf.csproj" />
         <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Graphing.Wpf\RonSijm.AnaalIJzer.Graphing.Wpf.csproj" />
         <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Outputs\RonSijm.AnaalIJzer.Outputs.csproj" />
+        <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Application\RonSijm.AnaalIJzer.Application.csproj" />
         <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.GraphWorkspace\RonSijm.AnaalIJzer.GraphWorkspace.csproj" />
         <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Graphing\RonSijm.AnaalIJzer.Graphing.csproj"
                           SetTargetFramework="TargetFramework=netstandard2.0" />

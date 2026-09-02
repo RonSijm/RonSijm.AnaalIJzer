@@ -35,6 +35,7 @@ internal static partial class ArseCommandLine
 		}
 
 		Console.WriteLine("  --output, -o           Output file or directory. Defaults to an input-local path.");
+		Console.WriteLine("  --fix-id               Configuration fix id to apply with apply-fix.");
 		Console.WriteLine("  --configuration, -c    MSBuild configuration. Defaults to Release.");
 		Console.WriteLine("  --strategy             Config generation: snapshot, helpful, or conventions. Defaults to snapshot.");
 		Console.WriteLine("  --minimum-confidence   Convention confidence from 0 to 1. Defaults to 0.90.");

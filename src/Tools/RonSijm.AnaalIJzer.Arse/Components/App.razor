@@ -153,6 +153,92 @@
 			</Panel>
 		}
 	}
+	else if (operation.Kind == ApplicationOperationKind.Fixes && _fixReport is not null)
+	{
+		<Markup Content="@operation.DisplayName" Foreground="@Color.White" Decoration="@Decoration.Bold" />
+		<Markup Content="@($"{_fixProposals.Length} proposal(s)")" Foreground="@(_fixProposals.Length > 0 ? Color.Yellow : Color.Green)" />
+		<Newline />
+
+		<ViewHeightScrollable LinesToRender="18" Context="scrollContext">
+			<div data-focusable="true"
+			     data-focus-order="0"
+			     @onkeydown="@(args => OnFixReportKeyDown(args, scrollContext.KeyDownEventHandler))">
+				<Panel Title="Configuration fixes" Border="@BoxBorder.Rounded" BorderColor="@(_fixProposals.Length > 0 ? Color.Yellow : Color.Green)" Expand="true">
+					<SyntaxHighlighter Language="markdown" Code="@_fixReport" />
+				</Panel>
+			</div>
+		</ViewHeightScrollable>
+
+		@if (_fixProposals.Length > 0)
+		{
+			<Select TItem="string"
+			        Options="@FixProposalOptions"
+			        Value="@_selectedFixProposal"
+			        ValueChanged="OnFixProposalChanged"
+			        Expand="true"></Select>
+		}
+
+		<Newline />
+		@if (_selectingFixOutput)
+		{
+			<FileSelector Label="Output"
+			              Value="@_outputPath"
+			              ValueChanged="OnOutputPathChanged"
+			              Placeholder="path\to\architecture-fixes.md"
+			              FocusOrder="1"
+			              FileExtensions="@MarkdownFileExtensions"
+			              OnKeyUp="OnFixSaveKey" />
+
+			<Columns>
+				<ArseButton Content="Save"
+				              OnClick="SaveFixesAsync"
+				              OnKeyUp="OnFixSaveKey"
+				              FocusOrder="2"
+				              BackgroundColor="@Color.Grey23"
+				              FocusedColor="@Color.DeepSkyBlue1" />
+				<ArseButton Content="Cancel"
+				              OnClick="CancelFixSave"
+				              OnKeyUp="OnFixSaveKey"
+				              FocusOrder="3"
+				              BackgroundColor="@Color.Grey23"
+				              FocusedColor="@Color.Grey50" />
+			</Columns>
+		}
+		else
+		{
+			<Columns>
+				@if (_fixProposals.Length > 0)
+				{
+					<ArseButton Content="Apply selected"
+					              OnClick="ApplySelectedFixAsync"
+					              OnKeyUp="OnFixResultKeyUp"
+					              FocusOrder="1"
+					              BackgroundColor="@Color.Grey23"
+					              FocusedColor="@Color.DeepSkyBlue1" />
+				}
+				<ArseButton Content="Save"
+				              OnClick="ShowFixSave"
+				              OnKeyUp="OnFixResultKeyUp"
+				              FocusOrder="2"
+				              BackgroundColor="@Color.Grey23"
+				              FocusedColor="@Color.Grey50" />
+				<ArseButton Content="Run again"
+				              OnClick="ReturnToFixForm"
+				              OnKeyUp="OnFixResultKeyUp"
+				              FocusOrder="3"
+				              BackgroundColor="@Color.Grey23"
+				              FocusedColor="@Color.Grey50" />
+			</Columns>
+		}
+
+		@if (!string.IsNullOrWhiteSpace(_status))
+		{
+			<Newline />
+			<Panel Title="@_statusTitle" Border="@BoxBorder.Rounded" BorderColor="@_statusColor" Expand="true">
+				<Markup Content="@Spectre.Console.Markup.Escape(_status)" Foreground="@_statusColor" />
+			</Panel>
+		}
+	}
 	else
 	{
 		<Markup Content="@operation.DisplayName" Foreground="@Color.White" Decoration="@Decoration.Bold" />
@@ -253,7 +339,7 @@
 			        Expand="true"></Select>
 		}
 
-		@if (operation.Kind != ApplicationOperationKind.Inspect)
+		@if (operation.Kind is not ApplicationOperationKind.Inspect and not ApplicationOperationKind.Fixes)
 		{
 			<FileSelector Label="@(operation.OutputKind == ApplicationOutputKind.Directory ? "Output directory" : "Output")"
 			              Value="@_outputPath"

@@ -1,6 +1,6 @@
 ## API surface policies
 
-An `<AllowedDependency>` answers whether code may **use** another layer. An `<ApiSurface>` answers a different question: whether an externally visible declaration may **expose** that layer to its callers.
+An `<AllowedDependency>` answers whether code may **use** another layer. An `<ApiSurface>` answers a different question: whether an externally visible declaration may **expose** that layer to its callers. Using a type internally is a private arrangement; returning it in a public signature is a promise to everyone downstream, made without a meeting.
 
 This distinction is useful for repository-owned fluent query surfaces. An application service may use a `LollyQueryable` internally, but its public API should return a stable `LollyProjection` contract:
 

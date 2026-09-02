@@ -3,6 +3,8 @@
 introduction.md
 setup.md
 components/visual-studio-addon.md
+configuration/ide-code-fixes.md
+configuration/config-fixers.md
 tools/arse.md
 components/wpf-graph-editor.md
 configuration/mental-model.md
@@ -19,6 +21,7 @@ configuration/name-rules.md
 configuration/visibility-policies.md
 configuration/inheritance-policies.md
 configuration/contract-policies.md
+configuration/return-value-policies.md
 configuration/project-architecture.md
 configuration/api-surface.md
 configuration/transitive-api-exposure.md
@@ -42,6 +45,7 @@ diagnostics/arch007-cyclic-graph.md
 diagnostics/arch008-name-rule-violation.md
 diagnostics/arch009-api-surface-leakage.md
 diagnostics/arch010-project-reference-violation.md
+diagnostics/arch011-package-reference-violation.md
 diagnostics/arch012-visibility-policy-violation.md
 diagnostics/arch013-contract-purity.md
 diagnostics/arch014-forbidden-transitive-exposure.md
@@ -50,6 +54,7 @@ diagnostics/arch016-boundary-entry-point.md
 diagnostics/arch017-exception-review.md
 diagnostics/arch018-observed-cycle.md
 diagnostics/arch019-inheritance-policy.md
+diagnostics/arch020-return-value-policy.md
 diagnostics/diagnostic-properties.md
 q-and-a.md
 suppressing-violations.md

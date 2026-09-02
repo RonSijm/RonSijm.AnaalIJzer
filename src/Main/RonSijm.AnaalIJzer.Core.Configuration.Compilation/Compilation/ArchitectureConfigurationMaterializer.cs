@@ -4,6 +4,7 @@ using RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
 using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 using RonSijm.AnaalIJzer.Core.DependencyRules;
 using RonSijm.AnaalIJzer.Core.Exceptions;
+using RonSijm.AnaalIJzer.Core.Findings;
 using RonSijm.AnaalIJzer.Core.LayerModel;
 using RonSijm.AnaalIJzer.Core.Matchers;
 using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.DependencyRules;
@@ -116,9 +117,82 @@ internal static class ArchitectureConfigurationMaterializer
 	{
 		foreach (var cycle in DependencyCycleDetector.FindConfiguredCycles(layerNames, dependencyEdges))
 		{
-			var firstEdge = dependencyEdges.FirstOrDefault(edge => edge.IsAllowed && edge.From == cycle[0] && edge.To == cycle[1]);
+			var candidateEdges = GetCycleCandidateEdges(cycle, dependencyEdges, configPath);
+			if (candidateEdges.Length == 0)
+			{
+				continue;
+			}
+
+			var firstEdge = candidateEdges[0];
 			var message = $"Configured allowed-dependency cycle: {string.Join(" -> ", cycle)} -> {cycle[0]}.";
-			issues.Add(new ConfigurationIssue(ConfigurationIssueKind.CyclicDependencyGraph, message, firstEdge.XmlPath ?? configPath, firstEdge.XmlLineNumber, firstEdge.XmlLinePosition));
+			var properties = ImmutableDictionary<string, string?>.Empty
+				.Add(ArchitectureDiagnosticProperties.PropertyCycleLayers, string.Join("|", cycle))
+				.Add(ArchitectureDiagnosticProperties.PropertyCycleLength, cycle.Length.ToString(System.Globalization.CultureInfo.InvariantCulture))
+				.Add(ArchitectureDiagnosticProperties.PropertyCycleScope, "Configured")
+				.Add(ArchitectureDiagnosticProperties.PropertyCycleRuleCandidates, SerializeCycleCandidates(candidateEdges));
+			issues.Add(new ConfigurationIssue(
+				ConfigurationIssueKind.CyclicDependencyGraph,
+				message,
+				firstEdge.XmlPath,
+				firstEdge.XmlLineNumber,
+				firstEdge.XmlLinePosition,
+				properties));
 		}
+	}
+
+	private static ImmutableArray<DependencyEdge> GetCycleCandidateEdges(
+		ImmutableArray<string> cycle,
+		ImmutableArray<DependencyEdge> dependencyEdges,
+		string configPath)
+	{
+		var builder = ImmutableArray.CreateBuilder<DependencyEdge>(cycle.Length);
+		for (var index = 0; index < cycle.Length; index++)
+		{
+			var from = cycle[index];
+			var to = cycle[(index + 1) % cycle.Length];
+			var edge = dependencyEdges.FirstOrDefault(candidate => candidate.IsAllowed && candidate.IsExplicit && candidate.From == from && candidate.To == to);
+			if (string.IsNullOrWhiteSpace(edge.XmlPath))
+			{
+				edge = new DependencyEdge(
+					edge.ScopePath,
+					edge.From,
+					edge.To,
+					edge.ConfiguredFrom,
+					edge.ConfiguredTo,
+					edge.SiteFilter,
+					edge.AppliesToDescendants,
+					edge.Kind,
+					configPath,
+					edge.XmlLineNumber,
+					edge.XmlLinePosition);
+			}
+
+			if (edge.IsAllowed && edge.IsExplicit)
+			{
+				builder.Add(edge);
+			}
+		}
+
+		var result = builder.ToImmutable();
+
+		return result;
+	}
+
+	private static string SerializeCycleCandidates(ImmutableArray<DependencyEdge> candidateEdges)
+	{
+		var result = string.Join(
+			"\u001e",
+			candidateEdges.Select(edge => string.Join(
+				"\u001f",
+				edge.XmlPath ?? string.Empty,
+				edge.XmlLineNumber.ToString(System.Globalization.CultureInfo.InvariantCulture),
+				edge.XmlLinePosition.ToString(System.Globalization.CultureInfo.InvariantCulture),
+				edge.ScopePath,
+				edge.ConfiguredFrom,
+				edge.ConfiguredTo,
+				edge.From,
+				edge.To)));
+
+		return result;
 	}
 }

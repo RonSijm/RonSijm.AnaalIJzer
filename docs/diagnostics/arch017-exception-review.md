@@ -29,6 +29,8 @@ Important semantics:
 - If an expired exception used to suppress another diagnostic, that original diagnostic can reappear.
 - Expiring-soon exceptions still suppress the original diagnostic until their expiry date.
 
+A stale exception naming a type that was deleted two refactors ago protects nothing; it only makes the config longer and the next reader more nervous.
+
 The warning carries these properties:
 
 - `ExceptionMatcherKind`

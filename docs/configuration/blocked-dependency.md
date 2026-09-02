@@ -1,6 +1,6 @@
 ### `<BlockedDependency>`
 
-Explicitly denies an edge even when a broader wildcard allowance would otherwise permit it. Blocked rules take precedence over every matching `<AllowedDependency>`.
+Explicitly denies an edge even when a broader wildcard allowance would otherwise permit it. Blocked rules take precedence over every matching `<AllowedDependency>`, which lets a wildcard stay a broad convenience with named exceptions instead of becoming a loophole.
 
 ```xml
 <AllowedDependency from="*" to="Persistence" />
@@ -27,7 +27,7 @@ By default, a dependency rule applies to every dependency site. Add `allowedSite
 <AllowedDependency from="Chef" to="Ingredient" blockedSites="MethodReturn" />
 ```
 
-The attributes are mutually exclusive. Site names are comma-separated, trimmed, and case-insensitive. Unknown site names or a rule that declares both attributes report ARCH006 and are ignored fail-closed.
+The attributes are mutually exclusive. Site names are comma-separated, trimmed, and case-insensitive. Unknown site names or a rule that declares both attributes report ARCH006 and are ignored fail-closed - a typo in a site list should never widen a rule by accident.
 
 Site filters also apply to wildcard edges such as `from="*"` and `to="*"`.
 
@@ -95,7 +95,7 @@ public OrderProjection GetOrderThroughLocalQuery()
 public OrderQuery LeakQuery() => repository.QueryOrders();
 ```
 
-The point is not that `OrderQuery` is forbidden everywhere. Persistence owns it, and the query surface can expose projection methods. The rule is that higher layers should carry projected objects, such as `OrderProjection`, instead of carrying persistence internals across method boundaries.
+The point is not that `OrderQuery` is forbidden everywhere. Persistence owns it, and the query surface can expose projection methods. The rule is that higher layers should carry projected objects, such as `OrderProjection`, instead of carrying persistence internals across method boundaries. The service that only holds a query surface briefly is usually the same service that returns one two releases later.
 
 **Example project:** [`Example.RepositoryQuerySurface`](../../Examples/Scenarios/Example.RepositoryQuerySurface)
 

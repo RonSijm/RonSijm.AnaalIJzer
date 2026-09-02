@@ -1,6 +1,7 @@
 using System.Windows.Media;
 using RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
 using RonSijm.AnaalIJzer.GraphApplication;
+using RonSijm.AnaalIJzer.GraphApplication.Selection;
 using RonSijm.AnaalIJzer.Graphing.ViewModels;
 using RonSijm.AnaalIJzer.GraphEditor.Wpf.Layout;
 using RonSijm.AnaalIJzer.Graphing.Wpf.Styling;
@@ -44,6 +45,7 @@ internal sealed partial class ArchitectureGraphCanvas
 			ArchitectureGraphBoundaryViewModel boundary,
 			IArchitectureGraphEditService editService,
 			Action<ArchitectureConfigurationEditResult, bool>? editResultHandler,
+			Action<ArchitectureGraphSelection>? selectionHandler,
 			Func<string, bool>? confirmationHandler,
 			Func<ArchitectureLayerCreationRequest?>? layerCreationHandler,
 			ArchitectureGraphLayoutState layoutState,
@@ -52,7 +54,7 @@ internal sealed partial class ArchitectureGraphCanvas
 			var paletteBrush = boundary.PaletteSlot <= 0 ? theme.Foreground : ArchitectureGraphPalette.GetBrush(boundary.PaletteSlot);
 			var background = CreateOpacityBrush(paletteBrush, 0.10);
 			var border = CreateOpacityBrush(paletteBrush, boundary.IsActive ? 0.85 : 0.48);
-			var result = new NodifyGraphBoundaryViewModel(boundary, background, border, editService, editResultHandler, confirmationHandler, layerCreationHandler, layoutState, theme);
+			var result = new NodifyGraphBoundaryViewModel(boundary, background, border, editService, editResultHandler, selectionHandler, confirmationHandler, layerCreationHandler, layoutState, theme);
 
 			return result;
 		}

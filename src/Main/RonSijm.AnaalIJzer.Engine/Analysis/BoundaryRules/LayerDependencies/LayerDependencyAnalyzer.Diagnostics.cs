@@ -81,6 +81,12 @@ public static partial class LayerDependencyAnalyzer
 			depLayerName,
 			reason,
 			null);
+		properties = AddDependencyRuleProperties(properties, edgeEvaluation, site);
+		if (diagnosticId == ArchitecturalDiagnosticIds.WrongDirectionDependency
+		    && TryFindReverseDependencyEdge(config, edgeEvaluation.ScopePath, callerLayerName, depLayerName, out var reverseEdge))
+		{
+			properties = AddReverseDependencyRuleProperties(properties, reverseEdge);
+		}
 
 		context.ReportDiagnostic(Diagnostic.Create(
 			descriptor,
@@ -89,6 +95,13 @@ public static partial class LayerDependencyAnalyzer
 			callerTypeName, callerLayerName, depTypeName, depLayerName, reason));
 
 		violations.Add(new ViolationRecord(diagnosticId, callerTypeName, callerLayerName, depTypeName, depLayerName, reason, null));
+	}
+
+	private static bool TryFindReverseDependencyEdge(AnalyzerConfig config, string scopePath, string callerLayerName, string dependencyLayerName, out DependencyEdge edge)
+	{
+		var result = config.Graph.TryFindAllowedEdge(scopePath, dependencyLayerName, callerLayerName, out edge);
+
+		return result;
 	}
 
 	private static void ReportBoundaryEntryPointViolation(SyntaxNodeAnalysisContext context, ConcurrentBag<ViolationRecord> violations, string callerTypeName, string callerLayerName, string depTypeName, string depLayerName, Location reportLocation, string site, ImmutableDictionary<string, string?> ruleProperties, BoundaryEntryPointEvaluation evaluation)
@@ -136,6 +149,50 @@ public static partial class LayerDependencyAnalyzer
 			.SetItem(ArchitecturalDiagnostics.PropertyDepLayerName, depLayerName)
 			.SetItem(ArchitecturalDiagnostics.PropertyViolationReason, violationReason)
 			.SetItem(ArchitecturalDiagnostics.PropertyComment, comment);
+
+		return result;
+	}
+
+	private static ImmutableDictionary<string, string?> AddDependencyRuleProperties(ImmutableDictionary<string, string?> properties, DependencyEdgeEvaluation edgeEvaluation, string site)
+	{
+		var result = properties.SetItem(ArchitecturalDiagnostics.PropertyDependencyDenialKind, edgeEvaluation.DenialKind.ToString());
+		if (edgeEvaluation.DeniedByEdge is not { } edge)
+		{
+			return result;
+		}
+
+		result = result
+			.SetItem(ArchitecturalDiagnostics.PropertyDependencyRuleKind, edge.IsBlocked ? "BlockedDependency" : "AllowedDependency")
+			.SetItem(ArchitecturalDiagnostics.PropertyDependencyRuleXmlPath, edge.XmlPath)
+			.SetItem(ArchitecturalDiagnostics.PropertyDependencyRuleScopePath, edge.ScopePath)
+			.SetItem(ArchitecturalDiagnostics.PropertyDependencyRuleConfiguredFrom, edge.ConfiguredFrom)
+			.SetItem(ArchitecturalDiagnostics.PropertyDependencyRuleConfiguredTo, edge.ConfiguredTo)
+			.SetItem(ArchitecturalDiagnostics.PropertyDependencyRuleXmlLine, edge.XmlLineNumber > 0 ? edge.XmlLineNumber.ToString(System.Globalization.CultureInfo.InvariantCulture) : null)
+			.SetItem(ArchitecturalDiagnostics.PropertyDependencyRuleXmlCol, edge.XmlLinePosition > 0 ? edge.XmlLinePosition.ToString(System.Globalization.CultureInfo.InvariantCulture) : null);
+
+		if (edgeEvaluation.DenialKind == DependencyDenialKind.SiteFilter)
+		{
+			var filterMode = edge.SiteFilter.AllowedSites.Count > 0 && !edge.SiteFilter.AllowedSites.Contains(site)
+				? "AllowedSites"
+				: edge.SiteFilter.BlockedSites.Contains(site)
+					? "BlockedSites"
+					: null;
+			result = result.SetItem(ArchitecturalDiagnostics.PropertyDependencySiteFilterMode, filterMode);
+		}
+
+		return result;
+	}
+
+	private static ImmutableDictionary<string, string?> AddReverseDependencyRuleProperties(ImmutableDictionary<string, string?> properties, DependencyEdge edge)
+	{
+		var result = properties
+			.SetItem(ArchitecturalDiagnostics.PropertyReverseDependencyRuleKind, edge.IsBlocked ? "BlockedDependency" : "AllowedDependency")
+			.SetItem(ArchitecturalDiagnostics.PropertyReverseDependencyRuleXmlPath, edge.XmlPath)
+			.SetItem(ArchitecturalDiagnostics.PropertyReverseDependencyRuleScopePath, edge.ScopePath)
+			.SetItem(ArchitecturalDiagnostics.PropertyReverseDependencyRuleConfiguredFrom, edge.ConfiguredFrom)
+			.SetItem(ArchitecturalDiagnostics.PropertyReverseDependencyRuleConfiguredTo, edge.ConfiguredTo)
+			.SetItem(ArchitecturalDiagnostics.PropertyReverseDependencyRuleXmlLine, edge.XmlLineNumber > 0 ? edge.XmlLineNumber.ToString(System.Globalization.CultureInfo.InvariantCulture) : null)
+			.SetItem(ArchitecturalDiagnostics.PropertyReverseDependencyRuleXmlCol, edge.XmlLinePosition > 0 ? edge.XmlLinePosition.ToString(System.Globalization.CultureInfo.InvariantCulture) : null);
 
 		return result;
 	}

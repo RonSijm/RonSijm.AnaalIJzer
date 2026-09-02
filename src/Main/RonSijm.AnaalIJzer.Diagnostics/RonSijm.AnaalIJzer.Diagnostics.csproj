@@ -17,6 +17,7 @@
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Configuration.Document\RonSijm.AnaalIJzer.Core.Configuration.Document.csproj" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Exceptions\RonSijm.AnaalIJzer.Core.Exceptions.csproj" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Findings\RonSijm.AnaalIJzer.Core.Findings.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Indicators\RonSijm.AnaalIJzer.Core.Indicators.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -25,6 +26,9 @@
         <InternalsVisibleTo Include="RonSijm.AnaalIJzer.Analyzer.Tests" />
         <InternalsVisibleTo Include="RonSijm.AnaalIJzer.Outputs" />
         <InternalsVisibleTo Include="RonSijm.AnaalIJzer.Outputs.Tests" />
+        <InternalsVisibleTo Include="RonSijm.AnaalIJzer.Workspace" />
+        <InternalsVisibleTo Include="RonSijm.AnaalIJzer.VisualStudio" />
+        <InternalsVisibleTo Include="RonSijm.AnaalIJzer.VisualStudio.Tests" />
     </ItemGroup>
 
     <ItemGroup>

@@ -1,6 +1,6 @@
 ### ARCH012 - Visibility policy violation
 
-Reported when a source declaration belongs to a layer with an applicable `<VisibilityPolicy>` and its declared accessibility does not pass that policy.
+Reported when a source declaration belongs to a layer with an applicable `<VisibilityPolicy>` and its declared accessibility does not pass that policy. Accessibility is quick to widen under time pressure and slow to narrow again once callers have found it.
 
 Example:
 
@@ -26,5 +26,9 @@ Typical fixes:
 - reduce the declaration's accessibility;
 - narrow or change the policy when the public declaration is intentional;
 - move the declaration to a layer whose visibility contract matches its responsibility.
+
+#### IDE code fixes
+
+For configuration-backed fixes, the IDE can add the reported accessibility to `allowedAccessibilities`, remove it from `blockedAccessibilities`, or remove a single-value blocking policy when that is the only thing it does.
 
 **Example project:** [`Example.Arch012.VisibilityPolicy`](../../Examples/Diagnostics/Example.Arch012.VisibilityPolicy)
