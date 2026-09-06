@@ -1,0 +1,18 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd">
+  <ProjectArchitecture requireRecognizedProjects="true"
+                       description="The ordering application may use only its own contract project.">
+    <ProjectGroup name="Application" description="Application orchestration projects.">
+      <Project endsWith=".Application" />
+    </ProjectGroup>
+    <ProjectGroup name="Contracts" description="Published contract projects.">
+      <Project endsWith=".Contracts" />
+    </ProjectGroup>
+
+    <AllowedProjectReference from="Application" to="Contracts"
+                             description="Ordering owns the one contract project it may reference.">
+      <From exactName="Example.ProjectReferenceRuleSelectors.Orders.Application" />
+      <To exactName="Example.ProjectReferenceRuleSelectors.Orders.Contracts" />
+    </AllowedProjectReference>
+  </ProjectArchitecture>
+</ArchitecturalLevels>

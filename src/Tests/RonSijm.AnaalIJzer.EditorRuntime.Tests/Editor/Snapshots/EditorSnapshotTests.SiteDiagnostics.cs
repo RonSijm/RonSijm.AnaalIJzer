@@ -194,4 +194,175 @@ public sealed partial class EditorSnapshotTests
 		indicator.DiagnosticId.Should().Be(ArchitecturalDiagnosticIds.UnrecognizedDependency);
 	}
 
+	[Fact]
+	public async Task SiteDiagnostics_ShowForbiddenOperationPolicyStatus()
+	{
+		const string source = """
+			using System;
+
+			public sealed class PizzaKitchen
+			{
+				public DateTime Prepare() => DateTime.UtcNow;
+			}
+			""";
+		const string config = """
+			<ArchitecturalLevels>
+			  <Layer name="Kitchen">
+			    <Class endsWith="Kitchen" />
+			    <ForbiddenOperations>
+			      <ForbiddenOperation allowedSites="StaticMember">
+			        <OperationMatcher kind="PropertyRead" staticAccess="true">
+			          <ContainingType exactFullName="System.DateTime" />
+			          <Member exactName="UtcNow" memberKind="Property" />
+			        </OperationMatcher>
+			      </ForbiddenOperation>
+			    </ForbiddenOperations>
+			  </Layer>
+			</ArchitecturalLevels>
+			""";
+
+		var snapshot = await CreateSnapshotAsync(source, config);
+		var indicator = snapshot.SiteIndicators.Should().ContainSingle(item => item.DiagnosticId == ArchitecturalDiagnosticIds.ForbiddenOperationPolicyViolation).Subject;
+
+		indicator.Site.Should().Be(ArchitectureDependencySites.StaticMember);
+		indicator.Status.Should().Be(ArchitectureDependencySiteStatus.TypePolicyViolation);
+		indicator.DependencyTypeName.Should().Contain("DateTime.UtcNow");
+		indicator.Reason.Should().Contain("ForbiddenOperations policy");
+	}
+
+	[Fact]
+	public async Task SiteDiagnostics_ShowBehavioralOperationPolicyStatus()
+	{
+		const string source = """
+			namespace Shop.Application;
+
+			public sealed class PizzaKitchen
+			{
+				public void Submit()
+				{
+					PizzaRepository.Save();
+				}
+			}
+
+			public static class PizzaValidator { public static void Validate() { } }
+			public static class PizzaRepository { public static void Save() { } }
+			""";
+		const string config = """
+			<ArchitecturalLevels>
+			  <Layer name="Application">
+			    <Namespace startsWith="Shop.Application" />
+			    <BehavioralOperations>
+			      <RequiredOperationBefore>
+			        <DeclarationMatcher>
+			          <Member exactName="Submit" memberKind="Method" />
+			        </DeclarationMatcher>
+			        <OperationMatcher kind="Invocation">
+			          <ContainingType typeName="PizzaValidator" />
+			          <Member exactName="Validate" memberKind="Method" />
+			        </OperationMatcher>
+			        <BeforeOperation>
+			          <OperationMatcher kind="Invocation">
+			            <ContainingType typeName="PizzaRepository" />
+			            <Member exactName="Save" memberKind="Method" />
+			          </OperationMatcher>
+			        </BeforeOperation>
+			      </RequiredOperationBefore>
+			    </BehavioralOperations>
+			  </Layer>
+			</ArchitecturalLevels>
+			""";
+
+		var snapshot = await CreateSnapshotAsync(source, config);
+		var indicator = snapshot.SiteIndicators.Should().ContainSingle(item => item.DiagnosticId == ArchitecturalDiagnosticIds.BehavioralOperationPolicyViolation).Subject;
+
+		indicator.Site.Should().Be(ArchitectureDependencySites.StaticMember);
+		indicator.Status.Should().Be(ArchitectureDependencySiteStatus.TypePolicyViolation);
+		indicator.DependencyTypeName.Should().Contain("PizzaRepository.Save");
+		indicator.Reason.Should().Contain("requires");
+		indicator.Reason.Should().Contain("before");
+	}
+
+	[Fact]
+	public async Task SiteDiagnostics_ShowMissingBehavioralOperationAtTheOwningDeclaration()
+	{
+		const string source = """
+			namespace Shop.Application;
+
+			public sealed class PizzaKitchen
+			{
+				public void Submit()
+				{
+				}
+			}
+
+			public static class PizzaValidator { public static void Validate() { } }
+			""";
+		const string config = """
+			<ArchitecturalLevels>
+			  <Layer name="Application">
+			    <Namespace startsWith="Shop.Application" />
+			    <BehavioralOperations>
+			      <RequiredOperation ordering="Lexical">
+			        <DeclarationMatcher>
+			          <Member exactName="Submit" memberKind="Method" />
+			        </DeclarationMatcher>
+			        <OperationMatcher kind="Invocation">
+			          <ContainingType typeName="PizzaValidator" />
+			          <Member exactName="Validate" memberKind="Method" />
+			        </OperationMatcher>
+			      </RequiredOperation>
+			    </BehavioralOperations>
+			  </Layer>
+			</ArchitecturalLevels>
+			""";
+
+		var snapshot = await CreateSnapshotAsync(source, config);
+		var indicator = snapshot.SiteIndicators.Should().ContainSingle(item => item.DiagnosticId == ArchitecturalDiagnosticIds.BehavioralOperationPolicyViolation).Subject;
+
+		indicator.Site.Should().Be(ArchitectureDependencySites.Method);
+		indicator.DependencyTypeName.Should().Contain("RequiredOperation");
+		indicator.Reason.Should().Contain("requires");
+	}
+
+	[Fact]
+	public async Task SiteDiagnostics_ShowBehavioralOperationPolicyOnExpressionBodiedProperty()
+	{
+		const string source = """
+			namespace Shop.Application;
+
+			public sealed class PizzaKitchen
+			{
+				public string MenuPizza => PizzaMenu.Lookup();
+			}
+
+			public static class PizzaSafetyCheck { public static void Validate() { } }
+			public static class PizzaMenu { public static string Lookup() => "Margherita"; }
+			""";
+		const string config = """
+			<ArchitecturalLevels>
+			  <Layer name="Application">
+			    <Namespace startsWith="Shop.Application" />
+			    <BehavioralOperations>
+			      <RequiredOperation ordering="Lexical">
+			        <DeclarationMatcher>
+			          <Member exactName="MenuPizza" memberKind="Property" />
+			        </DeclarationMatcher>
+			        <OperationMatcher kind="Invocation">
+			          <ContainingType typeName="PizzaSafetyCheck" />
+			          <Member exactName="Validate" memberKind="Method" />
+			        </OperationMatcher>
+			      </RequiredOperation>
+			    </BehavioralOperations>
+			  </Layer>
+			</ArchitecturalLevels>
+			""";
+
+		var snapshot = await CreateSnapshotAsync(source, config);
+		var indicator = snapshot.SiteIndicators.Should().ContainSingle(item => item.DiagnosticId == ArchitecturalDiagnosticIds.BehavioralOperationPolicyViolation).Subject;
+
+		indicator.Site.Should().Be(ArchitectureDependencySites.Property);
+		indicator.CallerTypeName.Should().Be("PizzaKitchen");
+		indicator.Reason.Should().Contain("requires");
+	}
+
 }

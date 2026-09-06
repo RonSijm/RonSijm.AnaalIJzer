@@ -56,9 +56,10 @@ internal static partial class ArchitectureGraphViewModelBuilder
 				: ImmutableArray<ArchitectureGraphDependencyEvidence>.Empty;
 			var componentDiagram = BuildConcreteDiagram(componentLayers, componentRules, snapshot.ExceptionReviews, includeEvidence ? snapshot.Evidence : ArchitectureGraphEvidence.Empty, componentEvidence);
 			var active = componentLayers.Any(item => item.IsActive);
+			var isTopology = componentLayers.All(item => item.Kind == ArchitectureGraphNodeKind.SolutionModule);
 			var index = groups.Count + 1;
 			groups.Add(new ArchitectureGraphGroupViewModel(
-				"Graph " + index + ": " + FormatGraphName(componentLayers),
+				isTopology ? "Solution topology: " + FormatGraphName(componentLayers) : "Graph " + index + ": " + FormatGraphName(componentLayers),
 				active,
 				focusMode == ArchitectureGraphFocusMode.HighlightCurrent && active,
 				componentLayers.Select(FormatLayer).ToImmutableArray(),
@@ -66,7 +67,8 @@ internal static partial class ArchitectureGraphViewModelBuilder
 				componentDiagram.Nodes,
 				componentDiagram.Edges,
 				snapshot.ConfigurationSource,
-				componentDiagram.Boundaries));
+				componentDiagram.Boundaries,
+				isTopology));
 		}
 
 		return groups.ToImmutable();

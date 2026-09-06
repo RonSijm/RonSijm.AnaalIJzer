@@ -5,5 +5,7 @@ internal enum ArchitectureGraphSelectionKind
 	None,
 	Layer,
 	DependencyRule,
+	SolutionTopologyModule,
+	SolutionTopologyRule,
 	CodeEvidence
 }

@@ -181,4 +181,70 @@ internal static partial class ViolationMarkdownReportBuilder
 
 		sb.AppendLine();
 	}
+
+	private static void AppendArch021(StringBuilder sb, List<ViolationRecord> violations)
+	{
+		if (violations.Count == 0)
+		{
+			return;
+		}
+
+		sb.AppendLine("## ARCH021 — Forbidden Operation Policy Violations");
+		sb.AppendLine();
+		sb.AppendLine("These selected resolved operations are forbidden by an applicable layer-scoped `ForbiddenOperations` policy.");
+		sb.AppendLine();
+		sb.AppendLine("| Layer | Caller | Operation | Kind | Reason |");
+		sb.AppendLine("|-------|--------|-----------|------|--------|");
+
+		foreach (var violation in violations)
+		{
+			sb.AppendLine($"| `{violation.CallerLayerName}` | `{violation.CallerTypeName}` | `{violation.DependencyTypeName}` | `{violation.DeclarationTarget}` | {EscapeTable(violation.ViolationReason)} |");
+		}
+
+		sb.AppendLine();
+	}
+
+	private static void AppendArch022(StringBuilder sb, List<ViolationRecord> violations)
+	{
+		if (violations.Count == 0)
+		{
+			return;
+		}
+
+		sb.AppendLine("## ARCH022 — Behavioral Operation Policy Violations");
+		sb.AppendLine();
+		sb.AppendLine("These selected declaration bodies fail a mechanically provable operation presence, ordering, or count policy.");
+		sb.AppendLine();
+		sb.AppendLine("| Layer | Caller | Operation or rule | Violation kind | Reason |");
+		sb.AppendLine("|-------|--------|-------------------|----------------|--------|");
+
+		foreach (var violation in violations)
+		{
+			sb.AppendLine($"| `{violation.CallerLayerName}` | `{violation.CallerTypeName}` | `{violation.DependencyTypeName}` | `{violation.DeclarationTarget}` | {EscapeTable(violation.ViolationReason)} |");
+		}
+
+		sb.AppendLine();
+	}
+
+	private static void AppendArch023(StringBuilder sb, List<ViolationRecord> violations)
+	{
+		if (violations.Count == 0)
+		{
+			return;
+		}
+
+		sb.AppendLine("## ARCH023 — Operation Contract Violations");
+		sb.AppendLine();
+		sb.AppendLine("These selected owner or entry-point methods do not satisfy an explicit operation contract.");
+		sb.AppendLine();
+		sb.AppendLine("| Operation | Layer | Declaration | Violation kind | Reason |");
+		sb.AppendLine("|-----------|-------|-------------|----------------|--------|");
+
+		foreach (var violation in violations)
+		{
+			sb.AppendLine($"| `{violation.DependencyTypeName}` | `{violation.CallerLayerName}` | `{violation.CallerTypeName}` | `{violation.DeclarationTarget}` | {EscapeTable(violation.ViolationReason)} |");
+		}
+
+		sb.AppendLine();
+	}
 }

@@ -23,7 +23,8 @@ public static partial class ArchitecturalConfigParser
 		var groups = ParseProjectGroups(root.Element, root.Path, issues);
 		var rules = ParseProjectReferenceRules(root.Element, root.Path, groups, issues);
 		var packagePolicies = ParsePackagePolicies(root.Element, root.Path, groups, issues);
-		var result = new ProjectArchitectureConfig(groups, rules, packagePolicies, requireRecognizedProjects);
+		var assemblyReferencePolicies = ParseAssemblyReferencePolicies(root.Element, root.Path, groups, issues);
+		var result = new ProjectArchitectureConfig(groups, rules, packagePolicies, assemblyReferencePolicies, requireRecognizedProjects);
 
 		return result;
 	}

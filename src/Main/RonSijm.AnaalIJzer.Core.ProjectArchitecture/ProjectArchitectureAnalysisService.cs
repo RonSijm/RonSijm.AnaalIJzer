@@ -10,11 +10,12 @@ public static class ProjectArchitectureAnalysisService
 		var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 		var projectReferenceViolations = ImmutableArray.CreateBuilder<ProjectReferenceViolationFinding>();
 		var packageReferenceViolations = ImmutableArray.CreateBuilder<PackageReferenceViolationFinding>();
+		var assemblyReferenceViolations = ImmutableArray.CreateBuilder<AssemblyReferenceViolationFinding>();
 
 		foreach (var projectReference in manifest.ProjectReferences)
 		{
-			var sourceProjectName = Path.GetFileNameWithoutExtension(projectReference.SourceProjectPath);
-			var targetProjectName = Path.GetFileNameWithoutExtension(projectReference.TargetProjectPath);
+			var sourceProjectName = ProjectNameResolver.GetProjectName(projectReference.SourceProjectPath);
+			var targetProjectName = ProjectNameResolver.GetProjectName(projectReference.TargetProjectPath);
 			var evaluation = ProjectReferenceEvaluator.Evaluate(config, sourceProjectName, targetProjectName);
 			if (evaluation.IsAllowed)
 			{
@@ -40,7 +41,7 @@ public static class ProjectArchitectureAnalysisService
 
 		foreach (var packageReference in manifest.PackageReferences)
 		{
-			var sourceProjectName = Path.GetFileNameWithoutExtension(packageReference.SourceProjectPath);
+			var sourceProjectName = ProjectNameResolver.GetProjectName(packageReference.SourceProjectPath);
 			var evaluation = PackageReferenceEvaluator.Evaluate(
 				config,
 				sourceProjectName,
@@ -70,7 +71,36 @@ public static class ProjectArchitectureAnalysisService
 				evaluation.MatchedMatcher));
 		}
 
-		var result = new ProjectArchitectureAnalysisResult(projectReferenceViolations.ToImmutable(), packageReferenceViolations.ToImmutable());
+		foreach (var assemblyReference in manifest.AssemblyReferences)
+		{
+			var sourceProjectName = ProjectNameResolver.GetProjectName(assemblyReference.SourceProjectPath);
+			var evaluation = AssemblyReferenceEvaluator.Evaluate(config, sourceProjectName, assemblyReference.AssemblyIdentity);
+			if (evaluation.IsAllowed)
+			{
+				continue;
+			}
+
+			var key = assemblyReference.SourceProjectPath + "|" + assemblyReference.AssemblyIdentity + "|" + assemblyReference.HintPath + "|" + evaluation.ViolationReason;
+			if (!seen.Add(key))
+			{
+				continue;
+			}
+
+			assemblyReferenceViolations.Add(new AssemblyReferenceViolationFinding(
+				assemblyReference.SourceProjectPath,
+				sourceProjectName,
+				evaluation.SourceProjectGroup,
+				assemblyReference.AssemblyIdentity,
+				assemblyReference.HintPath,
+				evaluation.ViolationReason,
+				evaluation.MatchedPolicy,
+				evaluation.MatchedMatcher));
+		}
+
+		var result = new ProjectArchitectureAnalysisResult(
+			projectReferenceViolations.ToImmutable(),
+			packageReferenceViolations.ToImmutable(),
+			assemblyReferenceViolations.ToImmutable());
 
 		return result;
 	}

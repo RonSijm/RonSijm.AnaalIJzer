@@ -11,7 +11,8 @@ public sealed class ArchitectureGraphSnapshotInput(
 	ImmutableArray<string> activeLayerPaths,
 	ImmutableArray<string> configurationIssueMessages,
 	ArchitectureConfigurationSource? configurationSource = null,
-	ImmutableArray<ArchitectureConfigurationCreationTarget> configurationCreationTargets = default)
+	ImmutableArray<ArchitectureConfigurationCreationTarget> configurationCreationTargets = default,
+	bool hasSolutionTopology = false)
 {
 	public bool HasConfiguration { get; } = hasConfiguration;
 
@@ -28,4 +29,6 @@ public sealed class ArchitectureGraphSnapshotInput(
 	public ArchitectureConfigurationSource ConfigurationSource { get; } = configurationSource ?? ArchitectureConfigurationSource.None;
 
 	public ImmutableArray<ArchitectureConfigurationCreationTarget> ConfigurationCreationTargets { get; } = configurationCreationTargets.IsDefault ? ImmutableArray<ArchitectureConfigurationCreationTarget>.Empty : configurationCreationTargets;
+
+	public bool HasSolutionTopology { get; } = hasSolutionTopology;
 }

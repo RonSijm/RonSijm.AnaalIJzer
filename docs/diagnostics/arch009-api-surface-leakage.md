@@ -24,3 +24,8 @@ The IDE can add a missing `<AllowedLayer>`, widen an existing `allowedSites` lis
 Adding an `<AllowedDependency>` is not an ARCH009 fix by itself. That edge permits internal use; it does not grant permission to publish the type as API.
 
 **Example project:** [`Example.Arch009.ApiSurfaceLeakage`](../../Examples/Diagnostics/Example.Arch009.ApiSurfaceLeakage)
+
+#### Real-world uses
+
+- Prevent a public application method or endpoint from returning `IQueryable<T>`, leaving callers coupled to a repository-owned query mechanism.
+- Stop a service contract from exposing EF entities, internal transport models, or persistence-only abstractions as part of its public API.

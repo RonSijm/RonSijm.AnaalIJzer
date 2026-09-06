@@ -65,6 +65,74 @@ public sealed class ExamplesIntegrationTests
 	}
 
 	[Fact]
+	public void AspNetCoreExamplePack_UsesRealWebSdkProjects()
+	{
+		var context = ExampleRepositoryContext.Discover();
+		var expectedProjectDirectories = new[]
+		{
+			"Scenarios/Example.AspNetCore/Example.AspNetCore.ApiSurface",
+			"Scenarios/Example.AspNetCore/Example.AspNetCore.LayerBoundaries",
+			"Scenarios/Example.AspNetCore/Example.AspNetCore.ModelBindingNames",
+			"Scenarios/Example.AspNetCore/Example.AspNetCore.OperationContracts"
+		};
+		var actualProjectDirectories = context.FindAllExampleProjectPaths()
+			.Select(projectPath => Path.GetRelativePath(context.ExamplesRoot, Path.GetDirectoryName(projectPath)!).Replace('\\', '/'))
+			.Where(projectDirectory => projectDirectory.StartsWith("Scenarios/Example.AspNetCore/", StringComparison.Ordinal))
+			.OrderBy(projectDirectory => projectDirectory, StringComparer.Ordinal)
+			.ToArray();
+
+		actualProjectDirectories.Should().BeEquivalentTo(expectedProjectDirectories);
+		foreach (var projectDirectory in actualProjectDirectories)
+		{
+			var projectPath = context.GetExampleProjectPath(projectDirectory);
+			var document = System.Xml.Linq.XDocument.Load(projectPath);
+			var sdk = document.Root?.Attribute("Sdk")?.Value;
+			var configPath = Path.Combine(Path.GetDirectoryName(projectPath)!, "Architecture.anl");
+
+			sdk.Should().Be("Microsoft.NET.Sdk.Web", $"{projectDirectory} should exercise real ASP.NET Core symbols from the shared framework");
+			File.Exists(configPath).Should().BeTrue($"{projectDirectory} is a broader scenario and should keep its configuration in Architecture.anl");
+		}
+	}
+
+	[Fact]
+	public void EntityFrameworkCoreExamplePack_UsesRealEfCoreProjects()
+	{
+		var context = ExampleRepositoryContext.Discover();
+		var expectedProjectDirectories = new[]
+		{
+			"Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.ContextBoundary",
+			"Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.ContextCreation",
+			"Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.DomainPurity",
+			"Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.MigrationPlacement",
+			"Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.ModelConfigurationPlacement",
+			"Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.QuerySurface"
+		};
+		var actualProjectDirectories = context.FindAllExampleProjectPaths()
+			.Select(projectPath => Path.GetRelativePath(context.ExamplesRoot, Path.GetDirectoryName(projectPath)!).Replace('\\', '/'))
+			.Where(projectDirectory => projectDirectory.StartsWith("Scenarios/Example.EntityFrameworkCore/", StringComparison.Ordinal))
+			.OrderBy(projectDirectory => projectDirectory, StringComparer.Ordinal)
+			.ToArray();
+
+		actualProjectDirectories.Should().BeEquivalentTo(expectedProjectDirectories);
+		foreach (var projectDirectory in actualProjectDirectories)
+		{
+			var projectPath = context.GetExampleProjectPath(projectDirectory);
+			var document = System.Xml.Linq.XDocument.Load(projectPath);
+			var packageReferences = document
+				.Descendants()
+				.Where(element => string.Equals(element.Name.LocalName, "PackageReference", StringComparison.Ordinal))
+				.Select(element => element.Attribute("Include")?.Value)
+				.Where(value => !string.IsNullOrWhiteSpace(value))
+				.ToArray();
+			var configPath = Path.Combine(Path.GetDirectoryName(projectPath)!, "Architecture.anl");
+
+			File.Exists(configPath).Should().BeTrue($"{projectDirectory} is a broader scenario and should keep its configuration in Architecture.anl");
+			packageReferences.Should().ContainSingle(packageReference => packageReference!.StartsWith("Microsoft.EntityFrameworkCore", StringComparison.Ordinal),
+				$"{projectDirectory} should exercise actual EF Core symbols instead of lookalike local types");
+		}
+	}
+
+	[Fact]
 	public async Task InlineExampleProjects_ProvideEditorLayerSnapshots()
 	{
 		var context = ExampleRepositoryContext.Discover();
@@ -137,11 +205,22 @@ public sealed class ExamplesIntegrationTests
 			.Concat([Path.Combine(context.ExamplesRoot, "README.md")])
 			.Select(File.ReadAllText));
 		var undocumented = ExampleBuildExpectationCatalog.All
-			.Select(expectation => Path.GetFileName(expectation.RelativeProjectPath))
+			.Select(expectation => GetDocumentationSubject(expectation.RelativeProjectPath))
 			.Where(projectName => !documentation.Contains(projectName, StringComparison.Ordinal))
 			.ToArray();
 
 		undocumented.Should().BeEmpty("every build-verified example should be discoverable from docs or the examples index");
+	}
+
+	private static string GetDocumentationSubject(string relativeProjectPath)
+	{
+		var pathSegments = relativeProjectPath.Replace('\\', '/').Split('/');
+		var scenarioIndex = Array.FindIndex(pathSegments, segment => string.Equals(segment, "Scenarios", StringComparison.Ordinal));
+		var result = scenarioIndex >= 0 && scenarioIndex + 1 < pathSegments.Length
+			? pathSegments[scenarioIndex + 1]
+			: Path.GetFileName(relativeProjectPath);
+
+		return result;
 	}
 
 	[Fact]
@@ -150,6 +229,11 @@ public sealed class ExamplesIntegrationTests
 		var context = ExampleRepositoryContext.Discover();
 		var expectedProjectReferences = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
 		{
+			["Scenarios/Example.ProjectReferenceRuleSelectors/Example.ProjectReferenceRuleSelectors.Orders.Application"] =
+			[
+				@"..\Example.ProjectReferenceRuleSelectors.Orders.Contracts\Example.ProjectReferenceRuleSelectors.Orders.Contracts.csproj",
+				@"..\Example.ProjectReferenceRuleSelectors.Payments.Contracts\Example.ProjectReferenceRuleSelectors.Payments.Contracts.csproj"
+			],
 			["Scenarios/Example.ProjectReferenceBoundaries/Example.ProjectReferenceBoundaries.Application"] =
 			[
 				@"..\Example.ProjectReferenceBoundaries.Domain\Example.ProjectReferenceBoundaries.Domain.csproj"
@@ -157,10 +241,46 @@ public sealed class ExamplesIntegrationTests
 			["Scenarios/Example.ProjectReferenceBoundaries/Example.ProjectReferenceBoundaries.Domain"] =
 			[
 				@"..\Example.ProjectReferenceBoundaries.Infrastructure\Example.ProjectReferenceBoundaries.Infrastructure.csproj"
+			],
+			["Scenarios/Example.SolutionTopology/Example.SolutionTopology.Application"] =
+			[
+				@"..\Example.SolutionTopology.Infrastructure\Example.SolutionTopology.Infrastructure.csproj"
+			],
+			["Scenarios/Example.SolutionTopology/Example.SolutionTopology.Web"] =
+			[
+				@"..\Example.SolutionTopology.Application\Example.SolutionTopology.Application.csproj"
+			],
+			["Scenarios/Example.AssemblyReferenceBoundaries/Example.AssemblyReferenceBoundaries.Domain"] =
+			[
+				@"..\LegacyTransportFixture\LegacyTransportFixture.csproj"
 			]
 		};
 		var expectedPackageReferences = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
 		{
+			["Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.ContextBoundary"] =
+			[
+				"Microsoft.EntityFrameworkCore"
+			],
+			["Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.ContextCreation"] =
+			[
+				"Microsoft.EntityFrameworkCore"
+			],
+			["Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.DomainPurity"] =
+			[
+				"Microsoft.EntityFrameworkCore"
+			],
+			["Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.MigrationPlacement"] =
+			[
+				"Microsoft.EntityFrameworkCore.Relational"
+			],
+			["Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.ModelConfigurationPlacement"] =
+			[
+				"Microsoft.EntityFrameworkCore"
+			],
+			["Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.QuerySurface"] =
+			[
+				"Microsoft.EntityFrameworkCore"
+			],
 			["Scenarios/Example.PackageReferenceBoundaries/Example.PackageReferenceBoundaries.Data"] =
 			[
 				"Microsoft.Extensions.Logging"
@@ -168,6 +288,13 @@ public sealed class ExamplesIntegrationTests
 			["Scenarios/Example.PackageReferenceBoundaries/Example.PackageReferenceBoundaries.Domain"] =
 			[
 				"Microsoft.Extensions.Logging"
+			]
+		};
+		var expectedAssemblyReferences = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
+		{
+			["Scenarios/Example.AssemblyReferenceBoundaries/Example.AssemblyReferenceBoundaries.Domain"] =
+			[
+				"Legacy.Transport"
 			]
 		};
 
@@ -207,7 +334,9 @@ public sealed class ExamplesIntegrationTests
 				expectedPackageReferences.TryGetValue(relativeProjectDirectory, out var expectedPackages) ? expectedPackages : [],
 				$"{relativeProjectDirectory} should only declare direct package references when the scenario itself is demonstrating package-boundary rules");
 			analyzerReferences.Should().BeEmpty($"{relativeProjectDirectory} should not hard-code analyzer DLL references in its own project file");
-			assemblyReferences.Should().BeEmpty($"{relativeProjectDirectory} should not carry extra assembly references beyond the SDK defaults");
+			assemblyReferences.Should().BeEquivalentTo(
+				expectedAssemblyReferences.TryGetValue(relativeProjectDirectory, out var expectedAssemblies) ? expectedAssemblies : [],
+				$"{relativeProjectDirectory} should only declare an assembly reference when the scenario itself is demonstrating raw assembly-reference rules");
 		}
 	}
 
@@ -222,7 +351,7 @@ public sealed class ExamplesIntegrationTests
 		}
 
 		var projectDirectory = Path.GetDirectoryName(projectPath)!;
-		var fileConfigPath = Path.Combine(projectDirectory, "Architecture.anl");
+		var fileConfigPath = ExampleApplicationOperations.FindLinkedFileConfigurationPath(projectPath);
 		var inlineSettingsPath = Path.Combine(projectDirectory, "Properties", "AnaalIJzerSettings.cs");
 		if (File.Exists(inlineSettingsPath))
 		{
@@ -258,7 +387,7 @@ public sealed class ExamplesIntegrationTests
 
 		if (expectation.ConfigStyle == ExampleConfigStyle.InlineInExample)
 		{
-			if (File.Exists(fileConfigPath))
+			if (fileConfigPath is not null)
 			{
 				failures.Add($"{expectation.RelativeProjectPath}: simple one-file examples should keep settings inline in the example source file; remove {fileConfigPath}.");
 			}
@@ -285,7 +414,7 @@ public sealed class ExamplesIntegrationTests
 			return;
 		}
 
-		if (!File.Exists(fileConfigPath))
+		if (fileConfigPath is null)
 		{
 			failures.Add($"{expectation.RelativeProjectPath}: broader examples should use Architecture.anl.");
 		}

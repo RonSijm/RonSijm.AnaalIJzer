@@ -6,6 +6,7 @@
   <Folder Name="/Main/Analyzer/">
     <Project Path="Main/RonSijm.AnaalIJzer/RonSijm.AnaalIJzer.csproj" />
     <Project Path="Main/RonSijm.AnaalIJzer.Diagnostics/RonSijm.AnaalIJzer.Diagnostics.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer.CodeFixes/RonSijm.AnaalIJzer.CodeFixes.csproj" />
     <Project Path="Main/RonSijm.AnaalIJzer.Engine/RonSijm.AnaalIJzer.Engine.csproj" />
   </Folder>
   <Folder Name="/Main/Application/">
@@ -25,6 +26,7 @@
     <Project Path="Main/RonSijm.AnaalIJzer.Core.Indicators/RonSijm.AnaalIJzer.Core.Indicators.csproj" />
     <Project Path="Main/RonSijm.AnaalIJzer.Core.LayerModel/RonSijm.AnaalIJzer.Core.LayerModel.csproj" />
     <Project Path="Main/RonSijm.AnaalIJzer.Core.Observations/RonSijm.AnaalIJzer.Core.Observations.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer.Core.SemanticOperations/RonSijm.AnaalIJzer.Core.SemanticOperations.csproj" />
     <Project Path="Main/RonSijm.AnaalIJzer.Core.Violations/RonSijm.AnaalIJzer.Core.Violations.csproj" />
   </Folder>
   <Folder Name="/Main/Core/Policies/">
@@ -35,6 +37,8 @@
     <Project Path="Main/RonSijm.AnaalIJzer.Core.Exceptions/RonSijm.AnaalIJzer.Core.Exceptions.csproj" />
     <Project Path="Main/RonSijm.AnaalIJzer.Core.Inheritance/RonSijm.AnaalIJzer.Core.Inheritance.csproj" />
     <Project Path="Main/RonSijm.AnaalIJzer.Core.NameRules/RonSijm.AnaalIJzer.Core.NameRules.csproj" />
+	<Project Path="Main/RonSijm.AnaalIJzer.Core.OperationPolicies/RonSijm.AnaalIJzer.Core.OperationPolicies.csproj" />
+	<Project Path="Main/RonSijm.AnaalIJzer.Core.OperationContracts/RonSijm.AnaalIJzer.Core.OperationContracts.csproj" />
     <Project Path="Main/RonSijm.AnaalIJzer.Core.PolicyEvaluation/RonSijm.AnaalIJzer.Core.PolicyEvaluation.csproj" />
     <Project Path="Main/RonSijm.AnaalIJzer.Core.ProjectArchitecture/RonSijm.AnaalIJzer.Core.ProjectArchitecture.csproj" />
     <Project Path="Main/RonSijm.AnaalIJzer.Core.SourceLocations/RonSijm.AnaalIJzer.Core.SourceLocations.csproj" />
@@ -70,6 +74,9 @@
     <Project Path="Tests/RonSijm.AnaalIJzer.Core.Indicators.Tests/RonSijm.AnaalIJzer.Core.Indicators.Tests.csproj" />
     <Project Path="Tests/RonSijm.AnaalIJzer.Core.Matchers.Tests/RonSijm.AnaalIJzer.Core.Matchers.Tests.csproj" />
     <Project Path="Tests/RonSijm.AnaalIJzer.Core.Observations.Tests/RonSijm.AnaalIJzer.Core.Observations.Tests.csproj" />
+    <Project Path="Tests/RonSijm.AnaalIJzer.Core.SemanticOperations.Tests/RonSijm.AnaalIJzer.Core.SemanticOperations.Tests.csproj" />
+	<Project Path="Tests/RonSijm.AnaalIJzer.Core.OperationPolicies.Tests/RonSijm.AnaalIJzer.Core.OperationPolicies.Tests.csproj" />
+    <Project Path="Tests/RonSijm.AnaalIJzer.Core.OperationContracts.Tests/RonSijm.AnaalIJzer.Core.OperationContracts.Tests.csproj" />
     <Project Path="Tests/RonSijm.AnaalIJzer.Core.ProjectArchitecture.Tests/RonSijm.AnaalIJzer.Core.ProjectArchitecture.Tests.csproj" />
     <Project Path="Tests/RonSijm.AnaalIJzer.Core.DependencyRules.Tests/RonSijm.AnaalIJzer.Core.DependencyRules.Tests.csproj" />
     <Project Path="Tests/RonSijm.AnaalIJzer.Core.EntryPoints.Tests/RonSijm.AnaalIJzer.Core.EntryPoints.Tests.csproj" />

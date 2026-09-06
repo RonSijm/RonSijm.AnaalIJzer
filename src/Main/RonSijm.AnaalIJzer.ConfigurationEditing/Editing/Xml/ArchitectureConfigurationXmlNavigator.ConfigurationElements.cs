@@ -22,6 +22,15 @@ internal static partial class ArchitectureConfigurationXmlNavigator
 			return result;
 		}
 
+		if (handle.ContainerKind == ArchitectureConfigurationXmlNames.OperationsElementName)
+		{
+			var result = containerRoot
+				.Elements(ArchitectureConfigurationXmlNames.OperationsElementName)
+				.Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
+
+			return result;
+		}
+
 		if (handle.ContainerKind == "LayerMatcher")
 		{
 			var result = containerRoot
@@ -81,6 +90,24 @@ internal static partial class ArchitectureConfigurationXmlNavigator
 		{
 			var result = containerRoot
 				.Elements(ArchitectureConfigurationXmlNames.ReturnValuePolicyElementName)
+				.Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
+
+			return result;
+		}
+
+		if (handle.ContainerKind == ArchitectureConfigurationXmlNames.ForbiddenOperationsElementName)
+		{
+			var result = containerRoot
+				.Elements(ArchitectureConfigurationXmlNames.ForbiddenOperationsElementName)
+				.Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
+
+			return result;
+		}
+
+		if (handle.ContainerKind == ArchitectureConfigurationXmlNames.BehavioralOperationsElementName)
+		{
+			var result = containerRoot
+				.Elements(ArchitectureConfigurationXmlNames.BehavioralOperationsElementName)
 				.Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
 
 			return result;

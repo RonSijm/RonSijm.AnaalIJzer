@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using RonSijm.AnaalIJzer.Core.Matchers;
+using RonSijm.AnaalIJzer.Core.NameRules;
 
 namespace RonSijm.AnaalIJzer.Core.LayerModel;
 
@@ -27,10 +28,13 @@ public readonly struct CompiledLayerCatalog(
 	public bool HasContractPolicies { get; } = Contains(node => !node.ContractPolicies.IsDefaultOrEmpty, roots);
 	public bool HasInheritancePolicies { get; } = Contains(node => !node.InheritancePolicies.IsDefaultOrEmpty, roots);
 	public bool HasReturnValuePolicies { get; } = Contains(node => !node.ReturnValuePolicies.IsDefaultOrEmpty, roots);
+	public bool HasForbiddenOperationPolicies { get; } = Contains(node => !node.ForbiddenOperationPolicies.IsDefaultOrEmpty, roots);
+	public bool HasBehavioralOperationPolicies { get; } = Contains(node => !node.BehavioralOperationPolicies.IsDefaultOrEmpty, roots);
 	public bool HasVisibilityPolicies { get; } = Contains(node => !node.VisibilityPolicies.IsDefaultOrEmpty, roots);
 	public bool HasApiSurfacePolicies { get; } = Contains(node => !node.ApiSurfacePolicies.IsDefaultOrEmpty, roots);
 	public bool HasEntryPointPolicies { get; } = Contains(node => !node.EntryPointPolicies.IsDefaultOrEmpty, roots);
 	public bool HasSourceLocationPolicies { get; } = Contains(node => !node.SourceLocationPolicies.IsDefaultOrEmpty, roots);
+	public bool HasIntraProceduralNameRules { get; } = Contains(node => node.NameRules.Any(rule => rule.ValueTracking == NameRuleValueTrackingMode.IntraProcedural), roots);
 
 	private static bool Contains(Func<LayerNode, bool> predicate, ImmutableArray<LayerNode> nodes)
 	{

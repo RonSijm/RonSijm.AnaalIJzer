@@ -162,7 +162,7 @@ That is valuable for broad assertions about an assembly or a set of published ty
 
 Anaal IJzer uses Roslyn's semantic model while the compiler still knows the real symbols behind the source. This makes rules about aliases, inferred locals, generic arguments, implemented interfaces, attributes, and nested boundaries dependable rather than text-based guesses.
 
-It can also enforce configured policies inside a method body. For example, a [`ReturnValuePolicy`](docs/configuration/return-value-policies.md) can reject a direct `return null`, an empty string, an enum-zero sentinel, or the unchanged result of a method annotated as optional. The analyzer reports each matching return expression even when the method is never exercised by a test.
+It can also enforce configured policies inside a method body. A [`ReturnValuePolicy`](docs/configuration/return-value-policies.md) can reject a direct `return null`, an empty string, an enum-zero sentinel, or the unchanged result of a method annotated as optional. A [`ForbiddenOperations` policy](docs/configuration/forbidden-operation-policies.md) can reject one resolved API member, such as `DateTime.UtcNow` or `Task.Wait()`, while leaving other members of the same framework type available. The analyzer reports each matching source operation even when the method is never exercised by a test.
 
 For a rule that must hold at every relevant source site, runtime coverage cannot prove compliance unless it executes every possible path. A test can approximate that guarantee only by adding an equivalent static inspection. That is why compiler-level analysis is not a substitute for an architecture test: it is the direct enforcement mechanism for a different class of policy.
 
@@ -435,7 +435,7 @@ For a clean demonstration of every site in one editor tab, open [`Example.Visual
 
 ### Dependency graphs
 
-Use `Extensions > IJzer > Show Dependency Graphs` or command search to open a dockable dependency-graph sidebar. The sidebar groups concrete layer rules into connected graphs and shows wildcard/global rules separately. The graph is the same reusable WPF editor hosted by the standalone graph editor. It supports layer grouping, user-controlled layout, connector-based dependency creation, right-click editing, nested-boundary visualization, and PNG export.
+Use `Extensions > IJzer > Show Dependency Graphs` or command search to open a dockable dependency-graph sidebar. The sidebar groups concrete layer rules into connected graphs and shows wildcard/global rules separately. The graph is the same reusable WPF editor hosted by the standalone graph editor. It supports layer grouping, user-controlled layout, connector-based dependency creation, right-click editing, nested-boundary visualization, and PNG export. When the loaded solution has `<SolutionTopology>`, it also shows that configuration as a separate read-only module graph with observed direct project-reference evidence; edit the `.anl` source for module policy changes.
 
 **Start with the configured structure.** With code evidence off, the graph stays focused on the intended architecture: the named layers and the allowed paths between them. This is the clearest mode for discussing or editing the rules themselves.
 
@@ -507,7 +507,7 @@ For the broader mental model, ownership rules, and risk labels, see [Configurati
 | `ARCH007` | for each concrete allowed edge in a configured cycle: add a matching blocking edge, or remove that allowed edge; the user chooses the edge | `CycleDependencyCodeFixTests.cs` |
 | `ARCH008` | rename the declaration when the rule compares declaration name to semantic type; add `<Allow from="..." to="..."/>` mappings, including a site-scoped variant for `RequireMatchingNames` | `DeclarationNameCodeFixTests.cs`, `NameRuleAllowMappingCodeFixTests.cs` |
 | `ARCH009` | add or widen `<ApiSurface><AllowedLayer ... /></ApiSurface>`; relax `blockedSites`; disable `requireRecognizedTypes` when that is the denial | `ApiSurfacePolicyCodeFixTests.cs` |
-| `ARCH010` | add a missing `<AllowedProjectReference>`; add an explicit same-group self-edge; remove the matching blocking `<BlockedProjectReference>` rule | `ProjectArchitectureCodeFixTests.cs` |
+| `ARCH010` | add a missing group-level `<AllowedProjectReference>`; add a narrow exact-project rule with `<From>` and `<To>` selectors; add an explicit same-group self-edge; remove the matching blocking `<BlockedProjectReference>` rule | `ProjectArchitectureCodeFixTests.cs` |
 | `ARCH011` | append an exact `<Package exactName="..."/>` matcher to the matched allowed package list | `PackagePolicyCodeFixTests.cs` |
 | `ARCH012` | add the reported visibility to `allowedAccessibilities`; remove it from `blockedAccessibilities`; remove a single-value blocking policy entirely | `VisibilityPolicyCodeFixTests.cs` |
 | `ARCH013` | remove a disallowed property setter when the violation is exactly that accessor | `ContractPurityCodeFixTests.cs` |
@@ -517,11 +517,14 @@ For the broader mental model, ownership rules, and risk labels, see [Configurati
 | `ARCH018` | no configuration fix: this reports an observed source-code cycle, which configuration editing cannot honestly repair | `ExampleConfigurationFixIntegrationTests.cs` |
 | `ARCH019` | add a single required base type or a single required interface when the change is unambiguous | `InheritancePolicyCodeFixTests.cs` |
 | `ARCH020` | no automatic fix: a forbidden return expression does not tell the analyzer which domain result should replace it | `ReturnValuePolicyAnalyzerTests.cs` |
+| `ARCH021` | no automatic fix: a forbidden selected operation does not identify the intended adapter, async flow, or composition-boundary change | `ForbiddenOperationPolicyAnalyzerTests.cs` |
+| `ARCH022` | no automatic fix: adding, moving, or removing an operation requires an explicit workflow decision | `BehavioralOperationPolicyAnalyzerTests.cs` |
+| `ARCH023` | no automatic fix: choosing an operation owner, entry-point delegation, or contract shape requires an explicit workflow decision | `OperationContractAnalyzerTests.cs` |
 
 ### Deliberate limits
 
 - `ARCH010` and `ARCH011` are compilation-end diagnostics. The config edits exist and are covered by analyzer tests, but whether an IDE host shows them as ordinary editor light bulbs depends on how that host surfaces `Location.None` diagnostics.
-- `ARCH013`, `ARCH019`, and `ARCH020` stay intentionally narrow. If the analyzer cannot tell which one deterministic edit is the right one, it does not guess. A confidently wrong automatic fix is harder to spot in review than no fix at all.
+- `ARCH013`, `ARCH019`, `ARCH020`, `ARCH021`, `ARCH022`, and `ARCH023` stay intentionally narrow. If the analyzer cannot tell which one deterministic edit is the right one, it does not guess. A confidently wrong automatic fix is harder to spot in review than no fix at all.
 - Configuration fixers preserve the owning source where possible:
   - if a rule came from an included `.anl`, that included file is edited;
   - if the config came from inline `AssemblyMetadata`, the source file containing the assembly attribute is rewritten.
@@ -668,6 +671,7 @@ arse report        --project src\MyApp\MyApp.csproj --output docs\architectural-
 arse report        --solution src\MyApp.slnx --output docs\architectural-violations.md --force
 arse inspect       --project src\MyApp\MyApp.csproj --output docs\architecture-health.md --force
 arse inspect       --solution src\MyApp.slnx --output docs\architecture-health.md --force
+arse inspect       --solution src\MyApp.slnx --enforce-topology --output build\Artifacts\architecture-health.json --force
 arse fixes         --project src\MyApp\MyApp.csproj
 arse fixes         --solution src\MyApp.slnx --output docs\architecture-fixes.md --force
 arse apply-fix     --project src\MyApp\MyApp.csproj --fix-id fix-abc123
@@ -761,7 +765,7 @@ Add `--generate-documentation` to write `architecture-documentation.md` beside t
 
 `export-config` writes the evaluated inline XML, so `typeName="{nameof(OrderRepository)}"` becomes `typeName="OrderRepository"` in the persisted file. `documentation` accepts either a project for compiled inline settings and project-backed XML or a specific XML file directly. `report` accepts a project or solution; solution mode opens every C# project in the solution, runs the same analyzer pass per project, and aggregates the diagnostics into one Markdown report. `documentation` and `report` use `documentationPath` / `reportPath` from the config when the output is omitted. Solution `report` uses the first configured project as the representative settings source; if no `reportPath` is enabled there, it defaults to `architectural-violations.md` beside the solution.
 
-`inspect` (aliases: `validate`, `doctor`, `health`, `self-check`) accepts a project, solution, or XML file and writes `architecture-health.md`. XML inspection reports malformed settings, missing includes, invalid matchers, unknown layer references, and configured cycles. Project inspection additionally reports unclassified or ambiguously classified types, unmatched matchers, stale exceptions, unused allowed edges, observed dependency cycles, and current analyzer violations. Solution inspection runs that same project inspection for every C# project and aggregates the findings into one report. Headless Arse exits with code `3` when findings require review, which gives CI something to fail on instead of a report that everybody agrees to read later.
+`inspect` (aliases: `validate`, `doctor`, `health`, `self-check`) accepts a project, solution, or XML file and writes `architecture-health.md` by default. XML inspection reports malformed settings, missing includes, invalid matchers, unknown layer references, and configured cycles. Project inspection additionally reports unclassified or ambiguously classified types, unmatched matchers, stale exceptions, unused allowed edges, observed dependency cycles, and current analyzer violations. Solution inspection runs that same project inspection for every C# project and aggregates the findings into one report. Add `--enforce-topology` to a solution inspection when its settings contain `<SolutionTopology>`; this emits `TOPO001` / `TOPO002` findings without changing normal project builds. Choosing an `.json` `--output` path writes the same findings as machine-readable evidence. Headless Arse exits with code `3` when findings require review, which gives CI something to fail on instead of a report that everybody agrees to read later.
 
 `merge-config` recursively replaces `<Include>` elements with their referenced rules and writes one self-contained XML file. Repeated references resolving to the same path are included once. Root settings such as `requireRecognizedDependencies`, report paths, documentation paths and the XSD location are preserved and rebased relative to the merged output.
 
@@ -796,7 +800,7 @@ The WPF graph editor is the reusable visual editor behind the standalone graph e
 | `src/Tools/RonSijm.AnaalIJzer.GraphEditor.Standalone` | Small executable harness for testing the WPF component outside Visual Studio. |
 | `src/Extensions/RonSijm.AnaalIJzer.VisualStudio` | Hosts the same WPF component inside the Visual Studio companion extension. |
 
-The central controls are `ArchitectureGraphEditorControl` and `ArchitectureGraphCanvas`. They consume an `ArchitectureGraphSnapshot`, render connected layer graphs left-to-right, show wildcard/global rules separately, and preserve user layout through graph editor user settings.
+The central controls are `ArchitectureGraphEditorControl` and `ArchitectureGraphCanvas`. They consume an `ArchitectureGraphSnapshot`, render connected layer graphs left-to-right, show wildcard/global rules separately, and preserve user layout through graph editor user settings. A solution input that contains `<SolutionTopology>` also gets a separate read-only topology graph: configured modules and their rules are shown alongside observed direct project-reference evidence. That view is for investigation; editing remains deliberately limited to the authoritative `Architecture.anl` file.
 
 The editor is source-aware. It can edit XML settings files and inline `AssemblyMetadata("AnaalIJzerSettings", ...)` settings, then reload through the same configuration-reading path used by the analyzer tooling. The graph supports:
 
@@ -987,7 +991,12 @@ The XML root element is `<ArchitecturalLevels>`. It supports the child elements 
 | Inheritance policies | `inheritance-policies.md` |
 | Contract purity | `contract-policies.md` |
 | Return-value policies | `return-value-policies.md` |
+| Forbidden operation policies | `forbidden-operation-policies.md` |
+| Behavioral operation policies | `behavioral-operation-policies.md` |
+| Generated code analysis | `generated-code.md` |
 | Project architecture | `project-architecture.md` |
+| Assembly reference policies | `assembly-reference-policies.md` |
+| Solution topology | `solution-topology.md` |
 | API surface policies | `api-surface.md` |
 | Transitive API exposure | `transitive-api-exposure.md` |
 | Boundary entry points | `boundary-entry-points.md` |
@@ -1894,7 +1903,40 @@ Multiple attributes on one matcher are combined with AND semantics. Multiple mat
 
 Other site names remain valid in filters because the site vocabulary is shared across the analyzer, but NameRules only produce diagnostics for value movements that have both a source name and a target name.
 
-**Example project:** [`Example.NameRules`](Examples/Features/Example.NameRules)
+#### Direct language forms
+
+`RequireMatchingNames` checks direct value movements by default. That includes ordinary and compound assignments, component-wise tuple/deconstruction assignments, object-construction arguments, named and optional arguments, `in` arguments, `out` values flowing back to the caller, direct returns, and expression-bodied methods, properties, indexers, and local functions. Parentheses, conversions, `as`, null-forgiving operators, conditional branches, coalesce expressions, and tuple expressions are unwrapped into their direct named sources.
+
+Anonymous-lambda returns intentionally have no named return target, so the rule does not compare them with the containing method. Calls and assignments *inside* the lambda are still analysed at their own sites. This prevents a lambda from being accidentally reported as though it returned from its outer method.
+
+**Direct-form examples:** [`Example.NameRules`](Examples/Features/Example.NameRules) and [`Example.NameRuleLanguageForms`](Examples/Features/Example.NameRuleLanguageForms).
+
+#### `valueTracking`: direct versus local provenance
+
+`valueTracking` belongs only on `<RequireMatchingNames>`:
+
+| Value | Default | What it compares |
+|---|---:|---|
+| `Direct` | Yes | The value written directly at the current site. It does not follow local aliases. |
+| `IntraProcedural` | No | The direct value plus an unambiguous local alias within the same method, accessor, constructor, local function, or lambda body. |
+
+Use `Direct` for the least surprising and fastest rule. Enable `IntraProcedural` only when a neutral local name can conceal a meaningful value name before it reaches another meaningful target:
+
+```xml
+<RequireMatchingNames valueTracking="IntraProcedural">
+  <Source endsWith="Id" />
+  <Target endsWith="Id" />
+</RequireMatchingNames>
+```
+
+```csharp
+var pending = customerId;
+Save(pending); // ARCH008 when Save accepts orderId.
+```
+
+Method-like bodies use Roslyn control-flow graphs, so a branch join keeps provenance only when every path agrees. Roslyn does not expose a standalone control-flow graph root for a lambda body, so lambda bodies use a conservative ordered scan and discard local provenance before a conditional, loop, switch, or `try` block. A captured parameter can still be the direct source inside a lambda, but a local alias never crosses a callback boundary. Tracking intentionally stops at method calls, virtual dispatch, collections, delegate invocation, reflection, and method boundaries. That is a bounded local-provenance check, not a whole-program taint-analysis promise.
+
+**Tracking example:** [`Example.NameRuleIntraProceduralTracking`](Examples/Features/Example.NameRuleIntraProceduralTracking).
 
 #### Declaration names and semantic types
 
@@ -2292,6 +2334,346 @@ There is intentionally no code fix for `ARCH020`: the configuration identifies a
 - [`Example.Arch020.AnnotatedInvocationReturn`](Examples/Diagnostics/Example.Arch020.AnnotatedInvocationReturn) - an annotation matcher rejects returning an optional lookup unchanged.
 - [`Example.Arch020.ConfiguredLiteralReturns`](Examples/Diagnostics/Example.Arch020.ConfiguredLiteralReturns) - empty-string, numeric, and enum-zero sentinels are configuration values.
 
+### Forbidden operation policies
+
+`<ForbiddenOperations>` rejects one selected resolved API operation inside an owning layer and its descendants. It is intentionally narrower than `<Forbidden>`: you can forbid `DateTime.UtcNow` without forbidding `DateTime`, or forbid `Environment.MachineName` while still allowing `Environment.NewLine`.
+
+This is a semantic policy. AnaalIjzer compares Roslyn symbols, so an alias and a fully qualified spelling resolve to the same member. It does not need, and does not take, a dependency on the assembly that defines the selected member or attribute.
+
+```xml
+<Layer name="Kitchen">
+  <Class endsWith="Kitchen" />
+
+  <ForbiddenOperations description="Kitchens obtain time through the restaurant clock.">
+    <ForbiddenOperation allowedSites="StaticMember"
+                        description="A direct system-clock read hides a dependency.">
+      <OperationMatcher kind="PropertyRead" staticAccess="true">
+        <ContainingType exactFullName="System.DateTime" />
+        <Member exactName="UtcNow" memberKind="Property" />
+      </OperationMatcher>
+    </ForbiddenOperation>
+  </ForbiddenOperations>
+</Layer>
+```
+
+That produces `ARCH021` for `DateTime.UtcNow` in `Kitchen` code. An injected `PizzaClock.UtcNow` property is unaffected because it is a different resolved symbol.
+
+### How matching works
+
+- Every `<ForbiddenOperation>` is a separate forbidden rule.
+- Sibling `<OperationMatcher>` children in one rule are alternatives: matching **any** one reports `ARCH021`.
+- `ContainingType` and `Member` inside one matcher are both required.
+- Multiple matcher attributes on either child are also combined, using the normal AND-within / OR-between matcher model.
+- `staticAccess="true"` or `staticAccess="false"` narrows the matcher. Omit it when both forms are meaningful.
+- `allowedSites` and `blockedSites` use the same site filters as dependency rules. A static access is reported as `StaticMember` even if the surrounding expression assigns it to a local or returns it.
+- An outer layer policy applies to nested child layers. A child layer cannot cancel a selected operation forbidden by its parent.
+
+### Operation kinds
+
+| `kind` value | Resolved operation |
+|---|---|
+| `Invocation` | Method or reduced extension-method call |
+| `PropertyRead`, `PropertyWrite` | Property access or assignment |
+| `FieldRead`, `FieldWrite` | Field access or assignment |
+| `EventAccess` | Event subscription or access |
+| `ObjectCreation` | A resolved constructor call |
+| `Conversion` | A user-defined conversion operator |
+| `Assignment` | A resolved property, field, or event assignment |
+| `Return` | A return operation, without a selected member |
+| `Argument` | An argument operation, without a selected member |
+
+`<Member>` is available only for the operation kinds that select a member. Its optional `memberKind` is one of `Method`, `Constructor`, `Property`, `Field`, or `Event`; incompatible combinations are configuration errors (`ARCH006`).
+
+### Common patterns
+
+```xml
+<!-- Do not block the caller while a pizza is prepared. -->
+<ForbiddenOperation allowedSites="Method">
+  <OperationMatcher kind="Invocation" staticAccess="false">
+    <ContainingType typeName="Task" />
+    <Member exactName="Wait" memberKind="Method" />
+  </OperationMatcher>
+</ForbiddenOperation>
+
+<!-- Do not retrieve a dependency through IServiceProvider from application code. -->
+<ForbiddenOperation allowedSites="MethodReturn">
+  <OperationMatcher kind="Invocation" staticAccess="false">
+    <ContainingType exactFullName="System.IServiceProvider" />
+    <Member exactName="GetService" memberKind="Method" />
+  </OperationMatcher>
+</ForbiddenOperation>
+```
+
+There is no automatic code fix for `ARCH021`. A selected operation tells the analyzer what is not permitted, but it cannot decide whether your replacement should be an injected adapter, `await`, an explicit result type, or a different composition boundary.
+
+When Sites Diagnostics is enabled in the Visual Studio companion, a matching operation is shown with its regular site label and an `ARCH021` policy-status explanation in QuickInfo. This remains opt-in with the rest of the site indicators, so a policy does not add editor adornments by default.
+
+**Focused examples:**
+
+- [`Example.Arch021.ClockAccess`](Examples/Diagnostics/Example.Arch021.ClockAccess) - `DateTime.UtcNow`, `DateTime.Now`, and `DateTime.Today`.
+- [`Example.Arch021.BlockingTaskAccess`](Examples/Diagnostics/Example.Arch021.BlockingTaskAccess) - `Task.Wait()` at `Method` and `Task<T>.Result` at `Local`.
+- [`Example.Arch021.ServiceLocation`](Examples/Diagnostics/Example.Arch021.ServiceLocation) - `IServiceProvider.GetService` outside the composition root.
+- [`Example.Arch021.SelectedEnvironmentMember`](Examples/Diagnostics/Example.Arch021.SelectedEnvironmentMember) - one forbidden `Environment` property while another remains allowed.
+
+### Behavioral operation policies
+
+`<BehavioralOperations>` adds narrow, mechanically provable rules about the resolved operations inside a selected declaration body. It belongs to a layer, applies to that layer and its descendants, and reports `ARCH022` when a configured presence, ordering, or count condition fails.
+
+This is deliberately more precise than an ordinary dependency rule and deliberately less ambitious than a business-process proof. AnaalIjzer can prove that a configured `PizzaSafetyCheck.Validate()` call dominates a configured `PizzaOven.Bake()` call in C# control flow. It cannot prove that the validator accepted the pizza, that the oven completed at runtime, or that another service did not mutate the order elsewhere.
+
+```xml
+<Layer name="Kitchen">
+  <Class endsWith="Kitchen" />
+
+  <BehavioralOperations description="A kitchen checks a pizza before the oven changes it.">
+    <RequiredOperationBefore description="The safety check happens before baking.">
+      <DeclarationMatcher>
+        <Member endsWith="Pizza" memberKind="Method" />
+      </DeclarationMatcher>
+      <OperationMatcher kind="Invocation">
+        <ContainingType typeName="PizzaSafetyCheck" />
+        <Member exactName="Validate" memberKind="Method" />
+      </OperationMatcher>
+      <BeforeOperation>
+        <OperationMatcher kind="Invocation">
+          <ContainingType typeName="PizzaOven" />
+          <Member exactName="Bake" memberKind="Method" />
+        </OperationMatcher>
+      </BeforeOperation>
+    </RequiredOperationBefore>
+  </BehavioralOperations>
+</Layer>
+```
+
+### The four rule families
+
+| Element | What it proves | When `ARCH022` is reported |
+|---|---|---|
+| `<RequiredOperation>` | At least one selected operation occurs in the selected declaration. With the default `Dominance` ordering, one match must execute on every path to exit. | No selected operation exists, or no matching operation dominates every exit. |
+| `<RequiredOperationBefore>` | A selected required operation occurs before every selected `BeforeOperation` target. | A target has no matching required operation before it. |
+| `<ForbiddenOperationAfter>` | A selected operation must not occur after a selected `AfterOperation` terminal. | The terminal operation occurs before the forbidden operation. |
+| `<MaximumOperationCount maximum="N">` | At most `N` selected operations occur in one declaration. | Every occurrence after `N`, in lexical source order. |
+
+`<ForbiddenOperations>` is related but separate: it rejects one direct selected operation anywhere in the layer. See [forbidden operation policies](docs/configuration/forbidden-operation-policies.md) for that direct API policy.
+
+### Selecting a declaration and its operations
+
+Each rule has one `<DeclarationMatcher>` followed by one or more `<OperationMatcher>` elements. A declaration matcher selects the method, constructor, property accessor, or other supported member body that owns the rule:
+
+```xml
+<DeclarationMatcher>
+  <ContainingType endsWith="Kitchen" />
+  <Member endsWith="Pizza" memberKind="Method" />
+</DeclarationMatcher>
+```
+
+`ContainingType` and `Member` are conjunctive: both must match when both are present. Their normal matcher attributes use the standard AND-within / OR-between semantics. `Member` accepts `Method`, `Constructor`, `Property`, `Field`, or `Event` through `memberKind`; use sibling rules for alternative declarations.
+
+Sibling `<OperationMatcher>` elements are alternatives. A matcher resolves Roslyn symbols, not source spelling, so aliases and fully qualified names identify the same selected member. The matcher vocabulary, operation kinds, and `staticAccess` behavior are the same as [forbidden operation policies](docs/configuration/forbidden-operation-policies.md#operation-kinds).
+
+Ordering rules add a related target:
+
+- `<BeforeOperation>` is the operation that a required operation must precede.
+- `<AfterOperation>` is the terminal operation that a forbidden operation must not follow.
+
+### Dominance and lexical order
+
+`ordering="Dominance"` is the default. It uses Roslyn control-flow graphs, so a validation hidden in one `if` branch does not satisfy a rule for a bake call that can occur after either branch. This is the safe default for “must happen before” rules.
+
+`ordering="Lexical"` compares source order only. It is useful when the policy is intentionally about source structure rather than every runtime path, but it is weaker: an earlier call inside a conditional block can satisfy a later call even when that branch is not taken.
+
+```xml
+<!-- Use Lexical only when source ordering, rather than path coverage, is the intended rule. -->
+<RequiredOperation ordering="Lexical">
+  ...
+</RequiredOperation>
+```
+
+`allowedSites` and `blockedSites` work on every selected operation in the rule, including ordering targets. For example, `allowedSites="Method"` prevents a static member read from being counted as the required operation. The filters do not turn a lexical rule into a dominance rule or vice versa.
+
+### What this feature does not claim
+
+- It does not infer that a method called `Validate` is actually a validator; the XML selects the resolved member explicitly.
+- It does not inspect runtime behavior, asynchronous continuation execution, reflection, delegates, or another method's body.
+- It does not analyse generated code by default.
+- It does not offer an automatic code fix for `ARCH022`; adding a call, changing its order, or removing an extra operation is a domain decision.
+
+Arse can validate, document, merge, split, and report these policies through the shared configuration model. The WPF and Visual Studio graph editors preserve and edit the layer-scoped policy as XML; the Visual Studio companion surfaces `ARCH022` through opt-in Sites Diagnostics and QuickInfo without reimplementing the evaluator.
+
+**Focused examples:**
+
+- [`Example.Arch022.RequiredOperation`](Examples/Diagnostics/Example.Arch022.RequiredOperation) - a pizza preparation must perform a selected safety check.
+- [`Example.Arch022.RequiredOperationBefore`](Examples/Diagnostics/Example.Arch022.RequiredOperationBefore) - the safety check must dominate the selected bake operation.
+- [`Example.Arch022.ForbiddenOperationAfter`](Examples/Diagnostics/Example.Arch022.ForbiddenOperationAfter) - printing a ticket is forbidden after committing an order.
+- [`Example.Arch022.MaximumOperationCount`](Examples/Diagnostics/Example.Arch022.MaximumOperationCount) - a service bell may ring at most once per preparation.
+
+## Operation contracts
+
+`<Operations>` describes a named source-level operation only when a team explicitly writes it down. It connects a selected owner method to zero or more selected entry points and, optionally, to request and response type shapes. It does not infer HTTP routes, ASP.NET controllers, queue handlers, scheduled jobs, or business meaning from names.
+
+Use it when a few important paths deserve a stronger, named rule than ordinary dependency direction. A pizza order is a useful small example: a waiter may receive `PlacePizzaOrderRequest`, but the kitchen owns the operation. A selected waiter method must call that kitchen method directly, and both methods may be required to use the same request and response types.
+
+```xml
+<Operations description="Important restaurant operations are named explicitly.">
+  <Operation name="PlacePizzaOrder"
+             allowedOwnerLayers="Application"
+             allowedEntryPointLayers="Controller"
+             description="A waiter submits one order to the kitchen.">
+    <Owner>
+      <DeclarationMatcher>
+        <ContainingType endsWith="Kitchen" />
+        <Member exactName="PlacePizzaOrder" memberKind="Method" />
+      </DeclarationMatcher>
+    </Owner>
+    <Request><Class exactName="PlacePizzaOrderRequest" /></Request>
+    <Response><Class exactName="PlacePizzaOrderResponse" /></Response>
+    <EntryPoint>
+      <DeclarationMatcher>
+        <ContainingType endsWith="Controller" />
+        <Member exactName="PlacePizzaOrder" memberKind="Method" />
+      </DeclarationMatcher>
+    </EntryPoint>
+  </Operation>
+</Operations>
+```
+
+### Meaning
+
+| Element or attribute | Meaning |
+| --- | --- |
+| `<Operation name="...">` | A human-selected identifier. It is not inferred from code. Names are unique across loaded configuration files. |
+| `<Owner>` | Exactly one required method declaration selector. The workspace host checks that it resolves to exactly one source method in the inspected project or solution. |
+| `<EntryPoint>` | Zero or more method selectors. Each matching method must directly invoke the configured owner. |
+| `<Request>` | Optional `<Class>` matcher. When present, the owner and selected entry points must each accept a matching parameter. |
+| `<Response>` | Optional `<Class>` matcher. When present, the owner and selected entry points must return a matching direct return type. `Task<T>` is not unwrapped implicitly. |
+| `allowedOwnerLayers` | Optional comma-separated layer paths for the owner. Use `Application` for a root layer and `/Ordering/Application` for a nested layer. |
+| `allowedEntryPointLayers` | Optional comma-separated layer paths for entry points. |
+
+`ContainingType` and `Member` inside a `DeclarationMatcher` use the shared semantic matcher vocabulary and are combined with AND semantics. The owner and entry-point `Member` must use `memberKind="Method"`. `Request` and `Response` use the normal `<Class>` matcher vocabulary, including combined attributes and structural declaration matchers.
+
+### What is checked where
+
+The compiler analyzer reports `ARCH023` for local facts:
+
+- a selected owner or entry point is outside its configured host layer;
+- a selected owner or entry point lacks the configured request parameter;
+- a selected owner or entry point returns the wrong direct response type;
+- a selected entry point does not directly invoke the selected owner.
+
+The workspace-backed Arse commands (`arse inspect` and `arse report`) report a separate finding when an operation has no matching owner or more than one matching owner across the inspected scope. The graph editors preserve and edit the source contract; that cardinality fact cannot be proven by one project's compiler analyzer invocation.
+
+The check deliberately does not follow helpers, delegates, asynchronous continuations, reflection, or method return values. A direct call is a clear source-level contract; anything broader needs a separate explicit policy rather than an optimistic guess.
+
+### Tool support
+
+- **Arse:** `inspect` and `report` include operation-owner cardinality findings for a project or solution. `documentation` renders the manifest in XML order.
+- **WPF graph editor and Visual Studio graph host:** the root inspector can add, edit, or remove an `<Operations>` container. It is presented as a source-contract editor, not a dependency graph edge.
+- **Visual Studio editor:** when Sites Diagnostics are enabled, local `ARCH023` violations appear as method-site indicators with QuickInfo.
+- **Code fixes:** none. Connecting an entry point to a workflow, or deciding how to reshape a request/response contract, is a domain decision.
+
+**Focused example:** [`Example.Arch023.OperationContract`](Examples/Diagnostics/Example.Arch023.OperationContract)
+
+## ASP.NET Core example pack
+
+AnaalIjzer does not need an ASP.NET Core dependency to enforce many useful Web API rules. Roslyn resolves the symbols in your application; the ordinary matcher and policy vocabulary can then select facts such as `[ApiController]`, `ControllerBase`, action parameters, public return types, and direct method calls.
+
+The runnable [`Example.AspNetCore`](Examples/Scenarios/Example.AspNetCore) pack uses real `Microsoft.NET.Sdk.Web` projects to show four framework-neutral rules:
+
+| Project | Rule demonstrated | Intended finding |
+| --- | --- | --- |
+| [`LayerBoundaries`](Examples/Scenarios/Example.AspNetCore/Example.AspNetCore.LayerBoundaries) | `<Class withAttribute="ApiController" />` classifies endpoints, then ordinary layer edges keep controllers from injecting repositories directly. | `ARCH001` |
+| [`ModelBindingNames`](Examples/Scenarios/Example.AspNetCore/Example.AspNetCore.ModelBindingNames) | `RequireDeclarationNameMatchesType` protects selected honest-type action parameters from misleading names. | `ARCH008` |
+| [`OperationContracts`](Examples/Scenarios/Example.AspNetCore/Example.AspNetCore.OperationContracts) | An explicit `<Operations>` rule requires selected controller actions to directly invoke one application owner with a selected request and response shape. | `ARCH023` |
+| [`ApiSurface`](Examples/Scenarios/Example.AspNetCore/Example.AspNetCore.ApiSurface) | `<ApiSurface>` prevents an endpoint from exposing `IQueryable<T>` even when ordinary dependency rules permit use of it. | `ARCH009` |
+
+For example, a controller layer can be classified solely from its real attribute:
+
+```xml
+<Layer name="Endpoint">
+  <Class withAttribute="ApiController" />
+</Layer>
+
+<Layer name="Application">
+  <Class endsWith="Service" />
+</Layer>
+
+<AllowedDependency from="Endpoint" to="Application" />
+```
+
+These rules examine explicit source semantics. They do **not** infer route templates, compare a `"{patientId}"` token to a parameter, discover minimal-API handlers from `MapGet`, inventory route groups, or compare source with generated OpenAPI. Those are genuinely ASP.NET-specific concerns and are deliberately outside this generic pack.
+
+## Entity Framework Core example pack
+
+AnaalIjzer does not need an Entity Framework Core dependency to enforce useful persistence boundaries. Roslyn resolves the EF Core symbols in the application project; ordinary matchers and policies then select facts such as `DbContext`, `IQueryable<T>`, `IEntityTypeConfiguration<T>`, `Migration`, and `[Index]`.
+
+The runnable [`Example.EntityFrameworkCore`](Examples/Scenarios/Example.EntityFrameworkCore) pack uses real `Microsoft.EntityFrameworkCore` packages to demonstrate six framework-neutral configurations:
+
+| Project | Rule demonstrated | Intended finding |
+| --- | --- | --- |
+| [`ContextBoundary`](Examples/Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.ContextBoundary) | A repository owns `DbContext` injection; an Application service only knows the repository. | `ARCH001` for direct Application-to-`DbContext` injection. |
+| [`ContextCreation`](Examples/Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.ContextCreation) | A dedicated factory may create and return `DbContext`; Application code may not construct one. | `ARCH001` at `Site=New`. |
+| [`QuerySurface`](Examples/Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.QuerySurface) | Application code may immediately project a repository-owned `IQueryable<T>`, but may not retain it in a local. | `ARCH001` at `Site=Local`. |
+| [`ModelConfigurationPlacement`](Examples/Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.ModelConfigurationPlacement) | `IEntityTypeConfiguration<T>` implementations belong under `Persistence/Mapping`. | `ARCH015` for a misplaced configuration. |
+| [`MigrationPlacement`](Examples/Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.MigrationPlacement) | `Migration` subclasses belong under `Persistence/Migrations`. | `ARCH015` for a misplaced migration. |
+| [`DomainPurity`](Examples/Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.DomainPurity) | An optional team policy permits EF mapping annotations in Persistence but blocks them in Domain. | `ARCH001` at `Site=Attribute`. |
+
+For example, a generic `DbContext` boundary needs no EF-specific analyzer feature:
+
+```xml
+<Layer name="Application">
+  <Class endsWith="Service" />
+</Layer>
+
+<Layer name="Repository">
+  <Class endsWith="Repository" />
+</Layer>
+
+<Layer name="Context">
+  <Class inherits="DbContext" />
+</Layer>
+
+<AllowedDependency from="Application" to="Repository" />
+<AllowedDependency from="Repository" to="Context" allowedSites="Constructor" />
+```
+
+The package deliberately makes no claim to diagnose N+1 queries, query performance, tracking behavior, runtime transactions, whether `OnModelCreating` registers every configuration, or whether migrations were applied. Those require EF Core runtime or model knowledge rather than a compile-time architectural policy.
+
+### Generated code analysis
+
+AnaalIJzer excludes files Roslyn identifies as generated by default. Generated output is often large, changes frequently, and is owned by a source generator, designer, or another build step. Checking it without an explicit decision can turn one architectural rule into a noisy stream of findings that nobody can safely act on.
+
+`<GeneratedCode>` is the deliberate opt-in. It affects compiler diagnostics, Arse inspection and reports, graph code evidence, and Visual Studio layer/site information alike. It does not change normal source analysis: non-generated C# files are always in scope.
+
+```xml
+<ArchitecturalLevels>
+  <GeneratedCode mode="IncludeConfigured"
+                 maximumDocumentLength="8192"
+                 description="Inspect the generated kitchen file that this team owns.">
+    <Path endsWith="Generated_Clock_Kitchen.g.cs" />
+  </GeneratedCode>
+
+  <Layer name="Kitchen">
+    <Class endsWith="Kitchen" />
+  </Layer>
+</ArchitecturalLevels>
+```
+
+| `mode` | Effect |
+| --- | --- |
+| `Exclude` | The default. Generated source is ignored. |
+| `IncludeConfigured` | Analyze only generated files matching at least one `<Path>`. This is the recommended mode. |
+| `IncludeAll` | Analyze every generated C# file that remains under `maximumDocumentLength`. Use only when the generator output is intentionally part of the architecture contract. |
+
+`maximumDocumentLength` defaults to `262144` characters and accepts values from `1` through `4194304`. The cap is a guardrail for IDE and build responsiveness; a generated document larger than the configured cap is skipped.
+
+Each `<Path>` uses the ordinary textual matcher attributes: `typeName`, `exactName`, `startsWith`, `endsWith`, `contains`, and `regex`. Attributes on one path are combined with AND semantics; sibling paths are alternatives. `IncludeConfigured` requires at least one valid path. `IncludeAll` and `Exclude` reject path children as invalid configuration (`ARCH006`) so the intent stays unambiguous.
+
+The scope can technically be supplied through `AssemblyMetadata("AnaalIJzerSettings", ...)`, but a file-based `Architecture.anl` is usually clearer because it can describe several generated files and their ownership without crowding a source file.
+
+The Visual Studio companion and WPF graph editor honor the scope when they collect code evidence: generated types, sites, and violations become visible only when the same configuration would analyze them. The graph itself remains an architecture graph, not a source-generator browser.
+
+**Focused example:** [`Example.GeneratedCode`](Examples/Features/Example.GeneratedCode) opts one `.g.cs` file into a selected `DateTime.UtcNow` rule and produces one `ARCH021`.
+
 ## Project Architecture
 
 `ProjectArchitecture` adds rules for `.csproj` references.
@@ -2300,7 +2682,7 @@ Use it when the problem is at project level rather than type level:
 
 - one project should not reference another project at all;
 - a project reference is architecturally wrong even if no code uses it yet;
-- solution topology matters separately from type dependency rules.
+- an individual project reference is architecturally wrong even if the broader solution remains valid.
 
 Project references also have a habit of outliving their reason: the code that needed them is deleted, the reference stays, and two years later somebody treats it as intended design.
 
@@ -2370,6 +2752,40 @@ Notes:
 - same-group references need an explicit self-edge while that source is in allowlist mode
 - `allowedSites`, `blockedSites`, and `appliesToDescendants` do not apply here
 
+### Narrow A Group Edge To Specific Projects
+
+Project groups are useful reporting and policy buckets. They do not need to become
+singleton groups merely because one pair of projects needs a narrower exception.
+
+Add optional `From` and `To` child selectors to narrow one otherwise group-level edge:
+
+```xml
+<AllowedProjectReference from="Application" to="Contracts"
+                         description="Only the ordering application owns the ordering contract.">
+  <From exactName="Shop.Orders.Application" />
+  <To exactName="Shop.Orders.Contracts" />
+</AllowedProjectReference>
+```
+
+Both selectors must match. Attributes on one selector use the ordinary combined matcher
+rules, and multiple selectors on the same side are alternatives:
+
+```xml
+<BlockedProjectReference from="Application" to="Contracts">
+  <From exactName="Shop.Legacy.Application" />
+  <To exactName="Shop.Legacy.Contracts" />
+  <To exactName="Shop.Private.Contracts" />
+</BlockedProjectReference>
+```
+
+This blocks `Shop.Legacy.Application` from referencing either selected contract project.
+It does not block another project merely because it shares the `Application` group.
+
+A nonmatching `From` selector does not place every project in its group into allowlist
+mode. Once a source selector matches, however, its `To` selector is enforced: an
+unselected target produces `ARCH010`. Blocked selectors still win over a broad allowed
+group edge.
+
 ### Recognition
 
 `requireRecognizedProjects` defaults to `false`.
@@ -2389,16 +2805,195 @@ The analyzer package therefore ships a `buildTransitive` target that writes a sm
 
 Arse and solution inspection do not need that generated manifest because they can inspect `MSBuildWorkspace` project references directly.
 
+For rules about logical modules across an entire solution, use [solution topology](docs/configuration/solution-topology.md) instead. `ProjectArchitecture` remains a compiler analyzer feature and produces `ARCH010`; `SolutionTopology` is explicit workspace inspection and produces `TOPO001` / `TOPO002` report findings.
+
+### Raw Assembly References
+
+Use [assembly reference policies](docs/configuration/assembly-reference-policies.md) for a direct MSBuild
+`<Reference>` / `HintPath` dependency that is neither a project reference nor a NuGet
+package. Those policies are intentionally evaluated by `arse inspect` and `arse report`, not
+as compiler `ARCHxxx` diagnostics.
+
 ### IDE Fix Support
 
 For deterministic cases, the config fixer layer can update project architecture rules too:
 
 - `ARCH010` can add a missing `<AllowedProjectReference from="..." to="..." />`
+- `ARCH010` can add a narrow exact-project rule with `<From>` and `<To>` selectors
 - same-group `ARCH010` can add an explicit self-edge
 - blocked-edge `ARCH010` can remove the matching `<BlockedProjectReference ... />`
 - `ARCH011` can append an exact `<Package exactName="..."/>` matcher to the matched allowed package list
 
 Because `ARCH010` and `ARCH011` are compilation-end diagnostics, host UX varies a little: build reports and host tooling are the most reliable surfaces, while editor light-bulb visibility depends on how the IDE exposes `Location.None` diagnostics.
+
+## Assembly reference policies
+
+`AssemblyReferencePolicy` protects a project group from direct raw MSBuild
+`<Reference>` items. It is for legacy DLLs, hand-maintained `HintPath` references, and
+other assembly dependencies that are neither a `ProjectReference` nor a NuGet package.
+
+This is deliberately a **workspace policy**, not a compiler analyzer diagnostic. A normal
+Roslyn analyzer execution cannot reliably discover the complete MSBuild provenance of an
+assembly reference. Run `arse inspect` or `arse report` against a project or solution to
+evaluate it.
+
+```xml
+<ArchitecturalLevels>
+  <ProjectArchitecture requireRecognizedProjects="true">
+    <ProjectGroup name="Domain">
+      <Project endsWith=".Domain" />
+    </ProjectGroup>
+
+    <AssemblyReferencePolicy projectGroup="Domain"
+                             description="The domain does not take a dependency on the legacy transport DLL.">
+      <Forbidden>
+        <Assembly exactName="Legacy.Transport" />
+      </Forbidden>
+    </AssemblyReferencePolicy>
+  </ProjectArchitecture>
+</ArchitecturalLevels>
+```
+
+Given this project file:
+
+```xml
+<ItemGroup>
+  <Reference Include="Legacy.Transport">
+    <HintPath>lib\Legacy.Transport.dll</HintPath>
+  </Reference>
+</ItemGroup>
+```
+
+`arse inspect --project Shop.Domain.csproj` reports an **Assembly reference policy**
+finding. `arse report` adds a separate workspace section with the source project, assembly
+identity, raw `HintPath`, and policy reason. A regular `dotnet build` remains free of a new
+`ARCHxxx` result for this rule.
+
+### What is matched
+
+`Assembly` matches the assembly identity from the `Include` attribute, before any version,
+culture, or public-key suffix. The standard textual matcher attributes are available and are
+case-insensitive:
+
+| Attribute | Meaning |
+| --- | --- |
+| `typeName` / `exactName` | Exact assembly identity |
+| `startsWith` | Assembly identity prefix |
+| `endsWith` | Assembly identity suffix |
+| `contains` | Assembly identity substring |
+| `regex` | Assembly identity regular expression |
+
+Attributes on one `Assembly` element are combined with AND semantics; separate `Assembly`
+elements are alternatives. A `Forbidden` match wins over an `Allowed` match, just as with
+package policies.
+
+The first scope intentionally inventories direct `<Reference>` elements declared in the
+project file. `HintPath` is recorded as evidence in reports, but it is not a policy matcher:
+policy should name the assembly that matters rather than accidentally depend on one machine's
+folder layout.
+
+### When to use a different rule
+
+- Use [`project-architecture.md`](docs/configuration/project-architecture.md) for another project in the
+  solution. That is compiler-enforced `ARCH010` territory.
+- Use a `PackagePolicy` for a NuGet package ID. That is compiler-enforced `ARCH011`
+  territory.
+- Use `AssemblyReferencePolicy` only when the build really has a raw assembly reference.
+
+There is no automatic code fix for this workspace finding. Removing a legacy DLL reference,
+replacing it with a project boundary, or deliberately adjusting the policy is an architecture
+decision rather than a mechanically safe text edit.
+
+**Focused scenario:** [`Example.AssemblyReferenceBoundaries`](Examples/Scenarios/Example.AssemblyReferenceBoundaries)
+contains a clean project build and an intentionally failing Arse inspection.
+
+## Solution topology
+
+`SolutionTopology` is the solution-wide counterpart to `ProjectArchitecture`.
+
+Use it when the architecture rule is about the shape of an entire loaded solution:
+
+- several projects belong to one logical module;
+- only some modules may reference one another;
+- a direct project reference needs evidence in a solution report, not a compiler diagnostic;
+- the configured module graph must remain acyclic.
+
+`SolutionTopology` is intentionally evaluated by Arse through `MSBuildWorkspace`, not by the compiler analyzer. A normal project build remains self-contained and does not need to load its sibling projects.
+
+### Example
+
+```xml
+<ArchitecturalLevels>
+  <SolutionTopology requireRecognizedProjects="true"
+                    enforceAcyclic="true">
+    <Module name="DiningRoom">
+      <Project endsWith=".Web" />
+    </Module>
+    <Module name="Kitchen">
+      <Project endsWith=".Application" />
+    </Module>
+    <Module name="Pantry">
+      <Project endsWith=".Infrastructure" />
+    </Module>
+
+    <AllowedModuleReference from="DiningRoom" to="Kitchen" />
+    <BlockedModuleReference from="Kitchen" to="Pantry" />
+  </SolutionTopology>
+</ArchitecturalLevels>
+```
+
+The restaurant names are only a readable domain metaphor. The arrows mean “may reference,” never runtime request or data flow.
+
+With this configuration, `Shop.Web -> Shop.Application` is allowed and `Shop.Application -> Shop.Infrastructure` produces `TOPO001` during an explicitly enforced solution inspection.
+
+### Modules and matchers
+
+Each `Module` has a unique name and one or more `Project` matchers. `Project` uses the same textual matcher attributes as `ProjectArchitecture`:
+
+| Attribute | Meaning |
+|---|---|
+| `typeName` / `exactName` | Exact project-name match without `.csproj` |
+| `startsWith` | Prefix match |
+| `endsWith` | Suffix match |
+| `contains` | Substring match |
+| `regex` | Regular expression |
+
+Attributes on one `Project` matcher are combined with AND semantics. Multiple `Project` matchers in a module are alternatives. If more than one module matches, the first module in configuration order is authoritative.
+
+### Module-reference rules
+
+`AllowedModuleReference` and `BlockedModuleReference` use named modules or `*`:
+
+```xml
+<AllowedModuleReference from="DiningRoom" to="Kitchen" />
+<BlockedModuleReference from="Kitchen" to="Pantry" />
+<AllowedModuleReference from="Tests" to="*" />
+```
+
+Blocked rules win. Like `ProjectArchitecture`, a source module enters allowlist mode only when it has a matching allowed rule. A module with only blocked rules remains blocklist-only, which makes it possible to introduce topology checks gradually.
+
+`requireRecognizedProjects` defaults to `false`. When enabled, each endpoint of an observed direct project reference must match a module. `enforceAcyclic` defaults to `false`; when enabled, a configured cycle among explicit allowed module rules produces `TOPO002`.
+
+### Run it deliberately
+
+```cmd
+arse inspect --solution src\Shop\Shop.slnx --enforce-topology --output build\Artifacts\architecture-health.md --force
+arse inspect --solution src\Shop\Shop.slnx --enforce-topology --output build\Artifacts\architecture-health.json --force
+```
+
+The Markdown report is intended for review. Choosing a `.json` output path writes the same ordered findings as machine-readable evidence, including source and target project paths, module names, the reason, and the matching rule location. Headless Arse returns exit code `3` when the inspection finds a problem.
+
+The repository includes a reusable [Solution topology GitHub workflow](.github/workflows/solution-topology.yml). Call it from a product workflow or dispatch it with a solution path; it restores and builds Arse, uploads both evidence files, and fails only after those artifacts are available.
+
+`TOPO001` and `TOPO002` are report finding codes, not compiler `ARCH` diagnostics. This distinction is intentional: opening an entire solution is a tooling operation, while an analyzer must stay fast and safe inside a normal project compilation.
+
+### Viewing the topology
+
+Open a configured solution in the standalone WPF graph editor or use `Extensions > IJzer > Show Dependency Graphs` in Visual Studio. The graph renders `SolutionTopology` as a separate, read-only group: each configured module is a node, configured module rules are connections, and loaded direct project references appear as evidence connections. A permitted observed reference is muted; a `TOPO001` violation is highlighted for investigation.
+
+That view deliberately does not expose drag-to-edit controls for modules or module rules. `SolutionTopology` is currently authored in `Architecture.anl`, and keeping the diagram read-only prevents a user from assuming that moving a module changes the solution policy. The normal layer graph remains editable when the same configuration also contains `<Layer>` rules.
+
+See [`Example.SolutionTopology`](Examples/Scenarios/Example.SolutionTopology) for a compact multi-project example whose normal build succeeds and whose explicit solution inspection fails with one intentional `TOPO001`.
 
 ## API surface policies
 
@@ -2797,7 +3392,7 @@ When `enableDocumentation="true"` is set, Arse uses `documentationPath` as the d
 
 ### `description` attributes
 
-Every XML element that participates in the ruleset can carry a `description` attribute: `<ArchitecturalLevels>`, `<Include>`, `<Layer>`, `<Class>`, `<Namespace>`, `<Assembly>`, `<Allowed>`, `<Forbidden>`, `<Exceptions>`, `<Fix>`, `<AllowedDependency>`, `<BlockedDependency>`, `<NameRules>`, `<RequireMatchingNames>`, `<RequireDeclarationNameMatchesType>`, `<VisibilityPolicy>`, `<InheritancePolicy>`, `<ApiSurface>`, `<AllowedLayer>`, `<BlockedLayer>`, `<Type>`, `<NestedType>`, `<Constructor>`, `<Method>`, `<Property>`, `<Field>`, `<Event>`, `<Operator>`, `<Conversion>`, `<Name>`, `<Source>`, `<Target>` and `<Allow>`. Descriptions do not affect diagnostics. They exist so generated documentation can explain why a rule exists while preserving the same order as the XML. It is the cheapest available place to record intent: without it, a future reviewer has to guess why the rule is there, and guesswork usually resolves in favour of deleting it.
+Every XML element that participates in the ruleset can carry a `description` attribute: `<ArchitecturalLevels>`, `<Include>`, `<Layer>`, `<Class>`, `<Namespace>`, `<Assembly>`, `<Allowed>`, `<Forbidden>`, `<Exceptions>`, `<Fix>`, `<AllowedDependency>`, `<BlockedDependency>`, `<Operations>`, `<Operation>`, `<Owner>`, `<Request>`, `<Response>`, `<EntryPoint>`, `<NameRules>`, `<RequireMatchingNames>`, `<RequireDeclarationNameMatchesType>`, `<VisibilityPolicy>`, `<InheritancePolicy>`, `<ReturnValuePolicy>`, `<ForbiddenOperations>`, `<ForbiddenOperation>`, `<BehavioralOperations>`, `<RequiredOperation>`, `<RequiredOperationBefore>`, `<ForbiddenOperationAfter>`, `<MaximumOperationCount>`, `<DeclarationMatcher>`, `<BeforeOperation>`, `<AfterOperation>`, `<OperationMatcher>`, `<ContainingType>`, `<Member>`, `<ApiSurface>`, `<AllowedLayer>`, `<BlockedLayer>`, `<Type>`, `<NestedType>`, `<Constructor>`, `<Method>`, `<Property>`, `<Field>`, `<Event>`, `<Operator>`, `<Conversion>`, `<Name>`, `<Source>`, `<Target>` and `<Allow>`. Descriptions do not affect diagnostics. They exist so generated documentation can explain why a rule exists while preserving the same order as the XML. It is the cheapest available place to record intent: without it, a future reviewer has to guess why a rule is there, and guesswork usually resolves in favour of deleting it.
 
 ```xml
 <Layer name="QuerySurface"
@@ -2825,7 +3420,7 @@ Every XML element that participates in the ruleset can carry a `description` att
 
 ## Diagnostics
 
-The analyzer ships with twenty diagnostic IDs. The three dependency-direction rules (ARCH001/004/005) are split by the reason a dependency is illegal, while ARCH006 and ARCH007 protect the integrity of the configuration itself. Dependency, name-rule, API-surface, and return-value diagnostics expose their syntactic site through the `Site` property where applicable.
+The analyzer ships with twenty-three diagnostic IDs. The three dependency-direction rules (ARCH001/004/005) are split by the reason a dependency is illegal, while ARCH006 and ARCH007 protect the integrity of the configuration itself. Dependency, name-rule, API-surface, return-value, and operation-policy diagnostics expose their syntactic site through the `Site` property where applicable.
 
 | ID      | Meaning                                                      |
 |---------|--------------------------------------------------------------|
@@ -2849,6 +3444,9 @@ The analyzer ships with twenty diagnostic IDs. The three dependency-direction ru
 | ARCH018 | Observed source dependencies form a cycle between configured layers |
 | ARCH019 | Declared base type or implemented interfaces violate a layer inheritance policy |
 | ARCH020 | A direct returned expression violates a layer return-value policy |
+| ARCH021 | A selected resolved operation violates a layer forbidden-operation policy |
+| ARCH022 | A declaration body violates a layer behavioral-operation policy |
+| ARCH023 | A selected owner or entry point violates an explicit operation contract |
 
 The example projects referenced inline below are self-contained and deliberately broken so Visual Studio, Rider and `dotnet build` show the corresponding `ARCH00X` error. They fail on purpose; the repository is not having a bad day.
 
@@ -2932,6 +3530,11 @@ public class HungryCustomer(IWaiter waiter) { }
 public class TableWaiter(IChef chef, IIngredientPantry pantry) { }
 ```
 
+#### Real-world uses
+
+- Keep an HTTP endpoint from injecting `DbContext` or a repository directly when the application service owns the use case.
+- Stop a domain or application type from calling an email, queue, or file-system adapter without going through the configured boundary.
+
 ### ARCH002 - Unrecognized dependency
 
 Reported when a layered type uses a dependency that does not belong to any configured layer and root-level or caller-layer `requireRecognizedDependencies` includes the current site.
@@ -2967,6 +3570,11 @@ At the root, the setting is site-scoped for every layered caller. On a layer, it
 
 When the dependency really does belong to a known role, the IDE can classify it into an existing layer by adding an exact `<Class typeName="..."/>` matcher. When the site was enforced too aggressively, the IDE can also remove the current site from `requireRecognizedDependencies` either globally or for the current caller layer.
 
+#### Real-world uses
+
+- Close a newly hardened constructor-injection boundary so an unclassified vendor client or SDK cannot slip into it unnoticed.
+- Gradually require new code in one legacy area to classify architectural dependencies, without forcing the rest of the solution to do so yet.
+
 ### `enforceAcyclic` attribute
 
 Set `enforceAcyclic="true"` to require explicit allowed dependency edges to form an acyclic graph. A cycle reports ARCH007 before code needs to use every permitted direction, on the grounds that a cycle you have merely authorised is still a cycle waiting for a deadline to discover it:
@@ -2992,6 +3600,11 @@ Reported when a dependency type matches an applicable `<Forbidden>` pattern or d
 error ARCH003: 'ReportingService' (layer Application) may not use 'LegacyOrderStore':
   the type matches a global <Forbidden> rule: Persistence types must use the Repository suffix.
 ```
+
+#### Real-world uses
+
+- Require persistence abstractions to use a `Repository` convention and reject legacy `Store` or `Manager` types at the dependency site.
+- Keep selected framework types, such as EF Core attributes or transport DTOs, out of a domain boundary with a scoped `<Forbidden>` policy.
 
 ### ARCH004 - Wrong-direction dependency
 
@@ -3026,6 +3639,11 @@ public class PizzaChef(IIngredientPantry pantry) { }
 // The pantry supplies the chef; it does not direct the chef.
 public class IngredientPantry(IChef chef) { }
 ```
+
+#### Real-world uses
+
+- Catch a repository or infrastructure adapter that starts calling an application service to decide what it should persist.
+- Stop a lower-level module from reaching upward into an endpoint, UI, or orchestration layer just because the reverse edge already exists.
 
 ### ARCH005 - Same-layer dependency
 
@@ -3142,17 +3760,32 @@ public class DessertChef(IIngredientPantry pantry) { }
 public class PizzaChef(ISauceChef sauceChef) { }
 ```
 
+#### Real-world uses
+
+- Prevent an application layer from becoming a mesh of services that constructor-inject one another instead of extracting a clearer collaboration boundary.
+- Permit only an interface implementation relationship within a contracts-and-implementation layer while continuing to reject peer-to-peer runtime dependencies.
+
 ### ARCH006 - Invalid architecture configuration
 
 Reported when settings cannot be evaluated reliably: malformed or schema-invalid XML, missing includes, duplicate layers, invalid or ambiguous matchers, invalid site filters, or dependency rules that reference unknown layers. The analyzer no longer becomes silently inactive when configuration parsing fails, because a misspelled layer name used to produce the same clean build as a flawless codebase - flattering, but not informative.
 
 **Example project:** [`Example.Arch006.UnknownLayer`](Examples/Diagnostics/Example.Arch006.UnknownLayer)
 
+#### Real-world uses
+
+- Fail CI when a layer was renamed but an edge, include, or policy still references the old name.
+- Catch a malformed drop-in `.anl` rule pack before it quietly disables the architectural guard it was meant to add.
+
 ### ARCH007 - Cyclic architecture dependency graph
 
 Reported when `enforceAcyclic="true"` and the explicit allowed dependency graph contains a cycle. The message prints the detected chain, for example `Ordering -> Inventory -> Billing -> Ordering`, so the loop does not have to be reconstructed by hand from three rules written on three different days.
 
 **Example project:** [`Example.Arch007.CyclicGraph`](Examples/Diagnostics/Example.Arch007.CyclicGraph)
+
+#### Real-world uses
+
+- Reject a proposed set of allowed module edges that would let Ordering, Billing, and Inventory depend on one another in a loop.
+- Keep a configuration review honest when individually reasonable exceptions accidentally create a cyclic architectural policy as a whole.
 
 ### ARCH008 - Name rule violation
 
@@ -3173,7 +3806,7 @@ Declaration/type example:
 'doctor.id', declaration name 'patientId' normalizes to 'patient.id'
 ```
 
-**Examples:** [`Example.NameRules`](Examples/Features/Example.NameRules), [`Example.DeclarationNameMatchesType`](Examples/Features/Example.DeclarationNameMatchesType), and [`Example.HonestTypeEndpointNames`](Examples/Scenarios/Example.HonestTypeEndpointNames).
+**Examples:** [`Example.NameRules`](Examples/Features/Example.NameRules), [`Example.NameRuleLanguageForms`](Examples/Features/Example.NameRuleLanguageForms), [`Example.NameRuleIntraProceduralTracking`](Examples/Features/Example.NameRuleIntraProceduralTracking), [`Example.DeclarationNameMatchesType`](Examples/Features/Example.DeclarationNameMatchesType), and [`Example.HonestTypeEndpointNames`](Examples/Scenarios/Example.HonestTypeEndpointNames).
 
 Typical fixes:
 
@@ -3181,6 +3814,11 @@ Typical fixes:
 - Rename the local, parameter, field, or property when the code is correct but the name is misleading.
 - Add a narrow `<Allow>` mapping when the translation is intentional.
 - Scope that mapping with `allowedSites` or `blockedSites` when it should only be valid in one kind of code location.
+
+#### Real-world uses
+
+- Catch `DoctorId patientId` on a convention-bound web endpoint before framework model binding connects the right value to the wrong meaning.
+- Detect `customerId` being passed to an `invoiceId` parameter when both values are the same primitive type and the compiler cannot distinguish them.
 
 ### ARCH009 - API surface leakage
 
@@ -3209,6 +3847,11 @@ Adding an `<AllowedDependency>` is not an ARCH009 fix by itself. That edge permi
 
 **Example project:** [`Example.Arch009.ApiSurfaceLeakage`](Examples/Diagnostics/Example.Arch009.ApiSurfaceLeakage)
 
+#### Real-world uses
+
+- Prevent a public application method or endpoint from returning `IQueryable<T>`, leaving callers coupled to a repository-owned query mechanism.
+- Stop a service contract from exposing EF entities, internal transport models, or persistence-only abstractions as part of its public API.
+
 ## ARCH010: Project Reference Violation
 
 `ARCH010` reports an illegal direct project reference.
@@ -3226,6 +3869,7 @@ Project 'Shop.Web' (project group Presentation) may not reference project 'Shop.
 - a direct `<ProjectReference />` skips an allowed project group
 - a project reference points in the wrong architectural direction
 - a blocked project edge is present
+- a project-specific `<From>` or `<To>` selector narrows a group edge away from this project pair
 - `requireRecognizedProjects="true"` is enabled and one side matches no `ProjectGroup`
 - a same-group reference exists without an explicit self-edge while that source group is in allowlist mode
 
@@ -3234,6 +3878,7 @@ Project 'Shop.Web' (project group Presentation) may not reference project 'Shop.
 - remove the illegal `<ProjectReference />`
 - move the shared abstraction into an allowed project group
 - add the missing allowed project edge if the topology is intentional
+- add a narrow exact-project edge when only this project pair is intentional
 - classify the unrecognized project with a `ProjectGroup`
 - add an explicit self-edge if same-group references are intentionally allowed
 
@@ -3242,6 +3887,7 @@ Project 'Shop.Web' (project group Presentation) may not reference project 'Shop.
 When both project groups are already recognized, the config fixer layer can:
 
 - add the missing `<AllowedProjectReference from="..." to="..." />`
+- add a narrow `<AllowedProjectReference>` with exact `<From>` and `<To>` project selectors
 - add an explicit same-group self-edge
 - remove the matching blocking `<BlockedProjectReference ... />`
 
@@ -3254,6 +3900,11 @@ Because `ARCH010` is reported at compilation end, whether that action appears as
 - `ARCH005`: same-layer type dependency in code
 
 `ARCH010` can fire even when no source file currently uses the referenced project. That is intentional: an unused reference is a standing invitation, and someone eventually accepts it.
+
+### Real-world uses
+
+- Keep a Web or UI project from adding a direct reference to Infrastructure when Application is the intended crossing point.
+- Enforce that a Domain project never references a database, messaging, or hosting project even when no C# type has been used from it yet.
 
 ## ARCH011: Package Reference Violation
 
@@ -3300,6 +3951,11 @@ Because `ARCH011` is reported at compilation end, host UX depends on how the IDE
 - `ARCH010`: illegal direct project reference
 - `ARCH001`: illegal type dependency between layers
 
+### Real-world uses
+
+- Prevent a domain project from taking a direct dependency on EF Core, ASP.NET Core, or a concrete database provider.
+- Restrict a sensitive or expensive package to one integration project instead of letting it spread through the solution by copy-pasted package references.
+
 ### ARCH012 - Visibility policy violation
 
 Reported when a source declaration belongs to a layer with an applicable `<VisibilityPolicy>` and its declared accessibility does not pass that policy. Accessibility is quick to widen under time pressure and slow to narrow again once callers have found it.
@@ -3335,6 +3991,11 @@ For configuration-backed fixes, the IDE can add the reported accessibility to `a
 
 **Example project:** [`Example.Arch012.VisibilityPolicy`](Examples/Diagnostics/Example.Arch012.VisibilityPolicy)
 
+#### Real-world uses
+
+- Keep repository query builders and persistence helpers `internal` so they cannot become accidental application contracts.
+- Require implementation-only handlers, factories, or composition-root types to stay hidden even when a developer reaches for `public` during a refactor.
+
 ### ARCH013 - Contract purity violation
 
 Reported when a source declaration belongs to a layer with an applicable `<ContractPolicy>` and its declaration shape does not pass that policy. A contract that has acquired setters, state, and a method body is an implementation wearing a contract's job title.
@@ -3368,6 +4029,11 @@ Typical fixes:
 
 - [`Example.Arch013.ContractPurity`](Examples/Diagnostics/Example.Arch013.ContractPurity) - property setters are rejected by `allowedPropertyAccessors="Get"`.
 - [`Example.Arch013.ContractPurity.MethodBodyNotAllowed`](Examples/Diagnostics/Example.Arch013.ContractPurity.MethodBodyNotAllowed) - default interface method bodies are rejected by `allowMethodBodies="false"`.
+
+#### Real-world uses
+
+- Keep request, response, and port contracts as simple data or signatures instead of letting mutable state and default implementations leak into them.
+- Enforce a team convention that shared contracts expose getters only, while conversion logic and behavior live in an implementation layer.
 
 ## ARCH014 - Forbidden transitive exposure
 
@@ -3403,6 +4069,11 @@ A direct forbidden type reports ARCH009 instead. The two diagnostics are deliber
 
 **Example project:** [`Example.Arch014.TransitiveExposure`](Examples/Diagnostics/Example.Arch014.TransitiveExposure)
 
+### Real-world uses
+
+- Catch a public response DTO that looks harmless at the root but contains an internal query object or persistence entity several properties deeper.
+- Prevent a collection, wrapper, or generic result type from reintroducing an API type that the direct public signature correctly avoided.
+
 ## ARCH015 - Source-location violation
 
 `ARCH015` means a type matched a layer, but one of its source declarations is not in an allowed owned location for that layer.
@@ -3435,6 +4106,11 @@ Important: folders do not classify layers by themselves. `ARCH015` only runs aft
 
 See [`Example.SourceLocations`](Examples/Features/Example.SourceLocations) for a small build-verified sample.
 
+### Real-world uses
+
+- Keep EF Core migrations and `IEntityTypeConfiguration<T>` mappings in the persistence folders that own deployment and schema concerns.
+- Detect a feature handler or contract that still matches the right namespace after a file move but now lives under the wrong project or bounded-context folder.
+
 ## ARCH016 - Boundary entry-point violation
 
 `ARCH016` reports when a dependency already passed the normal dependency graph, but still enters a boundary through the wrong child layer or type.
@@ -3463,6 +4139,11 @@ Important precedence rule:
 In restaurant terms: you are welcome in the building, just not through the kitchen window.
 
 See [`Example.Arch016.BoundaryEntryPoints`](Examples/Diagnostics/Example.Arch016.BoundaryEntryPoints).
+
+### Real-world uses
+
+- Require controllers, jobs, and message consumers to enter an application boundary through its contract or facade layer rather than its implementation classes.
+- Keep plug-in or module consumers on a deliberately small public entry surface even when implementation types are otherwise dependency-legal.
 
 ## ARCH017 - Architecture exception requires review
 
@@ -3511,6 +4192,11 @@ See also:
 - [`../configuration/exception-policy.md`](docs/configuration/exception-policy.md)
 - [`../../Examples/Features/Example.ExceptionPolicy/Example.cs`](Examples/Features/Example.ExceptionPolicy/Example.cs)
 
+### Real-world uses
+
+- Make a temporary legacy dependency exception name an owner and expiry date, so it has a route back to normal architecture rather than becoming permanent configuration sediment.
+- Surface an exception for a type that was deleted or moved, so stale suppression rules do not make reviewers wonder what they still protect.
+
 ## ARCH018 - Observed architectural dependency cycle
 
 `ARCH018` reports when the dependencies that currently exist in source code form a cycle between configured layers.
@@ -3543,6 +4229,11 @@ Important behavior:
 
 See [`Example.Arch018.ObservedCycle`](Examples/Diagnostics/Example.Arch018.ObservedCycle).
 
+### Real-world uses
+
+- Reveal that an Order module calls Notifications and Notifications now calls Order back, even though both directions were once allowed separately.
+- Find a solution-wide cycle introduced by cross-project source dependencies before it turns into a deployment or testing knot.
+
 ### ARCH019 - Inheritance policy violation
 
 Reported when a source declaration belongs to a layer with an applicable `<InheritancePolicy>` and its declared base-type or interface contract does not pass that policy.
@@ -3573,6 +4264,11 @@ Typical fixes:
 - narrow or broaden the policy only when the declaration is intentionally outside the current contract.
 
 **Example project:** [`Example.Arch019.InheritancePolicy`](Examples/Diagnostics/Example.Arch019.InheritancePolicy)
+
+#### Real-world uses
+
+- Require every persistence entity in a selected layer to inherit the team’s shared `Entity` base type.
+- Require selected handlers, commands, or plug-ins to implement the common interface that their host expects before they can enter that layer.
 
 ### ARCH020 - Return-value policy violation
 
@@ -3609,6 +4305,123 @@ There is no automatic code fix. The policy tells AnaalIJzer what must not escape
 
 **Focused examples:** [`Example.Arch020.ExplicitNullReturn`](Examples/Diagnostics/Example.Arch020.ExplicitNullReturn), [`Example.Arch020.AnnotatedInvocationReturn`](Examples/Diagnostics/Example.Arch020.AnnotatedInvocationReturn), and [`Example.Arch020.ConfiguredLiteralReturns`](Examples/Diagnostics/Example.Arch020.ConfiguredLiteralReturns).
 
+#### Real-world uses
+
+- Stop a service layer from returning `null`, `string.Empty`, zero, or a known enum sentinel as an undeclared “not found” signal.
+- Require a nullable third-party call to become a domain fallback, `Result`, or other explicit outcome before it escapes a selected boundary.
+
+### ARCH021 - Forbidden operation policy violation
+
+Reported when code in a layer with an applicable `<ForbiddenOperations>` policy uses a selected resolved operation.
+
+Example:
+
+```text
+'PizzaKitchen' (layer Kitchen) may not use operation 'System.DateTime.UtcNow' at StaticMember:
+the ForbiddenOperations policy in layer 'Kitchen' blocks System.DateTime.UtcNow at StaticMember
+```
+
+The diagnostic is reported on the selected source expression. It is symbol-based rather than text-based, so `using Clock = System.DateTime; Clock.UtcNow` and `global::System.DateTime.UtcNow` are the same configured operation.
+
+Diagnostic properties include:
+
+- `CallerTypeName`
+- `CallerLayerName`
+- `DeclaredSymbolName`
+- `Site`
+- `OperationKind`
+- `OperationDisplayName`
+- `OperationPolicyRule`
+- `ViolationReason`
+- the originating rule path, line, and column
+
+Typical fixes:
+
+- inject or explicitly pass an adapter, such as a restaurant clock, instead of reading a framework static member;
+- use the intended asynchronous API instead of blocking with `Task.Wait()` or `Task<T>.Result`;
+- move service resolution to the composition root rather than locating a dependency in application code;
+- narrow the policy only when that exact operation is intentionally allowed in the owning layer.
+
+There is no automatic code fix. AnaalIjzer can identify the selected forbidden operation, but the correct architectural replacement belongs to the application.
+
+**Focused examples:** [`Example.Arch021.ClockAccess`](Examples/Diagnostics/Example.Arch021.ClockAccess), [`Example.Arch021.BlockingTaskAccess`](Examples/Diagnostics/Example.Arch021.BlockingTaskAccess), [`Example.Arch021.ServiceLocation`](Examples/Diagnostics/Example.Arch021.ServiceLocation), and [`Example.Arch021.SelectedEnvironmentMember`](Examples/Diagnostics/Example.Arch021.SelectedEnvironmentMember).
+
+#### Real-world uses
+
+- Force application code to receive time through a clock abstraction, keeping business decisions deterministic in tests.
+- Prevent blocking `Task.Result`, `Task.Wait()`, or service-location calls from appearing in request-handling code where they hide dependencies or cause scalability problems.
+
+### ARCH022 - Behavioral operation policy violation
+
+Reported when a declaration body in a layer with an applicable `<BehavioralOperations>` policy fails a configured required-operation, ordering, forbidden-after, or maximum-count rule.
+
+Example:
+
+```text
+'PizzaKitchen' (layer Kitchen) violates behavioral-operation policy 'required Invocation operation' at StaticMember:
+the BehavioralOperations policy in layer 'Kitchen' requires required Invocation operation before PizzaOven.Bake in declaration 'PizzaKitchen.PrepareMysteryPizza()'
+```
+
+The location is the selected failing operation when there is one: a bake call without validation, a call after a terminal action, or an occurrence beyond the configured maximum. For a missing required operation, the diagnostic is attached to the owning declaration because no prohibited expression exists to underline.
+
+Diagnostic properties include:
+
+- `CallerTypeName`
+- `CallerLayerName`
+- `DeclaredSymbolName`
+- `Site`
+- `OperationKind`
+- `OperationDisplayName`
+- `OperationPolicyRule`
+- `BehavioralOperationViolationKind`
+- `BehavioralOperationOrdering`
+- `ViolationReason`
+- the originating rule path, line, and column
+
+Typical responses:
+
+- add the configured operation only when it is genuinely the required domain step;
+- move the configured operation before the selected mutation or publication when that is the intended invariant;
+- remove or move an operation that happens after a configured terminal step;
+- revise a maximum only when the multiple occurrences are intentional;
+- narrow the declaration or operation matcher when the policy selected more code than intended.
+
+There is no automatic code fix. The configuration can identify a mechanically provable violation, but it cannot decide whether the correct repair is a validation call, a different workflow, an idempotency guard, a separate operation, or a broader design change.
+
+See [behavioral operation policies](docs/configuration/behavioral-operation-policies.md) for exact semantics, especially the difference between `Dominance` and `Lexical` ordering.
+
+**Focused examples:** [`Example.Arch022.RequiredOperation`](Examples/Diagnostics/Example.Arch022.RequiredOperation), [`Example.Arch022.RequiredOperationBefore`](Examples/Diagnostics/Example.Arch022.RequiredOperationBefore), [`Example.Arch022.ForbiddenOperationAfter`](Examples/Diagnostics/Example.Arch022.ForbiddenOperationAfter), and [`Example.Arch022.MaximumOperationCount`](Examples/Diagnostics/Example.Arch022.MaximumOperationCount).
+
+#### Real-world uses
+
+- Require validation, authorization, or idempotency checking before a selected persistence, payment, or publishing operation.
+- Prevent a terminal workflow step from being followed by another mutation or a “send once” operation from being invoked more than the configured number of times.
+
+## ARCH023 - Operation contract violation
+
+`ARCH023` means a method selected by an explicit root-level `<Operations>` rule does not satisfy its declared source contract.
+
+| Violation kind | Meaning |
+| --- | --- |
+| `OwnerOutsideAllowedLayer` | The selected owner method's containing type is outside `allowedOwnerLayers`. |
+| `OwnerMissingRequest` | The selected owner has no parameter matching `<Request>`. |
+| `OwnerInvalidResponse` | The selected owner's direct return type does not match `<Response>`. |
+| `EntryPointOutsideAllowedLayer` | The selected entry point's containing type is outside `allowedEntryPointLayers`. |
+| `EntryPointMissingRequest` | The selected entry point has no parameter matching `<Request>`. |
+| `EntryPointInvalidResponse` | The selected entry point's direct return type does not match `<Response>`. |
+| `EntryPointDoesNotInvokeOwner` | The selected entry point does not directly call the selected owner in its own body. |
+
+The diagnostic properties include the operation name, participant role, violation kind, and configuration location. A separate workspace finding covers missing or ambiguous owners across a project or solution.
+
+There is deliberately no automatic code fix. The analyzer can show which declared source fact is missing, but it cannot safely decide which service should own a workflow or how a response should be reshaped.
+
+**Example:** [`Example.Arch023.OperationContract`](Examples/Diagnostics/Example.Arch023.OperationContract)
+
+### Real-world uses
+
+- Require a web endpoint, scheduled job, or message consumer to call the designated application operation with the intended request and response shapes.
+- Prevent a workflow from quietly moving into a controller or worker when the configured application owner is supposed to remain its single entry point.
+
 ### Diagnostic properties
 
 Every dependency diagnostic (ARCH001, ARCH004, ARCH005), name-rule diagnostic (ARCH008), and API-surface diagnostic (ARCH009 and ARCH014) carries a `Site` property in `Diagnostic.Properties` indicating where the issue was found. This lets code-fix providers, custom reporters and CI dashboards filter or group by dependency style without re-parsing the source - which beats a dashboard built on regexes over diagnostic messages that breaks the day the wording improves.
@@ -3618,6 +4431,10 @@ ARCH012 describes declarations rather than dependency sites. It exposes `Declara
 ARCH019 also describes declarations rather than dependency sites. It exposes `DeclaredSymbolName` and `InheritanceViolationKind` alongside the caller layer and rule-origin properties.
 
 ARCH020 exposes `Site` as `MethodReturn`, together with `DeclaredSymbolName`, `ReturnValueRuleTarget`, and `ReturnValueRule` so reports can distinguish a forbidden literal from an invocation or member-access matcher.
+
+ARCH021 exposes `Site`, `OperationKind`, `OperationDisplayName`, and `OperationPolicyRule` so reports can distinguish, for example, a forbidden `DateTime.UtcNow` property read from a forbidden `Task.Wait()` invocation.
+
+ARCH022 exposes `Site`, `DeclaredSymbolName`, `OperationKind`, `OperationDisplayName`, `OperationPolicyRule`, `BehavioralOperationViolationKind`, and `BehavioralOperationOrdering`. A missing required operation uses the owning declaration location and its ordinary declaration site; a selected failing operation uses that operation's source site.
 
 ARCH009 additionally exposes `ApiMemberName`, identifying the externally visible declaration that published the dependency type.
 
@@ -3834,10 +4651,11 @@ An application can obey every configured edge while its architecture settings qu
 ```cmd
 arse inspect --project src\MyApp\MyApp.csproj --output docs\architecture-health.md --force
 arse inspect --solution src\MyApp.slnx --output docs\architecture-health.md --force
+arse inspect --solution src\MyApp.slnx --enforce-topology --output build\Artifacts\architecture-health.json --force
 arse inspect --config Architecture.anl --force
 ```
 
-Project validation identifies unclassified and ambiguously classified types, matchers that resolve no current types, stale exceptions, unused allowed edges, configured and observed dependency cycles, and current analyzer violations. Unused edges and dead matchers are the configuration equivalent of unreachable code: harmless until somebody reads them as a statement of intent. Solution validation runs the same checks for every C# project and writes one combined report. XML-only validation checks configuration validity and configured cycles without loading MSBuild.
+Project validation identifies unclassified and ambiguously classified types, matchers that resolve no current types, stale exceptions, unused allowed edges, configured and observed dependency cycles, and current analyzer violations. Unused edges and dead matchers are the configuration equivalent of unreachable code: harmless until somebody reads them as a statement of intent. Solution validation runs the same checks for every C# project and writes one combined report. Add `--enforce-topology` to evaluate configured solution-level module edges as `TOPO001` and configured module cycles as `TOPO002`. XML-only validation checks configuration validity and configured cycles without loading MSBuild. An `.json` output path writes the same ordered findings as machine-readable evidence.
 
 **Example project:** [`Example.ArchitectureHealth`](Examples/Features/Example.ArchitectureHealth)
 

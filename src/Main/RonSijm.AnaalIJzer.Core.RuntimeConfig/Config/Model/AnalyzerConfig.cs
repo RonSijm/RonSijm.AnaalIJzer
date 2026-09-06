@@ -10,12 +10,18 @@ using RonSijm.AnaalIJzer.Core.Exceptions;
 using RonSijm.AnaalIJzer.Core.Inheritance.Policies;
 using RonSijm.AnaalIJzer.Core.LayerModel;
 using RonSijm.AnaalIJzer.Core.NameRules;
+using RonSijm.AnaalIJzer.Core.Observations;
+using RonSijm.AnaalIJzer.Core.OperationContracts.Model;
+using RonSijm.AnaalIJzer.Core.OperationPolicies.Behavioral;
+using RonSijm.AnaalIJzer.Core.OperationPolicies.Policies;
 using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Config.Model;
 using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.DependencyRules;
 using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.Policies;
 using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.PolicyEvaluation;
 using RonSijm.AnaalIJzer.Core.ProjectArchitecture;
+using RonSijm.AnaalIJzer.Core.ProjectArchitecture.SolutionTopology;
 using RonSijm.AnaalIJzer.Core.ReturnValues.Policies;
+	using RonSijm.AnaalIJzer.Core.SemanticOperations.Model;
 using RonSijm.AnaalIJzer.Core.SourceLocations;
 using RonSijm.AnaalIJzer.Core.Visibility;
 
@@ -45,7 +51,8 @@ public readonly struct AnalyzerConfig(
 			ImmutableArray<(string, string?)>.Empty,
 			ProjectArchitectureConfig.Empty,
 			ArchitectureDocumentation.Empty,
-			[issue]);
+			[issue],
+			SolutionTopologyConfig.Empty);
 		var result = new AnalyzerConfig(compiled);
 
 		return result;
@@ -67,6 +74,9 @@ public readonly struct AnalyzerConfig(
 	public ImmutableArray<LayerNode> Layers => CompiledConfig.LayerCatalog.Roots;
 	public ImmutableArray<(string Name, string? Comment)> ForbiddenPatterns => CompiledConfig.ForbiddenPatterns;
 	public ProjectArchitectureConfig ProjectArchitecture => CompiledConfig.ProjectArchitecture;
+	public SolutionTopologyConfig SolutionTopology => CompiledConfig.SolutionTopology;
+	public GeneratedCodeAnalysisScope GeneratedCodeScope => CompiledConfig.GeneratedCodeScope;
+	public OperationContractCatalog OperationContracts => CompiledConfig.OperationContracts;
 
 	public ImmutableHashSet<(string From, string To)> AllowedEdges => CompiledConfig.Graph.AllowedEdges;
 	public ImmutableHashSet<string> WildcardTargets => CompiledConfig.Graph.WildcardTargets;
@@ -82,13 +92,18 @@ public readonly struct AnalyzerConfig(
 	public bool HasLayers => Engine.HasLayers;
 	public bool HasExceptionReviews => !ExceptionReviews.IsDefaultOrEmpty;
 	public bool HasProjectArchitecture => ProjectArchitecture.HasRules;
+	public bool HasSolutionTopology => SolutionTopology.HasRules;
 	public bool HasContractPolicies => Engine.HasContractPolicies;
 	public bool HasInheritancePolicies => Engine.HasInheritancePolicies;
 	public bool HasReturnValuePolicies => Engine.HasReturnValuePolicies;
+	public bool HasForbiddenOperationPolicies => Engine.HasForbiddenOperationPolicies;
+	public bool HasBehavioralOperationPolicies => Engine.HasBehavioralOperationPolicies;
+	public bool HasOperationContracts => OperationContracts.HasDefinitions;
 	public bool HasVisibilityPolicies => Engine.HasVisibilityPolicies;
 	public bool HasApiSurfacePolicies => Engine.HasApiSurfacePolicies;
 	public bool HasEntryPointPolicies => Engine.HasEntryPointPolicies;
 	public bool HasSourceLocationPolicies => Engine.HasSourceLocationPolicies;
+	public bool HasIntraProceduralNameRules => Engine.HasIntraProceduralNameRules;
 	public bool HasConfigurationIssues => !ConfigurationIssues.IsDefaultOrEmpty;
 
 	public bool RequiresRecognizedDependencyAt(string site)
@@ -130,9 +145,9 @@ public readonly struct AnalyzerConfig(
 		return result;
 	}
 
-	public NameRuleViolation? EvaluateNameRules(LayerMatch layerMatch, NameRuleTrigger trigger, NameRuleSubject source, NameRuleSubject target, string site)
+	public NameRuleViolation? EvaluateNameRules(LayerMatch layerMatch, NameRuleTrigger trigger, NameRuleSubject source, NameRuleSubject target, string site, NameRuleValueTrackingMode? valueTracking = null)
 	{
-		var result = Engine.EvaluateNameRules(layerMatch, trigger, source, target, site);
+		var result = Engine.EvaluateNameRules(layerMatch, trigger, source, target, site, valueTracking);
 
 		return result;
 	}
@@ -154,6 +169,20 @@ public readonly struct AnalyzerConfig(
 	public ReturnValuePolicyEvaluation? EvaluateReturnValuePolicies(LayerMatch layerMatch, ExpressionSyntax expression, SemanticModel semanticModel, CancellationToken cancellationToken)
 	{
 		var result = Engine.EvaluateReturnValuePolicies(layerMatch, expression, semanticModel, cancellationToken);
+
+		return result;
+	}
+
+	public ForbiddenOperationPolicyEvaluation? EvaluateForbiddenOperationPolicies(LayerMatch layerMatch, SemanticOperation operation)
+	{
+		var result = Engine.EvaluateForbiddenOperationPolicies(layerMatch, operation);
+
+		return result;
+	}
+
+	public ImmutableArray<BehavioralOperationPolicyEvaluation> EvaluateBehavioralOperationPolicies(LayerMatch layerMatch, BehavioralOperationBodyAnalysis body)
+	{
+		var result = Engine.EvaluateBehavioralOperationPolicies(layerMatch, body);
 
 		return result;
 	}

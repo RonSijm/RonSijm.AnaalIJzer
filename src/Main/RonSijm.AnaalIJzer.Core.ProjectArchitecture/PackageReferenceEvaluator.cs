@@ -60,7 +60,7 @@ public static class PackageReferenceEvaluator
 			if (!policy.AllowedMatchers.IsDefaultOrEmpty)
 			{
 				var allowedMatcher = policy.AllowedMatchers.FirstOrDefault(matcher => matcher.Matches(packageId));
-				if (allowedMatcher.Equals(default(PackageMatcher)))
+				if (allowedMatcher.Equals(default(ReferenceIdentityMatcher)))
 				{
 					var allowlistResult = new PackageReferenceEvaluation(
 						false,

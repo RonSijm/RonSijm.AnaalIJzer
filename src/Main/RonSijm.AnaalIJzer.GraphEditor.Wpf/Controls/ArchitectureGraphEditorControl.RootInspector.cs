@@ -93,5 +93,6 @@ public sealed partial class ArchitectureGraphEditorControl
 		AddIncludeEditors(panel, source, details.Includes);
 		AddGlobalConfigurationElementEditors(panel, "Global allowed type policy", details.AllowedPolicies, source, "Allowed");
 		AddGlobalConfigurationElementEditors(panel, "Global forbidden type policy", details.ForbiddenPolicies, source, "Forbidden");
+		AddOperationContractEditors(panel, details.OperationContracts, source);
 	}
 }

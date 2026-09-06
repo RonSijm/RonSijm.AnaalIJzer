@@ -31,3 +31,8 @@ public class PizzaChef(IIngredientPantry pantry) { }
 // The pantry supplies the chef; it does not direct the chef.
 public class IngredientPantry(IChef chef) { }
 ```
+
+#### Real-world uses
+
+- Catch a repository or infrastructure adapter that starts calling an application service to decide what it should persist.
+- Stop a lower-level module from reaching upward into an endpoint, UI, or orchestration layer just because the reverse edge already exists.

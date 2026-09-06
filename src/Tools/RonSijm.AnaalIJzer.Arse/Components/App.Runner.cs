@@ -35,6 +35,7 @@ public partial class App
 				IncludeCodeEvidence = _codeEvidence == IncludeCodeEvidence,
 				IncludeDocumentationInput = _inputInclusion == IncludeInput,
 				GenerateDocumentation = _generatedDocumentation == GenerateDocumentation,
+				EnforceSolutionTopology = _solutionTopologyEnforcement == EnforceSolutionTopology,
 				Force = _overwrite == Overwrite,
 				WriteOutput = operation.Kind != ApplicationOperationKind.Inspect
 			};

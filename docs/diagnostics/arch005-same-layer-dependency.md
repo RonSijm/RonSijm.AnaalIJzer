@@ -112,3 +112,8 @@ public class DessertChef(IIngredientPantry pantry) { }
 // Chefs may share a pantry, but should not command each other directly.
 public class PizzaChef(ISauceChef sauceChef) { }
 ```
+
+#### Real-world uses
+
+- Prevent an application layer from becoming a mesh of services that constructor-inject one another instead of extracting a clearer collaboration boundary.
+- Permit only an interface implementation relationship within a contracts-and-implementation layer while continuing to reject peer-to-peer runtime dependencies.

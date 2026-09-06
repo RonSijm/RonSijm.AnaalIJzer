@@ -1,0 +1,33 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+                     description="Selected HTTP actions delegate directly to an explicit application operation owner.">
+  <Layer name="Endpoint" description="Controllers are public HTTP entry points.">
+    <Class withAttribute="ApiController" />
+  </Layer>
+  <Layer name="Application" description="The application service owns the pizza-order operation.">
+    <Class endsWith="Service" />
+  </Layer>
+  <AllowedDependency from="Endpoint" to="Application" />
+
+  <Operations description="These source contracts are explicit. AnaalIjzer does not infer them from routes or action names.">
+    <Operation name="PlacePizzaOrder"
+               allowedOwnerLayers="Application"
+               allowedEntryPointLayers="Endpoint"
+               description="Selected pizza-order actions must call the service that owns the order.">
+      <Owner>
+        <DeclarationMatcher>
+          <ContainingType exactName="PizzaOrderingService" />
+          <Member exactName="PlacePizzaOrder" memberKind="Method" />
+        </DeclarationMatcher>
+      </Owner>
+      <Request><Class exactName="PlacePizzaOrderRequest" /></Request>
+      <Response><Class exactName="PlacePizzaOrderResponse" /></Response>
+      <EntryPoint>
+        <DeclarationMatcher>
+          <ContainingType endsWith="Controller" />
+          <Member exactName="PlacePizzaOrder" memberKind="Method" />
+        </DeclarationMatcher>
+      </EntryPoint>
+    </Operation>
+  </Operations>
+</ArchitecturalLevels>

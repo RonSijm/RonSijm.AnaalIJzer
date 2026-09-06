@@ -44,3 +44,8 @@ See also:
 
 - [`../configuration/exception-policy.md`](../configuration/exception-policy.md)
 - [`../../Examples/Features/Example.ExceptionPolicy/Example.cs`](../../Examples/Features/Example.ExceptionPolicy/Example.cs)
+
+### Real-world uses
+
+- Make a temporary legacy dependency exception name an owner and expiry date, so it has a route back to normal architecture rather than becoming permanent configuration sediment.
+- Surface an exception for a type that was deleted or moved, so stale suppression rules do not make reviewers wonder what they still protect.

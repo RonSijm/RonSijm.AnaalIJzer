@@ -31,6 +31,13 @@ public static partial class ArchitecturalConfigParser
 				continue;
 			}
 
+			if (!HasOnlyProjectReferenceRuleSelectorChildren(element, xmlPath, issues)
+				|| !TryReadProjectReferenceRuleMatchers(element, "From", xmlPath, issues, out var fromMatchers)
+				|| !TryReadProjectReferenceRuleMatchers(element, "To", xmlPath, issues, out var toMatchers))
+			{
+				continue;
+			}
+
 			if (normalizedFrom != "*" && !groupNames.Contains(normalizedFrom))
 			{
 				AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, $"{element.Name.LocalName} references unknown source project group '{normalizedFrom}'.", element, xmlPath);
@@ -45,7 +52,7 @@ public static partial class ArchitecturalConfigParser
 
 			var lineInfo = (IXmlLineInfo)element;
 			var kind = element.Name.LocalName == "BlockedProjectReference" ? ProjectReferenceRuleKind.Blocked : ProjectReferenceRuleKind.Allowed;
-			result.Add(new ProjectReferenceRule(kind, normalizedFrom, normalizedTo, element.Attribute("description")?.Value, xmlPath, lineInfo.HasLineInfo() ? lineInfo.LineNumber : 0, lineInfo.HasLineInfo() ? lineInfo.LinePosition : 0));
+			result.Add(new ProjectReferenceRule(kind, normalizedFrom, normalizedTo, element.Attribute("description")?.Value, xmlPath, lineInfo.HasLineInfo() ? lineInfo.LineNumber : 0, lineInfo.HasLineInfo() ? lineInfo.LinePosition : 0, fromMatchers, toMatchers));
 		}
 
 		var finalResult = result.ToImmutable();

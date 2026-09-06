@@ -10,6 +10,11 @@ public static partial class ArchitectureEditorSnapshotService
 {
 	private static void AddSiteIndicators(SyntaxNode node, SemanticModel semanticModel, ProjectAnalyzerConfig config, ImmutableDictionary<string, int> paletteSlots, ImmutableArray<ArchitectureDependencySiteIndicator>.Builder indicators, CancellationToken cancellationToken)
 	{
+		if (config.HasForbiddenOperationPolicies)
+		{
+			AddForbiddenOperationPolicyIndicator(node, semanticModel, config, indicators, cancellationToken);
+		}
+
 		switch (node)
 		{
 			case ConstructorDeclarationSyntax { Parent: TypeDeclarationSyntax } constructor:

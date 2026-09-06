@@ -31,3 +31,8 @@ Diagnostic properties include:
 A direct forbidden type reports ARCH009 instead. The two diagnostics are deliberately not duplicated; one complaint per leak is sufficient.
 
 **Example project:** [`Example.Arch014.TransitiveExposure`](../../Examples/Diagnostics/Example.Arch014.TransitiveExposure)
+
+### Real-world uses
+
+- Catch a public response DTO that looks harmless at the root but contains an internal query object or persistence entity several properties deeper.
+- Prevent a collection, wrapper, or generic result type from reintroducing an API type that the direct public signature correctly avoided.

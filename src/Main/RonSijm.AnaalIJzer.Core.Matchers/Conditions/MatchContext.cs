@@ -2,7 +2,7 @@ using Microsoft.CodeAnalysis;
 
 namespace RonSijm.AnaalIJzer.Core.Matchers.Conditions;
 
-internal readonly struct MatchContext(
+public readonly struct MatchContext(
 	string subjectName,
 	string subjectNamespaceName,
 	ISymbol? subjectSymbol,

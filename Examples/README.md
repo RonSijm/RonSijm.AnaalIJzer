@@ -79,6 +79,15 @@ The main [`README.md`](../README.md) explains each feature inline. The folders h
 | [`Example.Arch020.ExplicitNullReturn`](Diagnostics/Example.Arch020.ExplicitNullReturn) | `ReturnValuePolicy` - a configured `Literal value="null"` is not an acceptable serving decision. |
 | [`Example.Arch020.AnnotatedInvocationReturn`](Diagnostics/Example.Arch020.AnnotatedInvocationReturn) | `ReturnValuePolicy` - a configured nullable-result annotation must be handled before an invocation is returned. |
 | [`Example.Arch020.ConfiguredLiteralReturns`](Diagnostics/Example.Arch020.ConfiguredLiteralReturns) | `ReturnValuePolicy` - empty-string, numeric, and enum-zero sentinel values are configurable literal matchers. |
+| [`Example.Arch021.ClockAccess`](Diagnostics/Example.Arch021.ClockAccess) | `ForbiddenOperations` - `DateTime.UtcNow`, `DateTime.Now`, and `DateTime.Today` are selected forbidden clock reads. |
+| [`Example.Arch021.BlockingTaskAccess`](Diagnostics/Example.Arch021.BlockingTaskAccess) | `ForbiddenOperations` - `Task.Wait()` and `Task<T>.Result` are selected blocking task operations at their own sites. |
+| [`Example.Arch021.ServiceLocation`](Diagnostics/Example.Arch021.ServiceLocation) | `ForbiddenOperations` - `IServiceProvider.GetService` is forbidden outside the composition root. |
+| [`Example.Arch021.SelectedEnvironmentMember`](Diagnostics/Example.Arch021.SelectedEnvironmentMember) | `ForbiddenOperations` - one `Environment` property is forbidden while unrelated properties remain allowed. |
+| [`Example.Arch022.RequiredOperation`](Diagnostics/Example.Arch022.RequiredOperation) | `BehavioralOperations` - a selected kitchen method must perform one required operation. |
+| [`Example.Arch022.RequiredOperationBefore`](Diagnostics/Example.Arch022.RequiredOperationBefore) | `BehavioralOperations` - a required safety check must dominate the selected oven mutation. |
+| [`Example.Arch022.ForbiddenOperationAfter`](Diagnostics/Example.Arch022.ForbiddenOperationAfter) | `BehavioralOperations` - a selected operation is forbidden after a configured terminal operation. |
+| [`Example.Arch022.MaximumOperationCount`](Diagnostics/Example.Arch022.MaximumOperationCount) | `BehavioralOperations` - a selected operation may occur only the configured number of times. |
+| [`Example.Arch023.OperationContract`](Diagnostics/Example.Arch023.OperationContract) | `Operations` - an explicit waiter-to-kitchen operation contract checks entry-point delegation and request/response shape. |
 
 ### Features
 
@@ -92,6 +101,7 @@ The main [`README.md`](../README.md) explains each feature inline. The folders h
 | [`Example.CascadingDependencyRules`](Features/Example.CascadingDependencyRules) | [`<AllowedDependency>`](../README.md#alloweddependency) |
 | [`Example.CombinedMatchers`](Features/Example.CombinedMatchers) | [`Matcher types`](../README.md#matcher-types) |
 | [`Example.DeclarationNameMatchesType`](Features/Example.DeclarationNameMatchesType) | [`NameRules`](../README.md#namerules) |
+| [`Example.GeneratedCode`](Features/Example.GeneratedCode) | [`Generated code analysis`](../README.md#generated-code-analysis) - opt in only the generated files your team intentionally owns. |
 | [`Example.DeclarationObservationMatchers`](Features/Example.DeclarationObservationMatchers) | Nested declaration matchers with code observations such as `<Throw />` and required companion interfaces. |
 | [`Example.StructuralDeclarationMatchers`](Features/Example.StructuralDeclarationMatchers) | [`Matcher types`](../README.md#matcher-types) and [`InheritancePolicy`](../README.md#inheritance-policies) working together to describe a recognizable request shape. |
 | [`Example.ExceptionPolicy`](Features/Example.ExceptionPolicy) | `ExceptionPolicy` and temporary architecture exception review warnings (`ARCH017`). |
@@ -101,6 +111,8 @@ The main [`README.md`](../README.md) explains each feature inline. The folders h
 | [`Example.IncludeWildcardSettings`](Features/Example.IncludeWildcardSettings) | [`<Include>`](../README.md#include) |
 | [`Example.InlineXml`](Features/Example.InlineXml) | [`Optional: inline settings with AssemblyMetadata`](../README.md#5-optional-inline-settings-with-assemblymetadata) |
 | [`Example.LayerScopedRecognizedDependencies`](Features/Example.LayerScopedRecognizedDependencies) | [`requireRecognizedDependencies`](../README.md#requirerecognizeddependencies-attribute) |
+| [`Example.NameRuleIntraProceduralTracking`](Features/Example.NameRuleIntraProceduralTracking) | [`NameRules`](../README.md#namerules) with `valueTracking="Direct|IntraProcedural"` across local aliases and a lambda body. |
+| [`Example.NameRuleLanguageForms`](Features/Example.NameRuleLanguageForms) | [`NameRules`](../README.md#namerules) across compound assignment, deconstruction, wrappers, expression bodies, and named arguments. |
 | [`Example.NameRules`](Features/Example.NameRules) | [`NameRules`](../README.md#namerules) |
 | [`Example.NestedExceptions`](Features/Example.NestedExceptions) | [`Nesting`](../README.md#nesting) |
 | [`Example.NestedLayers`](Features/Example.NestedLayers) | [`Hierarchical layer boundaries`](../README.md#hierarchical-layer-boundaries) |
@@ -114,10 +126,15 @@ The main [`README.md`](../README.md) explains each feature inline. The folders h
 
 | Folder | Scenario |
 | ------ | -------- |
+| [`Example.AspNetCore`](Scenarios/Example.AspNetCore) | Real `Microsoft.NET.Sdk.Web` projects showing framework-neutral controller boundaries, action-name rules, explicit action contracts, and public query-surface protection. |
+| [`Example.EntityFrameworkCore`](Scenarios/Example.EntityFrameworkCore) | Real Entity Framework Core projects showing DbContext ownership, creation-site restrictions, query-surface containment, folder ownership, and an optional persistence-ignorant domain policy. |
+| [`Example.AssemblyReferenceBoundaries`](Scenarios/Example.AssemblyReferenceBoundaries) | Project-level scenario showing that a raw MSBuild `<Reference>` is surfaced by workspace inspection, without introducing a compiler `ARCHxxx` diagnostic. Project: `Example.AssemblyReferenceBoundaries.Domain`. |
 | [`Example.HonestTypeEndpointNames`](Scenarios/Example.HonestTypeEndpointNames) | Strong endpoint parameter types whose convention-based binding names must still match their semantic types. |
 | [`Example.PackageReferenceBoundaries`](Scenarios/Example.PackageReferenceBoundaries) | Multi-project scenario showing that a forbidden direct NuGet package reference raises `ARCH011` even when no source file uses a type from that package yet. Projects: `Example.PackageReferenceBoundaries.Domain`, `Example.PackageReferenceBoundaries.Data`. |
 | [`Example.ProjectReferenceBoundaries`](Scenarios/Example.ProjectReferenceBoundaries) | Multi-project scenario showing that an illegal `.csproj` reference raises `ARCH010` even when no source file uses it yet. Projects: `Example.ProjectReferenceBoundaries.Application`, `Example.ProjectReferenceBoundaries.Domain`, `Example.ProjectReferenceBoundaries.Infrastructure`. |
+| [`Example.ProjectReferenceRuleSelectors`](Scenarios/Example.ProjectReferenceRuleSelectors) | Multi-project scenario showing that `From` and `To` selectors narrow an `Application -> Contracts` project-group edge to one exact project pair. Projects: `Example.ProjectReferenceRuleSelectors.Orders.Application`, `Example.ProjectReferenceRuleSelectors.Orders.Contracts`, and `Example.ProjectReferenceRuleSelectors.Payments.Contracts`. |
 | [`Example.RepositoryQuerySurface`](Scenarios/Example.RepositoryQuerySurface) | Repository-owned fluent query surface that must be projected before it becomes an application dependency. |
+| [`Example.SolutionTopology`](Scenarios/Example.SolutionTopology) | Multi-project scenario showing a solution-wide logical module rule that Arse reports as `TOPO001` only when solution-topology enforcement is requested. |
 
 ### Documentation
 

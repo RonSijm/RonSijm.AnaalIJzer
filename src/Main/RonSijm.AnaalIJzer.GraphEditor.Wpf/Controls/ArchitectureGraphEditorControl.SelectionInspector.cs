@@ -14,6 +14,8 @@ public sealed partial class ArchitectureGraphEditorControl
 		{
 			ArchitectureGraphSelectionKind.Layer => CreateLayerInspector(selection),
 			ArchitectureGraphSelectionKind.DependencyRule => CreateDependencyRuleInspector(selection),
+			ArchitectureGraphSelectionKind.SolutionTopologyModule => CreateSolutionTopologyModuleInspector(selection),
+			ArchitectureGraphSelectionKind.SolutionTopologyRule => CreateSolutionTopologyRuleInspector(selection),
 			ArchitectureGraphSelectionKind.CodeEvidence => CreateCodeEvidenceInspector(selection),
 			_ => CreateEmptyInspector(selection)
 		};
@@ -24,6 +26,15 @@ public sealed partial class ArchitectureGraphEditorControl
 	{
 		var panel = CreateInspectorShell(selection);
 		panel.Children.Add(CreateHintTextBlock("Click a layer node or dependency connection to edit its settings.", new Thickness(0, 8, 0, 0)));
+		if (_snapshot.HasSolutionTopology)
+		{
+			AddSolutionTopologyOverview(panel);
+			if (_snapshot.IsSolutionTopologyOnly)
+			{
+				return panel;
+			}
+		}
+
 		if (_snapshot.HasConfiguration && !_snapshot.HasConfigurationIssues)
 		{
 			AddRootConfigurationEditor(panel, _snapshot.ConfigurationSource);

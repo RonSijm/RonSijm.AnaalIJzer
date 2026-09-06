@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <AdditionalFiles Include="..\Architecture.anl" />
+    <ProjectReference Include="..\Example.ProjectReferenceRuleSelectors.Orders.Contracts\Example.ProjectReferenceRuleSelectors.Orders.Contracts.csproj" />
+    <ProjectReference Include="..\Example.ProjectReferenceRuleSelectors.Payments.Contracts\Example.ProjectReferenceRuleSelectors.Payments.Contracts.csproj" />
+  </ItemGroup>
+</Project>

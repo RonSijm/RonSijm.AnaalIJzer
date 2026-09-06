@@ -4,6 +4,7 @@ using RonSijm.AnaalIJzer.GraphApplication;
 using RonSijm.AnaalIJzer.GraphApplication.Selection;
 using RonSijm.AnaalIJzer.Graphing.ViewModels;
 using RonSijm.AnaalIJzer.GraphEditor.Wpf.Layout;
+using RonSijm.AnaalIJzer.GraphModel.Model;
 using RonSijm.AnaalIJzer.Graphing.Wpf.Styling;
 
 namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
@@ -23,7 +24,9 @@ internal sealed partial class ArchitectureGraphCanvas
 				var exceptionReviews = ExceptionReviewCount > 0
 					? Environment.NewLine + "Exception reviews: " + ExceptionReviewCount + Environment.NewLine + string.Join(Environment.NewLine, ExceptionReviewSummaries)
 					: string.Empty;
-				var result = Path + description + evidence + exceptionReviews + Environment.NewLine + "Drag to rearrange this graph.";
+				var readOnlyDetails = string.IsNullOrWhiteSpace(ReadOnlyDetails) ? string.Empty : Environment.NewLine + ReadOnlyDetails;
+				var nodeKind = Kind == ArchitectureGraphNodeKind.SolutionModule ? "Solution topology module" : "Layer";
+				var result = nodeKind + ": " + Path + description + evidence + exceptionReviews + readOnlyDetails + Environment.NewLine + "Drag to rearrange this graph.";
 
 				return result;
 			}
@@ -39,7 +42,8 @@ internal sealed partial class ArchitectureGraphCanvas
 				var violations = IncomingViolationCount + OutgoingViolationCount;
 				var violationText = violations > 0 ? Environment.NewLine + violations + " violation" + (violations == 1 ? string.Empty : "s") : string.Empty;
 				var exceptionReviews = ExceptionReviewCount > 0 ? Environment.NewLine + ExceptionReviewCount + " exception review" + (ExceptionReviewCount == 1 ? string.Empty : "s") : string.Empty;
-				var result = Path + evidence + violationText + exceptionReviews;
+				var nodeKind = Kind == ArchitectureGraphNodeKind.SolutionModule ? "Solution module" : Path;
+				var result = nodeKind + evidence + violationText + exceptionReviews;
 
 				return result;
 			}

@@ -1,0 +1,10 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+                     description="EF Core model configurations belong with persistence mapping code.">
+  <Layer name="ModelConfiguration" description="IEntityTypeConfiguration implementations belong below Persistence/Mapping.">
+    <Class implements="IEntityTypeConfiguration" />
+    <SourceLocations relativeTo="Project" description="Mapping classes are owned by the persistence mapping folder.">
+      <Source startsWith="Persistence/Mapping/" />
+    </SourceLocations>
+  </Layer>
+</ArchitecturalLevels>

@@ -48,6 +48,8 @@ public static class ArchitectureFindingFactory
 			? entryPointReason
 			: properties.TryGetValue(ArchitectureDiagnosticProperties.PropertyContractViolationKind, out var contractReason)
 				? contractReason
+				: properties.TryGetValue(ArchitectureDiagnosticProperties.PropertyOperationContractViolationKind, out var operationContractReason)
+					? operationContractReason
 				: properties.TryGetValue(ArchitectureDiagnosticProperties.PropertyNameRuleKind, out var nameRuleKind)
 					? nameRuleKind
 					: null;

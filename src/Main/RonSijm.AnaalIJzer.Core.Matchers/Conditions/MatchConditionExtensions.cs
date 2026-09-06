@@ -4,9 +4,9 @@ using RonSijm.AnaalIJzer.Core.Matchers.Symbols;
 
 namespace RonSijm.AnaalIJzer.Core.Matchers.Conditions;
 
-internal static class MatchConditionExtensions
+public static class MatchConditionExtensions
 {
-	internal static bool Matches(this MatchCondition condition, MatchTarget target, string typeName, string namespaceName, ITypeSymbol? symbol)
+	public static bool Matches(this MatchCondition condition, MatchTarget target, string typeName, string namespaceName, ITypeSymbol? symbol)
 	{
 		var context = MatchContext.Create(target, typeName, namespaceName, symbol);
 		var result = condition.Matches(context);
@@ -14,7 +14,7 @@ internal static class MatchConditionExtensions
 		return result;
 	}
 
-	internal static bool Matches(this MatchCondition condition, MatchContext context)
+	public static bool Matches(this MatchCondition condition, MatchContext context)
 	{
 		var subject = context.GetName(condition.Operand);
 		var result = condition.Kind switch
@@ -31,7 +31,7 @@ internal static class MatchConditionExtensions
 		return result;
 	}
 
-	internal static bool MatchesString(this MatchCondition condition, string subject, StringComparison comparison, RegexOptions regexOptions)
+	public static bool MatchesString(this MatchCondition condition, string subject, StringComparison comparison, RegexOptions regexOptions)
 	{
 		var result = condition.Kind switch
 		{

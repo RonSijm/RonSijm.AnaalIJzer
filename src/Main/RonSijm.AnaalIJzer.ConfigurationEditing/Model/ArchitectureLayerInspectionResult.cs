@@ -17,6 +17,8 @@ public sealed class ArchitectureLayerInspectionResult
 		ImmutableArray<ArchitectureConfigurationElementDetails> nameRules,
 		ImmutableArray<ArchitectureConfigurationElementDetails> inheritancePolicies,
 		ImmutableArray<ArchitectureConfigurationElementDetails> returnValuePolicies,
+		ImmutableArray<ArchitectureConfigurationElementDetails> forbiddenOperationPolicies,
+		ImmutableArray<ArchitectureConfigurationElementDetails> behavioralOperationPolicies,
 		ImmutableArray<ArchitectureConfigurationElementDetails> visibilityPolicies,
 		ImmutableArray<ArchitectureConfigurationElementDetails> apiSurfacePolicies)
 	{
@@ -32,6 +34,8 @@ public sealed class ArchitectureLayerInspectionResult
 		NameRules = nameRules;
 		InheritancePolicies = inheritancePolicies;
 		ReturnValuePolicies = returnValuePolicies;
+		ForbiddenOperationPolicies = forbiddenOperationPolicies;
+		BehavioralOperationPolicies = behavioralOperationPolicies;
 		VisibilityPolicies = visibilityPolicies;
 		ApiSurfacePolicies = apiSurfacePolicies;
 	}
@@ -60,6 +64,10 @@ public sealed class ArchitectureLayerInspectionResult
 
 	public ImmutableArray<ArchitectureConfigurationElementDetails> ReturnValuePolicies { get; }
 
+	public ImmutableArray<ArchitectureConfigurationElementDetails> ForbiddenOperationPolicies { get; }
+
+	public ImmutableArray<ArchitectureConfigurationElementDetails> BehavioralOperationPolicies { get; }
+
 	public ImmutableArray<ArchitectureConfigurationElementDetails> VisibilityPolicies { get; }
 
 	public ImmutableArray<ArchitectureConfigurationElementDetails> ApiSurfacePolicies { get; }
@@ -75,6 +83,8 @@ public sealed class ArchitectureLayerInspectionResult
 		ImmutableArray<ArchitectureConfigurationElementDetails> nameRules,
 		ImmutableArray<ArchitectureConfigurationElementDetails> inheritancePolicies,
 		ImmutableArray<ArchitectureConfigurationElementDetails> returnValuePolicies,
+		ImmutableArray<ArchitectureConfigurationElementDetails> forbiddenOperationPolicies,
+		ImmutableArray<ArchitectureConfigurationElementDetails> behavioralOperationPolicies,
 		ImmutableArray<ArchitectureConfigurationElementDetails> visibilityPolicies,
 		ImmutableArray<ArchitectureConfigurationElementDetails> apiSurfacePolicies)
 	{
@@ -91,6 +101,8 @@ public sealed class ArchitectureLayerInspectionResult
 			nameRules,
 			inheritancePolicies,
 			returnValuePolicies,
+			forbiddenOperationPolicies,
+			behavioralOperationPolicies,
 			visibilityPolicies,
 			apiSurfacePolicies);
 
@@ -105,6 +117,8 @@ public sealed class ArchitectureLayerInspectionResult
 			string.Empty,
 			null,
 			null,
+			ImmutableArray<ArchitectureConfigurationElementDetails>.Empty,
+			ImmutableArray<ArchitectureConfigurationElementDetails>.Empty,
 			ImmutableArray<ArchitectureConfigurationElementDetails>.Empty,
 			ImmutableArray<ArchitectureConfigurationElementDetails>.Empty,
 			ImmutableArray<ArchitectureConfigurationElementDetails>.Empty,

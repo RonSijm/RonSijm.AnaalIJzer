@@ -29,7 +29,7 @@ public static partial class ArchitectureEditorSnapshotService
 		}
 
 		var seenStaleKeys = new HashSet<string>(StringComparer.Ordinal);
-		var types = GetProjectTypes(compilation, cancellationToken);
+		var types = GetProjectTypes(compilation, config.GeneratedCodeScope, cancellationToken);
 		foreach (var definition in config.ExceptionDefinitions)
 		{
 			if (!definition.IsActive)
@@ -71,9 +71,9 @@ public static partial class ArchitectureEditorSnapshotService
 		return result;
 	}
 
-	private static ImmutableArray<INamedTypeSymbol> GetProjectTypes(Compilation compilation, CancellationToken cancellationToken)
+	private static ImmutableArray<INamedTypeSymbol> GetProjectTypes(Compilation compilation, GeneratedCodeAnalysisScope generatedCodeScope, CancellationToken cancellationToken)
 	{
-		var result = CompilationTypeCollector.GetProjectTypes(compilation, cancellationToken).ToImmutableArray();
+		var result = CompilationTypeCollector.GetProjectTypes(compilation, generatedCodeScope, cancellationToken).ToImmutableArray();
 
 		return result;
 	}

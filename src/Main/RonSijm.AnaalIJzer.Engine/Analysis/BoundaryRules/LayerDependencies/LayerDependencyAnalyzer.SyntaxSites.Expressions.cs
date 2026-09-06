@@ -4,6 +4,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using RonSijm.AnaalIJzer.Core.Indicators;
 using RonSijm.AnaalIJzer.Core.Observations;
+using RonSijm.AnaalIJzer.Core.SemanticOperations.Analysis;
+using RonSijm.AnaalIJzer.Core.SemanticOperations.Model;
 using RonSijm.AnaalIJzer.Core.Violations;
 using AnalyzerConfig = RonSijm.AnaalIJzer.Core.RuntimeConfig.Config.Model.AnalyzerConfig;
 
@@ -76,16 +78,15 @@ public static partial class LayerDependencyAnalyzer
 			return;
 		}
 
-		if (context.SemanticModel.GetSymbolInfo(invocation, context.CancellationToken).Symbol is IMethodSymbol method)
+		var operation = context.SemanticModel.GetOperation(invocation, context.CancellationToken);
+		if (SemanticOperationFactory.TryCreate(operation, context.SemanticModel, context.CancellationToken, out var semanticOperation)
+			&& semanticOperation.IsStaticAccess
+			&& semanticOperation.ContainingType is not null)
 		{
-			var staticContainer = method.IsStatic ? method.ContainingType : method.ReducedFrom?.ContainingType;
-			if (staticContainer is not null)
-			{
-				var staticLocation = invocation.Expression is MemberAccessExpressionSyntax memberAccess
-					? memberAccess.Expression.GetLocation()
-					: invocation.Expression.GetLocation();
-				AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value.TypeName, caller.Value.Match, staticLocation, staticContainer, DependencySites.StaticMember);
-			}
+			var staticLocation = invocation.Expression is MemberAccessExpressionSyntax memberAccess
+				? memberAccess.Expression.GetLocation()
+				: invocation.Expression.GetLocation();
+			AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value.TypeName, caller.Value.Match, staticLocation, semanticOperation.ContainingType, DependencySites.StaticMember);
 		}
 
 		NamingRules.LayerDependencyAnalyzer.AnalyzeInvocationNameRules(context, config, violations, invocation);
@@ -117,15 +118,11 @@ public static partial class LayerDependencyAnalyzer
 	internal static void AnalyzeStaticMemberAccess(SyntaxNodeAnalysisContext context, AnalyzerConfig config, ConcurrentBag<ViolationRecord> violations, ObservedDependencyCollector? observedDependencies)
 	{
 		var memberAccess = (MemberAccessExpressionSyntax)context.Node;
-		var symbol = context.SemanticModel.GetSymbolInfo(memberAccess, context.CancellationToken).Symbol;
-		var containingType = symbol switch
-		{
-			IPropertySymbol { IsStatic: true } property => property.ContainingType,
-			IFieldSymbol { IsStatic: true } field => field.ContainingType,
-			IEventSymbol { IsStatic: true } @event => @event.ContainingType,
-			_ => null
-		};
-		if (containingType is null)
+		var operation = context.SemanticModel.GetOperation(memberAccess, context.CancellationToken);
+		if (!SemanticOperationFactory.TryCreate(operation, context.SemanticModel, context.CancellationToken, out var semanticOperation)
+			|| !semanticOperation.IsStaticAccess
+			|| semanticOperation.ContainingType is null
+			|| semanticOperation.Kind is not (SemanticOperationKind.PropertyRead or SemanticOperationKind.PropertyWrite or SemanticOperationKind.FieldRead or SemanticOperationKind.FieldWrite or SemanticOperationKind.EventAccess))
 		{
 			return;
 		}
@@ -136,6 +133,6 @@ public static partial class LayerDependencyAnalyzer
 			return;
 		}
 
-		AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value.TypeName, caller.Value.Match, memberAccess.Expression.GetLocation(), containingType, DependencySites.StaticMember);
+		AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value.TypeName, caller.Value.Match, memberAccess.Expression.GetLocation(), semanticOperation.ContainingType, DependencySites.StaticMember);
 	}
 }

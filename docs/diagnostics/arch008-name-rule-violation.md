@@ -17,7 +17,7 @@ Declaration/type example:
 'doctor.id', declaration name 'patientId' normalizes to 'patient.id'
 ```
 
-**Examples:** [`Example.NameRules`](../../Examples/Features/Example.NameRules), [`Example.DeclarationNameMatchesType`](../../Examples/Features/Example.DeclarationNameMatchesType), and [`Example.HonestTypeEndpointNames`](../../Examples/Scenarios/Example.HonestTypeEndpointNames).
+**Examples:** [`Example.NameRules`](../../Examples/Features/Example.NameRules), [`Example.NameRuleLanguageForms`](../../Examples/Features/Example.NameRuleLanguageForms), [`Example.NameRuleIntraProceduralTracking`](../../Examples/Features/Example.NameRuleIntraProceduralTracking), [`Example.DeclarationNameMatchesType`](../../Examples/Features/Example.DeclarationNameMatchesType), and [`Example.HonestTypeEndpointNames`](../../Examples/Scenarios/Example.HonestTypeEndpointNames).
 
 Typical fixes:
 
@@ -25,3 +25,8 @@ Typical fixes:
 - Rename the local, parameter, field, or property when the code is correct but the name is misleading.
 - Add a narrow `<Allow>` mapping when the translation is intentional.
 - Scope that mapping with `allowedSites` or `blockedSites` when it should only be valid in one kind of code location.
+
+#### Real-world uses
+
+- Catch `DoctorId patientId` on a convention-bound web endpoint before framework model binding connects the right value to the wrong meaning.
+- Detect `customerId` being passed to an `invoiceId` parameter when both values are the same primitive type and the compiler cannot distinguish them.

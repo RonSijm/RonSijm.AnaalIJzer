@@ -13,6 +13,20 @@ public static partial class LayerDependencyAnalyzer
 {
 	private static void ReportNameRuleViolation(SyntaxNodeAnalysisContext context, ConcurrentBag<ViolationRecord> violations, string callerTypeName, string callerLayerName, NameRuleViolation violation, Location reportLocation)
 	{
+		var diagnostic = CreateNameRuleDiagnostic(callerTypeName, callerLayerName, violation, reportLocation);
+		context.ReportDiagnostic(diagnostic);
+		RecordNameRuleViolation(violations, callerTypeName, callerLayerName, violation);
+	}
+
+	private static void ReportNameRuleViolation(OperationBlockAnalysisContext context, ConcurrentBag<ViolationRecord> violations, string callerTypeName, string callerLayerName, NameRuleViolation violation, Location reportLocation)
+	{
+		var diagnostic = CreateNameRuleDiagnostic(callerTypeName, callerLayerName, violation, reportLocation);
+		context.ReportDiagnostic(diagnostic);
+		RecordNameRuleViolation(violations, callerTypeName, callerLayerName, violation);
+	}
+
+	private static Diagnostic CreateNameRuleDiagnostic(string callerTypeName, string callerLayerName, NameRuleViolation violation, Location reportLocation)
+	{
 		var properties = BoundaryRules.LayerDependencies.LayerDependencyAnalyzer.AddViolationProperties(
 				ImmutableDictionary<string, string?>.Empty
 					.Add(ArchitecturalDiagnostics.PropertySite, violation.Site)
@@ -33,12 +47,17 @@ public static partial class LayerDependencyAnalyzer
 				violation.Reason,
 				null);
 
-		context.ReportDiagnostic(Diagnostic.Create(
+		var result = Diagnostic.Create(
 			ArchitecturalDiagnostics.NameRuleViolation,
 			reportLocation,
 			properties,
-			callerTypeName, callerLayerName, violation.RuleKind, violation.Site, violation.Reason));
+			callerTypeName, callerLayerName, violation.RuleKind, violation.Site, violation.Reason);
 
+		return result;
+	}
+
+	private static void RecordNameRuleViolation(ConcurrentBag<ViolationRecord> violations, string callerTypeName, string callerLayerName, NameRuleViolation violation)
+	{
 		violations.Add(new ViolationRecord(ArchitecturalDiagnosticIds.NameRuleViolation, callerTypeName, callerLayerName, violation.SourceName, violation.TargetName, violation.Reason, null));
 	}
 }

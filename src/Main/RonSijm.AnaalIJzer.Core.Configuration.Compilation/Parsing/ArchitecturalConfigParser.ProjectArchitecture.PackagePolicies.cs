@@ -35,8 +35,8 @@ public static partial class ArchitecturalConfigParser
 				continue;
 			}
 
-			var allowedMatchers = ParsePackageMatchers(element.Elements("Allowed"), xmlPath, issues);
-			var forbiddenMatchers = ParsePackageMatchers(element.Elements("Forbidden"), xmlPath, issues);
+			var allowedMatchers = ParseReferenceIdentityMatchers(element.Elements("Allowed"), "Package", xmlPath, issues);
+			var forbiddenMatchers = ParseReferenceIdentityMatchers(element.Elements("Forbidden"), "Package", xmlPath, issues);
 			if (allowedMatchers.IsDefaultOrEmpty && forbiddenMatchers.IsDefaultOrEmpty)
 			{
 				AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, $"PackagePolicy for project group '{normalizedProjectGroup}' requires at least one Allowed or Forbidden Package matcher.", element, xmlPath);

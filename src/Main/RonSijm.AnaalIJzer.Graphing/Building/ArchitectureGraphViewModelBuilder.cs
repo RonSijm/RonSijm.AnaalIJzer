@@ -41,7 +41,8 @@ internal static partial class ArchitectureGraphViewModelBuilder
 				wildcardRules.Select(FormatRule).ToImmutableArray(),
 				wildcardDiagram.Nodes,
 				wildcardDiagram.Edges,
-				snapshot.ConfigurationSource));
+				snapshot.ConfigurationSource,
+				isReadOnly: wildcardRules.All(rule => rule.IsSolutionTopologyRule)));
 		}
 
 		var builtGroups = groups.ToImmutable();

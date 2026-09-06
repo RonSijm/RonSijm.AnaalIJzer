@@ -22,7 +22,15 @@ configuration/visibility-policies.md
 configuration/inheritance-policies.md
 configuration/contract-policies.md
 configuration/return-value-policies.md
+configuration/forbidden-operation-policies.md
+configuration/behavioral-operation-policies.md
+configuration/operation-contracts.md
+configuration/asp-net-core-example-pack.md
+configuration/entity-framework-core-example-pack.md
+configuration/generated-code.md
 configuration/project-architecture.md
+configuration/assembly-reference-policies.md
+configuration/solution-topology.md
 configuration/api-surface.md
 configuration/transitive-api-exposure.md
 configuration/boundary-entry-points.md
@@ -55,6 +63,9 @@ diagnostics/arch017-exception-review.md
 diagnostics/arch018-observed-cycle.md
 diagnostics/arch019-inheritance-policy.md
 diagnostics/arch020-return-value-policy.md
+diagnostics/arch021-forbidden-operation-policy.md
+diagnostics/arch022-behavioral-operation-policy.md
+diagnostics/arch023-operation-contract-violation.md
 diagnostics/diagnostic-properties.md
 q-and-a.md
 suppressing-violations.md

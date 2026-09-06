@@ -90,6 +90,26 @@ internal static class DocumentationFeatureMatrixFixture
                      to="Shared"
                      allowedSites="Constructor, MethodReturn"
                      description="Ordering may depend on shared contracts and return them." />
+  <Operations description="The important restaurant operation is made explicit.">
+    <Operation name="PlacePizzaOrder"
+               allowedOwnerLayers="/Ordering/Application"
+               description="The kitchen owns the pizza order.">
+      <Owner>
+        <DeclarationMatcher>
+          <ContainingType endsWith="Kitchen" />
+          <Member exactName="PlacePizzaOrder" memberKind="Method" />
+        </DeclarationMatcher>
+      </Owner>
+      <Request><Class exactName="PlacePizzaOrderRequest" /></Request>
+      <Response><Class exactName="PlacePizzaOrderResponse" /></Response>
+      <EntryPoint>
+        <DeclarationMatcher>
+          <ContainingType endsWith="Controller" />
+          <Member exactName="PlacePizzaOrder" memberKind="Method" />
+        </DeclarationMatcher>
+      </EntryPoint>
+    </Operation>
+  </Operations>
 </ArchitecturalLevels>
 """;
 }

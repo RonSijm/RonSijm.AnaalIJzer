@@ -28,3 +28,8 @@ Typical fixes:
 - narrow or broaden the policy only when the declaration is intentionally outside the current contract.
 
 **Example project:** [`Example.Arch019.InheritancePolicy`](../../Examples/Diagnostics/Example.Arch019.InheritancePolicy)
+
+#### Real-world uses
+
+- Require every persistence entity in a selected layer to inherit the team’s shared `Entity` base type.
+- Require selected handlers, commands, or plug-ins to implement the common interface that their host expects before they can enter that layer.

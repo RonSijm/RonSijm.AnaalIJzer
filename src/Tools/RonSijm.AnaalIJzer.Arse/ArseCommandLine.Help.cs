@@ -43,6 +43,7 @@ internal static partial class ArseCommandLine
 		Console.WriteLine("  --include-code-evidence Include rule matches and violations in project documentation.");
 		Console.WriteLine("  --include-input        Include the input architecture settings in generated documentation.");
 		Console.WriteLine("  --generate-documentation Generate code-backed documentation with a new configuration.");
+		Console.WriteLine("  --enforce-topology     Evaluate configured SolutionTopology rules when inspecting a solution.");
 		Console.WriteLine("  --force, -f            Overwrite an existing output file.");
 
 		var aliasedOperations = ApplicationOperationCatalog.All.Where(operation => operation.Aliases.Count > 0).ToArray();

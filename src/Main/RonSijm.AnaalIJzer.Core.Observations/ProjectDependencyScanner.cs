@@ -8,11 +8,18 @@ public static partial class ProjectDependencyScanner
 {
 	public static IReadOnlyList<ProjectDependencyObservation> Scan(Compilation compilation, Func<INamedTypeSymbol, string?> resolveLayer, CancellationToken cancellationToken)
 	{
+		var result = Scan(compilation, resolveLayer, GeneratedCodeAnalysisScope.Exclude, cancellationToken);
+
+		return result;
+	}
+
+	public static IReadOnlyList<ProjectDependencyObservation> Scan(Compilation compilation, Func<INamedTypeSymbol, string?> resolveLayer, GeneratedCodeAnalysisScope generatedCodeScope, CancellationToken cancellationToken)
+	{
 		var observations = new List<ProjectDependencyObservation>();
 		foreach (var syntaxTree in compilation.SyntaxTrees)
 		{
 			cancellationToken.ThrowIfCancellationRequested();
-			if (GeneratedCodeDetector.IsGenerated(syntaxTree, cancellationToken))
+			if (!generatedCodeScope.ShouldAnalyze(syntaxTree, cancellationToken))
 			{
 				continue;
 			}

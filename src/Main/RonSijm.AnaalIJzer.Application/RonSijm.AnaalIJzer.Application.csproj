@@ -17,6 +17,8 @@
     <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.RuntimeConfig\RonSijm.AnaalIJzer.Core.RuntimeConfig.csproj" />
     <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Findings\RonSijm.AnaalIJzer.Core.Findings.csproj" />
     <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Observations\RonSijm.AnaalIJzer.Core.Observations.csproj" />
+	<ProjectReference Include="..\RonSijm.AnaalIJzer.Core.OperationContracts\RonSijm.AnaalIJzer.Core.OperationContracts.csproj" />
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.ProjectArchitecture\RonSijm.AnaalIJzer.Core.ProjectArchitecture.csproj" />
     <ProjectReference Include="..\RonSijm.AnaalIJzer.Engine\RonSijm.AnaalIJzer.Engine.csproj" />
     <ProjectReference Include="..\RonSijm.AnaalIJzer.Outputs\RonSijm.AnaalIJzer.Outputs.csproj" />
     <ProjectReference Include="..\RonSijm.AnaalIJzer.Workspace\RonSijm.AnaalIJzer.Workspace.csproj" />

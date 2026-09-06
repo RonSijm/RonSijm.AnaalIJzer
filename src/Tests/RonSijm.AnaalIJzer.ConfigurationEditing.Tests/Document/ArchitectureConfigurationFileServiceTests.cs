@@ -31,6 +31,68 @@ public sealed class ArchitectureConfigurationFileServiceTests
 	}
 
 	[Fact]
+	public async Task MergeAsync_PreservesProjectSelectorsAndSolutionTopology()
+	{
+		var cancellationToken = TestContext.Current.CancellationToken;
+		using var directory = new TemporaryDirectory();
+		var inputPath = directory.WriteFile(
+			"Architecture.anl",
+			"""
+			<ArchitecturalLevels>
+			  <ProjectArchitecture>
+			    <ProjectGroup name="Application"><Project endsWith=".Application" /></ProjectGroup>
+			    <ProjectGroup name="Contracts"><Project endsWith=".Contracts" /></ProjectGroup>
+			    <AllowedProjectReference from="Application" to="Contracts">
+			      <From exactName="Shop.Orders.Application" />
+			      <To exactName="Shop.Orders.Contracts" />
+			    </AllowedProjectReference>
+			  </ProjectArchitecture>
+			  <SolutionTopology requireRecognizedProjects="true">
+			    <Module name="Kitchen"><Project endsWith=".Application" /></Module>
+			    <Module name="Contracts"><Project endsWith=".Contracts" /></Module>
+			    <AllowedModuleReference from="Kitchen" to="Contracts" />
+			  </SolutionTopology>
+			</ArchitecturalLevels>
+			""");
+		var outputPath = directory.GetPath("Merged.anl");
+
+		await ArchitectureConfigurationFileService.MergeAsync([inputPath], outputPath, force: false, cancellationToken);
+
+		var content = await File.ReadAllTextAsync(outputPath, cancellationToken);
+		content.Should().Contain("<From exactName=\"Shop.Orders.Application\" />");
+		content.Should().Contain("<To exactName=\"Shop.Orders.Contracts\" />");
+		content.Should().Contain("<SolutionTopology requireRecognizedProjects=\"true\">");
+		content.Should().Contain("<AllowedModuleReference from=\"Kitchen\" to=\"Contracts\" />");
+	}
+
+	[Fact]
+	public async Task SplitAsync_PreservesSolutionTopologyAsSharedConfiguration()
+	{
+		var cancellationToken = TestContext.Current.CancellationToken;
+		using var directory = new TemporaryDirectory();
+		var inputPath = directory.WriteFile(
+			"Architecture.anl",
+			"""
+			<ArchitecturalLevels>
+			  <SolutionTopology><Module name="Kitchen"><Project endsWith=".Application" /></Module></SolutionTopology>
+			  <Layer name="DiningRoom"><Class endsWith="Controller" /></Layer>
+			  <Layer name="Kitchen"><Class endsWith="Service" /></Layer>
+			  <AllowedDependency from="DiningRoom" to="Kitchen" />
+			  <Layer name="Pantry"><Class endsWith="Repository" /></Layer>
+			  <Layer name="Ingredients"><Class endsWith="Ingredient" /></Layer>
+			  <AllowedDependency from="Pantry" to="Ingredients" />
+			</ArchitecturalLevels>
+			""");
+		var outputDirectory = directory.GetPath("Split");
+
+		await ArchitectureConfigurationFileService.SplitAsync(inputPath, outputDirectory, force: false, cancellationToken);
+
+		var sharedContent = await File.ReadAllTextAsync(Path.Combine(outputDirectory, "Shared.anl"), cancellationToken);
+		sharedContent.Should().Contain("<SolutionTopology>");
+		sharedContent.Should().Contain("<Module name=\"Kitchen\">");
+	}
+
+	[Fact]
 	public async Task MergeAsync_WritesSingleConfigurationContainingAllLayers()
 	{
 		var cancellationToken = TestContext.Current.CancellationToken;

@@ -42,3 +42,8 @@ Because `ARCH011` is reported at compilation end, host UX depends on how the IDE
 - `ARCH003`: forbidden type usage in C# code
 - `ARCH010`: illegal direct project reference
 - `ARCH001`: illegal type dependency between layers
+
+### Real-world uses
+
+- Prevent a domain project from taking a direct dependency on EF Core, ASP.NET Core, or a concrete database provider.
+- Restrict a sensitive or expensive package to one integration project instead of letting it spread through the solution by copy-pasted package references.

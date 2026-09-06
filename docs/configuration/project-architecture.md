@@ -6,7 +6,7 @@ Use it when the problem is at project level rather than type level:
 
 - one project should not reference another project at all;
 - a project reference is architecturally wrong even if no code uses it yet;
-- solution topology matters separately from type dependency rules.
+- an individual project reference is architecturally wrong even if the broader solution remains valid.
 
 Project references also have a habit of outliving their reason: the code that needed them is deleted, the reference stays, and two years later somebody treats it as intended design.
 
@@ -76,6 +76,40 @@ Notes:
 - same-group references need an explicit self-edge while that source is in allowlist mode
 - `allowedSites`, `blockedSites`, and `appliesToDescendants` do not apply here
 
+### Narrow A Group Edge To Specific Projects
+
+Project groups are useful reporting and policy buckets. They do not need to become
+singleton groups merely because one pair of projects needs a narrower exception.
+
+Add optional `From` and `To` child selectors to narrow one otherwise group-level edge:
+
+```xml
+<AllowedProjectReference from="Application" to="Contracts"
+                         description="Only the ordering application owns the ordering contract.">
+  <From exactName="Shop.Orders.Application" />
+  <To exactName="Shop.Orders.Contracts" />
+</AllowedProjectReference>
+```
+
+Both selectors must match. Attributes on one selector use the ordinary combined matcher
+rules, and multiple selectors on the same side are alternatives:
+
+```xml
+<BlockedProjectReference from="Application" to="Contracts">
+  <From exactName="Shop.Legacy.Application" />
+  <To exactName="Shop.Legacy.Contracts" />
+  <To exactName="Shop.Private.Contracts" />
+</BlockedProjectReference>
+```
+
+This blocks `Shop.Legacy.Application` from referencing either selected contract project.
+It does not block another project merely because it shares the `Application` group.
+
+A nonmatching `From` selector does not place every project in its group into allowlist
+mode. Once a source selector matches, however, its `To` selector is enforced: an
+unselected target produces `ARCH010`. Blocked selectors still win over a broad allowed
+group edge.
+
 ### Recognition
 
 `requireRecognizedProjects` defaults to `false`.
@@ -95,11 +129,21 @@ The analyzer package therefore ships a `buildTransitive` target that writes a sm
 
 Arse and solution inspection do not need that generated manifest because they can inspect `MSBuildWorkspace` project references directly.
 
+For rules about logical modules across an entire solution, use [solution topology](solution-topology.md) instead. `ProjectArchitecture` remains a compiler analyzer feature and produces `ARCH010`; `SolutionTopology` is explicit workspace inspection and produces `TOPO001` / `TOPO002` report findings.
+
+### Raw Assembly References
+
+Use [assembly reference policies](assembly-reference-policies.md) for a direct MSBuild
+`<Reference>` / `HintPath` dependency that is neither a project reference nor a NuGet
+package. Those policies are intentionally evaluated by `arse inspect` and `arse report`, not
+as compiler `ARCHxxx` diagnostics.
+
 ### IDE Fix Support
 
 For deterministic cases, the config fixer layer can update project architecture rules too:
 
 - `ARCH010` can add a missing `<AllowedProjectReference from="..." to="..." />`
+- `ARCH010` can add a narrow exact-project rule with `<From>` and `<To>` selectors
 - same-group `ARCH010` can add an explicit self-edge
 - blocked-edge `ARCH010` can remove the matching `<BlockedProjectReference ... />`
 - `ARCH011` can append an exact `<Package exactName="..."/>` matcher to the matched allowed package list

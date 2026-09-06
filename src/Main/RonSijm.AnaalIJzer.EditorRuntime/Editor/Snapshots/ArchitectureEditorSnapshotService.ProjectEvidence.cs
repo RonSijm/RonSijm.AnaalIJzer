@@ -17,9 +17,9 @@ public static partial class ArchitectureEditorSnapshotService
 		var dependencies = ImmutableArray.CreateBuilder<ArchitectureGraphDependencyEvidence>();
 		var seenTypes = new HashSet<string>(StringComparer.Ordinal);
 		var seenDependencies = new HashSet<string>(StringComparer.Ordinal);
-		var observations = ProjectDependencyScanner.Scan(compilation, type => ResolveObservedLayer(config, type), cancellationToken);
+		var observations = ProjectDependencyScanner.Scan(compilation, type => ResolveObservedLayer(config, type), config.GeneratedCodeScope, cancellationToken);
 
-		foreach (var typeSymbol in CompilationTypeCollector.GetProjectTypes(compilation, cancellationToken))
+		foreach (var typeSymbol in CompilationTypeCollector.GetProjectTypes(compilation, config.GeneratedCodeScope, cancellationToken))
 		{
 			AddProjectTypeEvidence(typeSymbol, config, types, seenTypes);
 		}
@@ -35,7 +35,7 @@ public static partial class ArchitectureEditorSnapshotService
 		foreach (var syntaxTree in compilation.SyntaxTrees)
 		{
 			cancellationToken.ThrowIfCancellationRequested();
-			if (GeneratedCodeDetector.IsGenerated(syntaxTree, cancellationToken))
+			if (!config.GeneratedCodeScope.ShouldAnalyze(syntaxTree, cancellationToken))
 			{
 				continue;
 			}

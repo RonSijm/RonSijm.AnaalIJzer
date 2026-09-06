@@ -33,7 +33,7 @@ public static partial class ArchitectureEditorSnapshotService
 	public static async Task<ArchitectureEditorSnapshot> CreateSnapshotAsync(Document document, ImmutableArray<AdditionalText> additionalFiles, bool includeProjectEvidence, CancellationToken cancellationToken = default)
 	{
 		var syntaxRoot = await document.GetSyntaxRootAsync(cancellationToken);
-		if (syntaxRoot is null || IsGenerated(document, syntaxRoot, cancellationToken))
+		if (syntaxRoot is null)
 		{
 			return ArchitectureEditorSnapshot.Empty;
 		}
@@ -50,6 +50,11 @@ public static partial class ArchitectureEditorSnapshotService
 			: ArchitectureConfigurationDocumentLoader.InlineSettingsMetadataKey;
 		var configurationSource = FindConfigurationSource(document, additionalFiles, compilation, cancellationToken);
 		var config = ArchitecturalConfigParser.Parse(additionalFiles, compilation, inlineConfigPath, cancellationToken);
+		if (!config.GeneratedCodeScope.ShouldAnalyze(syntaxRoot.SyntaxTree, cancellationToken))
+		{
+			return ArchitectureEditorSnapshot.Empty;
+		}
+
 		if (config.HasConfigurationIssues)
 		{
 			var graphSnapshot = new ArchitectureGraphSnapshot(
@@ -71,7 +76,7 @@ public static partial class ArchitectureEditorSnapshotService
 				graphSnapshot);
 		}
 
-		if (!config.Engine.HasLayers)
+		if (!config.Engine.HasLayers && !config.HasOperationContracts)
 		{
 			var hasConfiguration = configurationSource.CanEdit;
 			var graphSnapshot = CreateEmptyGraphSnapshot(document, configurationSource, hasConfiguration);
@@ -107,6 +112,16 @@ public static partial class ArchitectureEditorSnapshotService
 			AddNameRuleIndicators(node, semanticModel, config, nameRuleIndicators, cancellationToken);
 			AddVisibilityPolicyIndicators(node, semanticModel, config, visibilityPolicyIndicators, analyzedVisibilitySymbols, cancellationToken);
 			AddApiSurfaceIndicators(node, semanticModel, compilation, config, apiSurfaceIndicators, analyzedApiSurfaceSymbols, transitiveMemberCache, cancellationToken);
+		}
+
+		if (config.HasBehavioralOperationPolicies)
+		{
+			AddBehavioralOperationPolicyIndicators(syntaxRoot, semanticModel, config, siteIndicators, cancellationToken);
+		}
+
+		if (config.HasOperationContracts)
+		{
+			AddOperationContractIndicators(syntaxRoot, semanticModel, config, siteIndicators, cancellationToken);
 		}
 
 		var layerIndicatorArray = layerIndicators.ToImmutable();

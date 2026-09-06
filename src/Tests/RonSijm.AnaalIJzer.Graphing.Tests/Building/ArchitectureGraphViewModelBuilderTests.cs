@@ -402,6 +402,63 @@ public sealed class ArchitectureGraphViewModelBuilderTests
 		}
 	}
 
+	[Fact]
+	public void Build_RendersSolutionTopologyAsReadOnlyGraphWithObservedProjectReferences()
+	{
+		var layers = ImmutableArray.Create(
+			new ArchitectureGraphLayer("SolutionTopology", "Solution topology", "Solution-wide project relationships", 0, 1, false, kind: ArchitectureGraphNodeKind.SolutionModule, readOnlyDetails: "Read-only topology projection."),
+			new ArchitectureGraphLayer("SolutionTopology/DiningRoom", "DiningRoom", "Order screen", 1, 1, false, kind: ArchitectureGraphNodeKind.SolutionModule, readOnlyDetails: "Matches .Web projects."),
+			new ArchitectureGraphLayer("SolutionTopology/Kitchen", "Kitchen", "Order service", 1, 2, false, kind: ArchitectureGraphNodeKind.SolutionModule, readOnlyDetails: "Matches .Application projects."),
+			new ArchitectureGraphLayer("SolutionTopology/Pantry", "Pantry", "Storage", 1, 3, false, kind: ArchitectureGraphNodeKind.SolutionModule, readOnlyDetails: "Matches .Infrastructure projects."));
+		var rules = ImmutableArray.Create(
+			new ArchitectureGraphRule("SolutionTopology/DiningRoom", "SolutionTopology/Kitchen", "SolutionTopology", "AllowedModuleReference", "project references", false, false, false),
+			new ArchitectureGraphRule("SolutionTopology/Kitchen", "SolutionTopology/Pantry", "SolutionTopology", "BlockedModuleReference", "project references", false, false, false));
+		var evidence = new ArchitectureGraphEvidence(
+			ImmutableArray<ArchitectureGraphTypeEvidence>.Empty,
+			[
+				new ArchitectureGraphDependencyEvidence(
+					"SolutionTopology/DiningRoom",
+					"SolutionTopology/Kitchen",
+					"Cafe.Web",
+					"Cafe.Application",
+					"ProjectReference",
+					"Allowed",
+					null,
+					"allowed by the configured solution topology",
+					"Cafe.Web.csproj",
+					1),
+				new ArchitectureGraphDependencyEvidence(
+					"SolutionTopology/Kitchen",
+					"SolutionTopology/Pantry",
+					"Cafe.Application",
+					"Cafe.Infrastructure",
+					"ProjectReference",
+					"SolutionTopologyViolation",
+					"TOPO001",
+					"BlockedModuleReference denies this solution edge",
+					"Cafe.Application.csproj",
+					1)
+			]);
+		var snapshot = new ArchitectureGraphSnapshot(
+			true,
+			false,
+			layers,
+			rules,
+			ImmutableArray<string>.Empty,
+			ImmutableArray<string>.Empty,
+			evidence: evidence,
+			hasSolutionTopology: true);
+
+		var group = ArchitectureGraphViewModelBuilder.Build(snapshot, ArchitectureGraphFocusMode.ShowAll, includeEvidence: true).Should().ContainSingle().Subject;
+
+		group.Title.Should().StartWith("Solution topology:");
+		group.IsReadOnly.Should().BeTrue();
+		group.Nodes.Should().OnlyContain(node => node.Kind == ArchitectureGraphNodeKind.SolutionModule && !node.EditHandle.CanEdit);
+		group.Edges.Should().Contain(edge => edge.Kind == "BlockedModuleReference" && edge.IsBlocked);
+		group.Edges.Should().Contain(edge => edge.IsEvidence && edge.SiteText == "1 observed project reference");
+		group.Edges.Should().Contain(edge => edge.IsEvidence && edge.SiteText.Contains("1 topology violation", StringComparison.Ordinal));
+	}
+
 	private static bool Overlaps(ArchitectureGraphBoundaryViewModel first, ArchitectureGraphBoundaryViewModel second)
 	{
 		var result = first.X < second.X + second.Width

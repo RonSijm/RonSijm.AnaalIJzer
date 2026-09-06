@@ -5,6 +5,8 @@ using RonSijm.AnaalIJzer.Core.EntryPoints;
 using RonSijm.AnaalIJzer.Core.Inheritance.Policies;
 using RonSijm.AnaalIJzer.Core.Matchers;
 using RonSijm.AnaalIJzer.Core.NameRules;
+using RonSijm.AnaalIJzer.Core.OperationPolicies.Behavioral;
+using RonSijm.AnaalIJzer.Core.OperationPolicies.Policies;
 using RonSijm.AnaalIJzer.Core.ReturnValues.Policies;
 using RonSijm.AnaalIJzer.Core.SourceLocations;
 using RonSijm.AnaalIJzer.Core.Visibility;
@@ -25,7 +27,9 @@ public sealed class LayerNode(
 	ImmutableArray<ApiSurfacePolicy> apiSurfacePolicies,
 	ImmutableArray<BoundaryEntryPointPolicy> entryPointPolicies,
 	ImmutableArray<SourceLocationPolicy> sourceLocationPolicies,
-	ImmutableArray<ReturnValuePolicy> returnValuePolicies = default)
+	ImmutableArray<ReturnValuePolicy> returnValuePolicies = default,
+	ImmutableArray<ForbiddenOperationPolicy> forbiddenOperationPolicies = default,
+	ImmutableArray<BehavioralOperationPolicy> behavioralOperationPolicies = default)
 {
 	public LayerDefinition Definition { get; } = definition;
 
@@ -52,6 +56,10 @@ public sealed class LayerNode(
 	public ImmutableArray<SourceLocationPolicy> SourceLocationPolicies { get; } = sourceLocationPolicies;
 
 	public ImmutableArray<ReturnValuePolicy> ReturnValuePolicies { get; } = returnValuePolicies.IsDefault ? ImmutableArray<ReturnValuePolicy>.Empty : returnValuePolicies;
+
+	public ImmutableArray<ForbiddenOperationPolicy> ForbiddenOperationPolicies { get; } = forbiddenOperationPolicies.IsDefault ? ImmutableArray<ForbiddenOperationPolicy>.Empty : forbiddenOperationPolicies;
+
+	public ImmutableArray<BehavioralOperationPolicy> BehavioralOperationPolicies { get; } = behavioralOperationPolicies.IsDefault ? ImmutableArray<BehavioralOperationPolicy>.Empty : behavioralOperationPolicies;
 
 	public bool HasMatchers { get; } = !matchers.IsDefaultOrEmpty;
 }

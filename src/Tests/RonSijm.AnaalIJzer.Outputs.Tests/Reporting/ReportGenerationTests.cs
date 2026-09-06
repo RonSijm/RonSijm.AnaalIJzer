@@ -99,6 +99,35 @@ public sealed class ReportGenerationTests
 	}
 
 	[Fact]
+	public void DocumentationGenerator_RendersSolutionTopologyInConfigurationOrder()
+	{
+		var config = ParseConfig("""
+		                         <ArchitecturalLevels>
+		                           <SolutionTopology requireRecognizedProjects="true" enforceAcyclic="true" description="The cafe topology.">
+		                             <Module name="DiningRoom" description="Customer-facing projects.">
+		                               <Project endsWith=".Web" />
+		                             </Module>
+		                             <Module name="Kitchen" description="Order processing.">
+		                               <Project endsWith=".Application" />
+		                             </Module>
+		                             <AllowedModuleReference from="DiningRoom" to="Kitchen" description="Orders enter through the kitchen." />
+		                             <BlockedModuleReference from="Kitchen" to="DiningRoom" description="The kitchen does not control the dining room." />
+		                           </SolutionTopology>
+		                         </ArchitecturalLevels>
+		                         """);
+
+		var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
+
+		markdown.Should().Contain("## Solution Topology");
+		markdown.Should().Contain("`requireRecognizedProjects`: `true`");
+		markdown.Should().Contain("`enforceAcyclic`: `true`");
+		markdown.Should().Contain("The cafe topology.");
+		markdown.Should().Contain("| `DiningRoom` | Project endsWith=\".Web\" | Customer-facing projects. |");
+		markdown.Should().Contain("| Allowed | `DiningRoom -> Kitchen` | Orders enter through the kitchen. |");
+		markdown.Should().Contain("| Blocked | `Kitchen -x-> DiningRoom` | The kitchen does not control the dining room. |");
+	}
+
+	[Fact]
 	public void DocumentationGenerator_RendersDescriptionsWildcardsAndEscapesMermaidLabels()
 	{
 		var config = ParseConfig("""
@@ -379,6 +408,113 @@ public sealed class ReportGenerationTests
 	}
 
 	[Fact]
+	public void DocumentationGenerator_RendersForbiddenOperationPolicyTable()
+	{
+		var config = ParseConfig("""
+			<ArchitecturalLevels>
+			  <Layer name="Kitchen">
+			    <Class endsWith="Kitchen" />
+			    <ForbiddenOperations description="Kitchens use the restaurant clock.">
+			      <ForbiddenOperation allowedSites="StaticMember" description="Direct system-clock reads hide a dependency.">
+			        <OperationMatcher kind="PropertyRead" staticAccess="true">
+			          <ContainingType exactFullName="System.DateTime" />
+			          <Member exactName="UtcNow" memberKind="Property" />
+			        </OperationMatcher>
+			      </ForbiddenOperation>
+			    </ForbiddenOperations>
+			  </Layer>
+			</ArchitecturalLevels>
+			""");
+
+		var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
+
+		markdown.Should().Contain("## Forbidden Operation Policies");
+		markdown.Should().Contain("| `Kitchen` | OperationMatcher kind=\"PropertyRead\" staticAccess=\"true\" [ContainingType exactFullName=\"System.DateTime\"; Member exactName=\"UtcNow\" memberKind=\"Property\"] | only StaticMember | Direct system-clock reads hide a dependency. |");
+		markdown.Should().Contain("- **ForbiddenOperations** `Forbidden selected operations`");
+		markdown.Should().Contain("- **OperationMatcher** `Operation PropertyRead`");
+	}
+
+	[Fact]
+	public void DocumentationGenerator_RendersBehavioralOperationPolicyTable()
+	{
+		var config = ParseConfig("""
+			<ArchitecturalLevels>
+			  <Layer name="Kitchen">
+			    <Class endsWith="Kitchen" />
+			    <BehavioralOperations description="Validate orders before saving them.">
+			      <RequiredOperationBefore description="Every submitted pizza is validated.">
+			        <DeclarationMatcher>
+			          <Member exactName="Submit" memberKind="Method" />
+			        </DeclarationMatcher>
+			        <OperationMatcher kind="Invocation">
+			          <Member exactName="Validate" memberKind="Method" />
+			        </OperationMatcher>
+			        <BeforeOperation>
+			          <OperationMatcher kind="Invocation">
+			            <Member exactName="Save" memberKind="Method" />
+			          </OperationMatcher>
+			        </BeforeOperation>
+			      </RequiredOperationBefore>
+			    </BehavioralOperations>
+			  </Layer>
+			</ArchitecturalLevels>
+			""");
+
+		var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
+
+		markdown.Should().Contain("## Behavioral Operation Policies");
+		markdown.Should().Contain("| `Kitchen` | Require operation before target | Member exactName=\"Submit\" memberKind=\"Method\" | OperationMatcher kind=\"Invocation\" [Member exactName=\"Validate\" memberKind=\"Method\"] | OperationMatcher kind=\"Invocation\" [Member exactName=\"Save\" memberKind=\"Method\"] | Dominance | all sites | Every submitted pizza is validated. |");
+		markdown.Should().Contain("- **BehavioralOperations** `Behavioral operation policies`");
+		markdown.Should().Contain("- **BeforeOperation** `Operation that must come after the required operation`");
+	}
+
+	[Fact]
+	public void ViolationReporter_RendersForbiddenOperationPolicyViolation()
+	{
+		var report = ArchitecturalViolationReporter.GenerateMarkdownReport(
+			[
+				new ViolationRecord(
+					ArchitecturalDiagnosticIds.ForbiddenOperationPolicyViolation,
+					"PizzaKitchen",
+					"Kitchen",
+					"System.DateTime.UtcNow",
+					string.Empty,
+					"the ForbiddenOperations policy in layer 'Kitchen' blocks System.DateTime.UtcNow at StaticMember",
+					null,
+					"PropertyRead")
+			],
+			AnalyzerConfiguration.Empty,
+			null);
+
+		report.Should().Contain("| ARCH021 — Forbidden operation policy violation | 1 |");
+		report.Should().Contain("## ARCH021 — Forbidden Operation Policy Violations");
+		report.Should().Contain("| `Kitchen` | `PizzaKitchen` | `System.DateTime.UtcNow` | `PropertyRead` | the ForbiddenOperations policy in layer 'Kitchen' blocks System.DateTime.UtcNow at StaticMember |");
+	}
+
+	[Fact]
+	public void ViolationReporter_RendersBehavioralOperationPolicyViolation()
+	{
+		var report = ArchitecturalViolationReporter.GenerateMarkdownReport(
+			[
+				new ViolationRecord(
+					ArchitecturalDiagnosticIds.BehavioralOperationPolicyViolation,
+					"PizzaKitchen",
+					"Kitchen",
+					"PizzaRepository.Save",
+					string.Empty,
+					"the BehavioralOperations policy in layer 'Kitchen' requires validation before PizzaRepository.Save",
+					null,
+					"MissingRequiredOperationBefore")
+			],
+			AnalyzerConfiguration.Empty,
+			null);
+
+		report.Should().Contain("| ARCH022 — Behavioral operation policy violation | 1 |");
+		report.Should().Contain("## ARCH022 — Behavioral Operation Policy Violations");
+		report.Should().Contain("| `Kitchen` | `PizzaKitchen` | `PizzaRepository.Save` | `MissingRequiredOperationBefore` | the BehavioralOperations policy in layer 'Kitchen' requires validation before PizzaRepository.Save |");
+	}
+
+	[Fact]
 	public void DocumentationGenerator_RendersProjectArchitectureTable()
 	{
 		var config = ParseConfig("""
@@ -402,8 +538,31 @@ public sealed class ReportGenerationTests
 		markdown.Should().Contain("### Project Groups");
 		markdown.Should().Contain("| `Presentation` | Project endsWith=\".Web\" | UI projects. |");
 		markdown.Should().Contain("### Project Reference Rules");
-		markdown.Should().Contain("| Allowed | `Presentation -> Application` | Presentation calls application. |");
+		markdown.Should().Contain("| Allowed | `Presentation -> Application` | All matching projects | Presentation calls application. |");
 		markdown.Should().Contain("- **ProjectArchitecture** `Project topology`");
+	}
+
+	[Fact]
+	public void DocumentationGenerator_RendersProjectReferenceRuleSelectors()
+	{
+		var config = ParseConfig("""
+			<ArchitecturalLevels>
+			  <ProjectArchitecture>
+			    <ProjectGroup name="Application"><Project endsWith=".Application" /></ProjectGroup>
+			    <ProjectGroup name="Contracts"><Project endsWith=".Contracts" /></ProjectGroup>
+			    <AllowedProjectReference from="Application" to="Contracts">
+			      <From exactName="Shop.Orders.Application" />
+			      <To exactName="Shop.Orders.Contracts" />
+			    </AllowedProjectReference>
+			  </ProjectArchitecture>
+			</ArchitecturalLevels>
+			""");
+
+		var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
+
+		markdown.Should().Contain("| Allowed | `Application -> Contracts` | From: Project exactName=\"Shop.Orders.Application\"; To: Project exactName=\"Shop.Orders.Contracts\" |  |");
+		markdown.Should().Contain("- **From** `Project exactName=\"Shop.Orders.Application\"`");
+		markdown.Should().Contain("- **To** `Project exactName=\"Shop.Orders.Contracts\"`");
 	}
 
 	[Fact]
@@ -433,6 +592,76 @@ public sealed class ReportGenerationTests
 		markdown.Should().Contain("| `Domain` | true | Forbidden | `Package exactName=\"Microsoft.Extensions.Logging\"` | Infrastructure logging belongs outside Domain. |");
 		markdown.Should().Contain("- **PackagePolicy** `Package policy for Domain`");
 		markdown.Should().Contain("- **Package** `Package exactName=\"Microsoft.Extensions.Logging\"`");
+	}
+
+	[Fact]
+	public void DocumentationGenerator_RendersAssemblyReferencePolicyTable()
+	{
+		var config = ParseConfig("""
+			<ArchitecturalLevels>
+			  <ProjectArchitecture description="Project-level boundaries.">
+			    <ProjectGroup name="Domain"><Project endsWith=".Domain" /></ProjectGroup>
+			    <AssemblyReferencePolicy projectGroup="Domain" description="Domain does not use legacy transports.">
+			      <Allowed>
+			        <Assembly startsWith="System." description="Framework assemblies are fine." />
+			      </Allowed>
+			      <Forbidden>
+			        <Assembly exactName="Legacy.Transport" comment="Use a project boundary instead." />
+			      </Forbidden>
+			    </AssemblyReferencePolicy>
+			  </ProjectArchitecture>
+			</ArchitecturalLevels>
+			""");
+
+		var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
+
+		markdown.Should().Contain("### Assembly Reference Policies");
+		markdown.Should().Contain("They do not produce compiler `ARCHxxx` diagnostics.");
+		markdown.Should().Contain("| `Domain` | Allowed | `Assembly reference startsWith=\"System.\"` | Framework assemblies are fine. |");
+		markdown.Should().Contain("| `Domain` | Forbidden | `Assembly reference exactName=\"Legacy.Transport\"` | Use a project boundary instead. |");
+		markdown.Should().Contain("- **AssemblyReferencePolicy** `Assembly reference policy for Domain`");
+		markdown.Should().Contain("- **Assembly** `Assembly reference exactName=\"Legacy.Transport\"`");
+	}
+
+	[Fact]
+	public void ViolationReport_AppendsWorkspaceAssemblyReferencePolicyFindings()
+	{
+		var finding = new ArchitectureFinding(
+			ArchitectureFindingSeverity.Error,
+			ArchitectureFindingCodes.AssemblyReferencePolicyViolation,
+			"the assembly matches a Forbidden policy for project group 'Domain'",
+			"Shop.Domain -> Legacy.Transport",
+			properties: ImmutableDictionary<string, string?>.Empty
+				.Add(ArchitectureDiagnosticProperties.PropertySourceProjectName, "Shop.Domain")
+				.Add(ArchitectureDiagnosticProperties.PropertySourceProjectGroup, "Domain")
+				.Add(ArchitectureDiagnosticProperties.PropertyAssemblyIdentity, "Legacy.Transport")
+				.Add(ArchitectureDiagnosticProperties.PropertyAssemblyHintPath, "lib/Legacy.Transport.dll"));
+
+		var markdown = WorkspaceAssemblyReferenceReportAppender.Append("# Architectural Violation Report\n\n✅ **No violations found.**\n", [finding]);
+
+		markdown.Should().Contain("✅ **No compiler analyzer violations found.**");
+		markdown.Should().Contain("## Workspace Assembly Reference Policy Findings");
+		markdown.Should().Contain("`Shop.Domain` (Domain) | `Legacy.Transport` | `lib/Legacy.Transport.dll`");
+	}
+
+	[Fact]
+	public void ViolationReport_AppendsWorkspaceOperationContractFindings()
+	{
+		var finding = new ArchitectureFinding(
+			ArchitectureFindingSeverity.Error,
+			ArchitectureFindingCodes.OperationContractOwnerMissing,
+			"Operation 'PlacePizzaOrder' has no configured owner method in the inspected scope.",
+			"Architecture.anl:12",
+			"MissingOwner",
+			"MissingOwner",
+			ImmutableDictionary<string, string?>.Empty.Add(ArchitectureDiagnosticProperties.PropertyOperationContractName, "PlacePizzaOrder"));
+
+		var markdown = WorkspaceOperationContractReportAppender.Append("# Architectural Violation Report\n\n✅ **No violations found.**\n", [finding]);
+
+		markdown.Should().Contain("✅ **No compiler analyzer violations found.**");
+		markdown.Should().Contain("## Workspace Operation Contract Findings");
+		markdown.Should().Contain("`PlacePizzaOrder`");
+		markdown.Should().Contain("has no configured owner method");
 	}
 
 	[Fact]
@@ -494,6 +723,43 @@ public sealed class ReportGenerationTests
 		markdown.Should().Contain("- **EntryPoints** `Boundary entry points`");
 		markdown.Should().Contain("- **EntryPoint** `Entry via Contracts`");
 		markdown.Should().Contain("- **EntryPoint** `Entry via matcher`");
+	}
+
+	[Fact]
+	public void DocumentationGenerator_RendersOperationContractsInConfigurationOrder()
+	{
+		var config = ParseConfig("""
+			<ArchitecturalLevels>
+			  <Layer name="Controller"><Class endsWith="Controller" /></Layer>
+			  <Layer name="Application"><Class endsWith="Kitchen" /></Layer>
+			  <Operations description="Named kitchen work.">
+			    <Operation name="PlacePizzaOrder" allowedOwnerLayers="Application" allowedEntryPointLayers="Controller" description="The waiter sends an order to the kitchen.">
+			      <Owner>
+			        <DeclarationMatcher>
+			          <ContainingType endsWith="Kitchen" />
+			          <Member exactName="PlacePizzaOrder" memberKind="Method" />
+			        </DeclarationMatcher>
+			      </Owner>
+			      <Request><Class exactName="PlacePizzaOrderRequest" /></Request>
+			      <Response><Class exactName="PlacePizzaOrderResponse" /></Response>
+			      <EntryPoint>
+			        <DeclarationMatcher>
+			          <ContainingType endsWith="Controller" />
+			          <Member exactName="PlacePizzaOrder" memberKind="Method" />
+			        </DeclarationMatcher>
+			      </EntryPoint>
+			    </Operation>
+			  </Operations>
+			</ArchitecturalLevels>
+			""");
+
+		var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
+
+		markdown.Should().Contain("## Operation Contracts");
+		markdown.Should().Contain("`PlacePizzaOrder`");
+		markdown.Should().Contain("ContainingType endsWith=\"Kitchen\"");
+		markdown.Should().Contain("Class exactName=\"PlacePizzaOrderRequest\"");
+		markdown.Should().Contain("The waiter sends an order to the kitchen.");
 	}
 
 	private static AnalyzerConfiguration ParseConfig(string config)

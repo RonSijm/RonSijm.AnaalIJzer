@@ -14,6 +14,7 @@ internal sealed record CommandOptions
 	private bool IncludeCodeEvidence { get; init; }
 	private bool IncludeDocumentationInput { get; init; }
 	private bool GenerateDocumentation { get; init; }
+	private bool EnforceSolutionTopology { get; init; }
 	private bool Force { get; init; }
 
 	public static CommandOptions Parse(string[] args)
@@ -62,6 +63,9 @@ internal sealed record CommandOptions
 				case "--generate-documentation":
 					options = options with { GenerateDocumentation = true };
 					break;
+				case "--enforce-topology":
+					options = options with { EnforceSolutionTopology = true };
+					break;
 				case "--force":
 				case "-f":
 					options = options with { Force = true };
@@ -103,6 +107,7 @@ internal sealed record CommandOptions
 			IncludeCodeEvidence = IncludeCodeEvidence,
 			IncludeDocumentationInput = IncludeDocumentationInput,
 			GenerateDocumentation = GenerateDocumentation,
+			EnforceSolutionTopology = EnforceSolutionTopology,
 			Force = Force
 		};
 	}

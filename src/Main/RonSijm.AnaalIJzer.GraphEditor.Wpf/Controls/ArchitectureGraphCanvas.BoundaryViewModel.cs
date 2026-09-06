@@ -10,6 +10,7 @@ using RonSijm.AnaalIJzer.GraphApplication;
 using RonSijm.AnaalIJzer.GraphApplication.Selection;
 using RonSijm.AnaalIJzer.Graphing.ViewModels;
 using RonSijm.AnaalIJzer.GraphEditor.Wpf.Layout;
+using RonSijm.AnaalIJzer.GraphModel.Model;
 using RonSijm.AnaalIJzer.Graphing.Wpf.Styling;
 
 namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
@@ -57,6 +58,8 @@ internal sealed partial class ArchitectureGraphCanvas
 			OutgoingViolationCount = boundary.OutgoingViolationCount;
 			ExceptionReviewCount = boundary.ExceptionReviewCount;
 			ExceptionReviewSummaries = boundary.ExceptionReviewSummaries;
+			Kind = boundary.Kind;
+			ReadOnlyDetails = boundary.ReadOnlyDetails;
 			EditHandle = boundary.EditHandle;
 			_location = layoutState.GetLocation(boundary.Path, new Point(boundary.X, boundary.Y));
 			_actualSize = layoutState.GetSize(boundary.Path, new Size(boundary.Width, boundary.Height));
@@ -90,6 +93,10 @@ internal sealed partial class ArchitectureGraphCanvas
 		public int ExceptionReviewCount { get; }
 
 		public ImmutableArray<string> ExceptionReviewSummaries { get; }
+
+		public ArchitectureGraphNodeKind Kind { get; }
+
+		public string? ReadOnlyDetails { get; }
 
 		public ArchitectureLayerEditHandle EditHandle { get; }
 
@@ -193,9 +200,18 @@ internal sealed partial class ArchitectureGraphCanvas
 			_editResultHandler?.Invoke(result, true);
 		}
 
+		public ArchitectureGraphSelection CreateSelection()
+		{
+			var result = Kind == ArchitectureGraphNodeKind.SolutionModule
+				? ArchitectureGraphSelection.ForSolutionTopologyModule(Path, DisplayName, ReadOnlyDetails)
+				: ArchitectureGraphSelection.ForLayer(EditHandle);
+
+			return result;
+		}
+
 		private void ShowConfigurationFixes()
 		{
-			_selectionHandler?.Invoke(ArchitectureGraphSelection.ForLayer(EditHandle));
+			_selectionHandler?.Invoke(CreateSelection());
 		}
 	}
 }

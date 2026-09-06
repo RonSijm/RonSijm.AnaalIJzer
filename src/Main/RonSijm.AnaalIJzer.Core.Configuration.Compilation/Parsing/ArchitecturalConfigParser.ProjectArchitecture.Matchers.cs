@@ -9,14 +9,18 @@ namespace RonSijm.AnaalIJzer.Core.Configuration.Compilation.Parsing;
 
 public static partial class ArchitecturalConfigParser
 {
-	private static ImmutableArray<PackageMatcher> ParsePackageMatchers(IEnumerable<XElement> containers, string xmlPath, ImmutableArray<ConfigurationIssue>.Builder issues)
+	private static ImmutableArray<ReferenceIdentityMatcher> ParseReferenceIdentityMatchers(
+		IEnumerable<XElement> containers,
+		string matcherElementName,
+		string xmlPath,
+		ImmutableArray<ConfigurationIssue>.Builder issues)
 	{
-		var result = ImmutableArray.CreateBuilder<PackageMatcher>();
+		var result = ImmutableArray.CreateBuilder<ReferenceIdentityMatcher>();
 		foreach (var container in containers)
 		{
-			foreach (var element in container.Elements("Package"))
+			foreach (var element in container.Elements(matcherElementName))
 			{
-				if (!TryReadPackageMatcher(element, xmlPath, issues, out var matcher))
+				if (!TryReadReferenceIdentityMatcher(element, xmlPath, issues, out var matcher))
 				{
 					continue;
 				}
@@ -30,7 +34,7 @@ public static partial class ArchitecturalConfigParser
 		return finalResult;
 	}
 
-	private static bool TryReadPackageMatcher(XElement element, string xmlPath, ImmutableArray<ConfigurationIssue>.Builder issues, out PackageMatcher matcher)
+	private static bool TryReadReferenceIdentityMatcher(XElement element, string xmlPath, ImmutableArray<ConfigurationIssue>.Builder issues, out ReferenceIdentityMatcher matcher)
 	{
 		var conditions = MatcherAttributeCatalog.CreateConditions(
 			attributeName => element.Attribute(attributeName)?.Value,
@@ -38,13 +42,13 @@ public static partial class ArchitecturalConfigParser
 
 		if (conditions.Length == 0)
 		{
-			AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, "Package requires at least one matcher attribute.", element, xmlPath);
+			AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, $"{element.Name.LocalName} requires at least one matcher attribute.", element, xmlPath);
 			matcher = default;
 			return false;
 		}
 
 		var lineInfo = (IXmlLineInfo)element;
-		matcher = new PackageMatcher(
+		matcher = new ReferenceIdentityMatcher(
 			conditions,
 			element.Attribute("comment")?.Value,
 			element.Attribute("description")?.Value,

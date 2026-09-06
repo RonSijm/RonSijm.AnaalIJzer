@@ -150,7 +150,9 @@ public sealed partial class ArchitectureGraphEditorControl
 
 	private async Task ApplySelectedConfigurationFixAsync()
 	{
-		if (_configurationFixApplier is null || _isApplyingConfigurationFix || string.IsNullOrWhiteSpace(_selectedConfigurationFixId))
+		var configurationFixApplier = _configurationFixApplier;
+		var configurationFixLoader = _configurationFixLoader;
+		if (configurationFixApplier is null || configurationFixLoader is null || _isApplyingConfigurationFix || string.IsNullOrWhiteSpace(_selectedConfigurationFixId))
 		{
 			return;
 		}
@@ -161,12 +163,12 @@ public sealed partial class ArchitectureGraphEditorControl
 
 		try
 		{
-			var result = await _configurationFixApplier(selectedFixId, CancellationToken.None);
+			var result = await configurationFixApplier(selectedFixId, CancellationToken.None);
 			TryReloadSnapshot();
 			var refreshedSelection = RemapSelection(_currentSelection);
 			Render();
 			RenderSelection(refreshedSelection);
-			_configurationFixes = await _configurationFixLoader(CancellationToken.None);
+			_configurationFixes = await configurationFixLoader(CancellationToken.None);
 			_selectedConfigurationFixId = _configurationFixes.Proposals.FirstOrDefault()?.Id;
 			_statusText.Text = result.Message;
 			_statusText.Foreground = _theme.SuccessForeground;

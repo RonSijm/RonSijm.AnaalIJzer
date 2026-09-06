@@ -8,12 +8,12 @@ namespace RonSijm.AnaalIJzer.Application;
 
 internal static partial class ArchitectureHealthReportGenerator
 {
-	private static ImmutableArray<INamedTypeSymbol> GetDistinctProjectTypes(IReadOnlyList<ProjectAnalysisResult> projects, CancellationToken cancellationToken)
+	private static ImmutableArray<INamedTypeSymbol> GetDistinctProjectTypes(IReadOnlyList<ProjectAnalysisResult> projects, GeneratedCodeAnalysisScope generatedCodeScope, CancellationToken cancellationToken)
 	{
 		var types = new Dictionary<string, INamedTypeSymbol>(StringComparer.Ordinal);
 		foreach (var project in projects)
 		{
-			foreach (var type in CompilationTypeCollector.GetProjectTypes(project.Compilation, cancellationToken))
+			foreach (var type in CompilationTypeCollector.GetProjectTypes(project.Compilation, generatedCodeScope, cancellationToken))
 			{
 				types.TryAdd(GetTypeIdentity(type), type);
 			}

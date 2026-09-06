@@ -1,0 +1,16 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+                     description="An ASP.NET Core controller may delegate to application code, which may reach persistence.">
+  <Layer name="Endpoint" description="Public HTTP controllers accept requests and delegate them.">
+    <Class withAttribute="ApiController" />
+  </Layer>
+  <Layer name="Application" description="Application services coordinate a request without becoming HTTP endpoints.">
+    <Class endsWith="Service" />
+  </Layer>
+  <Layer name="Persistence" description="Repositories own storage access.">
+    <Class endsWith="Repository" />
+  </Layer>
+
+  <AllowedDependency from="Endpoint" to="Application" description="Controllers may call application services." />
+  <AllowedDependency from="Application" to="Persistence" description="Application services may retrieve stored orders." />
+</ArchitecturalLevels>

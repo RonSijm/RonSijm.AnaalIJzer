@@ -2,9 +2,11 @@ using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.MSBuild;
+using RonSijm.AnaalIJzer.Core.BuildMetadata;
 using RonSijm.AnaalIJzer.Core.Configuration.Compilation.Parsing;
 using RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
 using RonSijm.AnaalIJzer.Core.Configuration.Document.Sources;
+using RonSijm.AnaalIJzer.Core.ProjectArchitecture.SolutionTopology;
 using RonSijm.AnaalIJzer.Engine;
 using AnalyzerConfiguration = RonSijm.AnaalIJzer.Core.RuntimeConfig.Config.Model.AnalyzerConfig;
 
@@ -59,12 +61,54 @@ internal sealed partial class ProjectAnalysisHost : IDisposable
 			projects.Add(await AnalyzeProjectAsync(project, project.FilePath ?? solutionPath, cancellationToken, solutionConfigFile));
 		}
 
+		var projectReferences = CollectSolutionProjectReferences(solution);
+
 		return new SolutionAnalysisResult(
 			solutionPath,
 			Path.GetDirectoryName(solutionPath)!,
 			Path.GetFileNameWithoutExtension(solutionPath),
 			projects.ToImmutable(),
-			[.._workspaceFailures]);
+			[.._workspaceFailures],
+			projectReferences);
+	}
+
+	private static ImmutableArray<SolutionProjectReference> CollectSolutionProjectReferences(Solution solution)
+	{
+		var references = ImmutableArray.CreateBuilder<SolutionProjectReference>();
+		var projectsByFilePath = solution.Projects
+			.Where(project => project.Language == LanguageNames.CSharp && !string.IsNullOrWhiteSpace(project.FilePath))
+			.GroupBy(project => Path.GetFullPath(project.FilePath!), StringComparer.OrdinalIgnoreCase)
+			.ToDictionary(group => group.Key, group => group.First(), StringComparer.OrdinalIgnoreCase);
+		foreach (var sourceProject in solution.Projects.Where(project => project.Language == LanguageNames.CSharp))
+		{
+			if (string.IsNullOrWhiteSpace(sourceProject.FilePath))
+			{
+				continue;
+			}
+
+			foreach (var targetProjectPath in ReadDirectProjectReferences(sourceProject.FilePath))
+			{
+				if (!projectsByFilePath.TryGetValue(Path.GetFullPath(targetProjectPath), out var targetProject))
+				{
+					continue;
+				}
+
+				references.Add(new SolutionProjectReference(
+					sourceProject.FilePath ?? sourceProject.Name,
+					sourceProject.Name,
+					targetProject.FilePath ?? targetProject.Name,
+					targetProject.Name));
+			}
+		}
+
+		var result = references
+			.GroupBy(reference => reference.SourceProjectPath + "\u001f" + reference.TargetProjectPath, StringComparer.OrdinalIgnoreCase)
+			.Select(group => group.First())
+			.OrderBy(reference => reference.SourceProjectName, StringComparer.Ordinal)
+			.ThenBy(reference => reference.TargetProjectName, StringComparer.Ordinal)
+			.ToImmutableArray();
+
+		return result;
 	}
 
 	private static async Task<ProjectAnalysisResult> AnalyzeProjectAsync(Project project, string projectPath, CancellationToken cancellationToken, AdditionalText? fallbackConfigFile = null)
@@ -85,7 +129,8 @@ internal sealed partial class ProjectAnalysisHost : IDisposable
 			: ArchitecturalConfigParser.FindConfigFile(projectAdditionalFiles) is null && inlineConfigXml is null
 				? GetSupplementalConfigurationFiles(projectFilePath, projectAdditionalFiles, inlineConfigXml, cancellationToken, fallbackConfigFile.Path)
 				: GetSupplementalConfigurationFiles(projectFilePath, projectAdditionalFiles, inlineConfigXml, cancellationToken);
-		var additionalFiles = GetEffectiveAdditionalFiles(project, projectAdditionalFiles, supplementalConfigFiles);
+		var referenceManifest = CreateProjectReferenceManifest(project);
+		var additionalFiles = GetEffectiveAdditionalFiles(projectAdditionalFiles, supplementalConfigFiles, referenceManifest, projectFilePath);
 		var analyzerOptions = new AnalyzerOptions(additionalFiles, project.AnalyzerOptions.AnalyzerConfigOptionsProvider);
 		var (configInputXml, configInputPath) = ReadConfigInput(additionalFiles, inlineConfigDocument, cancellationToken);
 
@@ -111,7 +156,8 @@ internal sealed partial class ProjectAnalysisHost : IDisposable
 			inlineConfigSourcePath,
 			analyzerDiagnostics,
 			compilerErrors,
-			[]);
+			[],
+			referenceManifest ?? ArchitectureReferenceManifest.Empty);
 	}
 
 	public void Dispose()
@@ -142,15 +188,22 @@ internal sealed record ProjectAnalysisResult(
 	string? InlineConfigSourcePath,
 	ImmutableArray<Diagnostic> AnalyzerDiagnostics,
 	ImmutableArray<string> CompilerErrors,
-	ImmutableArray<string> WorkspaceFailures);
+	ImmutableArray<string> WorkspaceFailures,
+	ArchitectureReferenceManifest ReferenceManifest = default);
 
 internal sealed record SolutionAnalysisResult(
 	string SolutionPath,
 	string SolutionDirectory,
 	string SolutionName,
 	ImmutableArray<ProjectAnalysisResult> Projects,
-	ImmutableArray<string> WorkspaceFailures)
+	ImmutableArray<string> WorkspaceFailures,
+	ImmutableArray<SolutionProjectReference> ProjectReferences = default)
 {
+	public ImmutableArray<SolutionProjectReference> EffectiveProjectReferences
+	{
+		get => ProjectReferences.IsDefault ? [] : ProjectReferences;
+	}
+
 	public ImmutableArray<Diagnostic> AnalyzerDiagnostics
 	{
 		get => [..Projects.SelectMany(project => project.AnalyzerDiagnostics)];
@@ -163,6 +216,6 @@ internal sealed record SolutionAnalysisResult(
 
 	public ProjectAnalysisResult? FirstConfiguredProject
 	{
-		get { return Projects.FirstOrDefault(project => project.Config.HasLayers || project.Config.HasProjectArchitecture); }
+		get { return Projects.FirstOrDefault(project => project.Config.HasLayers || project.Config.HasProjectArchitecture || project.Config.HasSolutionTopology || project.Config.HasOperationContracts); }
 	}
 }

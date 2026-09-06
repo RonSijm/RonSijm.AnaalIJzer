@@ -22,6 +22,9 @@ internal static class ViolationRecordFactory
 		    or ArchitecturalDiagnosticIds.ContractPurityViolation
 		    or ArchitecturalDiagnosticIds.InheritancePolicyViolation
 		    or ArchitecturalDiagnosticIds.ReturnValuePolicyViolation
+		    or ArchitecturalDiagnosticIds.ForbiddenOperationPolicyViolation
+		    or ArchitecturalDiagnosticIds.BehavioralOperationPolicyViolation
+		    or ArchitecturalDiagnosticIds.OperationContractViolation
 		    or ArchitecturalDiagnosticIds.ForbiddenTransitiveExposure
 		    or ArchitecturalDiagnosticIds.SourceLocationViolation
 		    or ArchitecturalDiagnosticIds.BoundaryEntryPointViolation
@@ -40,6 +43,9 @@ internal static class ViolationRecordFactory
 			ArchitecturalDiagnosticIds.ContractPurityViolation => Get(ArchitecturalDiagnostics.PropertyDeclaredSymbolName) ?? "UnknownDeclaration",
 			ArchitecturalDiagnosticIds.InheritancePolicyViolation => Get(ArchitecturalDiagnostics.PropertyDeclaredSymbolName) ?? "UnknownDeclaration",
 			ArchitecturalDiagnosticIds.ReturnValuePolicyViolation => Get(ArchitecturalDiagnostics.PropertyDeclaredSymbolName) ?? "UnknownMethod",
+			ArchitecturalDiagnosticIds.ForbiddenOperationPolicyViolation => Get(ArchitecturalDiagnostics.PropertyOperationDisplayName) ?? "UnknownOperation",
+			ArchitecturalDiagnosticIds.BehavioralOperationPolicyViolation => Get(ArchitecturalDiagnostics.PropertyOperationDisplayName) ?? Get(ArchitecturalDiagnostics.PropertyOperationPolicyRule) ?? "UnknownOperationPolicy",
+			ArchitecturalDiagnosticIds.OperationContractViolation => Get(ArchitecturalDiagnostics.PropertyOperationContractName) ?? "UnknownOperationContract",
 			ArchitecturalDiagnosticIds.ProjectReferenceViolation => Get(ArchitecturalDiagnostics.PropertyTargetProjectName) ?? "UnknownTargetProject",
 			ArchitecturalDiagnosticIds.PackageReferenceViolation => Get(ArchitecturalDiagnostics.PropertyPackageId) ?? "UnknownPackage",
 			ArchitecturalDiagnosticIds.ObservedDependencyCycle => Get(ArchitecturalDiagnostics.PropertyCycleLayers) ?? "UnknownCycle",
@@ -82,7 +88,11 @@ internal static class ViolationRecordFactory
 					? Get(ArchitecturalDiagnostics.PropertyContractViolationKind)
 					: diagnostic.Id == ArchitecturalDiagnosticIds.ReturnValuePolicyViolation
 						? Get(ArchitecturalDiagnostics.PropertyReturnValueRuleTarget)
-					: Get(ArchitecturalDiagnostics.PropertyDeclarationTarget),
+					: diagnostic.Id is ArchitecturalDiagnosticIds.ForbiddenOperationPolicyViolation or ArchitecturalDiagnosticIds.BehavioralOperationPolicyViolation
+						? Get(ArchitecturalDiagnostics.PropertyOperationKind)
+						: diagnostic.Id == ArchitecturalDiagnosticIds.OperationContractViolation
+							? Get(ArchitecturalDiagnostics.PropertyOperationContractViolationKind)
+						: Get(ArchitecturalDiagnostics.PropertyDeclarationTarget),
 			Get(ArchitecturalDiagnostics.PropertyDeclaredAccessibility),
 			Get(ArchitecturalDiagnostics.PropertyApiMemberName),
 			Get(ArchitecturalDiagnostics.PropertyExposurePath),

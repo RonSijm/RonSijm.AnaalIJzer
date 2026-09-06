@@ -3,9 +3,12 @@ using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 using RonSijm.AnaalIJzer.Core.DependencyRules;
 using RonSijm.AnaalIJzer.Core.Exceptions;
 using RonSijm.AnaalIJzer.Core.LayerModel;
+using RonSijm.AnaalIJzer.Core.Observations;
+using RonSijm.AnaalIJzer.Core.OperationContracts.Model;
 using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Config.Model;
 using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.DependencyRules;
 using RonSijm.AnaalIJzer.Core.ProjectArchitecture;
+using RonSijm.AnaalIJzer.Core.ProjectArchitecture.SolutionTopology;
 
 namespace RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.Policies;
 
@@ -24,7 +27,10 @@ public readonly struct CompiledArchitectureConfig(
 	ImmutableArray<(string Name, string? Comment)> forbiddenPatterns,
 	ProjectArchitectureConfig projectArchitecture,
 	ArchitectureDocumentation documentation,
-	ImmutableArray<ConfigurationIssue> configurationIssues)
+	ImmutableArray<ConfigurationIssue> configurationIssues,
+	SolutionTopologyConfig solutionTopology = default,
+	GeneratedCodeAnalysisScope generatedCodeScope = default,
+	OperationContractCatalog operationContracts = default)
 {
 	public static readonly CompiledArchitectureConfig Empty = new(
 		CompiledLayerCatalog.Empty,
@@ -41,7 +47,8 @@ public readonly struct CompiledArchitectureConfig(
 		ImmutableArray<(string, string?)>.Empty,
 		ProjectArchitectureConfig.Empty,
 		ArchitectureDocumentation.Empty,
-		ImmutableArray<ConfigurationIssue>.Empty);
+		ImmutableArray<ConfigurationIssue>.Empty,
+		SolutionTopologyConfig.Empty);
 
 	public CompiledLayerCatalog LayerCatalog { get; } = layerCatalog;
 	public DependencyGraph Graph { get; } = graph;
@@ -56,6 +63,9 @@ public readonly struct CompiledArchitectureConfig(
 	public ImmutableArray<string> LayerNames { get; } = layerNames;
 	public ImmutableArray<(string Name, string? Comment)> ForbiddenPatterns { get; } = forbiddenPatterns;
 	public ProjectArchitectureConfig ProjectArchitecture { get; } = projectArchitecture;
+	public SolutionTopologyConfig SolutionTopology { get; } = solutionTopology;
+	public GeneratedCodeAnalysisScope GeneratedCodeScope { get; } = generatedCodeScope;
+	public OperationContractCatalog OperationContracts { get; } = operationContracts;
 	public ArchitectureDocumentation Documentation { get; } = documentation;
 	public ImmutableArray<ConfigurationIssue> ConfigurationIssues { get; } = configurationIssues;
 }

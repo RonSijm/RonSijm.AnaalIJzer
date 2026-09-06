@@ -6,13 +6,15 @@ namespace RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.DependencyRules;
 
 public readonly partial struct LayerRegistry
 {
-	public NameRuleViolation? EvaluateNameRules(LayerMatch layerMatch, NameRuleTrigger trigger, NameRuleSubject source, NameRuleSubject target, string site)
+	public NameRuleViolation? EvaluateNameRules(LayerMatch layerMatch, NameRuleTrigger trigger, NameRuleSubject source, NameRuleSubject target, string site, NameRuleValueTrackingMode? valueTracking = null)
 	{
 		var policy = GetNameRulePolicy(layerMatch);
-		var result = policy.Evaluate(trigger, source, target, site);
+		var result = policy.Evaluate(trigger, source, target, site, valueTracking);
 
 		return result;
 	}
+
+	public bool HasIntraProceduralNameRules => _catalog.HasIntraProceduralNameRules;
 
 	private NameRulePolicy GetNameRulePolicy(LayerMatch layerMatch)
 	{

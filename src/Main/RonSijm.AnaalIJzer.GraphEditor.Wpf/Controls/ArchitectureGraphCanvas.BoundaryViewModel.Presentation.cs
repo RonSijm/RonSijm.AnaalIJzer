@@ -4,6 +4,7 @@ using RonSijm.AnaalIJzer.GraphApplication;
 using RonSijm.AnaalIJzer.GraphApplication.Selection;
 using RonSijm.AnaalIJzer.Graphing.ViewModels;
 using RonSijm.AnaalIJzer.GraphEditor.Wpf.Layout;
+using RonSijm.AnaalIJzer.GraphModel.Model;
 using RonSijm.AnaalIJzer.Graphing.Wpf.Styling;
 
 namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
@@ -23,7 +24,9 @@ internal sealed partial class ArchitectureGraphCanvas
 				var exceptionReviews = ExceptionReviewCount > 0
 					? Environment.NewLine + "Exception reviews: " + ExceptionReviewCount + Environment.NewLine + string.Join(Environment.NewLine, ExceptionReviewSummaries)
 					: string.Empty;
-				var result = Path + description + evidence + exceptionReviews + Environment.NewLine + "Nested layer boundary.";
+				var readOnlyDetails = string.IsNullOrWhiteSpace(ReadOnlyDetails) ? string.Empty : Environment.NewLine + ReadOnlyDetails;
+				var boundaryKind = Kind == ArchitectureGraphNodeKind.SolutionModule ? "Solution topology" : "Nested layer boundary";
+				var result = boundaryKind + ": " + Path + description + evidence + exceptionReviews + readOnlyDetails;
 
 				return result;
 			}
@@ -35,7 +38,8 @@ internal sealed partial class ArchitectureGraphCanvas
 			{
 				var evidence = TypeCount > 0 ? "  (" + TypeCount + ")" : string.Empty;
 				var exceptionReviews = ExceptionReviewCount > 0 ? "  [ARCH017 " + ExceptionReviewCount + "]" : string.Empty;
-				var result = DisplayName + evidence + exceptionReviews;
+				var marker = Kind == ArchitectureGraphNodeKind.SolutionModule ? "Solution topology: " : string.Empty;
+				var result = marker + DisplayName + evidence + exceptionReviews;
 
 				return result;
 			}

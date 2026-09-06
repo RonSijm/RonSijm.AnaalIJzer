@@ -81,7 +81,7 @@ internal static class ExampleSettingsValidation
 		failures.AddRange(validationMessages.Select(message => $"{label}: {message}"));
 	}
 
-	private static bool SchemaHintExists(string xmlPath, string schemaLocation)
+	internal static bool SchemaHintExists(string xmlPath, string schemaLocation)
 	{
 		if (Uri.TryCreate(schemaLocation, UriKind.Absolute, out var uri) && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
 		{
@@ -89,7 +89,35 @@ internal static class ExampleSettingsValidation
 		}
 
 		var resolvedPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(xmlPath)!, schemaLocation));
-		var result = File.Exists(resolvedPath);
+		var result = File.Exists(resolvedPath) && HasExactFileSystemCasing(resolvedPath);
+
+		return result;
+	}
+
+	private static bool HasExactFileSystemCasing(string path)
+	{
+		var rootPath = Path.GetPathRoot(path);
+		if (string.IsNullOrEmpty(rootPath))
+		{
+			return false;
+		}
+
+		var currentPath = rootPath;
+		var pathSegments = path[rootPath.Length..].Split([Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar], StringSplitOptions.RemoveEmptyEntries);
+		foreach (var pathSegment in pathSegments)
+		{
+			var matchingPath = Directory
+				.EnumerateFileSystemEntries(currentPath)
+				.FirstOrDefault(candidate => string.Equals(Path.GetFileName(candidate), pathSegment, StringComparison.Ordinal));
+			if (matchingPath is null)
+			{
+				return false;
+			}
+
+			currentPath = matchingPath;
+		}
+
+		var result = File.Exists(currentPath);
 
 		return result;
 	}

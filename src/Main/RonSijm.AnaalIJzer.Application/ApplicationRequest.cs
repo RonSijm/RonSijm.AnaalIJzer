@@ -28,6 +28,7 @@ public sealed record ApplicationRequest(ApplicationOperationKind Operation)
 	public bool IncludeCodeEvidence { get; init; }
 	public bool IncludeDocumentationInput { get; init; }
 	public bool GenerateDocumentation { get; init; }
+	public bool EnforceSolutionTopology { get; init; }
 	public bool Force { get; init; }
 	public bool WriteOutput { get; init; } = true;
 }

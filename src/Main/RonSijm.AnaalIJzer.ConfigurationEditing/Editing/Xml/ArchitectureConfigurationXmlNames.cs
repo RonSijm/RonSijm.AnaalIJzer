@@ -25,5 +25,8 @@ internal static class ArchitectureConfigurationXmlNames
 	public const string VisibilityPolicyElementName = "VisibilityPolicy";
 	public const string InheritancePolicyElementName = "InheritancePolicy";
 	public const string ReturnValuePolicyElementName = "ReturnValuePolicy";
+	public const string ForbiddenOperationsElementName = "ForbiddenOperations";
+	public const string BehavioralOperationsElementName = "BehavioralOperations";
+	public const string OperationsElementName = "Operations";
 	public const string ApiSurfaceElementName = "ApiSurface";
 }

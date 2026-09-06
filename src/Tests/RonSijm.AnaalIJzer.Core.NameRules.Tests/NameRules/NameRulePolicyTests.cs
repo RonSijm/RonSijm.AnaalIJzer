@@ -60,7 +60,23 @@ public sealed class NameRulePolicyTests
 		result.Should().BeNull();
 	}
 
-	private static NameMatchingRule CreateRule(NameRuleKind kind, NameRuleTrigger trigger, string layerName)
+	[Fact]
+	public void Evaluate_CanSelectOnlyIntraProceduralRules()
+	{
+		var directRule = CreateRule(NameRuleKind.RequireMatchingNames, NameRuleTrigger.ValueMovement, "Application", NameRuleValueTrackingMode.Direct);
+		var intraProceduralRule = CreateRule(NameRuleKind.RequireMatchingNames, NameRuleTrigger.ValueMovement, "Application/Intra", NameRuleValueTrackingMode.IntraProcedural);
+		var policy = new NameRulePolicy([directRule, intraProceduralRule]);
+		var source = CreateValueSubject("patientId");
+		var target = CreateValueSubject("doctorId");
+
+		var result = policy.Evaluate(NameRuleTrigger.ValueMovement, source, target, DependencySites.Method, NameRuleValueTrackingMode.IntraProcedural);
+
+		result.Should().NotBeNull();
+		result.Value.LayerName.Should().Be("Application/Intra");
+		policy.HasIntraProceduralRules.Should().BeTrue();
+	}
+
+	private static NameMatchingRule CreateRule(NameRuleKind kind, NameRuleTrigger trigger, string layerName, NameRuleValueTrackingMode valueTracking = NameRuleValueTrackingMode.Direct)
 	{
 		var result = new NameMatchingRule(
 			kind,
@@ -74,7 +90,8 @@ public sealed class NameRulePolicyTests
 			null,
 			"Architecture.anl",
 			12,
-			3);
+			3,
+			valueTracking);
 
 		return result;
 	}

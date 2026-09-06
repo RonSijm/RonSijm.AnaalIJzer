@@ -31,7 +31,9 @@ internal static partial class ArchitectureGraphViewModelBuilder
 				CountIncomingViolations(componentEvidence, node.Layer.Path, false),
 				CountOutgoingViolations(componentEvidence, node.Layer.Path, false),
 				CountExceptionReviews(exceptionReviews, node.Layer.Path, false),
-				GetExceptionReviewSummaries(exceptionReviews, node.Layer.Path, false)))
+				GetExceptionReviewSummaries(exceptionReviews, node.Layer.Path, false),
+				node.Layer.Kind,
+				node.Layer.ReadOnlyDetails))
 			.ToImmutableArray();
 		var ruleEdges = rules
 			.Select(CreateEdge)
@@ -57,7 +59,9 @@ internal static partial class ArchitectureGraphViewModelBuilder
 				CountIncomingViolations(componentEvidence, boundary.Layer.Path, true),
 				CountOutgoingViolations(componentEvidence, boundary.Layer.Path, true),
 				CountExceptionReviews(exceptionReviews, boundary.Layer.Path, true),
-				GetExceptionReviewSummaries(exceptionReviews, boundary.Layer.Path, true)))
+				GetExceptionReviewSummaries(exceptionReviews, boundary.Layer.Path, true),
+				boundary.Layer.Kind,
+				boundary.Layer.ReadOnlyDetails))
 			.ToImmutableArray();
 		var result = new GraphDiagram(nodes, edges, boundaries);
 

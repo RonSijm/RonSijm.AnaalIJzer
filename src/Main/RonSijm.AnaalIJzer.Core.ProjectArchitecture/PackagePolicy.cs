@@ -5,8 +5,8 @@ namespace RonSijm.AnaalIJzer.Core.ProjectArchitecture;
 
 public readonly struct PackagePolicy(
 	string projectGroup,
-	ImmutableArray<PackageMatcher> allowedMatchers,
-	ImmutableArray<PackageMatcher> forbiddenMatchers,
+	ImmutableArray<ReferenceIdentityMatcher> allowedMatchers,
+	ImmutableArray<ReferenceIdentityMatcher> forbiddenMatchers,
 	bool includeTransitive,
 	string? description,
 	string xmlPath,
@@ -15,9 +15,9 @@ public readonly struct PackagePolicy(
 {
 	public string ProjectGroup { get; } = projectGroup;
 
-	public ImmutableArray<PackageMatcher> AllowedMatchers { get; } = allowedMatchers;
+	public ImmutableArray<ReferenceIdentityMatcher> AllowedMatchers { get; } = allowedMatchers;
 
-	public ImmutableArray<PackageMatcher> ForbiddenMatchers { get; } = forbiddenMatchers;
+	public ImmutableArray<ReferenceIdentityMatcher> ForbiddenMatchers { get; } = forbiddenMatchers;
 
 	public bool IncludeTransitive { get; } = includeTransitive;
 

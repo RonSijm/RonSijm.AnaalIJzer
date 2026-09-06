@@ -4,7 +4,7 @@ using RonSijm.AnaalIJzer.Core.Matchers.ProjectArchitecture;
 
 namespace RonSijm.AnaalIJzer.Core.Matchers.Tests.Matching;
 
-public sealed class ProjectAndPackageMatcherTests
+public sealed class ProjectAndReferenceMatcherTests
 {
 	[Fact]
 	public void ProjectMatcher_UsesCaseSensitiveStringRules()
@@ -19,9 +19,9 @@ public sealed class ProjectAndPackageMatcherTests
 	}
 
 	[Fact]
-	public void PackageMatcher_UsesCaseInsensitiveStringRules()
+	public void ReferenceIdentityMatcher_UsesCaseInsensitiveStringRules()
 	{
-		var matcher = new PackageMatcher(
+		var matcher = new ReferenceIdentityMatcher(
 			[
 				new MatchCondition(MatchKind.StartsWith, "microsoft."),
 				new MatchCondition(MatchKind.Contains, "codeanalysis")

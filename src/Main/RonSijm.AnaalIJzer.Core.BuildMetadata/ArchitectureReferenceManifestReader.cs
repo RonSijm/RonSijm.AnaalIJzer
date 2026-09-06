@@ -26,6 +26,7 @@ internal static class ArchitectureReferenceManifestReader
         var seenErrors = new HashSet<string>(StringComparer.Ordinal);
         var projectReferences = ImmutableArray.CreateBuilder<ProjectReferenceManifestRecord>();
         var packageReferences = ImmutableArray.CreateBuilder<ArchitecturePackageReference>();
+		var assemblyReferences = ImmutableArray.CreateBuilder<ArchitectureAssemblyReference>();
         for (var index = 1; index < lines.Length; index++)
         {
             var line = lines[index];
@@ -48,7 +49,7 @@ internal static class ArchitectureReferenceManifestReader
                 continue;
             }
 
-            if (!TryParseRecord(parts, out var recordKind, out var projectRecord, out var packageRecord, out var error))
+			if (!TryParseRecord(parts, out var recordKind, out var projectRecord, out var packageRecord, out var assemblyRecord, out var error))
             {
                 if (seenErrors.Add(error))
                 {
@@ -67,9 +68,14 @@ internal static class ArchitectureReferenceManifestReader
             {
                 packageReferences.Add(packageRecord);
             }
+
+			if (recordKind == "Assembly")
+			{
+				assemblyReferences.Add(assemblyRecord);
+			}
         }
 
-        var result = new ArchitectureReferenceManifest(projectReferences.ToImmutable(), packageReferences.ToImmutable());
+		var result = new ArchitectureReferenceManifest(projectReferences.ToImmutable(), packageReferences.ToImmutable(), assemblyReferences.ToImmutable());
 
         return result;
     }
@@ -79,6 +85,7 @@ internal static class ArchitectureReferenceManifestReader
         out string recordKind,
         out ProjectReferenceManifestRecord projectRecord,
         out ArchitecturePackageReference packageRecord,
+		out ArchitectureAssemblyReference assemblyRecord,
         out string error)
     {
         if (string.Equals(parts[0], "Project", StringComparison.Ordinal))
@@ -88,6 +95,7 @@ internal static class ArchitectureReferenceManifestReader
                 recordKind = string.Empty;
                 projectRecord = default;
                 packageRecord = default;
+				assemblyRecord = default;
                 error = "Project reference manifest entries must contain exactly three tab-delimited columns.";
                 return false;
             }
@@ -97,6 +105,7 @@ internal static class ArchitectureReferenceManifestReader
                 recordKind = string.Empty;
                 projectRecord = default;
                 packageRecord = default;
+				assemblyRecord = default;
                 error = "Project reference manifest entries require both source and target project paths.";
                 return false;
             }
@@ -104,6 +113,7 @@ internal static class ArchitectureReferenceManifestReader
             recordKind = "Project";
             projectRecord = new ProjectReferenceManifestRecord(parts[1].Trim(), parts[2].Trim());
             packageRecord = default;
+			assemblyRecord = default;
             error = string.Empty;
             return true;
         }
@@ -115,6 +125,7 @@ internal static class ArchitectureReferenceManifestReader
                 recordKind = string.Empty;
                 projectRecord = default;
                 packageRecord = default;
+				assemblyRecord = default;
                 error = "Package reference manifest entries must contain exactly five tab-delimited columns.";
                 return false;
             }
@@ -124,6 +135,7 @@ internal static class ArchitectureReferenceManifestReader
                 recordKind = string.Empty;
                 projectRecord = default;
                 packageRecord = default;
+				assemblyRecord = default;
                 error = "Package reference manifest entries require source path, package ID, version, and directness.";
                 return false;
             }
@@ -133,6 +145,7 @@ internal static class ArchitectureReferenceManifestReader
                 recordKind = string.Empty;
                 projectRecord = default;
                 packageRecord = default;
+				assemblyRecord = default;
                 error = $"Package reference manifest contains unsupported package reference kind '{parts[4].Trim()}'.";
                 return false;
             }
@@ -140,13 +153,45 @@ internal static class ArchitectureReferenceManifestReader
             recordKind = "Package";
             projectRecord = default;
             packageRecord = new ArchitecturePackageReference(parts[1].Trim(), parts[2].Trim(), parts[3].Trim(), referenceKind);
+			assemblyRecord = default;
             error = string.Empty;
             return true;
         }
 
+		if (string.Equals(parts[0], "Assembly", StringComparison.Ordinal))
+		{
+			if (parts.Length != 4)
+			{
+				recordKind = string.Empty;
+				projectRecord = default;
+				packageRecord = default;
+				assemblyRecord = default;
+				error = "Assembly reference manifest entries must contain source path, assembly identity, and HintPath columns.";
+				return false;
+			}
+
+			if (string.IsNullOrWhiteSpace(parts[1]) || string.IsNullOrWhiteSpace(parts[2]))
+			{
+				recordKind = string.Empty;
+				projectRecord = default;
+				packageRecord = default;
+				assemblyRecord = default;
+				error = "Assembly reference manifest entries require source path and assembly identity.";
+				return false;
+			}
+
+			recordKind = "Assembly";
+			projectRecord = default;
+			packageRecord = default;
+			assemblyRecord = new ArchitectureAssemblyReference(parts[1].Trim(), parts[2].Trim(), string.IsNullOrWhiteSpace(parts[3]) ? null : parts[3].Trim());
+			error = string.Empty;
+			return true;
+		}
+
         recordKind = string.Empty;
         projectRecord = default;
         packageRecord = default;
+		assemblyRecord = default;
         error = $"Architecture reference manifest contains unsupported record kind '{parts[0]}'.";
         return false;
     }

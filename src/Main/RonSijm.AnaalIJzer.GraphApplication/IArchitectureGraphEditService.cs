@@ -37,6 +37,8 @@ internal interface IArchitectureGraphEditService
 
 	ArchitectureConfigurationEditResult AddInclude(ArchitectureConfigurationSource source, string path);
 
+	ArchitectureConfigurationEditResult AddOperationContracts(ArchitectureConfigurationSource source, ImmutableDictionary<string, string> attributes, string childXml);
+
 	ArchitectureConfigurationEditResult SetLayerDescription(ArchitectureLayerEditHandle handle, string? description);
 
 	ArchitectureConfigurationEditResult SetLayerName(ArchitectureLayerEditHandle handle, string name);
@@ -58,6 +60,10 @@ internal interface IArchitectureGraphEditService
 	ArchitectureConfigurationEditResult AddInheritancePolicy(ArchitectureLayerEditHandle handle, ImmutableDictionary<string, string> attributes);
 
 	ArchitectureConfigurationEditResult AddReturnValuePolicy(ArchitectureLayerEditHandle handle, ImmutableDictionary<string, string> attributes, string childXml);
+
+	ArchitectureConfigurationEditResult AddForbiddenOperationPolicy(ArchitectureLayerEditHandle handle, ImmutableDictionary<string, string> attributes, string childXml);
+
+	ArchitectureConfigurationEditResult AddBehavioralOperationPolicy(ArchitectureLayerEditHandle handle, ImmutableDictionary<string, string> attributes, string childXml);
 
 	ArchitectureConfigurationEditResult AddVisibilityPolicy(ArchitectureLayerEditHandle handle, ImmutableDictionary<string, string> attributes);
 

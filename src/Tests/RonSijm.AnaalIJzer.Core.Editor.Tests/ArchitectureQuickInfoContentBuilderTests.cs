@@ -79,6 +79,76 @@ public sealed class ArchitectureQuickInfoContentBuilderTests
 	}
 
 	[Fact]
+	public void CreateSiteContent_ExplainsForbiddenOperationPolicy()
+	{
+		var indicator = new ArchitectureDependencySiteIndicator(
+			new TextSpan(0, 16),
+			ArchitectureDependencySites.StaticMember,
+			"PizzaKitchen",
+			"Kitchen",
+			"System.DateTime.UtcNow",
+			null,
+			0,
+			ArchitectureDependencySiteStatus.TypePolicyViolation,
+			"ARCH021",
+			"The kitchen may not read the system clock.",
+			"the ForbiddenOperations policy in layer 'Kitchen' blocks System.DateTime.UtcNow at StaticMember");
+
+		var content = ArchitectureQuickInfoContentBuilder.CreateSiteContent(indicator);
+
+		content.Title.Should().Be("AnaalIJzer forbidden operation");
+		content.Lines.Should().Contain("Operation: System.DateTime.UtcNow");
+		content.Lines.Should().Contain("Diagnostic: ARCH021");
+		content.Lines.Should().Contain("Reason: the ForbiddenOperations policy in layer 'Kitchen' blocks System.DateTime.UtcNow at StaticMember");
+	}
+
+	[Fact]
+	public void CreateSiteContent_ExplainsBehavioralOperationPolicy()
+	{
+		var indicator = new ArchitectureDependencySiteIndicator(
+			new TextSpan(0, 16),
+			ArchitectureDependencySites.Method,
+			"PizzaKitchen",
+			"Kitchen",
+			"RequiredOperationBefore",
+			null,
+			0,
+			ArchitectureDependencySiteStatus.TypePolicyViolation,
+			"ARCH022",
+			"The kitchen must validate before saving a pizza.",
+			"the BehavioralOperations policy in layer 'Kitchen' requires PizzaValidator.Validate before PizzaRepository.Save in declaration 'PizzaKitchen.Submit()'");
+
+		var content = ArchitectureQuickInfoContentBuilder.CreateSiteContent(indicator);
+
+		content.Title.Should().Be("AnaalIJzer behavioral operation");
+		content.Lines.Should().Contain("Behavioral policy: RequiredOperationBefore");
+		content.Lines.Should().Contain("Diagnostic: ARCH022");
+		content.Lines.Should().Contain("Reason: the BehavioralOperations policy in layer 'Kitchen' requires PizzaValidator.Validate before PizzaRepository.Save in declaration 'PizzaKitchen.Submit()'");
+	}
+
+	[Fact]
+	public void CreateSiteContent_ExplainsOperationContractViolation()
+	{
+		var indicator = new ArchitectureDependencySiteIndicator(
+			new TextSpan(0, 16),
+			ArchitectureDependencySites.Method,
+			"PizzaOrderController",
+			"Controller",
+			"PlacePizzaOrder",
+			null,
+			0,
+			ArchitectureDependencySiteStatus.TypePolicyViolation,
+			"ARCH023",
+			"The entry-point declaration does not directly invoke the configured owner.");
+
+		var content = ArchitectureQuickInfoContentBuilder.CreateSiteContent(indicator);
+
+		content.Title.Should().Be("AnaalIJzer operation contract");
+		content.Lines.Should().Contain("Operation contract: PlacePizzaOrder");
+		content.Lines.Should().Contain("Diagnostic: ARCH023");
+	}
+
+	[Fact]
 	public void ArchitectureEditorOptions_DerivesFeatureFlags_FromPassedSiteOptions()
 	{
 		var options = new ArchitectureEditorOptions(

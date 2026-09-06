@@ -29,3 +29,8 @@ Important behavior:
 - `arse inspect --solution` can find cross-project observed cycles that one project build cannot see by itself.
 
 See [`Example.Arch018.ObservedCycle`](../../Examples/Diagnostics/Example.Arch018.ObservedCycle).
+
+### Real-world uses
+
+- Reveal that an Order module calls Notifications and Notifications now calls Order back, even though both directions were once allowed separately.
+- Find a solution-wide cycle introduced by cross-project source dependencies before it turns into a deployment or testing knot.

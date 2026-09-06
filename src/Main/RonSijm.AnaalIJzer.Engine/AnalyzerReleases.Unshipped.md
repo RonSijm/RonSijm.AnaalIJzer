@@ -20,3 +20,6 @@ ARCH017 | Architecture | Warning | A configured architecture exception is invali
 ARCH018 | Architecture | Error | Observed source dependencies form a cycle between configured layers
 ARCH019 | Architecture | Error | A layer-scoped InheritancePolicy rejected a type that does not inherit or implement the required contract
 ARCH020 | Architecture | Error | A layer-scoped ReturnValuePolicy rejected a configured direct method return
+ARCH021 | Architecture | Error | A layer-scoped ForbiddenOperations policy rejected a resolved semantic operation
+ARCH022 | Architecture | Error | A layer-scoped BehavioralOperations policy rejected a mechanically provable operation condition
+ARCH023 | Architecture | Error | An explicitly configured operation contract rejected an owner or entry-point method declaration

@@ -16,6 +16,15 @@ public sealed class CommandOptionsTests
 	}
 
 	[Fact]
+	public void Parse_AcceptsSolutionTopologyEnforcement()
+	{
+		var options = CommandOptions.Parse(["--solution", "src\\MyApp.slnx", "--enforce-topology"]);
+		var request = options.ToRequest(ApplicationOperationKind.Inspect);
+
+		request.EnforceSolutionTopology.Should().BeTrue();
+	}
+
+	[Fact]
 	public void Parse_AcceptsHelpfulGenerationStrategy()
 	{
 		var options = CommandOptions.Parse(["--project", "src\\MyApp.csproj", "--strategy", "helpful"]);

@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.LanguageServices;
 using Microsoft.VisualStudio.Shell;
 using RonSijm.AnaalIJzer.Core.Configuration.Document.Sources;
-using RonSijm.AnaalIJzer.Diagnostics.CodeFixes;
+using RonSijm.AnaalIJzer.CodeFixes;
 using RonSijm.AnaalIJzer.EditorRuntime.Editor.Snapshots;
 using RonSijm.AnaalIJzer.Engine;
 using RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;

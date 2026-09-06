@@ -26,11 +26,14 @@
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Contracts\RonSijm.AnaalIJzer.Core.Contracts.csproj" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Inheritance\RonSijm.AnaalIJzer.Core.Inheritance.csproj" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.ReturnValues\RonSijm.AnaalIJzer.Core.ReturnValues.csproj" />
+		<ProjectReference Include="..\RonSijm.AnaalIJzer.Core.OperationPolicies\RonSijm.AnaalIJzer.Core.OperationPolicies.csproj" />
+		<ProjectReference Include="..\RonSijm.AnaalIJzer.Core.SemanticOperations\RonSijm.AnaalIJzer.Core.SemanticOperations.csproj" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Exceptions\RonSijm.AnaalIJzer.Core.Exceptions.csproj" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.BuildMetadata\RonSijm.AnaalIJzer.Core.BuildMetadata.csproj" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Findings\RonSijm.AnaalIJzer.Core.Findings.csproj" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Observations\RonSijm.AnaalIJzer.Core.Observations.csproj" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.ProjectArchitecture\RonSijm.AnaalIJzer.Core.ProjectArchitecture.csproj" />
+		<ProjectReference Include="..\RonSijm.AnaalIJzer.Core.OperationContracts\RonSijm.AnaalIJzer.Core.OperationContracts.csproj" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Configuration.Document\RonSijm.AnaalIJzer.Core.Configuration.Document.csproj" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Matchers\RonSijm.AnaalIJzer.Core.Matchers.csproj" />
     </ItemGroup>

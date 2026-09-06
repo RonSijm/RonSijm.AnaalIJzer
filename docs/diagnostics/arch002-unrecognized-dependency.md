@@ -32,3 +32,8 @@ At the root, the setting is site-scoped for every layered caller. On a layer, it
 #### IDE code fixes
 
 When the dependency really does belong to a known role, the IDE can classify it into an existing layer by adding an exact `<Class typeName="..."/>` matcher. When the site was enforced too aggressively, the IDE can also remove the current site from `requireRecognizedDependencies` either globally or for the current caller layer.
+
+#### Real-world uses
+
+- Close a newly hardened constructor-injection boundary so an unclassified vendor client or SDK cannot slip into it unnoticed.
+- Gradually require new code in one legacy area to classify architectural dependencies, without forcing the rest of the solution to do so yet.

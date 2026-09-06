@@ -91,6 +91,20 @@ public static partial class ArchitectureConfigurationEditService
 		return result;
 	}
 
+	public static ArchitectureConfigurationEditResult AddForbiddenOperationPolicy(ArchitectureLayerEditHandle handle, ImmutableDictionary<string, string> attributes, string childXml)
+	{
+		var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureLayerEditor.AddForbiddenOperationPolicy(handle, attributes, childXml));
+
+		return result;
+	}
+
+	public static ArchitectureConfigurationEditResult AddBehavioralOperationPolicy(ArchitectureLayerEditHandle handle, ImmutableDictionary<string, string> attributes, string childXml)
+	{
+		var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureLayerEditor.AddBehavioralOperationPolicy(handle, attributes, childXml));
+
+		return result;
+	}
+
 	public static ArchitectureConfigurationEditResult AddApiSurfacePolicy(ArchitectureLayerEditHandle handle, ImmutableDictionary<string, string> attributes, string childXml)
 	{
 		var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureLayerEditor.AddApiSurfacePolicy(handle, attributes, childXml));

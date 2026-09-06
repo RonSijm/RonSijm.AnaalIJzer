@@ -20,7 +20,7 @@ internal static partial class ArchitectureHealthReportGenerator
 	{
 		var findings = new List<ArchitectureFinding>();
 		var config = projects[0].Config;
-		var types = GetDistinctProjectTypes(projects, cancellationToken);
+		var types = GetDistinctProjectTypes(projects, config.GeneratedCodeScope, cancellationToken);
 		var matcherRules = GetMatcherRules(config);
 		var effectiveLayers = new Dictionary<INamedTypeSymbol, string?>(SymbolEqualityComparer.Default);
 		foreach (var type in types)
@@ -85,7 +85,7 @@ internal static partial class ArchitectureHealthReportGenerator
 		}
 
 		var observations = projects
-			.SelectMany(project => ProjectDependencyScanner.Scan(project.Compilation, ResolveLayer, cancellationToken))
+			.SelectMany(project => ProjectDependencyScanner.Scan(project.Compilation, ResolveLayer, config.GeneratedCodeScope, cancellationToken))
 			.ToArray();
 		foreach (var edge in config.Graph.DependencyEdges.Where(edge => edge.IsAllowed))
 		{

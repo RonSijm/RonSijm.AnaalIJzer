@@ -21,7 +21,9 @@ public static class ArchitectureGraphSnapshotFactory
 				layer.IsActive,
 				layer.SourcePath,
 				layer.SourceKind,
-				layer.XmlLineNumber))
+				layer.XmlLineNumber,
+				layer.Kind,
+				layer.ReadOnlyDetails))
 			.ToImmutableArray();
 		var rules = input.Rules
 			.Select(rule => new ArchitectureGraphRule(
@@ -53,7 +55,8 @@ public static class ArchitectureGraphSnapshotFactory
 			input.ConfigurationSource,
 			evidence,
 			input.ConfigurationCreationTargets,
-			exceptionReviews);
+			exceptionReviews,
+			input.HasSolutionTopology);
 
 		return result;
 	}
@@ -88,7 +91,8 @@ public static class ArchitectureGraphSnapshotFactory
 			configSnapshot.ConfigurationSource,
 			evidence,
 			configSnapshot.ConfigurationCreationTargets,
-			exceptionReviews);
+			exceptionReviews,
+			configSnapshot.HasSolutionTopology);
 
 		return result;
 	}

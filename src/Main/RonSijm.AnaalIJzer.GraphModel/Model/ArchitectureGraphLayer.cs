@@ -14,7 +14,9 @@ public sealed class ArchitectureGraphLayer
 		bool isActive,
 		string sourcePath = "",
 		ArchitectureConfigurationSourceKind sourceKind = ArchitectureConfigurationSourceKind.None,
-		int xmlLineNumber = 0)
+		int xmlLineNumber = 0,
+		ArchitectureGraphNodeKind kind = ArchitectureGraphNodeKind.Layer,
+		string? readOnlyDetails = null)
 	{
 		Path = path;
 		DisplayName = displayName;
@@ -25,14 +27,18 @@ public sealed class ArchitectureGraphLayer
 		SourcePath = sourcePath;
 		SourceKind = sourceKind;
 		XmlLineNumber = xmlLineNumber;
-		EditHandle = new ArchitectureLayerEditHandle(
-			SourceKind,
-			SourcePath,
-			XmlLineNumber,
-			Path,
-			DisplayName,
-			GetParentPath(Path),
-			Description);
+		Kind = kind;
+		ReadOnlyDetails = readOnlyDetails;
+		EditHandle = Kind == ArchitectureGraphNodeKind.Layer
+			? new ArchitectureLayerEditHandle(
+				SourceKind,
+				SourcePath,
+				XmlLineNumber,
+				Path,
+				DisplayName,
+				GetParentPath(Path),
+				Description)
+			: ArchitectureLayerEditHandle.None;
 	}
 
 	public string Path { get; }
@@ -52,6 +58,10 @@ public sealed class ArchitectureGraphLayer
 	public ArchitectureConfigurationSourceKind SourceKind { get; }
 
 	public int XmlLineNumber { get; }
+
+	public ArchitectureGraphNodeKind Kind { get; }
+
+	public string? ReadOnlyDetails { get; }
 
 	public ArchitectureLayerEditHandle EditHandle { get; }
 

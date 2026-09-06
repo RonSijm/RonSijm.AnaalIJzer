@@ -8,7 +8,7 @@ docs\build-readme.ps1
 
 The GitHub wiki is generated from the same source notes by `.github/workflows/publish-wiki.yml` on pushes to `main`. To let that workflow publish successfully, enable the repository wiki, create the first wiki page once, and add a `WIKI_PUSH_TOKEN` repository secret with wiki write access.
 
-This folder intentionally contains current product and tooling documentation only. Historical refactor plans and progress notes are not kept here.
+This folder intentionally contains current product and tooling documentation only. Historical refactor plans and progress notes belong in the local `../work/` folder, which is intentionally ignored and excluded from the generated README and wiki.
 
 ## Main Topics
 

@@ -2,6 +2,7 @@ using RonSijm.AnaalIJzer.Core.Configuration.Compilation.Parsing;
 using RonSijm.AnaalIJzer.Core.Configuration.Compilation.Tests.TestSupport;
 using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 using RonSijm.AnaalIJzer.Core.ProjectArchitecture;
+using RonSijm.AnaalIJzer.Core.ProjectArchitecture.SolutionTopology;
 using AnalyzerConfiguration = RonSijm.AnaalIJzer.Core.RuntimeConfig.Config.Model.AnalyzerConfig;
 
 namespace RonSijm.AnaalIJzer.Core.Configuration.Compilation.Tests.Parsing;
@@ -221,6 +222,110 @@ public sealed class ArchitecturalConfigParserCompilationTests
     }
 
     [Fact]
+    public void Parser_ReadsProjectReferenceRuleSelectors()
+    {
+        const string configText = """
+                                  <ArchitecturalLevels>
+                                    <ProjectArchitecture requireRecognizedProjects="true">
+                                      <ProjectGroup name="Application">
+                                        <Project endsWith=".Application" />
+                                      </ProjectGroup>
+                                      <ProjectGroup name="Contracts">
+                                        <Project endsWith=".Contracts" />
+                                      </ProjectGroup>
+                                      <AllowedProjectReference from="Application" to="Contracts">
+                                        <From exactName="Shop.Orders.Application" />
+                                        <To exactName="Shop.Orders.Contracts" />
+                                        <To exactName="Shop.Shared.Contracts" />
+                                      </AllowedProjectReference>
+                                    </ProjectArchitecture>
+                                  </ArchitecturalLevels>
+                                  """;
+
+        var config = ParseConfig(configText);
+        var rule = config.ProjectArchitecture.Rules.Should().ContainSingle().Subject;
+
+        rule.FromMatchers.Should().ContainSingle();
+        rule.FromMatchers[0].Matches("Shop.Orders.Application").Should().BeTrue();
+        rule.ToMatchers.Should().HaveCount(2);
+        rule.ToMatchers.Should().Contain(matcher => matcher.Matches("Shop.Orders.Contracts"));
+        rule.ToMatchers.Should().Contain(matcher => matcher.Matches("Shop.Shared.Contracts"));
+    }
+
+    [Fact]
+    public void Parser_RejectsEmptyProjectReferenceRuleSelector()
+    {
+        const string configText = """
+                                  <ArchitecturalLevels>
+                                    <ProjectArchitecture>
+                                      <ProjectGroup name="Application">
+                                        <Project endsWith=".Application" />
+                                      </ProjectGroup>
+                                      <ProjectGroup name="Contracts">
+                                        <Project endsWith=".Contracts" />
+                                      </ProjectGroup>
+                                      <AllowedProjectReference from="Application" to="Contracts">
+                                        <From />
+                                      </AllowedProjectReference>
+                                    </ProjectArchitecture>
+                                  </ArchitecturalLevels>
+                                  """;
+
+        var config = ParseConfig(configText);
+
+        config.ProjectArchitecture.Rules.Should().BeEmpty();
+        config.ConfigurationIssues.Should().ContainSingle(issue => issue.Message.Contains("From selector requires at least one project matcher attribute", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Parser_ReadsSolutionTopology()
+    {
+        const string configText = """
+                                  <ArchitecturalLevels>
+                                    <SolutionTopology requireRecognizedProjects="true" enforceAcyclic="true">
+                                      <Module name="Application">
+                                        <Project endsWith=".Application" />
+                                      </Module>
+                                      <Module name="Contracts">
+                                        <Project endsWith=".Contracts" />
+                                      </Module>
+                                      <AllowedModuleReference from="Application" to="Contracts" />
+                                      <BlockedModuleReference from="Contracts" to="Application" />
+                                    </SolutionTopology>
+                                  </ArchitecturalLevels>
+                                  """;
+
+        var config = ParseConfig(configText);
+
+        config.HasSolutionTopology.Should().BeTrue();
+        config.SolutionTopology.RequireRecognizedProjects.Should().BeTrue();
+        config.SolutionTopology.EnforceAcyclic.Should().BeTrue();
+        config.SolutionTopology.Modules.Select(module => module.Name).Should().Equal("Application", "Contracts");
+        config.SolutionTopology.Rules.Should().ContainSingle(rule => rule.Kind == SolutionModuleReferenceRuleKind.Allowed);
+        config.SolutionTopology.Rules.Should().ContainSingle(rule => rule.Kind == SolutionModuleReferenceRuleKind.Blocked);
+    }
+
+    [Fact]
+    public void Parser_RejectsSolutionTopologyRuleWithUnknownModule()
+    {
+        const string configText = """
+                                  <ArchitecturalLevels>
+                                    <SolutionTopology>
+                                      <Module name="Application">
+                                        <Project endsWith=".Application" />
+                                      </Module>
+                                      <AllowedModuleReference from="Application" to="Missing" />
+                                    </SolutionTopology>
+                                  </ArchitecturalLevels>
+                                  """;
+
+        var config = ParseConfig(configText);
+
+        config.SolutionTopology.Rules.Should().BeEmpty();
+        config.ConfigurationIssues.Should().ContainSingle(issue => issue.Message.Contains("unknown target solution module 'Missing'", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void Parser_ReadsPackagePolicies()
     {
         const string configText = """
@@ -248,6 +353,58 @@ public sealed class ArchitecturalConfigParserCompilationTests
         config.ProjectArchitecture.PackagePolicies[0].IncludeTransitive.Should().BeTrue();
         config.ProjectArchitecture.PackagePolicies[0].AllowedMatchers.Should().ContainSingle();
         config.ProjectArchitecture.PackagePolicies[0].ForbiddenMatchers.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void Parser_ReadsAssemblyReferencePolicies()
+    {
+        const string configText = """
+                                  <ArchitecturalLevels>
+                                    <ProjectArchitecture requireRecognizedProjects="true">
+                                      <ProjectGroup name="Domain">
+                                        <Project endsWith=".Domain" />
+                                      </ProjectGroup>
+                                      <AssemblyReferencePolicy projectGroup="Domain">
+                                        <Allowed>
+                                          <Assembly startsWith="System." />
+                                        </Allowed>
+                                        <Forbidden>
+                                          <Assembly exactName="System.Xml" />
+                                        </Forbidden>
+                                      </AssemblyReferencePolicy>
+                                    </ProjectArchitecture>
+                                  </ArchitecturalLevels>
+                                  """;
+
+        var config = ParseConfig(configText);
+
+        config.ConfigurationIssues.Should().BeEmpty();
+        var policy = config.ProjectArchitecture.AssemblyReferencePolicies.Should().ContainSingle().Subject;
+        policy.ProjectGroup.Should().Be("Domain");
+        policy.AllowedMatchers.Should().ContainSingle();
+        policy.ForbiddenMatchers.Should().ContainSingle();
+        policy.AllowedMatchers[0].Matches("System.Net.Http").Should().BeTrue();
+        policy.ForbiddenMatchers[0].Matches("system.xml").Should().BeTrue();
+    }
+
+    [Fact]
+    public void Parser_RejectsAssemblyReferencePolicyForUnknownProjectGroup()
+    {
+        const string configText = """
+                                  <ArchitecturalLevels>
+                                    <ProjectArchitecture>
+                                      <ProjectGroup name="Domain"><Project endsWith=".Domain" /></ProjectGroup>
+                                      <AssemblyReferencePolicy projectGroup="Missing">
+                                        <Forbidden><Assembly exactName="System.Xml" /></Forbidden>
+                                      </AssemblyReferencePolicy>
+                                    </ProjectArchitecture>
+                                  </ArchitecturalLevels>
+                                  """;
+
+        var config = ParseConfig(configText);
+
+        config.ProjectArchitecture.AssemblyReferencePolicies.Should().BeEmpty();
+        config.ConfigurationIssues.Should().ContainSingle(issue => issue.Message.Contains("unknown project group 'Missing'", StringComparison.Ordinal));
     }
 
     private static AnalyzerConfiguration ParseConfig(string configText)

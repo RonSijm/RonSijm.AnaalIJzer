@@ -1,5 +1,6 @@
 using RonSijm.AnaalIJzer.Outputs.Documentation;
 using RonSijm.AnaalIJzer.Outputs.Violations;
+using RonSijm.AnaalIJzer.Application.OperationContracts;
 
 namespace RonSijm.AnaalIJzer.Application;
 
@@ -68,6 +69,8 @@ internal static class ApplicationDocumentationOperations
 			result.Config.EnableReport ? result.Config.ReportPath : Path.Combine(result.ProjectDirectory, "architectural-violations.md"),
 			result.ProjectDirectory);
 		var report = ArchitecturalViolationReporter.GenerateMarkdownReport(result.AnalyzerDiagnostics, result.Config, result.AssemblyName);
+		report = WorkspaceAssemblyReferenceReportAppender.Append(report, ProjectArchitectureInspectionService.GetAssemblyReferencePolicyFindings([result]));
+		report = WorkspaceOperationContractReportAppender.Append(report, OperationContractInspectionService.GetFindings([result], cancellationToken));
 		await ApplicationOutputPathService.WriteOutputAsync(outputPath, report, request.Force, cancellationToken);
 		var toolRunResult = new ApplicationRunResult(outputPath, $"Wrote {outputPath}");
 
@@ -83,6 +86,8 @@ internal static class ApplicationDocumentationOperations
 			representativeProject.Config.EnableReport ? representativeProject.Config.ReportPath : Path.Combine(result.SolutionDirectory, "architectural-violations.md"),
 			result.SolutionDirectory);
 		var report = ArchitecturalViolationReporter.GenerateMarkdownReport(result.AnalyzerDiagnostics, representativeProject.Config, result.SolutionName, "Solution");
+		report = WorkspaceAssemblyReferenceReportAppender.Append(report, ProjectArchitectureInspectionService.GetAssemblyReferencePolicyFindings(result.Projects));
+		report = WorkspaceOperationContractReportAppender.Append(report, OperationContractInspectionService.GetFindings(result.Projects, cancellationToken));
 		await ApplicationOutputPathService.WriteOutputAsync(outputPath, report, request.Force, cancellationToken);
 		var toolRunResult = new ApplicationRunResult(outputPath, $"Wrote {outputPath}");
 

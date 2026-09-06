@@ -12,6 +12,9 @@
         <xs:element name="AllowedDependency" type="AllowedDependencyType" />
         <xs:element name="BlockedDependency" type="BlockedDependencyType" />
         <xs:element name="ProjectArchitecture" type="ProjectArchitectureType" />
+        <xs:element name="SolutionTopology" type="SolutionTopologyType" />
+        <xs:element name="Operations" type="OperationContractsType" />
+        <xs:element name="GeneratedCode" type="GeneratedCodeType" />
       </xs:choice>
       <xs:attributeGroup ref="DocumentationAttributes" />
       <xs:attribute name="requireRecognizedDependencies" type="xs:string">
@@ -152,6 +155,8 @@
       <xs:element name="VisibilityPolicy" type="VisibilityPolicyType" />
       <xs:element name="ContractPolicy" type="ContractPolicyType" />
       <xs:element name="ReturnValuePolicy" type="ReturnValuePolicyType" />
+      <xs:element name="ForbiddenOperations" type="ForbiddenOperationsType" />
+      <xs:element name="BehavioralOperations" type="BehavioralOperationsType" />
       <xs:element name="ApiSurface" type="ApiSurfaceType" />
       <xs:element name="EntryPoints" type="EntryPointsType" />
       <xs:element name="SourceLocations" type="SourceLocationsType" />
@@ -305,6 +310,306 @@
     <xs:attribute name="value" type="xs:string" />
   </xs:complexType>
 
+  <xs:complexType name="ForbiddenOperationsType">
+    <xs:annotation>
+      <xs:documentation>
+        Rejects resolved semantic operations inside methods, accessors, fields, and other code
+        owned by this layer or a descendant. Each ForbiddenOperation contains one or more
+        OperationMatcher alternatives. Unlike a broad Forbidden type policy, this can reject one
+        selected member while allowing other members on the same containing type.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="1" maxOccurs="unbounded">
+      <xs:element name="ForbiddenOperation" type="ForbiddenOperationType" />
+    </xs:choice>
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="ForbiddenOperationType">
+    <xs:annotation>
+      <xs:documentation>
+        Rejects an operation matched by any child OperationMatcher. allowedSites permits the
+        policy only at listed architectural sites; blockedSites permits it everywhere except the
+        listed sites. Supported site values are the same as AllowedDependency: Constructor,
+        Method, MethodReturn, Field, Property, Local, New, GenericInvocation, GenericArgument,
+        Inheritance, InterfaceImplementation, Attribute, and StaticMember.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="1" maxOccurs="unbounded">
+      <xs:element name="OperationMatcher" type="OperationMatcherType" />
+    </xs:choice>
+    <xs:attribute name="allowedSites" type="xs:string" />
+    <xs:attribute name="blockedSites" type="xs:string" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="BehavioralOperationsType">
+    <xs:annotation>
+      <xs:documentation>
+        Contains narrow, mechanically provable operation-presence, order, and count policies
+        for declarations owned by this layer or a descendant. Each rule selects its declaration
+        explicitly, then matches resolved semantic operations. These policies do not infer
+        business side effects or prove runtime behavior.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="1" maxOccurs="unbounded">
+      <xs:element name="RequiredOperation" type="RequiredOperationType" />
+      <xs:element name="RequiredOperationBefore" type="RequiredOperationBeforeType" />
+      <xs:element name="ForbiddenOperationAfter" type="ForbiddenOperationAfterType" />
+      <xs:element name="MaximumOperationCount" type="MaximumOperationCountType" />
+    </xs:choice>
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="OperationContractsType">
+    <xs:annotation>
+      <xs:documentation>
+        Declares explicit operation contracts selected by the configuration author. An operation
+        connects one owner method, optional request and response type shapes, and zero or more
+        entry-point methods. It does not infer routes, controllers, messages, or ownership from
+        framework conventions or symbol names.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="1" maxOccurs="unbounded">
+      <xs:element name="Operation" type="OperationContractType" />
+    </xs:choice>
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="OperationContractType">
+    <xs:annotation>
+      <xs:documentation>
+        One explicitly named operation. Owner is required. Request and Response constrain the
+        owner and entry-point method signatures when supplied. EntryPoint declarations must
+        directly invoke the configured owner selector. allowedOwnerLayers and
+        allowedEntryPointLayers are comma-separated layer paths; a root layer may be written as
+        its name and nested layers must use a root-qualified path beginning with '/'.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Owner" type="OperationContractDeclarationSelectorType" />
+      <xs:element name="Request" type="OperationContractTypeSelectorType" minOccurs="0" maxOccurs="1" />
+      <xs:element name="Response" type="OperationContractTypeSelectorType" minOccurs="0" maxOccurs="1" />
+      <xs:element name="EntryPoint" type="OperationContractDeclarationSelectorType" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" use="required" />
+    <xs:attribute name="allowedOwnerLayers" type="xs:string" />
+    <xs:attribute name="allowedEntryPointLayers" type="xs:string" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="OperationContractDeclarationSelectorType">
+    <xs:annotation>
+      <xs:documentation>
+        Selects a method declaration through the shared semantic declaration matcher. The Member
+        child must use memberKind="Method". ContainingType and Member conditions are combined;
+        use another Operation entry point when methods are alternatives.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="DeclarationMatcher" type="BehavioralDeclarationMatcherType" />
+    </xs:sequence>
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="OperationContractTypeSelectorType">
+    <xs:annotation>
+      <xs:documentation>
+        Selects one request or response type using the shared Class matcher vocabulary.
+        Attributes on Class are combined, including typeKind and nested declaration matchers.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Class" type="ClassMatchType" />
+    </xs:sequence>
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="RequiredOperationType">
+    <xs:annotation>
+      <xs:documentation>
+        Requires at least one direct OperationMatcher alternative in the selected declaration.
+        ordering=Dominance (the default) requires one matching operation to execute on every
+        control-flow path to exit. ordering=Lexical requires only that a matching operation
+        appears somewhere in the declaration body.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="DeclarationMatcher" type="BehavioralDeclarationMatcherType" />
+      <xs:element name="OperationMatcher" type="OperationMatcherType" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="ordering" type="BehavioralOperationOrderingType" default="Dominance" />
+    <xs:attribute name="allowedSites" type="xs:string" />
+    <xs:attribute name="blockedSites" type="xs:string" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="RequiredOperationBeforeType">
+    <xs:annotation>
+      <xs:documentation>
+        Requires one direct OperationMatcher alternative to occur before every selected
+        BeforeOperation target. ordering=Dominance (the default) proves the required operation
+        dominates the target; ordering=Lexical compares source positions only.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="DeclarationMatcher" type="BehavioralDeclarationMatcherType" />
+      <xs:element name="OperationMatcher" type="OperationMatcherType" minOccurs="1" maxOccurs="unbounded" />
+      <xs:element name="BeforeOperation" type="BehavioralRelatedOperationMatchersType" />
+    </xs:sequence>
+    <xs:attribute name="ordering" type="BehavioralOperationOrderingType" default="Dominance" />
+    <xs:attribute name="allowedSites" type="xs:string" />
+    <xs:attribute name="blockedSites" type="xs:string" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="ForbiddenOperationAfterType">
+    <xs:annotation>
+      <xs:documentation>
+        Rejects a direct OperationMatcher alternative after an AfterOperation target.
+        ordering=Dominance (the default) proves the terminal operation dominates the forbidden
+        operation; ordering=Lexical compares source positions only.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="DeclarationMatcher" type="BehavioralDeclarationMatcherType" />
+      <xs:element name="OperationMatcher" type="OperationMatcherType" minOccurs="1" maxOccurs="unbounded" />
+      <xs:element name="AfterOperation" type="BehavioralRelatedOperationMatchersType" />
+    </xs:sequence>
+    <xs:attribute name="ordering" type="BehavioralOperationOrderingType" default="Dominance" />
+    <xs:attribute name="allowedSites" type="xs:string" />
+    <xs:attribute name="blockedSites" type="xs:string" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="MaximumOperationCountType">
+    <xs:annotation>
+      <xs:documentation>
+        Limits the total number of matched direct OperationMatcher alternatives in a selected
+        declaration. maximum must be a positive whole number. The analyzer reports every
+        occurrence after the configured limit in lexical source order.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="DeclarationMatcher" type="BehavioralDeclarationMatcherType" />
+      <xs:element name="OperationMatcher" type="OperationMatcherType" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="maximum" type="xs:positiveInteger" use="required" />
+    <xs:attribute name="allowedSites" type="xs:string" />
+    <xs:attribute name="blockedSites" type="xs:string" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="BehavioralDeclarationMatcherType">
+    <xs:annotation>
+      <xs:documentation>
+        Selects the owning declaration of a behavioral rule. ContainingType and Member are
+        conjunctive when both appear. At least one configured matcher attribute or memberKind
+        is required by the analyzer. Member supports Method, Constructor, Property, Field, and
+        Event memberKind values.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="ContainingType" type="OperationContainingTypeMatcherType" minOccurs="0" maxOccurs="1" />
+      <xs:element name="Member" type="OperationMemberMatcherType" minOccurs="0" maxOccurs="1" />
+    </xs:sequence>
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="BehavioralRelatedOperationMatchersType">
+    <xs:annotation>
+      <xs:documentation>
+        Selects one or more alternative related semantic operations for a behavioral ordering
+        rule. Each OperationMatcher is an alternative.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="OperationMatcher" type="OperationMatcherType" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:simpleType name="BehavioralOperationOrderingType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Dominance" />
+      <xs:enumeration value="Lexical" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="NameRuleValueTrackingModeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Direct" />
+      <xs:enumeration value="IntraProcedural" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="OperationMatcherType">
+    <xs:annotation>
+      <xs:documentation>
+        Matches a Roslyn semantic operation. kind is a comma-separated list of Invocation,
+        PropertyRead, PropertyWrite, FieldRead, FieldWrite, EventAccess, ObjectCreation,
+        Conversion, Assignment, Return, or Argument. staticAccess optionally restricts the
+        matcher to static (true) or instance (false) access. ContainingType and Member are
+        conjunctive when both appear; use sibling OperationMatcher elements for alternatives.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="ContainingType" type="OperationContainingTypeMatcherType" minOccurs="0" maxOccurs="1" />
+      <xs:element name="Member" type="OperationMemberMatcherType" minOccurs="0" maxOccurs="1" />
+    </xs:sequence>
+    <xs:attribute name="kind" type="xs:string" use="required" />
+    <xs:attribute name="staticAccess" type="xs:boolean" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="OperationContainingTypeMatcherType">
+    <xs:annotation>
+      <xs:documentation>
+        Matches the resolved containing type of the selected member. Standard Class matcher
+        attributes are conjunctive and are evaluated semantically rather than against source text.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attributeGroup ref="MatchAttributes" />
+    <xs:attribute name="typeName" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Exact simple-name match against the resolved containing type.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="typeKind" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          Optional case-insensitive resolved-containing-type constraint. Supported values:
+          Class, Interface, Struct, Record, RecordStruct, Enum, Delegate.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="OperationMemberMatcherType">
+    <xs:annotation>
+      <xs:documentation>
+        Matches the resolved selected member. Standard matcher attributes are conjunctive.
+        memberKind optionally narrows the symbol to Method, Constructor, Property, Field, or
+        Event; use a comma-separated list for alternatives.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attributeGroup ref="MatchAttributes" />
+    <xs:attribute name="typeName" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Exact simple-name match against the selected member's associated type.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="typeKind" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          Optional case-insensitive selected-member-associated-type constraint. Supported values:
+          Class, Interface, Struct, Record, RecordStruct, Enum, Delegate.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="memberKind" type="xs:string" />
+  </xs:complexType>
+
   <xs:complexType name="TransitiveExposureType">
     <xs:annotation>
       <xs:documentation>
@@ -406,6 +711,46 @@
     <xs:attributeGroup ref="DocumentationAttributes" />
   </xs:complexType>
 
+  <xs:complexType name="GeneratedCodeType">
+    <xs:annotation>
+      <xs:documentation>
+        Opts into analysis of source files Roslyn identifies as generated. Generated source is
+        excluded by default. IncludeConfigured requires one or more Path matchers; IncludeAll
+        analyses every generated C# document below maximumDocumentLength. The configured size
+        limit protects IDE and build analysis from unexpectedly large generated documents.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="Path" type="GeneratedCodePathMatchType" />
+    </xs:choice>
+    <xs:attribute name="mode" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>
+          Case-insensitive generated-code analysis mode. Supported values: Exclude,
+          IncludeConfigured, and IncludeAll.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="maximumDocumentLength" type="xs:positiveInteger" default="262144" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="GeneratedCodePathMatchType">
+    <xs:annotation>
+      <xs:documentation>
+        Matches a generated source file path using one or more conjunctive textual matcher
+        attributes: typeName, exactName, startsWith, endsWith, contains, or regex.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="typeName" type="xs:string" />
+    <xs:attribute name="exactName" type="xs:string" />
+    <xs:attribute name="startsWith" type="xs:string" />
+    <xs:attribute name="endsWith" type="xs:string" />
+    <xs:attribute name="contains" type="xs:string" />
+    <xs:attribute name="regex" type="xs:string" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
   <!-- ═══════════════════════════════════════════════════════════════════ -->
   <!--  <Forbidden>                                                       -->
   <!--      <Class endsWith="Store" comment="Use a Repository instead."> -->
@@ -471,6 +816,15 @@
     </xs:choice>
     <xs:attribute name="allowedSites" type="xs:string" />
     <xs:attribute name="blockedSites" type="xs:string" />
+    <xs:attribute name="valueTracking" type="NameRuleValueTrackingModeType">
+      <xs:annotation>
+        <xs:documentation>
+          Controls whether the rule compares only the immediate value movement (Direct,
+          the default) or also follows unambiguous local aliases within one method,
+          accessor, constructor, local function, or lambda (IntraProcedural).
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attributeGroup ref="DocumentationAttributes" />
   </xs:complexType>
 
@@ -1034,6 +1388,7 @@
       <xs:element name="AllowedProjectReference" type="ProjectReferenceRuleType" />
       <xs:element name="BlockedProjectReference" type="ProjectReferenceRuleType" />
       <xs:element name="PackagePolicy" type="PackagePolicyType" />
+      <xs:element name="AssemblyReferencePolicy" type="AssemblyReferencePolicyType" />
     </xs:choice>
     <xs:attribute name="requireRecognizedProjects" type="xs:boolean" default="false" />
     <xs:attributeGroup ref="DocumentationAttributes" />
@@ -1050,6 +1405,51 @@
       <xs:element name="Project" type="ProjectMatchType" />
     </xs:choice>
     <xs:attribute name="name" type="xs:string" use="required" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="SolutionTopologyType">
+    <xs:annotation>
+      <xs:documentation>
+        Declares logical solution modules and module-reference rules. This section is evaluated
+        by workspace tooling such as Arse inspect --solution, not by a single-project compiler
+        analyzer invocation.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="Module" type="SolutionModuleType" />
+      <xs:element name="AllowedModuleReference" type="SolutionModuleReferenceRuleType" />
+      <xs:element name="BlockedModuleReference" type="SolutionModuleReferenceRuleType" />
+    </xs:choice>
+    <xs:attribute name="requireRecognizedProjects" type="xs:boolean" default="false" />
+    <xs:attribute name="enforceAcyclic" type="xs:boolean" default="false" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="SolutionModuleType">
+    <xs:annotation>
+      <xs:documentation>
+        Defines one logical solution module. Child Project matchers use project file names
+        without the .csproj extension, with the same matcher attributes as ProjectGroup.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="1" maxOccurs="unbounded">
+      <xs:element name="Project" type="ProjectMatchType" />
+    </xs:choice>
+    <xs:attribute name="name" type="xs:string" use="required" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="SolutionModuleReferenceRuleType">
+    <xs:annotation>
+      <xs:documentation>
+        Declares an allowed or blocked reference edge between logical solution modules. Use *
+        as from or to to match any configured module. Module rules are evaluated by solution
+        workspace tooling and do not change compiler analyzer diagnostics.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="from" type="xs:string" use="required" />
+    <xs:attribute name="to" type="xs:string" use="required" />
     <xs:attributeGroup ref="DocumentationAttributes" />
   </xs:complexType>
 
@@ -1073,9 +1473,15 @@
     <xs:annotation>
       <xs:documentation>
         Declares an allowed or blocked project-reference edge between project groups. Use *
-        as from or to to match any configured project group.
+        as from or to to match any configured project group. Optional From and To child
+        selectors narrow the matched group edge to named projects; separate selectors on one
+        side are alternatives, and attributes on each selector are combined.
       </xs:documentation>
     </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="From" type="ProjectMatchType" />
+      <xs:element name="To" type="ProjectMatchType" />
+    </xs:choice>
     <xs:attribute name="from" type="xs:string" use="required" />
     <xs:attribute name="to" type="xs:string" use="required" />
     <xs:attributeGroup ref="DocumentationAttributes" />
@@ -1119,6 +1525,55 @@
         Matches a NuGet package ID using one or more conjunctive textual matcher attributes:
         typeName, exactName, startsWith, endsWith, contains, or regex. Matching is
         case-insensitive.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="typeName" type="xs:string" />
+    <xs:attribute name="exactName" type="xs:string" />
+    <xs:attribute name="startsWith" type="xs:string" />
+    <xs:attribute name="endsWith" type="xs:string" />
+    <xs:attribute name="contains" type="xs:string" />
+    <xs:attribute name="regex" type="xs:string" />
+    <xs:attribute name="comment" type="xs:string" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="AssemblyReferencePolicyType">
+    <xs:annotation>
+      <xs:documentation>
+        Declares assembly allowlist and blocklist rules for one ProjectGroup. This policy is
+        evaluated by workspace tooling against direct raw MSBuild Reference items and does not
+        produce a compiler analyzer diagnostic during an ordinary project build.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="1" maxOccurs="unbounded">
+      <xs:element name="Allowed" type="AssemblyReferenceAllowedContainerType" />
+      <xs:element name="Forbidden" type="AssemblyReferenceForbiddenContainerType" />
+    </xs:choice>
+    <xs:attribute name="projectGroup" type="xs:string" use="required" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="AssemblyReferenceAllowedContainerType">
+    <xs:choice minOccurs="1" maxOccurs="unbounded">
+      <xs:element name="Assembly" type="AssemblyReferenceMatchType" />
+    </xs:choice>
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="AssemblyReferenceForbiddenContainerType">
+    <xs:choice minOccurs="1" maxOccurs="unbounded">
+      <xs:element name="Assembly" type="AssemblyReferenceMatchType" />
+    </xs:choice>
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="AssemblyReferenceMatchType">
+    <xs:annotation>
+      <xs:documentation>
+        Matches an assembly identity from a direct raw MSBuild Reference item using one or more
+        conjunctive textual matcher attributes: typeName, exactName, startsWith, endsWith,
+        contains, or regex. Matching is case-insensitive. HintPath remains evidence shown in
+        workspace reports; it is not a policy selector in this first scope.
       </xs:documentation>
     </xs:annotation>
     <xs:attribute name="typeName" type="xs:string" />

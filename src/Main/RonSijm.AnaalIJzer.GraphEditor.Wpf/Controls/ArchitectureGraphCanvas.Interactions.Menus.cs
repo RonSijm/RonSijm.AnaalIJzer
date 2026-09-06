@@ -52,8 +52,8 @@ internal sealed partial class ArchitectureGraphCanvas
 		var addLayer = new MenuItem
 		{
 			Header = "Add root layer...",
-			IsEnabled = _group.ConfigurationSource.CanEdit,
-			Command = new DelegateCommand(_ => AddRootLayerFromCanvas(), _ => _group.ConfigurationSource.CanEdit)
+			IsEnabled = !_group.IsReadOnly && _group.ConfigurationSource.CanEdit,
+			Command = new DelegateCommand(_ => AddRootLayerFromCanvas(), _ => !_group.IsReadOnly && _group.ConfigurationSource.CanEdit)
 		};
 		menu.Items.Add(addLayer);
 
@@ -64,9 +64,11 @@ internal sealed partial class ArchitectureGraphCanvas
 	{
 		try
 		{
-			if (!_group.ConfigurationSource.CanEdit)
+			if (_group.IsReadOnly || !_group.ConfigurationSource.CanEdit)
 			{
-				ReportEditResult(ArchitectureConfigurationEditResult.Failure("This configuration source is not editable."));
+				ReportEditResult(ArchitectureConfigurationEditResult.Failure(_group.IsReadOnly
+					? "Solution topology graphs are read-only. Edit <SolutionTopology> in the AnaalIJzer settings file."
+					: "This configuration source is not editable."));
 				return;
 			}
 

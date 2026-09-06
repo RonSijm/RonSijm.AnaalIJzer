@@ -1,5 +1,6 @@
 using RonSijm.AnaalIJzer.ConfigurationEditing.Model;
 using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
+using RonSijm.AnaalIJzer.GraphModel.Model;
 
 namespace RonSijm.AnaalIJzer.GraphModel.Building;
 
@@ -12,7 +13,9 @@ public sealed class ArchitectureGraphLayerInput(
 	bool isActive,
 	string sourcePath = "",
 	ArchitectureConfigurationSourceKind sourceKind = ArchitectureConfigurationSourceKind.None,
-	int xmlLineNumber = 0)
+	int xmlLineNumber = 0,
+	ArchitectureGraphNodeKind kind = ArchitectureGraphNodeKind.Layer,
+	string? readOnlyDetails = null)
 {
 	public string Path { get; } = path;
 
@@ -31,4 +34,8 @@ public sealed class ArchitectureGraphLayerInput(
 	public ArchitectureConfigurationSourceKind SourceKind { get; } = sourceKind;
 
 	public int XmlLineNumber { get; } = xmlLineNumber;
+
+	public ArchitectureGraphNodeKind Kind { get; } = kind;
+
+	public string? ReadOnlyDetails { get; } = readOnlyDetails;
 }

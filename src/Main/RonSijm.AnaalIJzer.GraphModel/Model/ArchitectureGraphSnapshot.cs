@@ -10,10 +10,11 @@ public sealed class ArchitectureGraphSnapshot(
     ImmutableArray<ArchitectureGraphRule> rules,
     ImmutableArray<string> activeLayerPaths,
     ImmutableArray<string> configurationIssueMessages,
-    ArchitectureConfigurationSource? configurationSource = null,
-    ArchitectureGraphEvidence? evidence = null,
-    ImmutableArray<ArchitectureConfigurationCreationTarget> configurationCreationTargets = default,
-    ImmutableArray<ArchitectureGraphExceptionReview> exceptionReviews = default)
+	ArchitectureConfigurationSource? configurationSource = null,
+	ArchitectureGraphEvidence? evidence = null,
+	ImmutableArray<ArchitectureConfigurationCreationTarget> configurationCreationTargets = default,
+	ImmutableArray<ArchitectureGraphExceptionReview> exceptionReviews = default,
+	bool hasSolutionTopology = false)
 {
     public bool HasConfiguration { get; } = hasConfiguration;
 
@@ -33,8 +34,20 @@ public sealed class ArchitectureGraphSnapshot(
 
     public ArchitectureGraphEvidence Evidence { get; } = evidence ?? ArchitectureGraphEvidence.Empty;
 
-    public ImmutableArray<ArchitectureConfigurationCreationTarget> ConfigurationCreationTargets { get; } = configurationCreationTargets.IsDefault ? ImmutableArray<ArchitectureConfigurationCreationTarget>.Empty : configurationCreationTargets;
+	public ImmutableArray<ArchitectureConfigurationCreationTarget> ConfigurationCreationTargets { get; } = configurationCreationTargets.IsDefault ? ImmutableArray<ArchitectureConfigurationCreationTarget>.Empty : configurationCreationTargets;
 
-    public static ArchitectureGraphSnapshot Empty { get; } = new(false, false, ImmutableArray<ArchitectureGraphLayer>.Empty, ImmutableArray<ArchitectureGraphRule>.Empty, ImmutableArray<string>.Empty, ImmutableArray<string>.Empty, exceptionReviews: ImmutableArray<ArchitectureGraphExceptionReview>.Empty);
+	public bool HasSolutionTopology { get; } = hasSolutionTopology;
+
+	public bool IsSolutionTopologyOnly
+	{
+		get
+		{
+			var result = HasSolutionTopology && Layers.All(layer => layer.Kind == ArchitectureGraphNodeKind.SolutionModule);
+
+			return result;
+		}
+	}
+
+	public static ArchitectureGraphSnapshot Empty { get; } = new(false, false, ImmutableArray<ArchitectureGraphLayer>.Empty, ImmutableArray<ArchitectureGraphRule>.Empty, ImmutableArray<string>.Empty, ImmutableArray<string>.Empty, exceptionReviews: ImmutableArray<ArchitectureGraphExceptionReview>.Empty);
 }
 

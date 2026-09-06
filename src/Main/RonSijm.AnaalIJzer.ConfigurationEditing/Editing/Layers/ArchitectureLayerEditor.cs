@@ -91,6 +91,20 @@ internal static class ArchitectureLayerEditor
 		return result;
 	}
 
+	internal static ArchitectureConfigurationDocumentOperationResult AddForbiddenOperationPolicy(ArchitectureLayerEditHandle handle, ImmutableDictionary<string, string> attributes, string childXml)
+	{
+		var result = ArchitectureLayerPolicyEditor.AddForbiddenOperationPolicy(handle, attributes, childXml);
+
+		return result;
+	}
+
+	internal static ArchitectureConfigurationDocumentOperationResult AddBehavioralOperationPolicy(ArchitectureLayerEditHandle handle, ImmutableDictionary<string, string> attributes, string childXml)
+	{
+		var result = ArchitectureLayerPolicyEditor.AddBehavioralOperationPolicy(handle, attributes, childXml);
+
+		return result;
+	}
+
 	internal static ArchitectureConfigurationDocumentOperationResult AddApiSurfacePolicy(ArchitectureLayerEditHandle handle, ImmutableDictionary<string, string> attributes, string childXml)
 	{
 		var result = ArchitectureLayerPolicyEditor.AddApiSurfacePolicy(handle, attributes, childXml);

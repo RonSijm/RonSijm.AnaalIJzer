@@ -20,6 +20,7 @@ public partial class App
 		_codeEvidence = StaticDocumentation;
 		_generatedDocumentation = DoNotGenerateDocumentation;
 		_inputInclusion = DoNotIncludeInput;
+		_solutionTopologyEnforcement = DoNotEnforceSolutionTopology;
 		ClearInspectionResult();
 		ClearFixResult();
 		ClearStatus();
@@ -50,6 +51,7 @@ public partial class App
 		_inputPath = string.Empty;
 		_outputPath = string.Empty;
 		_codeEvidence = StaticDocumentation;
+		_solutionTopologyEnforcement = DoNotEnforceSolutionTopology;
 		ClearInspectionResult();
 		ClearFixResult();
 		ClearStatus();
@@ -132,6 +134,14 @@ public partial class App
 	private Task OnInputInclusionChanged(string value)
 	{
 		_inputInclusion = value;
+		ClearStatus();
+
+		return Task.CompletedTask;
+	}
+
+	private Task OnSolutionTopologyEnforcementChanged(string value)
+	{
+		_solutionTopologyEnforcement = value;
 		ClearStatus();
 
 		return Task.CompletedTask;

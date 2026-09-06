@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using RonSijm.AnaalIJzer.Graphing.Building;
 using RonSijm.AnaalIJzer.Graphing.ViewModels;
 using RonSijm.AnaalIJzer.GraphApplication.Selection;
+using RonSijm.AnaalIJzer.GraphModel.Model;
 
 namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
 
@@ -55,7 +56,10 @@ public sealed partial class ArchitectureGraphEditorControl
 		var evidenceText = _snapshot.Evidence.HasEvidence
 			? ". Code evidence: " + _snapshot.Evidence.Types.Length + " types, " + _snapshot.Evidence.Dependencies.Count(dependency => dependency.IsViolation) + " violation observations"
 			: ". Code evidence is not loaded";
-		_statusText.Text = "Focus mode: " + _focusMode + ". Current layers: " + FormatActiveLayers(_snapshot) + evidenceText + ".";
+		var topologyText = _snapshot.HasSolutionTopology
+			? ". Solution topology modules: " + _snapshot.Layers.Count(layer => layer.Kind == ArchitectureGraphNodeKind.SolutionModule)
+			: string.Empty;
+		_statusText.Text = "Focus mode: " + _focusMode + ". Current layers: " + FormatActiveLayers(_snapshot) + topologyText + evidenceText + ".";
 		var groups = ArchitectureGraphViewModelBuilder.Build(_snapshot, _focusMode, _showCodeEvidence.IsChecked == true && _snapshot.Evidence.HasEvidence);
 		_logger?.LogInformation("Architecture graph rendered as {GroupCount} group(s).", groups.Length);
 		if (groups.Length == 0)
@@ -106,8 +110,9 @@ public sealed partial class ArchitectureGraphEditorControl
 				_useExportSizing)
 			{
 				Height = graphHeight,
+				Width = _useExportSizing ? CalculateExportGraphWidth(group) : double.NaN,
 				MinHeight = minimumGraphHeight,
-				MinWidth = 520,
+				MinWidth = _useExportSizing ? 320 : 520,
 				Margin = new Thickness(0, 6, 0, 4)
 			};
 			panel.Children.Add(canvas);
@@ -162,6 +167,21 @@ public sealed partial class ArchitectureGraphEditorControl
 			? 0
 			: group.Boundaries.Max(boundary => boundary.Y + boundary.Height + padding);
 		var result = Math.Max(minimumGraphHeight, Math.Max(maxNodeY, maxBoundaryY) + padding);
+
+		return result;
+	}
+
+	private static double CalculateExportGraphWidth(ArchitectureGraphGroupViewModel group)
+	{
+		const double nodeWidth = 170;
+		const double padding = 96;
+		var maxNodeX = group.Nodes.Length == 0
+			? 0
+			: group.Nodes.Max(node => node.X + nodeWidth);
+		var maxBoundaryX = group.Boundaries.Length == 0
+			? 0
+			: group.Boundaries.Max(boundary => boundary.X + boundary.Width);
+		var result = Math.Max(320, Math.Max(maxNodeX, maxBoundaryX) + padding);
 
 		return result;
 	}

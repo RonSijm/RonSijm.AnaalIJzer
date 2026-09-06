@@ -27,12 +27,12 @@ public static class ProjectReferenceEvaluator
 
 		if (sourceGroup is null || targetGroup is null)
 		{
-			var blockOnlyResult = EvaluateWithoutAllowlist(config, sourceGroup, targetGroup);
+			var blockOnlyResult = EvaluateWithoutAllowlist(sourceGroup, targetGroup);
 
 			return blockOnlyResult;
 		}
 
-		var blockedRule = FindMatchingRule(config.Rules, sourceGroupName!, targetGroupName!, ProjectReferenceRuleKind.Blocked);
+		var blockedRule = FindMatchingRule(config.Rules, sourceGroupName!, targetGroupName!, sourceProjectName, targetProjectName, ProjectReferenceRuleKind.Blocked);
 		if (blockedRule is { } blocked)
 		{
 			var result = new ProjectReferenceEvaluation(false, $"BlockedProjectReference from '{blocked.From}' to '{blocked.To}' denies this project edge", blocked, sourceGroupName, targetGroupName);
@@ -41,7 +41,7 @@ public static class ProjectReferenceEvaluator
 		}
 
 		var sourceAllowedRules = config.Rules
-			.Where(rule => rule.Kind == ProjectReferenceRuleKind.Allowed && RuleMatchesSource(rule, sourceGroupName!))
+			.Where(rule => rule.Kind == ProjectReferenceRuleKind.Allowed && RuleMatchesSource(rule, sourceGroupName!, sourceProjectName))
 			.ToImmutableArray();
 		if (sourceAllowedRules.IsDefaultOrEmpty)
 		{
@@ -54,7 +54,8 @@ public static class ProjectReferenceEvaluator
 		{
 			var explicitSelfEdge = sourceAllowedRules.FirstOrDefault(rule =>
 				string.Equals(rule.From, sourceGroupName, StringComparison.Ordinal)
-				&& string.Equals(rule.To, targetGroupName, StringComparison.Ordinal));
+				&& string.Equals(rule.To, targetGroupName, StringComparison.Ordinal)
+				&& rule.MatchesTargetProject(targetProjectName));
 			if (explicitSelfEdge.Equals(default(ProjectReferenceRule)))
 			{
 				var sameGroupResult = new ProjectReferenceEvaluation(false, $"same-group reference from '{sourceGroupName}' to '{targetGroupName}' requires an explicit self-edge", null, sourceGroupName, targetGroupName);
@@ -63,7 +64,7 @@ public static class ProjectReferenceEvaluator
 			}
 		}
 
-		var allowedRule = FindMatchingRule(sourceAllowedRules, sourceGroupName!, targetGroupName!, ProjectReferenceRuleKind.Allowed);
+		var allowedRule = FindMatchingRule(sourceAllowedRules, sourceGroupName!, targetGroupName!, sourceProjectName, targetProjectName, ProjectReferenceRuleKind.Allowed);
 		if (allowedRule is { } allowed)
 		{
 			var result = new ProjectReferenceEvaluation(true, string.Empty, allowed, sourceGroupName, targetGroupName);
@@ -92,40 +93,16 @@ public static class ProjectReferenceEvaluator
 		return null;
 	}
 
-	private static ProjectReferenceEvaluation EvaluateWithoutAllowlist(ProjectArchitectureConfig config, ProjectGroup? sourceGroup, ProjectGroup? targetGroup)
+	private static ProjectReferenceEvaluation EvaluateWithoutAllowlist(ProjectGroup? sourceGroup, ProjectGroup? targetGroup)
 	{
 		var sourceGroupName = sourceGroup.HasValue ? sourceGroup.Value.Name : null;
 		var targetGroupName = targetGroup.HasValue ? targetGroup.Value.Name : null;
-
-		if (sourceGroup is null || targetGroup is null)
-		{
-			var result = new ProjectReferenceEvaluation(true, string.Empty, null, sourceGroupName, targetGroupName);
-
-			return result;
-		}
-
-		var blockedRule = FindMatchingRule(config.Rules, sourceGroupName!, targetGroupName!, ProjectReferenceRuleKind.Blocked);
-		if (blockedRule is { } blocked)
-		{
-			var result = new ProjectReferenceEvaluation(false, $"BlockedProjectReference from '{blocked.From}' to '{blocked.To}' denies this project edge", blocked, sourceGroupName, targetGroupName);
-
-			return result;
-		}
-
-		var allowedRule = FindMatchingRule(config.Rules, sourceGroupName!, targetGroupName!, ProjectReferenceRuleKind.Allowed);
-		if (allowedRule is { } allowed)
-		{
-			var result = new ProjectReferenceEvaluation(true, string.Empty, allowed, sourceGroupName, targetGroupName);
-
-			return result;
-		}
-
 		var finalResult = new ProjectReferenceEvaluation(true, string.Empty, null, sourceGroupName, targetGroupName);
 
 		return finalResult;
 	}
 
-	private static ProjectReferenceRule? FindMatchingRule(IEnumerable<ProjectReferenceRule> rules, string sourceGroupName, string targetGroupName, ProjectReferenceRuleKind kind)
+	private static ProjectReferenceRule? FindMatchingRule(IEnumerable<ProjectReferenceRule> rules, string sourceGroupName, string targetGroupName, string sourceProjectName, string targetProjectName, ProjectReferenceRuleKind kind)
 	{
 		foreach (var rule in rules)
 		{
@@ -134,7 +111,7 @@ public static class ProjectReferenceEvaluator
 				continue;
 			}
 
-			if (RuleMatches(rule, sourceGroupName, targetGroupName))
+			if (RuleMatches(rule, sourceGroupName, targetGroupName, sourceProjectName, targetProjectName))
 			{
 				return rule;
 			}
@@ -143,23 +120,25 @@ public static class ProjectReferenceEvaluator
 		return null;
 	}
 
-	private static bool RuleMatches(ProjectReferenceRule rule, string sourceGroupName, string targetGroupName)
+	private static bool RuleMatches(ProjectReferenceRule rule, string sourceGroupName, string targetGroupName, string sourceProjectName, string targetProjectName)
 	{
-		var result = RuleMatchesSource(rule, sourceGroupName) && RuleMatchesTarget(rule, targetGroupName);
+		var result = RuleMatchesSource(rule, sourceGroupName, sourceProjectName) && RuleMatchesTarget(rule, targetGroupName, targetProjectName);
 
 		return result;
 	}
 
-	private static bool RuleMatchesSource(ProjectReferenceRule rule, string sourceGroupName)
+	private static bool RuleMatchesSource(ProjectReferenceRule rule, string sourceGroupName, string sourceProjectName)
 	{
-		var result = rule.From == "*" || string.Equals(rule.From, sourceGroupName, StringComparison.Ordinal);
+		var result = (rule.From == "*" || string.Equals(rule.From, sourceGroupName, StringComparison.Ordinal))
+			&& rule.MatchesSourceProject(sourceProjectName);
 
 		return result;
 	}
 
-	private static bool RuleMatchesTarget(ProjectReferenceRule rule, string targetGroupName)
+	private static bool RuleMatchesTarget(ProjectReferenceRule rule, string targetGroupName, string targetProjectName)
 	{
-		var result = rule.To == "*" || string.Equals(rule.To, targetGroupName, StringComparison.Ordinal);
+		var result = (rule.To == "*" || string.Equals(rule.To, targetGroupName, StringComparison.Ordinal))
+			&& rule.MatchesTargetProject(targetProjectName);
 
 		return result;
 	}

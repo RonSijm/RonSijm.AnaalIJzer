@@ -109,7 +109,17 @@ internal sealed class ArchitectureGraphEdgeViewModel
 	{
 		get
 		{
-			var result = Kind == "BlockedDependency";
+			var result = Kind is "BlockedDependency" or "BlockedModuleReference";
+
+			return result;
+		}
+	}
+
+	public bool IsSolutionTopologyRule
+	{
+		get
+		{
+			var result = Kind is "AllowedModuleReference" or "BlockedModuleReference";
 
 			return result;
 		}

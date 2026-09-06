@@ -25,6 +25,7 @@ public sealed class ArseCommandLineHelpTests
 			text.Should().Contain("arse fixes (--project <project.csproj> | --solution <solution.slnx>)");
 			text.Should().Contain("arse apply-fix (--project <project.csproj> | --solution <solution.slnx>) --fix-id <proposal-id>");
 			text.Should().Contain("--fix-id");
+			text.Should().Contain("--enforce-topology");
 			text.Should().Contain("--solution, -s");
 			error.ToString().Should().BeEmpty();
 		}

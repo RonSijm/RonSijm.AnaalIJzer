@@ -21,7 +21,8 @@
     </ItemGroup>
 
     <ItemGroup>
-    <InternalsVisibleTo Include="RonSijm.AnaalIJzer.Engine" />
+        <InternalsVisibleTo Include="RonSijm.AnaalIJzer.CodeFixes" />
+        <InternalsVisibleTo Include="RonSijm.AnaalIJzer.Engine" />
         <InternalsVisibleTo Include="RonSijm.AnaalIJzer" />
         <InternalsVisibleTo Include="RonSijm.AnaalIJzer.Analyzer.Tests" />
         <InternalsVisibleTo Include="RonSijm.AnaalIJzer.Outputs" />
@@ -29,10 +30,6 @@
         <InternalsVisibleTo Include="RonSijm.AnaalIJzer.Workspace" />
         <InternalsVisibleTo Include="RonSijm.AnaalIJzer.VisualStudio" />
         <InternalsVisibleTo Include="RonSijm.AnaalIJzer.VisualStudio.Tests" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.14.0" />
     </ItemGroup>
 
 </Project>

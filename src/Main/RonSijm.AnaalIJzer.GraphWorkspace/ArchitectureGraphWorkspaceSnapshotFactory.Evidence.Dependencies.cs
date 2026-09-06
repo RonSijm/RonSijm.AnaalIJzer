@@ -23,7 +23,7 @@ internal static partial class ArchitectureGraphWorkspaceSnapshotFactory
 			return result;
 		}
 
-		foreach (var observation in ProjectDependencyScanner.Scan(project.Compilation, ResolveLayer, cancellationToken))
+		foreach (var observation in ProjectDependencyScanner.Scan(project.Compilation, ResolveLayer, config.GeneratedCodeScope, cancellationToken))
 		{
 			var evidence = CreateDependencyEvidence(observation, config, project.ProjectDirectory);
 			if (evidence is null)

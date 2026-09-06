@@ -84,6 +84,20 @@ internal sealed partial class ArchitectureGraphEditService
 		return result;
 	}
 
+	public ArchitectureConfigurationEditResult AddForbiddenOperationPolicy(ArchitectureLayerEditHandle handle, ImmutableDictionary<string, string> attributes, string childXml)
+	{
+		var result = ArchitectureConfigurationEditService.AddForbiddenOperationPolicy(handle, attributes, childXml);
+
+		return result;
+	}
+
+	public ArchitectureConfigurationEditResult AddBehavioralOperationPolicy(ArchitectureLayerEditHandle handle, ImmutableDictionary<string, string> attributes, string childXml)
+	{
+		var result = ArchitectureConfigurationEditService.AddBehavioralOperationPolicy(handle, attributes, childXml);
+
+		return result;
+	}
+
 	public ArchitectureConfigurationEditResult AddVisibilityPolicy(ArchitectureLayerEditHandle handle, ImmutableDictionary<string, string> attributes)
 	{
 		var result = ArchitectureConfigurationEditService.AddVisibilityPolicy(handle, attributes);

@@ -1,4 +1,5 @@
 using System.Xml.Linq;
+using RonSijm.AnaalIJzer.GraphModel.Model;
 
 namespace RonSijm.AnaalIJzer.GraphWorkspace.Tests.Workspace;
 
@@ -32,6 +33,32 @@ public sealed class ArchitectureGraphWorkspaceSnapshotLoaderTests
 		{
 			Directory.Delete(tempDirectory, true);
 		}
+	}
+
+	[Fact]
+	public async Task LoadAsync_LoadsSolutionTopologyAsReadOnlyModulesWithProjectEvidence()
+	{
+		var cancellationToken = TestContext.Current.CancellationToken;
+		var solutionPath = FindRepositoryProject("Examples", "Scenarios", "Example.SolutionTopology", "Example.SolutionTopology.slnx");
+
+		var snapshot = await new ArchitectureGraphWorkspaceSnapshotLoader("Release").LoadAsync(solutionPath, cancellationToken);
+
+		snapshot.HasConfiguration.Should().BeTrue();
+		snapshot.HasSolutionTopology.Should().BeTrue();
+		snapshot.IsSolutionTopologyOnly.Should().BeTrue();
+		snapshot.Layers.Where(layer => layer.Kind == ArchitectureGraphNodeKind.SolutionModule)
+			.Select(layer => layer.Path)
+			.Should().Contain(["SolutionTopology/DiningRoom", "SolutionTopology/Kitchen", "SolutionTopology/Pantry"]);
+		snapshot.Layers.Where(layer => layer.Kind == ArchitectureGraphNodeKind.SolutionModule)
+			.Should().OnlyContain(layer => !layer.EditHandle.CanEdit);
+		snapshot.Rules.Where(rule => rule.IsSolutionTopologyRule)
+			.Select(rule => rule.Kind + ":" + rule.From + "->" + rule.To)
+			.Should().Contain(["AllowedModuleReference:SolutionTopology/DiningRoom->SolutionTopology/Kitchen", "BlockedModuleReference:SolutionTopology/Kitchen->SolutionTopology/Pantry"]);
+		snapshot.Evidence.Dependencies.Should().Contain(dependency =>
+			dependency.CallerLayerPath == "SolutionTopology/Kitchen"
+			&& dependency.DependencyLayerPath == "SolutionTopology/Pantry"
+			&& dependency.Site == "ProjectReference"
+			&& dependency.DiagnosticId == "TOPO001");
 	}
 
 	private static string FindRepositoryProject(params string[] pathParts)

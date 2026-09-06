@@ -22,4 +22,7 @@ public static class ArchitecturalDiagnosticIds
 	public const string ObservedDependencyCycle = "ARCH018";
 	public const string InheritancePolicyViolation = "ARCH019";
 	public const string ReturnValuePolicyViolation = "ARCH020";
+	public const string ForbiddenOperationPolicyViolation = "ARCH021";
+	public const string BehavioralOperationPolicyViolation = "ARCH022";
+	public const string OperationContractViolation = "ARCH023";
 }

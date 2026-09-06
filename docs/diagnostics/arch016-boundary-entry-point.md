@@ -26,3 +26,8 @@ Important precedence rule:
 In restaurant terms: you are welcome in the building, just not through the kitchen window.
 
 See [`Example.Arch016.BoundaryEntryPoints`](../../Examples/Diagnostics/Example.Arch016.BoundaryEntryPoints).
+
+### Real-world uses
+
+- Require controllers, jobs, and message consumers to enter an application boundary through its contract or facade layer rather than its implementation classes.
+- Keep plug-in or module consumers on a deliberately small public entry surface even when implementation types are otherwise dependency-legal.

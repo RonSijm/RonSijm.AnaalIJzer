@@ -18,7 +18,7 @@ internal static class ApplicationInspectionOperations
 		else if (request.InputKind == ApplicationInputKind.Solution)
 		{
 			var result = await workspace.AnalyzeSolutionAsync(request, cancellationToken);
-			report = ArchitectureHealthReportGenerator.Generate(result, cancellationToken);
+			report = ArchitectureHealthReportGenerator.Generate(result, cancellationToken, request.EnforceSolutionTopology);
 			workingDirectory = result.SolutionDirectory;
 		}
 		else
@@ -31,7 +31,10 @@ internal static class ApplicationInspectionOperations
 		var outputPath = ApplicationOutputPathService.ResolveOutputPath(request.OutputPath, Path.Combine(workingDirectory, "architecture-health.md"), workingDirectory);
 		if (request.WriteOutput)
 		{
-			await ApplicationOutputPathService.WriteOutputAsync(outputPath, report.Markdown, request.Force, cancellationToken);
+			var outputContent = string.Equals(Path.GetExtension(outputPath), ".json", StringComparison.OrdinalIgnoreCase)
+				? ArchitectureHealthReportJsonSerializer.Serialize(report, request.InputKind, request.InputPaths)
+				: report.Markdown;
+			await ApplicationOutputPathService.WriteOutputAsync(outputPath, outputContent, request.Force, cancellationToken);
 		}
 
 		var message = report.FindingCount == 0

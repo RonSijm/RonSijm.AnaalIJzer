@@ -31,3 +31,8 @@ Typical fixes:
 
 - [`Example.Arch013.ContractPurity`](../../Examples/Diagnostics/Example.Arch013.ContractPurity) - property setters are rejected by `allowedPropertyAccessors="Get"`.
 - [`Example.Arch013.ContractPurity.MethodBodyNotAllowed`](../../Examples/Diagnostics/Example.Arch013.ContractPurity.MethodBodyNotAllowed) - default interface method bodies are rejected by `allowMethodBodies="false"`.
+
+#### Real-world uses
+
+- Keep request, response, and port contracts as simple data or signatures instead of letting mutable state and default implementations leak into them.
+- Enforce a team convention that shared contracts expose getters only, while conversion logic and behavior live in an implementation layer.

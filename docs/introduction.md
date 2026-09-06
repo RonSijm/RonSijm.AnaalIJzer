@@ -160,7 +160,7 @@ That is valuable for broad assertions about an assembly or a set of published ty
 
 Anaal IJzer uses Roslyn's semantic model while the compiler still knows the real symbols behind the source. This makes rules about aliases, inferred locals, generic arguments, implemented interfaces, attributes, and nested boundaries dependable rather than text-based guesses.
 
-It can also enforce configured policies inside a method body. For example, a [`ReturnValuePolicy`](configuration/return-value-policies.md) can reject a direct `return null`, an empty string, an enum-zero sentinel, or the unchanged result of a method annotated as optional. The analyzer reports each matching return expression even when the method is never exercised by a test.
+It can also enforce configured policies inside a method body. A [`ReturnValuePolicy`](configuration/return-value-policies.md) can reject a direct `return null`, an empty string, an enum-zero sentinel, or the unchanged result of a method annotated as optional. A [`ForbiddenOperations` policy](configuration/forbidden-operation-policies.md) can reject one resolved API member, such as `DateTime.UtcNow` or `Task.Wait()`, while leaving other members of the same framework type available. The analyzer reports each matching source operation even when the method is never exercised by a test.
 
 For a rule that must hold at every relevant source site, runtime coverage cannot prove compliance unless it executes every possible path. A test can approximate that guarantee only by adding an equivalent static inspection. That is why compiler-level analysis is not a substitute for an architecture test: it is the direct enforcement mechanism for a different class of policy.
 

@@ -51,7 +51,11 @@ try {
     $packageVersion = [string]$nuspec.package.metadata.version
     foreach ($relativePath in @(
         "analyzers/dotnet/cs/RonSijm.AnaalIJzer.Diagnostics.dll",
+        "analyzers/dotnet/cs/RonSijm.AnaalIJzer.CodeFixes.dll",
         "analyzers/dotnet/cs/RonSijm.AnaalIJzer.Engine.dll",
+        "analyzers/dotnet/cs/RonSijm.AnaalIJzer.Core.OperationPolicies.dll",
+        "analyzers/dotnet/cs/RonSijm.AnaalIJzer.Core.OperationContracts.dll",
+        "analyzers/dotnet/cs/RonSijm.AnaalIJzer.Core.SemanticOperations.dll",
         "buildTransitive/RonSijm.AnaalIJzer.props",
         "buildTransitive/RonSijm.AnaalIJzer.targets")) {
         $fullPath = Join-Path $extractedPackageDirectory ($relativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
@@ -104,6 +108,14 @@ try {
 <ArchitecturalLevels>
   <Layer name="Consumer">
     <Class endsWith="Service" />
+    <ForbiddenOperations description="Consumer code receives time through a clock abstraction.">
+      <ForbiddenOperation allowedSites="StaticMember">
+        <OperationMatcher kind="PropertyRead" staticAccess="true">
+          <ContainingType exactFullName="System.DateTime" />
+          <Member exactName="UtcNow" memberKind="Property" />
+        </OperationMatcher>
+      </ForbiddenOperation>
+    </ForbiddenOperations>
   </Layer>
   <Layer name="Target">
     <Class endsWith="Repository" />
@@ -117,6 +129,24 @@ try {
     </ProjectGroup>
     <BlockedProjectReference from="Consumer" to="Target" />
   </ProjectArchitecture>
+  <Operations>
+    <Operation name="PlacePackageOrder">
+      <Owner>
+        <DeclarationMatcher>
+          <ContainingType exactName="OperationOwner" />
+          <Member exactName="PlacePackageOrder" memberKind="Method" />
+        </DeclarationMatcher>
+      </Owner>
+      <Request><Class exactName="PackageOrderRequest" /></Request>
+      <Response><Class exactName="PackageOrderResponse" /></Response>
+      <EntryPoint>
+        <DeclarationMatcher>
+          <ContainingType exactName="ConsumerService" />
+          <Member exactName="PlacePackageOrder" memberKind="Method" />
+        </DeclarationMatcher>
+      </EntryPoint>
+    </Operation>
+  </Operations>
 </ArchitecturalLevels>
 "@
     $targetSource = @"
@@ -127,13 +157,37 @@ public sealed class TargetRepository
 }
 "@
     $consumerSource = @"
+using System;
 using PackageSmoke.Target;
 
 namespace PackageSmoke.Consumer;
 
 public sealed class ConsumerService(TargetRepository repository)
 {
+	private readonly OperationOwner operationOwner = new();
+
+	public DateTime ReadClock()
+	{
+		var result = DateTime.UtcNow;
+
+		return result;
+	}
+
+	public PackageOrderResponse PlacePackageOrder(PackageOrderRequest request)
+	{
+		operationOwner.PlacePackageOrder(request);
+
+		return new PackageOrderResponse();
+	}
 }
+
+public sealed class OperationOwner
+{
+	public string PlacePackageOrder(PackageOrderRequest request) => "queued";
+}
+
+public sealed class PackageOrderRequest { }
+public sealed class PackageOrderResponse { }
 "@
 
     Write-Utf8File (Join-Path $applicationDirectory "NuGet.Config") $nuGetConfig
@@ -148,7 +202,7 @@ public sealed class ConsumerService(TargetRepository repository)
         $env:NUGET_PACKAGES = $globalPackagesDirectory
         Invoke-DotNet @("restore", "PackageSmoke.Consumer.csproj", "--configfile", "NuGet.Config", "--no-cache") | Out-Null
         $buildOutput = Invoke-DotNet @("build", "PackageSmoke.Consumer.csproj", "--no-restore", "--nologo") 1
-        foreach ($diagnosticId in @("ARCH001", "ARCH010")) {
+        foreach ($diagnosticId in @("ARCH001", "ARCH010", "ARCH021", "ARCH023")) {
             if ($buildOutput -notmatch $diagnosticId) {
                 throw "A clean consumer PackageReference build did not report $diagnosticId.$([Environment]::NewLine)$buildOutput"
             }

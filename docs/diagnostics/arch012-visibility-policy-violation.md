@@ -32,3 +32,8 @@ Typical fixes:
 For configuration-backed fixes, the IDE can add the reported accessibility to `allowedAccessibilities`, remove it from `blockedAccessibilities`, or remove a single-value blocking policy when that is the only thing it does.
 
 **Example project:** [`Example.Arch012.VisibilityPolicy`](../../Examples/Diagnostics/Example.Arch012.VisibilityPolicy)
+
+#### Real-world uses
+
+- Keep repository query builders and persistence helpers `internal` so they cannot become accidental application contracts.
+- Require implementation-only handlers, factories, or composition-root types to stay hidden even when a developer reaches for `public` during a refactor.

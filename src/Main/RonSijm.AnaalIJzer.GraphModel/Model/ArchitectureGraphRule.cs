@@ -93,5 +93,15 @@ public sealed class ArchitectureGraphRule
 
 	public string? Description { get; }
 
+	public bool IsSolutionTopologyRule
+	{
+		get
+		{
+			var result = Kind is "AllowedModuleReference" or "BlockedModuleReference";
+
+			return result;
+		}
+	}
+
 	public ArchitectureDependencyRuleEditHandle EditHandle { get; }
 }

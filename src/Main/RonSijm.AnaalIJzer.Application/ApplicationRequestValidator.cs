@@ -47,6 +47,11 @@ internal static class ApplicationRequestValidator
 			throw new ApplicationOperationException("Automatic documentation is available only when generating a configuration.");
 		}
 
+		if (request.EnforceSolutionTopology && (request.Operation != ApplicationOperationKind.Inspect || request.InputKind != ApplicationInputKind.Solution))
+		{
+			throw new ApplicationOperationException("--enforce-topology is available only when inspecting a solution.");
+		}
+
 		if (request.IncludeDocumentationInput
 		    && request.Operation != ApplicationOperationKind.Documentation
 		    && request is not { Operation: ApplicationOperationKind.GenerateConfig, GenerateDocumentation: true })

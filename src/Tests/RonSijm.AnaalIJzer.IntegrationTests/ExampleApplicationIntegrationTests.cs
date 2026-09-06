@@ -99,7 +99,7 @@ public sealed class ExampleApplicationIntegrationTests
 			await runner.ExecuteAsync(new ApplicationRequest(ApplicationOperationKind.MergeConfig)
 			{
 				InputKind = ApplicationInputKind.ConfigurationFile,
-				InputPaths = configurationPaths,
+				InputPaths = configurationPaths.Distinct(StringComparer.OrdinalIgnoreCase).ToArray(),
 				OutputPath = mergedConfigurationPath,
 				Force = true
 			}, cancellationToken);
@@ -201,6 +201,50 @@ public sealed class ExampleApplicationIntegrationTests
 			{
 				Directory.Delete(tempDirectory, recursive: true);
 			}
+		}
+	}
+
+	[Fact]
+	public async Task ApplicationRunner_InspectsAndReportsAssemblyReferenceBoundaryScenario()
+	{
+		var cancellationToken = TestContext.Current.CancellationToken;
+		var context = ExampleRepositoryContext.Discover();
+		var projectPath = context.GetExampleProjectPath("Scenarios/Example.AssemblyReferenceBoundaries/Example.AssemblyReferenceBoundaries.Domain");
+		var tempDirectory = Path.Combine(Path.GetTempPath(), $"AnaalIJzer-assembly-reference-boundaries-{Guid.NewGuid():N}");
+		Directory.CreateDirectory(tempDirectory);
+
+		try
+		{
+			var runner = new ApplicationRunner();
+			var inspection = await runner.ExecuteAsync(new ApplicationRequest(ApplicationOperationKind.Inspect)
+			{
+				InputKind = ApplicationInputKind.Project,
+				InputPaths = [projectPath],
+				WriteOutput = false
+			}, cancellationToken);
+
+			inspection.HasFindings.Should().BeTrue();
+			inspection.Content.Should().Contain("Assembly reference policy");
+			inspection.Content.Should().Contain("Legacy.Transport");
+			inspection.Content.Should().NotContain("ARCH", "raw assembly-reference policies are workspace findings, not compiler diagnostics");
+
+			var reportPath = Path.Combine(tempDirectory, "architectural-violations.md");
+			await runner.ExecuteAsync(new ApplicationRequest(ApplicationOperationKind.Report)
+			{
+				InputKind = ApplicationInputKind.Project,
+				InputPaths = [projectPath],
+				OutputPath = reportPath,
+				Force = true
+			}, cancellationToken);
+
+			var report = await File.ReadAllTextAsync(reportPath, cancellationToken);
+			report.Should().Contain("✅ **No compiler analyzer violations found.**");
+			report.Should().Contain("## Workspace Assembly Reference Policy Findings");
+			report.Should().Contain("Legacy.Transport");
+		}
+		finally
+		{
+			Directory.Delete(tempDirectory, true);
 		}
 	}
 }

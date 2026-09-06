@@ -7,7 +7,7 @@ internal sealed partial class GraphImageExportCommand : IArchitectureGraphSnapsh
 {
 	private const int DefaultWidth = 1600;
 	private const int DefaultHeight = 1000;
-	private const double ExportMinimumWidth = 680;
+	private const double ExportMinimumWidth = 360;
 	private const double ExportMinimumHeight = 320;
 	private const double ExportNodeWidth = 210;
 	private const double ExportNodeHeight = 112;

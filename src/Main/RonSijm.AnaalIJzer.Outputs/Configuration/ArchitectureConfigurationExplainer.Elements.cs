@@ -14,6 +14,9 @@ internal static partial class ArchitectureConfigurationExplainer
 				case "Include":
 					AppendInclude(sb, element, depth);
 					break;
+				case "GeneratedCode":
+					AppendGeneratedCodeScope(sb, element, depth);
+					break;
 				case "Layer":
 					AppendLayer(sb, element, depth);
 					break;
@@ -39,6 +42,15 @@ internal static partial class ArchitectureConfigurationExplainer
 					break;
 				case "ReturnValuePolicy":
 					AppendReturnValuePolicy(sb, element, depth);
+					break;
+				case "ForbiddenOperations":
+					AppendForbiddenOperations(sb, element, depth);
+					break;
+				case "BehavioralOperations":
+					AppendBehavioralOperations(sb, element, depth);
+					break;
+				case "Operations":
+					AppendOperationContracts(sb, element, depth);
 					break;
 				case "ApiSurface":
 					AppendApiSurface(sb, element, depth);

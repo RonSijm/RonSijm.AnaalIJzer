@@ -11,6 +11,15 @@ public sealed partial class ArchitectureGraphEditorControl
 		_theme.ApplyToRoot(root);
 		_theme.ApplyBackground(root);
 		_theme.ApplyBackground(_inspectorPanel);
+		if (_useExportSizing)
+		{
+			root.Children.Add(_contentPanel);
+			var exportInspector = new ScrollViewer();
+			var exportResult = (root, exportInspector);
+
+			return exportResult;
+		}
+
 		DockPanel.SetDock(_statusText, Dock.Top);
 		root.Children.Add(CreateHeader());
 		root.Children.Add(_statusText);

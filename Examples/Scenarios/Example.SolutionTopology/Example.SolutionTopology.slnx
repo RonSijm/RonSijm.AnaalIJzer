@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Example.SolutionTopology.Web/Example.SolutionTopology.Web.csproj" />
+  <Project Path="Example.SolutionTopology.Application/Example.SolutionTopology.Application.csproj" />
+  <Project Path="Example.SolutionTopology.Infrastructure/Example.SolutionTopology.Infrastructure.csproj" />
+</Solution>

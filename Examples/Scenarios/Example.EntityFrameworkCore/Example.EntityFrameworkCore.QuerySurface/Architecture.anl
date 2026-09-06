@@ -1,0 +1,25 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+                     description="An EF Core query may be used fluently, but Application code must not retain the raw IQueryable surface.">
+  <Layer name="Application" description="Application services project queries into stable result shapes.">
+    <Class endsWith="Service" />
+  </Layer>
+  <Layer name="Repository" description="Repositories own EF Core query construction.">
+    <Class endsWith="Repository" />
+  </Layer>
+  <Layer name="Context" description="DbContext exposes the database-backed DbSet source.">
+    <Class inherits="DbContext" />
+  </Layer>
+  <Layer name="QuerySurface" description="IQueryable is a deferred query mechanism, not an application-owned value.">
+    <Class exactName="IQueryable" typeKind="Interface" />
+  </Layer>
+  <Layer name="Projection" description="Projected result shapes may cross the application boundary.">
+    <Class endsWith="Projection" />
+  </Layer>
+
+  <AllowedDependency from="Application" to="Repository" />
+  <AllowedDependency from="Application" to="Projection" />
+  <AllowedDependency from="Application" to="QuerySurface" allowedSites="Method, GenericInvocation" description="Application code may immediately compose a query into a projection." />
+  <AllowedDependency from="Repository" to="Context" allowedSites="Constructor" />
+  <AllowedDependency from="Repository" to="QuerySurface" allowedSites="MethodReturn" />
+</ArchitecturalLevels>

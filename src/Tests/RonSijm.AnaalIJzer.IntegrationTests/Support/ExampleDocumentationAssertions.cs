@@ -49,6 +49,7 @@ internal static class ExampleDocumentationAssertions
 		mergedConfiguration.Should().Contain("<Layer ");
 		mergedConfiguration.Should().Contain("<AllowedDependency ");
 		mergedConfiguration.Should().Contain("<BlockedDependency ");
+		mergedConfiguration.Should().Contain("<AssemblyReferencePolicy ", "workspace assembly-reference policies should survive the all-examples merge");
 		mergedConfiguration.Should().Contain("typeKind=\"Interface\"");
 		mergedConfiguration.Should().Contain("appliesToDescendants=\"true\"");
 		mergedConfiguration.Should().NotContain("<Include ");
@@ -71,6 +72,9 @@ internal static class ExampleDocumentationAssertions
 		mergedDocumentation.Should().Contain("QuerySurface", "scenario-specific layers should survive the all-examples merge");
 		mergedDocumentation.Should().Contain("Persistence", "starter configuration layers should survive the all-examples merge");
 		mergedDocumentation.Should().Contain("## Type Policies", "allowed and forbidden type-policy examples should survive the all-examples merge");
+		mergedDocumentation.Should().Contain("### Assembly Reference Policies", "workspace assembly-reference policies should be documented after the all-examples merge");
+		mergedDocumentation.Should().Contain("## Operation Contracts", "explicit operation contracts should survive the all-examples merge and documentation generation");
+		mergedDocumentation.Should().Contain("PlacePizzaOrder", "the operation contract example should survive the all-examples merge");
 		mergedDocumentation.Should().Contain("| Allowed | `global` |", "global allow-list examples should be rendered with their scope");
 		mergedDocumentation.Should().Contain("| Forbidden | `Query` |", "layer-scoped forbidden examples should be rendered with their scope");
 	}
@@ -104,6 +108,9 @@ internal static class ExampleDocumentationAssertions
 		documentation.Should().Contain("| Allowed | `Ordering/Application` | `Class endsWith=\"Contract\" typeKind=\"Interface\"` | Application code may consume contract interfaces. |");
 		documentation.Should().Contain("| Forbidden | `global` | `Class endsWith=\"Store\" typeKind=\"Class\"` | Use Repository instead. |");
 		documentation.Should().Contain("| Forbidden | `Ordering/Repository` | `Namespace contains=\".Legacy\"` | Legacy persistence namespace is blocked. |");
+		documentation.Should().Contain("## Operation Contracts");
+		documentation.Should().Contain("`PlacePizzaOrder`");
+		documentation.Should().Contain("The kitchen owns the pizza order.");
 		documentation.Should().Contain("## Rules In Configuration Order");
 		documentation.Should().Contain("- **Layer** `Ordering`");
 		documentation.Should().Contain("Ordering boundary with nested application and repository roles.");
@@ -111,6 +118,7 @@ internal static class ExampleDocumentationAssertions
 		documentation.Should().Contain("- **Exceptions** `Exceptions`");
 		documentation.Should().Contain("Legacy store names are grandfathered.");
 		documentation.Should().Contain("- **Fix** `Fix Repository`");
+		documentation.Should().Contain("- **Operations** `Explicit operation contracts`");
 		documentation.Should().Contain("Rename=\"Repository\"");
 		documentation.Should().Contain("## Input Configuration");
 		documentation.Should().Contain("This documentation was generated from the following architecture configuration: `Architecture.anl`.");

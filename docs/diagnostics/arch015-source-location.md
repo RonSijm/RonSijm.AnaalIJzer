@@ -29,3 +29,8 @@ The IDE can add an exact `<Source exactName="..."/>` matcher for the reported fi
 Important: folders do not classify layers by themselves. `ARCH015` only runs after the type has already been matched into a layer by the normal layer matchers. A folder tree is a claim about ownership; this rule is what checks whether the claim is still true.
 
 See [`Example.SourceLocations`](../../Examples/Features/Example.SourceLocations) for a small build-verified sample.
+
+### Real-world uses
+
+- Keep EF Core migrations and `IEntityTypeConfiguration<T>` mappings in the persistence folders that own deployment and schema concerns.
+- Detect a feature handler or contract that still matches the right namespace after a file move but now lives under the wrong project or bounded-context folder.

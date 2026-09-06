@@ -15,6 +15,7 @@ Project 'Shop.Web' (project group Presentation) may not reference project 'Shop.
 - a direct `<ProjectReference />` skips an allowed project group
 - a project reference points in the wrong architectural direction
 - a blocked project edge is present
+- a project-specific `<From>` or `<To>` selector narrows a group edge away from this project pair
 - `requireRecognizedProjects="true"` is enabled and one side matches no `ProjectGroup`
 - a same-group reference exists without an explicit self-edge while that source group is in allowlist mode
 
@@ -23,6 +24,7 @@ Project 'Shop.Web' (project group Presentation) may not reference project 'Shop.
 - remove the illegal `<ProjectReference />`
 - move the shared abstraction into an allowed project group
 - add the missing allowed project edge if the topology is intentional
+- add a narrow exact-project edge when only this project pair is intentional
 - classify the unrecognized project with a `ProjectGroup`
 - add an explicit self-edge if same-group references are intentionally allowed
 
@@ -31,6 +33,7 @@ Project 'Shop.Web' (project group Presentation) may not reference project 'Shop.
 When both project groups are already recognized, the config fixer layer can:
 
 - add the missing `<AllowedProjectReference from="..." to="..." />`
+- add a narrow `<AllowedProjectReference>` with exact `<From>` and `<To>` project selectors
 - add an explicit same-group self-edge
 - remove the matching blocking `<BlockedProjectReference ... />`
 
@@ -43,3 +46,8 @@ Because `ARCH010` is reported at compilation end, whether that action appears as
 - `ARCH005`: same-layer type dependency in code
 
 `ARCH010` can fire even when no source file currently uses the referenced project. That is intentional: an unused reference is a standing invitation, and someone eventually accepts it.
+
+### Real-world uses
+
+- Keep a Web or UI project from adding a direct reference to Infrastructure when Application is the intended crossing point.
+- Enforce that a Domain project never references a database, messaging, or hosting project even when no C# type has been used from it yet.

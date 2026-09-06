@@ -31,7 +31,9 @@ public sealed partial class ApplicationOperationsTests
 
 			result.Message.Should().Contain("Generated configuration");
 			result.Message.Should().Contain("Generated code-backed documentation");
-			File.Exists(Path.Combine(tempDirectory, "AnaalIJzer.xsd")).Should().BeTrue();
+			var generatedSchemaPath = Path.Combine(tempDirectory, "AnaalIJzer.xsd");
+			File.Exists(generatedSchemaPath).Should().BeTrue();
+			File.ReadAllBytes(generatedSchemaPath).Should().Equal(File.ReadAllBytes(FindSchemaPath()));
 			var documentation = await File.ReadAllTextAsync(Path.Combine(tempDirectory, "architecture-documentation.md"), cancellationToken);
 			documentation.Should().Contain("## Code Evidence");
 			documentation.Should().Contain("## Input Configuration");
@@ -40,7 +42,7 @@ public sealed partial class ApplicationOperationsTests
 			documentation.Should().Contain("OrderEndpoint");
 			documentation.Should().Contain("The analyzer reports no violations");
 			var configuration = XDocument.Load(outputPath);
-			AssertValid(configuration, Path.Combine(tempDirectory, "AnaalIJzer.xsd"));
+			AssertValid(configuration, generatedSchemaPath);
 			configuration.Root!.Elements("Layer").Should().NotBeEmpty();
 			configuration.Root.Elements("AllowedDependency").Should().NotBeEmpty();
 			configuration.Root.Elements("AllowedDependency").Should().OnlyContain(element => element.Attribute("allowedSites") != null);

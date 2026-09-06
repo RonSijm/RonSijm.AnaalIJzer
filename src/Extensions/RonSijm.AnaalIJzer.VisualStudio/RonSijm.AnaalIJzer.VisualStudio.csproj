@@ -32,6 +32,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.CodeFixes\RonSijm.AnaalIJzer.CodeFixes.csproj" />
         <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Core.Editor\RonSijm.AnaalIJzer.Core.Editor.csproj" />
         <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Core.Indicators\RonSijm.AnaalIJzer.Core.Indicators.csproj" />
         <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.GraphModel\RonSijm.AnaalIJzer.GraphModel.csproj"

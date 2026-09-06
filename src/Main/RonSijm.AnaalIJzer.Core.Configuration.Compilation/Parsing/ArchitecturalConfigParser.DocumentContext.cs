@@ -48,6 +48,7 @@ public static partial class ArchitecturalConfigParser
 		var exceptionPolicy = ParseExceptionPolicy(documents, issues);
 		var enforceAcyclic = ParseRootBooleanFlag(documents, "enforceAcyclic", issues);
 		var enforceObservedAcyclic = ParseRootBooleanFlag(documents, "enforceObservedAcyclic", issues);
+		var generatedCodeScope = ParseGeneratedCodeScope(documents, configPath, issues);
 
 		var enableReport = TryFindEnabledDocument(documents, "enableReport", out var reportRoot, out var reportConfigPath);
 		var reportPath = ArchitectureConfigurationSourceLookup.ResolveRelativePath(
@@ -64,7 +65,8 @@ public static partial class ArchitecturalConfigParser
 			exceptionPolicy,
 			enforceAcyclic,
 			enforceObservedAcyclic,
-			new OutputConfig(enableReport, reportPath, enableDocumentation, documentationPath));
+			new OutputConfig(enableReport, reportPath, enableDocumentation, documentationPath),
+			generatedCodeScope);
 
 		return result;
 	}

@@ -9,6 +9,12 @@ internal sealed partial class ArchitectureGraphCanvas
 	{
 		try
 		{
+			if (_group.IsReadOnly)
+			{
+				ReportEditResult(ArchitectureConfigurationEditResult.Failure("Solution topology graphs are read-only. Edit <SolutionTopology> in the AnaalIJzer settings file."));
+				return;
+			}
+
 			if (!TryGetConnectionEndpoints(parameter, out var from, out var to))
 			{
 				_logger?.LogWarning("Could not resolve connection endpoints from Nodify parameter of type {ParameterType}.", parameter?.GetType().FullName ?? "<null>");

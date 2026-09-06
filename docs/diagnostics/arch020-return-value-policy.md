@@ -32,3 +32,8 @@ Typical fixes:
 There is no automatic code fix. The policy tells AnaalIJzer what must not escape the method; it cannot know which domain-specific value, result type, fallback, or exception behavior is correct. The analyzer recognises a sentinel; it has no opinion about what your domain should say instead.
 
 **Focused examples:** [`Example.Arch020.ExplicitNullReturn`](../../Examples/Diagnostics/Example.Arch020.ExplicitNullReturn), [`Example.Arch020.AnnotatedInvocationReturn`](../../Examples/Diagnostics/Example.Arch020.AnnotatedInvocationReturn), and [`Example.Arch020.ConfiguredLiteralReturns`](../../Examples/Diagnostics/Example.Arch020.ConfiguredLiteralReturns).
+
+#### Real-world uses
+
+- Stop a service layer from returning `null`, `string.Empty`, zero, or a known enum sentinel as an undeclared “not found” signal.
+- Require a nullable third-party call to become a domain fallback, `Result`, or other explicit outcome before it escapes a selected boundary.

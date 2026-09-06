@@ -7,11 +7,18 @@ public readonly struct NameRulePolicy(
 {
 	public ImmutableArray<NameMatchingRule> Rules { get; } = rules;
 
-	public NameRuleViolation? Evaluate(NameRuleTrigger trigger, NameRuleSubject source, NameRuleSubject target, string site)
+	public bool HasIntraProceduralRules { get; } = rules.Any(rule => rule.ValueTracking == NameRuleValueTrackingMode.IntraProcedural);
+
+	public NameRuleViolation? Evaluate(NameRuleTrigger trigger, NameRuleSubject source, NameRuleSubject target, string site, NameRuleValueTrackingMode? valueTracking = null)
 	{
 		foreach (var rule in Rules)
 		{
 			if (rule.Trigger != trigger)
+			{
+				continue;
+			}
+
+			if (valueTracking.HasValue && rule.ValueTracking != valueTracking.Value)
 			{
 				continue;
 			}

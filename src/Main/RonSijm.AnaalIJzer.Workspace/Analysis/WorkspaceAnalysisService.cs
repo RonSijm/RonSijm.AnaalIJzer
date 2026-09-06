@@ -46,7 +46,7 @@ internal sealed class WorkspaceAnalysisService(string configuration)
 
 	public void EnsureConfigHasRules(AnalyzerConfig config)
 	{
-		if (!config.Engine.HasLayers && !config.HasProjectArchitecture)
+		if (!config.Engine.HasLayers && !config.HasProjectArchitecture && !config.HasSolutionTopology && !config.HasOperationContracts)
 		{
 			throw new InvalidOperationException("No ArchitecturalLevels config was found. Add Architecture.anl or AssemblyMetadata(\"AnaalIJzerSettings\", ...).");
 		}

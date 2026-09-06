@@ -7,8 +7,11 @@ using RonSijm.AnaalIJzer.Core.EntryPoints;
 using RonSijm.AnaalIJzer.Core.Inheritance.Policies;
 using RonSijm.AnaalIJzer.Core.LayerModel;
 using RonSijm.AnaalIJzer.Core.NameRules;
+using RonSijm.AnaalIJzer.Core.OperationPolicies.Behavioral;
+using RonSijm.AnaalIJzer.Core.OperationPolicies.Policies;
 using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.DependencyRules;
 using RonSijm.AnaalIJzer.Core.ReturnValues.Policies;
+	using RonSijm.AnaalIJzer.Core.SemanticOperations.Model;
 using RonSijm.AnaalIJzer.Core.SourceLocations;
 using RonSijm.AnaalIJzer.Core.Visibility;
 
@@ -23,10 +26,13 @@ public readonly struct ArchitecturePolicyEngine(
 	public bool HasContractPolicies => _registry.HasContractPolicies;
 	public bool HasInheritancePolicies => _registry.HasInheritancePolicies;
 	public bool HasReturnValuePolicies => _registry.HasReturnValuePolicies;
+	public bool HasForbiddenOperationPolicies => _registry.HasForbiddenOperationPolicies;
+	public bool HasBehavioralOperationPolicies => _registry.HasBehavioralOperationPolicies;
 	public bool HasVisibilityPolicies => _registry.HasVisibilityPolicies;
 	public bool HasApiSurfacePolicies => _registry.HasApiSurfacePolicies;
 	public bool HasEntryPointPolicies => _registry.HasEntryPointPolicies;
 	public bool HasSourceLocationPolicies => _registry.HasSourceLocationPolicies;
+	public bool HasIntraProceduralNameRules => _registry.HasIntraProceduralNameRules;
 
 	public LayerMatch? FindLayer(string typeName, string namespaceName, ITypeSymbol? symbol = null)
 	{
@@ -42,9 +48,9 @@ public readonly struct ArchitecturePolicyEngine(
 		return result;
 	}
 
-	public NameRuleViolation? EvaluateNameRules(LayerMatch layerMatch, NameRuleTrigger trigger, NameRuleSubject source, NameRuleSubject target, string site)
+	public NameRuleViolation? EvaluateNameRules(LayerMatch layerMatch, NameRuleTrigger trigger, NameRuleSubject source, NameRuleSubject target, string site, NameRuleValueTrackingMode? valueTracking = null)
 	{
-		var result = _registry.EvaluateNameRules(layerMatch, trigger, source, target, site);
+		var result = _registry.EvaluateNameRules(layerMatch, trigger, source, target, site, valueTracking);
 
 		return result;
 	}
@@ -66,6 +72,20 @@ public readonly struct ArchitecturePolicyEngine(
 	public ReturnValuePolicyEvaluation? EvaluateReturnValuePolicies(LayerMatch layerMatch, ExpressionSyntax expression, SemanticModel semanticModel, CancellationToken cancellationToken)
 	{
 		var result = _registry.EvaluateReturnValuePolicies(layerMatch, expression, semanticModel, cancellationToken);
+
+		return result;
+	}
+
+	public ForbiddenOperationPolicyEvaluation? EvaluateForbiddenOperationPolicies(LayerMatch layerMatch, SemanticOperation operation)
+	{
+		var result = _registry.EvaluateForbiddenOperationPolicies(layerMatch, operation);
+
+		return result;
+	}
+
+	public ImmutableArray<BehavioralOperationPolicyEvaluation> EvaluateBehavioralOperationPolicies(LayerMatch layerMatch, BehavioralOperationBodyAnalysis body)
+	{
+		var result = _registry.EvaluateBehavioralOperationPolicies(layerMatch, body);
 
 		return result;
 	}

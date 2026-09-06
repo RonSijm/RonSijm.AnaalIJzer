@@ -1,0 +1,16 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+                     description="An optional policy keeps EF Core mapping attributes out of Domain code.">
+  <Layer name="Domain" description="Domain types remain independent from EF Core mapping annotations.">
+    <Namespace startsWith="Example.EntityFrameworkCore.DomainPurity.Domain" />
+  </Layer>
+  <Layer name="Persistence" description="Persistence types may use EF Core-specific mapping annotations.">
+    <Namespace startsWith="Example.EntityFrameworkCore.DomainPurity.Persistence" />
+  </Layer>
+  <Layer name="EfCoreAnnotation" description="IndexAttribute is an EF Core mapping annotation.">
+    <Class exactName="IndexAttribute" />
+  </Layer>
+
+  <AllowedDependency from="Persistence" to="EfCoreAnnotation" allowedSites="Attribute" />
+  <BlockedDependency from="Domain" to="EfCoreAnnotation" allowedSites="Attribute" description="This team keeps persistence annotations out of its domain model." />
+</ArchitecturalLevels>

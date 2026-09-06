@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Globalization;
 using RonSijm.AnaalIJzer.Core.Editor.Snapshots;
+using RonSijm.AnaalIJzer.Core.Findings;
 using RonSijm.AnaalIJzer.Core.Indicators;
 
 namespace RonSijm.AnaalIJzer.Core.Editor.QuickInfo;
@@ -89,6 +90,39 @@ public static class ArchitectureQuickInfoContentBuilder
 		var lines = ImmutableArray.CreateBuilder<string>();
 		lines.Add("Site: " + indicator.Site);
 		lines.Add("Caller: " + indicator.CallerTypeName + " (" + indicator.CallerLayerPath + ")");
+		if (indicator.DiagnosticId == ArchitecturalDiagnosticIds.ForbiddenOperationPolicyViolation)
+		{
+			lines.Add("Operation: " + indicator.DependencyTypeName);
+			lines.Add("Diagnostic: " + indicator.DiagnosticId);
+			lines.Add("Reason: " + indicator.Reason);
+
+			var forbiddenOperationResult = new ArchitectureQuickInfoContent("AnaalIJzer forbidden operation", lines.ToImmutable());
+
+			return forbiddenOperationResult;
+		}
+
+		if (indicator.DiagnosticId == ArchitecturalDiagnosticIds.BehavioralOperationPolicyViolation)
+		{
+			lines.Add("Behavioral policy: " + indicator.DependencyTypeName);
+			lines.Add("Diagnostic: " + indicator.DiagnosticId);
+			lines.Add("Reason: " + indicator.Reason);
+
+			var behavioralOperationResult = new ArchitectureQuickInfoContent("AnaalIJzer behavioral operation", lines.ToImmutable());
+
+			return behavioralOperationResult;
+		}
+
+		if (indicator.DiagnosticId == ArchitecturalDiagnosticIds.OperationContractViolation)
+		{
+			lines.Add("Operation contract: " + indicator.DependencyTypeName);
+			lines.Add("Diagnostic: " + indicator.DiagnosticId);
+			lines.Add("Reason: " + indicator.Reason);
+
+			var operationContractResult = new ArchitectureQuickInfoContent("AnaalIJzer operation contract", lines.ToImmutable());
+
+			return operationContractResult;
+		}
+
 		var dependencyLayer = string.IsNullOrWhiteSpace(indicator.DependencyLayerPath)
 			? "unclassified"
 			: indicator.DependencyLayerPath;

@@ -55,4 +55,11 @@ internal static class ArchitectureRootEditor
 
 		return result;
 	}
+
+	internal static ArchitectureConfigurationDocumentOperationResult AddOperationContracts(ArchitectureConfigurationSource source, ImmutableDictionary<string, string> attributes, string childXml)
+	{
+		var result = ArchitectureRootCompositionEditor.AddOperationContracts(source, attributes, childXml);
+
+		return result;
+	}
 }

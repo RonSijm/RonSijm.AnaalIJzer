@@ -88,6 +88,45 @@ internal sealed class ArchitectureGraphSelection
 		return result;
 	}
 
+	public static ArchitectureGraphSelection ForSolutionTopologyModule(string modulePath, string displayName, string? details)
+	{
+		var result = new ArchitectureGraphSelection(
+			ArchitectureGraphSelectionKind.SolutionTopologyModule,
+			"Solution module " + displayName,
+			"Read-only solution topology projection.",
+			ArchitectureLayerEditHandle.None,
+			ArchitectureDependencyRuleEditHandle.None,
+			ImmutableArray<string>.Empty,
+			ImmutableArray<string>.Empty,
+			details ?? string.Empty,
+			relatedLayerPath: modulePath);
+
+		return result;
+	}
+
+	public static ArchitectureGraphSelection ForSolutionTopologyRule(ArchitectureDependencyRuleEditHandle handle)
+	{
+		var details = string.IsNullOrWhiteSpace(handle.Description)
+			? "Read-only solution topology rule."
+			: handle.Description!;
+		var subtitle = string.IsNullOrWhiteSpace(handle.SourcePath)
+			? "Read-only solution topology rule."
+			: "Read-only rule from " + handle.SourcePath + ".";
+		var result = new ArchitectureGraphSelection(
+			ArchitectureGraphSelectionKind.SolutionTopologyRule,
+			handle.ElementKind + " " + handle.ConfiguredFrom + " -> " + handle.ConfiguredTo,
+			subtitle,
+			ArchitectureLayerEditHandle.None,
+			handle,
+			ImmutableArray<string>.Empty,
+			ImmutableArray<string>.Empty,
+			details,
+			relatedFromLayerPath: handle.From,
+			relatedToLayerPath: handle.To);
+
+		return result;
+	}
+
 	public static ArchitectureGraphSelection ForCodeEvidence(string from, string to, string summary, string details)
 	{
 		var result = new ArchitectureGraphSelection(

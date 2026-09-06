@@ -11,7 +11,11 @@ namespace RonSijm.AnaalIJzer.Workspace.Analysis;
 
 internal sealed partial class ProjectAnalysisHost
 {
-	private static ImmutableArray<AdditionalText> GetEffectiveAdditionalFiles(Project project, ImmutableArray<AdditionalText> additionalFiles, ImmutableArray<AdditionalText> supplementalConfigFiles)
+	private static ImmutableArray<AdditionalText> GetEffectiveAdditionalFiles(
+		ImmutableArray<AdditionalText> additionalFiles,
+		ImmutableArray<AdditionalText> supplementalConfigFiles,
+		ArchitectureReferenceManifest? referenceManifest,
+		string projectFilePath)
 	{
 		var result = additionalFiles;
 		if (supplementalConfigFiles.Length > 0)
@@ -27,11 +31,10 @@ internal sealed partial class ProjectAnalysisHost
 			}
 		}
 
-		var manifest = CreateProjectReferenceManifest(project);
-		if (manifest is not null)
+		if (referenceManifest is { } manifest)
 		{
 			result = result.RemoveAll(file => string.Equals(Path.GetFileName(file.Path), ArchitectureReferenceManifest.FileName, StringComparison.OrdinalIgnoreCase));
-			result = result.Add(manifest);
+			result = result.Add(CreateProjectReferenceManifestAdditionalText(manifest, projectFilePath));
 		}
 
 		return result;
@@ -208,26 +211,27 @@ internal sealed partial class ProjectAnalysisHost
 		return score;
 	}
 
-	private static AdditionalText? CreateProjectReferenceManifest(Project project)
+	private static ArchitectureReferenceManifest? CreateProjectReferenceManifest(Project project)
 	{
 		if (string.IsNullOrWhiteSpace(project.FilePath))
 		{
 			return null;
 		}
 
-		var lines = new List<string> { ArchitectureReferenceManifest.Header };
-		foreach (var referencedProjectPath in ReadDirectProjectReferences(project.FilePath))
-		{
-			lines.Add("Project\t" + project.FilePath + "\t" + referencedProjectPath);
-		}
+		var projectReferences = ReadDirectProjectReferences(project.FilePath)
+			.Select(referencePath => new ProjectReferenceManifestRecord(project.FilePath, referencePath))
+			.ToImmutableArray();
+		var packageReferences = ReadResolvedPackageReferences(project.FilePath).ToImmutableArray();
+		var assemblyReferences = ReadDirectAssemblyReferences(project.FilePath).ToImmutableArray();
+		var result = new ArchitectureReferenceManifest(projectReferences, packageReferences, assemblyReferences);
 
-		foreach (var packageReference in ReadResolvedPackageReferences(project.FilePath))
-		{
-			lines.Add("Package\t" + project.FilePath + "\t" + packageReference.PackageId + "\t" + packageReference.PackageVersion + "\t" + packageReference.ReferenceKind);
-		}
+		return result;
+	}
 
-		var manifestPath = Path.Combine(Path.GetDirectoryName(project.FilePath) ?? Directory.GetCurrentDirectory(), ArchitectureReferenceManifest.FileName);
-		var manifestContent = string.Join(Environment.NewLine, lines);
+	private static AdditionalText CreateProjectReferenceManifestAdditionalText(ArchitectureReferenceManifest manifest, string projectFilePath)
+	{
+		var manifestPath = Path.Combine(Path.GetDirectoryName(projectFilePath) ?? Directory.GetCurrentDirectory(), ArchitectureReferenceManifest.FileName);
+		var manifestContent = ArchitectureReferenceManifestWriter.Write(manifest);
 		var result = WorkspaceAdditionalText.FromText(manifestPath, manifestContent);
 
 		return result;
@@ -251,7 +255,10 @@ internal sealed partial class ProjectAnalysisHost
 				continue;
 			}
 
-			yield return Path.GetFullPath(Path.Combine(projectDirectory, include));
+			var platformRelativePath = include.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
+			var resolvedProjectPath = Path.GetFullPath(Path.Combine(projectDirectory, platformRelativePath));
+
+			yield return resolvedProjectPath;
 		}
 	}
 
@@ -306,6 +313,41 @@ internal sealed partial class ProjectAnalysisHost
 				yield return new ArchitecturePackageReference(projectFilePath, packageId, packageVersion, referenceKind);
 			}
 		}
+	}
+
+	private static IEnumerable<ArchitectureAssemblyReference> ReadDirectAssemblyReferences(string projectFilePath)
+	{
+		var document = XDocument.Load(projectFilePath, LoadOptions.PreserveWhitespace);
+		foreach (var element in document.Descendants().Where(element => string.Equals(element.Name.LocalName, "Reference", StringComparison.Ordinal)))
+		{
+			var include = element.Attribute("Include")?.Value;
+			if (string.IsNullOrWhiteSpace(include))
+			{
+				continue;
+			}
+
+			var assemblyIdentity = GetAssemblyIdentity(include!);
+			if (string.IsNullOrWhiteSpace(assemblyIdentity))
+			{
+				continue;
+			}
+
+			var hintPath = element.Element(element.Name.Namespace + "HintPath")?.Value;
+			if (string.IsNullOrWhiteSpace(hintPath))
+			{
+				hintPath = element.Attribute("HintPath")?.Value;
+			}
+
+			yield return new ArchitectureAssemblyReference(projectFilePath, assemblyIdentity, string.IsNullOrWhiteSpace(hintPath) ? null : hintPath.Trim());
+		}
+	}
+
+	private static string GetAssemblyIdentity(string include)
+	{
+		var commaIndex = include.IndexOf(',');
+		var result = (commaIndex < 0 ? include : include[..commaIndex]).Trim();
+
+		return result;
 	}
 
 	private static HashSet<string> ReadDirectPackageIds(string projectFilePath)

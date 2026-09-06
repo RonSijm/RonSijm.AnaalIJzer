@@ -47,7 +47,7 @@ public static class ApplicationOperationCatalog
 			"Find invalid settings, unclassified or ambiguous types, stale rules, unused edges, and dependency cycles.",
 			[ApplicationInputKind.Project, ApplicationInputKind.Solution, ApplicationInputKind.ConfigurationFile],
 			ApplicationInputKind.Project,
-			"inspect (--project <project.csproj> | --solution <solution.slnx> | --config <Architecture.anl>) [--output <architecture-health.md>] [--force]",
+			"inspect (--project <project.csproj> | --solution <solution.slnx> [--enforce-topology] | --config <Architecture.anl>) [--output <architecture-health.md>] [--force]",
 			["validate", "doctor", "health", "self-check"]),
 		new(
 			ApplicationOperationKind.Fixes,

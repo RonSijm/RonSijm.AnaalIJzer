@@ -1,13 +1,18 @@
+using System.Collections.Immutable;
+using RonSijm.AnaalIJzer.Core.Matchers.ProjectArchitecture;
+
 namespace RonSijm.AnaalIJzer.Core.ProjectArchitecture;
 
-public readonly struct ProjectReferenceRule(
+public readonly partial struct ProjectReferenceRule(
 	ProjectReferenceRuleKind kind,
 	string from,
 	string to,
 	string? description,
 	string xmlPath,
 	int xmlLineNumber,
-	int xmlLinePosition)
+	int xmlLinePosition,
+	ImmutableArray<ProjectMatcher> fromMatchers = default,
+	ImmutableArray<ProjectMatcher> toMatchers = default)
 {
 	public ProjectReferenceRuleKind Kind { get; } = kind;
 
@@ -22,4 +27,8 @@ public readonly struct ProjectReferenceRule(
 	public int XmlLineNumber { get; } = xmlLineNumber;
 
 	public int XmlLinePosition { get; } = xmlLinePosition;
+
+	public ImmutableArray<ProjectMatcher> FromMatchers { get; } = fromMatchers.IsDefault ? ImmutableArray<ProjectMatcher>.Empty : fromMatchers;
+
+	public ImmutableArray<ProjectMatcher> ToMatchers { get; } = toMatchers.IsDefault ? ImmutableArray<ProjectMatcher>.Empty : toMatchers;
 }

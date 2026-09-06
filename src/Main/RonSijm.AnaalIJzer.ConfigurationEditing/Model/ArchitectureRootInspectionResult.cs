@@ -23,7 +23,8 @@ public sealed class ArchitectureRootInspectionResult
 		ImmutableArray<ArchitectureConfigurationElementDetails> includes,
 		ImmutableArray<ArchitectureConfigurationElementDetails> exceptionMatchers,
 		ImmutableArray<ArchitectureConfigurationElementDetails> allowedPolicies,
-		ImmutableArray<ArchitectureConfigurationElementDetails> forbiddenPolicies)
+		ImmutableArray<ArchitectureConfigurationElementDetails> forbiddenPolicies,
+		ImmutableArray<ArchitectureConfigurationElementDetails> operationContracts)
 	{
 		Succeeded = succeeded;
 		Message = message;
@@ -44,6 +45,7 @@ public sealed class ArchitectureRootInspectionResult
 		ExceptionMatchers = exceptionMatchers;
 		AllowedPolicies = allowedPolicies;
 		ForbiddenPolicies = forbiddenPolicies;
+		OperationContracts = operationContracts;
 	}
 
 	public bool Succeeded { get; }
@@ -84,6 +86,8 @@ public sealed class ArchitectureRootInspectionResult
 
 	public ImmutableArray<ArchitectureConfigurationElementDetails> ForbiddenPolicies { get; }
 
+	public ImmutableArray<ArchitectureConfigurationElementDetails> OperationContracts { get; }
+
 	public static ArchitectureRootInspectionResult Success(
 		string? description,
 		string? requireRecognizedDependencies,
@@ -101,7 +105,8 @@ public sealed class ArchitectureRootInspectionResult
 		ImmutableArray<ArchitectureConfigurationElementDetails> includes,
 		ImmutableArray<ArchitectureConfigurationElementDetails> exceptionMatchers,
 		ImmutableArray<ArchitectureConfigurationElementDetails> allowedPolicies,
-		ImmutableArray<ArchitectureConfigurationElementDetails> forbiddenPolicies)
+		ImmutableArray<ArchitectureConfigurationElementDetails> forbiddenPolicies,
+		ImmutableArray<ArchitectureConfigurationElementDetails> operationContracts)
 	{
 		var result = new ArchitectureRootInspectionResult(
 			true,
@@ -122,7 +127,8 @@ public sealed class ArchitectureRootInspectionResult
 			includes,
 			exceptionMatchers,
 			allowedPolicies,
-			forbiddenPolicies);
+			forbiddenPolicies,
+			operationContracts);
 
 		return result;
 	}
@@ -145,6 +151,7 @@ public sealed class ArchitectureRootInspectionResult
 			false,
 			14,
 			null,
+			ImmutableArray<ArchitectureConfigurationElementDetails>.Empty,
 			ImmutableArray<ArchitectureConfigurationElementDetails>.Empty,
 			ImmutableArray<ArchitectureConfigurationElementDetails>.Empty,
 			ImmutableArray<ArchitectureConfigurationElementDetails>.Empty,

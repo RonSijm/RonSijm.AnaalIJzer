@@ -1,0 +1,13 @@
+global using System.Collections.Immutable;
+global using AwesomeAssertions;
+global using Microsoft.CodeAnalysis;
+global using Microsoft.CodeAnalysis.CSharp;
+global using Microsoft.CodeAnalysis.CSharp.Syntax;
+global using RonSijm.AnaalIJzer.Core.Matchers;
+global using RonSijm.AnaalIJzer.Core.Matchers.Conditions;
+global using RonSijm.AnaalIJzer.Core.OperationContracts.Analysis;
+global using RonSijm.AnaalIJzer.Core.OperationContracts.Evaluation;
+global using RonSijm.AnaalIJzer.Core.OperationContracts.Model;
+global using RonSijm.AnaalIJzer.Core.SemanticOperations.Matching;
+global using RonSijm.AnaalIJzer.Core.SemanticOperations.Model;
+global using Xunit;

@@ -12,9 +12,9 @@ internal static partial class ArchitectureGraphWorkspaceSnapshotFactory
 {
 	public static ArchitectureGraphSnapshot CreateForProject(string projectPath, ProjectAnalysisResult project, CancellationToken cancellationToken)
 	{
-		if (project.Config.HasLayers)
+		if (project.Config.HasLayers || project.Config.HasSolutionTopology)
 		{
-			var result = CreateSnapshot([project], project, cancellationToken);
+			var result = CreateSnapshot([project], project, null, cancellationToken);
 
 			return result;
 		}
@@ -37,7 +37,7 @@ internal static partial class ArchitectureGraphWorkspaceSnapshotFactory
 		var representativeProject = solution.FirstConfiguredProject;
 		if (representativeProject is not null)
 		{
-			var result = CreateSnapshot(solution.Projects, representativeProject, cancellationToken);
+			var result = CreateSnapshot(solution.Projects, representativeProject, solution, cancellationToken);
 
 			return result;
 		}
@@ -63,13 +63,19 @@ internal static partial class ArchitectureGraphWorkspaceSnapshotFactory
 		return result;
 	}
 
-	private static ArchitectureGraphSnapshot CreateSnapshot(ImmutableArray<ProjectAnalysisResult> projects, ProjectAnalysisResult representativeProject, CancellationToken cancellationToken)
+	private static ArchitectureGraphSnapshot CreateSnapshot(
+		ImmutableArray<ProjectAnalysisResult> projects,
+		ProjectAnalysisResult representativeProject,
+		SolutionAnalysisResult? solution,
+		CancellationToken cancellationToken)
 	{
 		var source = ResolveConfigurationSource(representativeProject);
 		var configSnapshot = ArchitectureGraphXmlSnapshotLoader.Load(source);
 		var evidence = CreateEvidence(projects, representativeProject.Config, cancellationToken);
 		var exceptionReviews = CreateExceptionReviews(projects, representativeProject.Config, cancellationToken);
-		var result = ArchitectureGraphSnapshotFactory.AttachEvidence(configSnapshot, evidence, exceptionReviews);
+		var result = representativeProject.Config.HasSolutionTopology
+			? AttachSolutionTopology(configSnapshot, representativeProject.Config, solution, evidence, exceptionReviews)
+			: ArchitectureGraphSnapshotFactory.AttachEvidence(configSnapshot, evidence, exceptionReviews);
 
 		return result;
 	}

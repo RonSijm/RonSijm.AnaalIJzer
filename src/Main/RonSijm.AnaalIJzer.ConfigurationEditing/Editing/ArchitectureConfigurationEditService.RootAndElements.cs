@@ -90,4 +90,11 @@ public static partial class ArchitectureConfigurationEditService
 
 		return result;
 	}
+
+	public static ArchitectureConfigurationEditResult AddOperationContracts(ArchitectureConfigurationSource source, ImmutableDictionary<string, string> attributes, string childXml)
+	{
+		var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureRootEditor.AddOperationContracts(source, attributes, childXml));
+
+		return result;
+	}
 }

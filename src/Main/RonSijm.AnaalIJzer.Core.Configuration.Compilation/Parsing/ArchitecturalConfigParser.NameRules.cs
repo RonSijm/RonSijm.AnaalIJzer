@@ -41,6 +41,12 @@ public static partial class ArchitecturalConfigParser
 			return;
 		}
 
+		if (!TryReadNameRuleValueTrackingMode(ruleElement, kind, out var valueTracking, out var valueTrackingError))
+		{
+			AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, valueTrackingError, ruleElement, xmlPath);
+			return;
+		}
+
 		var nameMatchers = kind == NameRuleKind.RequireMatchingNames
 			? ParseNameMatcherElements(ruleElement.Elements("Name"))
 			: ImmutableArray<PatternMatcher>.Empty;
@@ -48,7 +54,33 @@ public static partial class ArchitecturalConfigParser
 		var targetMatchers = ParseNameMatcherElements(ruleElement.Elements(targetElementName));
 		var allowMappings = ParseNameRuleAllowMappings(ruleElement.Elements("Allow"), sourceElementName, targetElementName, xmlPath, issues);
 		var line = (IXmlLineInfo)ruleElement;
-		rules.Add(new NameMatchingRule(kind, trigger, nameMatchers, sourceMatchers, targetMatchers, allowMappings, siteFilter, layerName, ruleElement.Attribute("description")?.Value, xmlPath, line.LineNumber, line.LinePosition));
+		rules.Add(new NameMatchingRule(kind, trigger, nameMatchers, sourceMatchers, targetMatchers, allowMappings, siteFilter, layerName, ruleElement.Attribute("description")?.Value, xmlPath, line.LineNumber, line.LinePosition, valueTracking));
+	}
+
+	private static bool TryReadNameRuleValueTrackingMode(XElement ruleElement, NameRuleKind kind, out NameRuleValueTrackingMode valueTracking, out string error)
+	{
+		var rawValue = ruleElement.Attribute("valueTracking")?.Value;
+		if (kind != NameRuleKind.RequireMatchingNames && !string.IsNullOrWhiteSpace(rawValue))
+		{
+			valueTracking = default;
+			error = "NameRules valueTracking is supported only by <RequireMatchingNames>.";
+			var declarationResult = false;
+
+			return declarationResult;
+		}
+
+		if (!NameRuleValueTrackingModeParser.TryParse(rawValue, out valueTracking))
+		{
+			error = $"NameRules valueTracking '{rawValue}' is invalid. Supported values: Direct, IntraProcedural.";
+			var invalidResult = false;
+
+			return invalidResult;
+		}
+
+		error = string.Empty;
+		var result = true;
+
+		return result;
 	}
 
 	private static ImmutableArray<NameRuleAllowMapping> ParseNameRuleAllowMappings(IEnumerable<XElement> elements, string sourceElementName, string targetElementName, string xmlPath, ImmutableArray<ConfigurationIssue>.Builder issues)

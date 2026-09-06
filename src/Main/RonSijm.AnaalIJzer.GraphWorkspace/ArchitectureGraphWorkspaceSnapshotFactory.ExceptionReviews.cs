@@ -30,7 +30,7 @@ internal static partial class ArchitectureGraphWorkspaceSnapshotFactory
 		}
 
 		var seenStaleKeys = new HashSet<string>(StringComparer.Ordinal);
-		var types = GetDistinctProjectTypes(projects, cancellationToken);
+		var types = GetDistinctProjectTypes(projects, config.GeneratedCodeScope, cancellationToken);
 		foreach (var definition in config.ExceptionDefinitions)
 		{
 			if (!definition.IsActive)
@@ -72,12 +72,12 @@ internal static partial class ArchitectureGraphWorkspaceSnapshotFactory
 		return result;
 	}
 
-	private static ImmutableArray<INamedTypeSymbol> GetDistinctProjectTypes(IReadOnlyList<ProjectAnalysisResult> projects, CancellationToken cancellationToken)
+	private static ImmutableArray<INamedTypeSymbol> GetDistinctProjectTypes(IReadOnlyList<ProjectAnalysisResult> projects, GeneratedCodeAnalysisScope generatedCodeScope, CancellationToken cancellationToken)
 	{
 		var types = new Dictionary<string, INamedTypeSymbol>(StringComparer.Ordinal);
 		foreach (var project in projects)
 		{
-			foreach (var type in CompilationTypeCollector.GetProjectTypes(project.Compilation, cancellationToken))
+			foreach (var type in CompilationTypeCollector.GetProjectTypes(project.Compilation, generatedCodeScope, cancellationToken))
 			{
 				var identity = type.ContainingAssembly.Name + ":" + type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 				types.TryAdd(identity, type);

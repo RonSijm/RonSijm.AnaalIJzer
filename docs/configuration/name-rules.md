@@ -76,7 +76,40 @@ Multiple attributes on one matcher are combined with AND semantics. Multiple mat
 
 Other site names remain valid in filters because the site vocabulary is shared across the analyzer, but NameRules only produce diagnostics for value movements that have both a source name and a target name.
 
-**Example project:** [`Example.NameRules`](../../Examples/Features/Example.NameRules)
+#### Direct language forms
+
+`RequireMatchingNames` checks direct value movements by default. That includes ordinary and compound assignments, component-wise tuple/deconstruction assignments, object-construction arguments, named and optional arguments, `in` arguments, `out` values flowing back to the caller, direct returns, and expression-bodied methods, properties, indexers, and local functions. Parentheses, conversions, `as`, null-forgiving operators, conditional branches, coalesce expressions, and tuple expressions are unwrapped into their direct named sources.
+
+Anonymous-lambda returns intentionally have no named return target, so the rule does not compare them with the containing method. Calls and assignments *inside* the lambda are still analysed at their own sites. This prevents a lambda from being accidentally reported as though it returned from its outer method.
+
+**Direct-form examples:** [`Example.NameRules`](../../Examples/Features/Example.NameRules) and [`Example.NameRuleLanguageForms`](../../Examples/Features/Example.NameRuleLanguageForms).
+
+#### `valueTracking`: direct versus local provenance
+
+`valueTracking` belongs only on `<RequireMatchingNames>`:
+
+| Value | Default | What it compares |
+|---|---:|---|
+| `Direct` | Yes | The value written directly at the current site. It does not follow local aliases. |
+| `IntraProcedural` | No | The direct value plus an unambiguous local alias within the same method, accessor, constructor, local function, or lambda body. |
+
+Use `Direct` for the least surprising and fastest rule. Enable `IntraProcedural` only when a neutral local name can conceal a meaningful value name before it reaches another meaningful target:
+
+```xml
+<RequireMatchingNames valueTracking="IntraProcedural">
+  <Source endsWith="Id" />
+  <Target endsWith="Id" />
+</RequireMatchingNames>
+```
+
+```csharp
+var pending = customerId;
+Save(pending); // ARCH008 when Save accepts orderId.
+```
+
+Method-like bodies use Roslyn control-flow graphs, so a branch join keeps provenance only when every path agrees. Roslyn does not expose a standalone control-flow graph root for a lambda body, so lambda bodies use a conservative ordered scan and discard local provenance before a conditional, loop, switch, or `try` block. A captured parameter can still be the direct source inside a lambda, but a local alias never crosses a callback boundary. Tracking intentionally stops at method calls, virtual dispatch, collections, delegate invocation, reflection, and method boundaries. That is a bounded local-provenance check, not a whole-program taint-analysis promise.
+
+**Tracking example:** [`Example.NameRuleIntraProceduralTracking`](../../Examples/Features/Example.NameRuleIntraProceduralTracking).
 
 #### Declaration names and semantic types
 

@@ -65,3 +65,8 @@ public class HungryCustomer(IWaiter waiter) { }
 // The waiter passes the order to the chef rather than entering the pantry.
 public class TableWaiter(IChef chef, IIngredientPantry pantry) { }
 ```
+
+#### Real-world uses
+
+- Keep an HTTP endpoint from injecting `DbContext` or a repository directly when the application service owns the use case.
+- Stop a domain or application type from calling an email, queue, or file-system adapter without going through the configured boundary.

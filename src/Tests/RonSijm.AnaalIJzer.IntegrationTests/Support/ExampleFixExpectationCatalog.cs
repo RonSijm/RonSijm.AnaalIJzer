@@ -49,7 +49,8 @@ internal static class ExampleFixExpectationCatalog
 		ExpectNoProposals("Diagnostics/Example.Arch018.ObservedCycle"),
 		ExpectNoProposals("Diagnostics/Example.Arch020.ExplicitNullReturn"),
 		ExpectNoProposals("Diagnostics/Example.Arch020.AnnotatedInvocationReturn"),
-		ExpectNoProposals("Diagnostics/Example.Arch020.ConfiguredLiteralReturns")
+		ExpectNoProposals("Diagnostics/Example.Arch020.ConfiguredLiteralReturns"),
+		ExpectNoProposals("Diagnostics/Example.Arch023.OperationContract")
 	];
 
 	private static ExampleFixExpectation Expect(string relativeProjectPath, string expectedTargetSuffix, params string[] expectedTitles)

@@ -10,6 +10,7 @@ using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Config.Model;
 using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.DependencyRules;
 using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.Policies;
 using RonSijm.AnaalIJzer.Core.ProjectArchitecture;
+using RonSijm.AnaalIJzer.Core.ProjectArchitecture.SolutionTopology;
 using AnalyzerConfig = RonSijm.AnaalIJzer.Core.RuntimeConfig.Config.Model.AnalyzerConfig;
 
 namespace RonSijm.AnaalIJzer.Core.Configuration.Compilation.Parsing;
@@ -56,7 +57,8 @@ public static partial class ArchitecturalConfigParser
 			ImmutableArray<(string, string?)>.Empty,
 			ProjectArchitectureConfig.Empty,
 			ArchitectureDocumentation.Empty,
-			issues);
+			issues,
+			SolutionTopologyConfig.Empty);
 		var result = new AnalyzerConfig(compiledConfig);
 
 		return result;

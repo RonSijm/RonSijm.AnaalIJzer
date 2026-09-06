@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using RonSijm.AnaalIJzer.Core.Exceptions;
+using RonSijm.AnaalIJzer.Core.Observations;
 using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Config.Model;
 
 namespace RonSijm.AnaalIJzer.Core.Configuration.Compilation.Compilation;
@@ -11,13 +12,15 @@ internal readonly struct ArchitectureConfigurationRootSettings
         ArchitectureExceptionPolicy exceptionPolicy,
         bool enforceAcyclic,
         bool enforceObservedAcyclic,
-        OutputConfig output)
+        OutputConfig output,
+        GeneratedCodeAnalysisScope generatedCodeScope = default)
     {
         RequiredRecognizedDependencySites = requiredRecognizedDependencySites;
         ExceptionPolicy = exceptionPolicy;
         EnforceAcyclic = enforceAcyclic;
         EnforceObservedAcyclic = enforceObservedAcyclic;
         Output = output;
+        GeneratedCodeScope = generatedCodeScope;
     }
 
     internal ImmutableHashSet<string> RequiredRecognizedDependencySites { get; }
@@ -29,4 +32,6 @@ internal readonly struct ArchitectureConfigurationRootSettings
     internal bool EnforceObservedAcyclic { get; }
 
     internal OutputConfig Output { get; }
+
+    internal GeneratedCodeAnalysisScope GeneratedCodeScope { get; }
 }

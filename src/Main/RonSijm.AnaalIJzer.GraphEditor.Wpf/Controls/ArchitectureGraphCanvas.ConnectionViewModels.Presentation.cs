@@ -73,7 +73,10 @@ internal sealed partial class ArchitectureGraphCanvas
 		private static string FormatEvidenceToolTip(string from, string to, string siteText, string details)
 		{
 			var detailText = string.IsNullOrWhiteSpace(details) ? string.Empty : Environment.NewLine + details;
-			var result = "Observed code dependency: " + from + " -> " + to + Environment.NewLine + siteText + detailText;
+			var evidenceKind = siteText.Contains("project reference", StringComparison.OrdinalIgnoreCase)
+				? "Observed project reference"
+				: "Observed code dependency";
+			var result = evidenceKind + ": " + from + " -> " + to + Environment.NewLine + siteText + detailText;
 
 			return result;
 		}

@@ -69,6 +69,55 @@ public sealed partial class EditorSnapshotTests
 	}
 
 	[Fact]
+	public async Task OperationContracts_RenderMethodViolationWithoutLayerBadges()
+	{
+		const string source = """
+			public sealed class PizzaOrderController
+			{
+				public PlacePizzaOrderResponse PlacePizzaOrder(PlacePizzaOrderRequest request) => new();
+			}
+
+			public sealed class PizzaKitchen
+			{
+				public PlacePizzaOrderResponse PlacePizzaOrder(PlacePizzaOrderRequest request) => new();
+			}
+
+			public sealed class PlacePizzaOrderRequest { }
+			public sealed class PlacePizzaOrderResponse { }
+			""";
+		const string config = """
+			<ArchitecturalLevels>
+			  <Operations>
+			    <Operation name="PlacePizzaOrder">
+			      <Owner>
+			        <DeclarationMatcher>
+			          <ContainingType exactName="PizzaKitchen" />
+			          <Member exactName="PlacePizzaOrder" memberKind="Method" />
+			        </DeclarationMatcher>
+			      </Owner>
+			      <EntryPoint>
+			        <DeclarationMatcher>
+			          <ContainingType endsWith="Controller" />
+			          <Member exactName="PlacePizzaOrder" memberKind="Method" />
+			        </DeclarationMatcher>
+			      </EntryPoint>
+			    </Operation>
+			  </Operations>
+			</ArchitecturalLevels>
+			""";
+
+		var snapshot = await CreateSnapshotAsync(source, config);
+
+		snapshot.HasConfiguration.Should().BeTrue();
+		snapshot.HasConfigurationIssues.Should().BeFalse();
+		snapshot.LayerIndicators.Should().BeEmpty();
+		var indicator = snapshot.SiteIndicators.Should().ContainSingle(item => item.DiagnosticId == ArchitecturalDiagnosticIds.OperationContractViolation).Subject;
+		indicator.Site.Should().Be(ArchitectureDependencySites.Method);
+		indicator.CallerLayerPath.Should().Be("Unclassified");
+		indicator.DependencyTypeName.Should().Be("PlacePizzaOrder");
+	}
+
+	[Fact]
 	public async Task XmlConfig_RendersLayerIndicator()
 	{
 		const string source = "namespace Demo; public class PizzaController { }";
@@ -209,7 +258,7 @@ public sealed partial class EditorSnapshotTests
 	}
 
 	[Fact]
-	public async Task GeneratedFile_ReturnsEmptySnapshot()
+	public async Task GeneratedFile_ReturnsEmptySnapshotByDefault()
 	{
 		const string source = "public class PizzaController { }";
 		const string config = """
@@ -221,6 +270,24 @@ public sealed partial class EditorSnapshotTests
 		var snapshot = await CreateSnapshotAsync(source, config, "PizzaController.g.cs");
 
 		snapshot.Should().BeSameAs(ArchitectureEditorSnapshot.Empty);
+	}
+
+	[Fact]
+	public async Task GeneratedFile_RendersLayerIndicatorsWhenIncludeAllIsConfigured()
+	{
+		const string source = "public class PizzaController { }";
+		const string config = """
+			<ArchitecturalLevels>
+			  <GeneratedCode mode="IncludeAll" />
+			  <Layer name="Controller"><Class endsWith="Controller" /></Layer>
+			</ArchitecturalLevels>
+			""";
+
+		var snapshot = await CreateSnapshotAsync(source, config, "PizzaController.g.cs");
+
+		snapshot.HasConfiguration.Should().BeTrue();
+		snapshot.LayerIndicators.Should().ContainSingle()
+			.Which.LayerPath.Should().Be("Controller");
 	}
 
 	[Fact]

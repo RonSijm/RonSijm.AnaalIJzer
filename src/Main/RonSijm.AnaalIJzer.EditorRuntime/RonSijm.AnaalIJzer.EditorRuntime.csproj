@@ -17,6 +17,10 @@
     <ItemGroup>
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Editor\RonSijm.AnaalIJzer.Core.Editor.csproj" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Indicators\RonSijm.AnaalIJzer.Core.Indicators.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.OperationPolicies\RonSijm.AnaalIJzer.Core.OperationPolicies.csproj" />
+		<ProjectReference Include="..\RonSijm.AnaalIJzer.Core.OperationContracts\RonSijm.AnaalIJzer.Core.OperationContracts.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.SemanticOperations\RonSijm.AnaalIJzer.Core.SemanticOperations.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Findings\RonSijm.AnaalIJzer.Core.Findings.csproj" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Configuration.Compilation\RonSijm.AnaalIJzer.Core.Configuration.Compilation.csproj" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Engine\RonSijm.AnaalIJzer.Engine.csproj" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.GraphModel\RonSijm.AnaalIJzer.GraphModel.csproj"

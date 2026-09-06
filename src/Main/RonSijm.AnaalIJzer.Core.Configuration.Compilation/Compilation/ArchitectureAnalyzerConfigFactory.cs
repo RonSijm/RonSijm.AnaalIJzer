@@ -35,7 +35,10 @@ internal static class ArchitectureAnalyzerConfigFactory
 			[..materialization.ForbiddenPatterns.Select(pattern => (pattern.Name, pattern.Comment))],
 			materialization.ProjectArchitecture,
 			documentation,
-			issues.ToImmutable());
+			issues.ToImmutable(),
+			materialization.SolutionTopology,
+			rootSettings.GeneratedCodeScope,
+			materialization.OperationContracts);
 		var result = new AnalyzerConfig(compiledConfig);
 
 		return result;

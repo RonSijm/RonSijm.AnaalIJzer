@@ -10,14 +10,14 @@ internal static partial class ArchitectureCodeEvidenceGenerator
 {
 	public static string Append(string documentation, Compilation compilation, AnalyzerConfiguration config, ImmutableArray<Diagnostic> diagnostics, string projectDirectory, CancellationToken cancellationToken)
 	{
-		var types = CompilationTypeCollector.GetProjectTypes(compilation, cancellationToken);
+		var types = CompilationTypeCollector.GetProjectTypes(compilation, config.GeneratedCodeScope, cancellationToken);
 		var matches = GetMatches(types, config);
 		string? ResolveLayer(INamedTypeSymbol type)
 		{
 			var namespaceName = type.ContainingNamespace.IsGlobalNamespace ? string.Empty : type.ContainingNamespace.ToDisplayString();
 			return config.Engine.FindLayer(type.Name, namespaceName, type)?.Layer.Name;
 		}
-		var dependencies = ProjectDependencyScanner.Scan(compilation, ResolveLayer, cancellationToken);
+		var dependencies = ProjectDependencyScanner.Scan(compilation, ResolveLayer, config.GeneratedCodeScope, cancellationToken);
 		var sb = new StringBuilder(documentation.TrimEnd());
 		sb.AppendLine();
 		sb.AppendLine();

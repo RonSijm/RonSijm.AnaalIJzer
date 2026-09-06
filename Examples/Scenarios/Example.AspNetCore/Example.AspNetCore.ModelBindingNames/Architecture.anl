@@ -1,0 +1,13 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+                     description="Convention-bound endpoint parameter names must agree with their honest types.">
+  <Layer name="Endpoint" description="HTTP controllers may bind values by their parameter names.">
+    <Class withAttribute="ApiController" />
+    <NameRules>
+      <RequireDeclarationNameMatchesType allowedSites="Method"
+                                        description="An honest-type action parameter's name must describe its declared type.">
+        <Type implements="IHonestType" />
+      </RequireDeclarationNameMatchesType>
+    </NameRules>
+  </Layer>
+</ArchitecturalLevels>

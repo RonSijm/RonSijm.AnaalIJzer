@@ -35,7 +35,7 @@ public static class ArchitectureConfigurationValidator
 			}
 		}
 
-		foreach (var element in document.Descendants().Where(element => IsMatcherElementName(element.Name.LocalName)))
+		foreach (var element in document.Descendants().Where(element => IsMatcherElementName(element.Name.LocalName) && !IsAssemblyReferenceMatcherElement(element)))
 		{
 			ValidateMatcherElement(element, configPath, issues);
 		}
@@ -47,7 +47,12 @@ public static class ArchitectureConfigurationValidator
 
 		foreach (var element in document.Descendants().Where(element => element.Name.LocalName == "Package"))
 		{
-			ValidatePackageMatcherElement(element, configPath, issues);
+			ValidateReferenceIdentityMatcherElement(element, configPath, issues);
+		}
+
+		foreach (var element in document.Descendants().Where(element => element.Name.LocalName == "Assembly" && element.Parent?.Parent?.Name.LocalName == "AssemblyReferencePolicy"))
+		{
+			ValidateReferenceIdentityMatcherElement(element, configPath, issues);
 		}
 
 		var result = issues.ToImmutable();
@@ -202,6 +207,13 @@ public static class ArchitectureConfigurationValidator
 		return result;
 	}
 
+	private static bool IsAssemblyReferenceMatcherElement(XElement element)
+	{
+		var result = element.Name.LocalName == "Assembly" && element.Parent?.Parent?.Name.LocalName == "AssemblyReferencePolicy";
+
+		return result;
+	}
+
 	private static bool IsDeclarationMatcherElementName(string name)
 	{
 		var result = DeclarationMatchTargetParser.TryParse(name, out _);
@@ -250,14 +262,14 @@ public static class ArchitectureConfigurationValidator
 		}
 	}
 
-	private static void ValidatePackageMatcherElement(XElement element, string configPath, ImmutableArray<ConfigurationIssue>.Builder issues)
+	private static void ValidateReferenceIdentityMatcherElement(XElement element, string configPath, ImmutableArray<ConfigurationIssue>.Builder issues)
 	{
 		var configuredMatchers = element.Attributes()
 			.Where(attribute => MatcherAttributeCatalog.IsSupportedAttribute(attribute.Name.LocalName, MatcherAttributeProfile.ProjectOrPackage))
 			.ToArray();
 		if (configuredMatchers.Length == 0)
 		{
-			AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, "Package requires at least one matcher attribute.", element, configPath);
+			AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, $"{element.Name.LocalName} requires at least one matcher attribute.", element, configPath);
 
 			return;
 		}
@@ -265,7 +277,7 @@ public static class ArchitectureConfigurationValidator
 		if (element.Attributes().Any(attribute => MatcherAttributeCatalog.IsMatcherAttribute(attribute.Name.LocalName)
 			&& !MatcherAttributeCatalog.IsSupportedAttribute(attribute.Name.LocalName, MatcherAttributeProfile.ProjectOrPackage)))
 		{
-			AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, "Package supports typeName, exactName, startsWith, endsWith, contains, or regex matchers.", element, configPath);
+			AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, $"{element.Name.LocalName} supports typeName, exactName, startsWith, endsWith, contains, or regex matchers.", element, configPath);
 		}
 
 		var regex = element.Attribute("regex")?.Value;

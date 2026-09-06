@@ -40,6 +40,10 @@ internal static class ArchitectureRootInspectionReader
 			.SelectMany(container => container.Elements().Where(ArchitectureConfigurationXmlEditor.IsPolicyMatcherElement))
 			.Select(child => ArchitectureConfigurationXmlEditor.CreateElementDetails(child, rootHandle, ArchitectureConfigurationXmlNames.ForbiddenElementName))
 			.ToImmutableArray();
+		var operationContracts = root
+			.Elements(ArchitectureConfigurationXmlNames.OperationsElementName)
+			.Select(child => ArchitectureConfigurationXmlEditor.CreateElementDetails(child, rootHandle, ArchitectureConfigurationXmlNames.OperationsElementName))
+			.ToImmutableArray();
 		var result = ArchitectureRootInspectionResult.Success(
 			root.Attribute(ArchitectureConfigurationXmlNames.DescriptionAttributeName)?.Value,
 			root.Attribute(ArchitectureConfigurationXmlNames.RequireRecognizedDependenciesAttributeName)?.Value,
@@ -57,7 +61,8 @@ internal static class ArchitectureRootInspectionReader
 			includes,
 			exceptionMatchers,
 			allowedPolicies,
-			forbiddenPolicies);
+			forbiddenPolicies,
+			operationContracts);
 
 		return result;
 	}

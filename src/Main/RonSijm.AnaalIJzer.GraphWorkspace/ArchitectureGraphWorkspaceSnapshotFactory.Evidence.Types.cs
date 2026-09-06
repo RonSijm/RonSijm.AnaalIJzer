@@ -12,7 +12,7 @@ internal static partial class ArchitectureGraphWorkspaceSnapshotFactory
 {
 	private static void AddTypeEvidence(ProjectAnalysisResult project, AnalyzerConfiguration config, ImmutableArray<ArchitectureGraphTypeEvidence>.Builder types, HashSet<string> seenTypes, CancellationToken cancellationToken)
 	{
-		foreach (var type in CompilationTypeCollector.GetProjectTypes(project.Compilation, cancellationToken))
+		foreach (var type in CompilationTypeCollector.GetProjectTypes(project.Compilation, config.GeneratedCodeScope, cancellationToken))
 		{
 			var match = FindLayer(config, type);
 			if (match is null || match.Value.Layer.IsForbidden)

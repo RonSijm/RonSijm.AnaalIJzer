@@ -51,6 +51,7 @@ internal sealed partial class ArchitectureGraphCanvas
 			AppliesToDescendants = edge.AppliesToDescendants;
 			IsActive = edge.IsActive;
 			IsBlocked = edge.IsBlocked;
+			IsSolutionTopologyRule = edge.IsSolutionTopologyRule;
 			IsEvidence = edge.IsEvidence;
 			ViolationCount = edge.ViolationCount;
 			ObservedUsageCount = edge.ObservedUsageCount;
@@ -90,6 +91,8 @@ internal sealed partial class ArchitectureGraphCanvas
 
 		public bool IsBlocked { get; }
 
+		public bool IsSolutionTopologyRule { get; }
+
 		public bool IsEvidence { get; }
 
 		public int ViolationCount { get; }
@@ -99,6 +102,22 @@ internal sealed partial class ArchitectureGraphCanvas
 		public string EvidenceDetails { get; }
 
 		public bool CanEditRule => !IsEvidence && EditHandle.CanEdit;
+
+		public ArchitectureGraphSelection CreateSelection()
+		{
+			if (IsEvidence)
+			{
+				var evidenceSelection = ArchitectureGraphSelection.ForCodeEvidence(From, To, LabelText, EvidenceDetails);
+
+				return evidenceSelection;
+			}
+
+			var result = IsSolutionTopologyRule
+				? ArchitectureGraphSelection.ForSolutionTopologyRule(EditHandle)
+				: ArchitectureGraphSelection.ForDependency(EditHandle);
+
+			return result;
+		}
 
 		public string LabelText
 		{
@@ -142,13 +161,13 @@ internal sealed partial class ArchitectureGraphCanvas
 
 		public bool UsesAllSites => _allowedSites.Length == 0 && _blockedSites.Length == 0;
 
-		public Brush Stroke => IsEvidence ? _theme.ErrorConnection : IsBlocked ? _theme.ErrorConnection : IsActive ? _theme.ActiveConnection : _theme.Connection;
+		public Brush Stroke => IsEvidence && ViolationCount > 0 ? _theme.ErrorConnection : IsBlocked ? _theme.ErrorConnection : IsActive ? _theme.ActiveConnection : _theme.Connection;
 
-		public double StrokeThickness => IsEvidence ? 3.2 : IsActive ? 2.8 : 1.9;
+		public double StrokeThickness => IsEvidence && ViolationCount > 0 ? 3.2 : IsEvidence ? 2.2 : IsActive ? 2.8 : 1.9;
 
 		public DoubleCollection? StrokeDashArray => IsEvidence ? new DoubleCollection([2, 3]) : IsBlocked ? new DoubleCollection([4, 3]) : null;
 
-		public Brush TextBackground => IsEvidence ? _theme.ErrorConnection : IsBlocked ? _theme.ErrorConnection : IsActive ? _theme.ActiveConnection : _theme.Connection;
+		public Brush TextBackground => IsEvidence && ViolationCount > 0 ? _theme.ErrorConnection : IsBlocked ? _theme.ErrorConnection : IsActive ? _theme.ActiveConnection : _theme.Connection;
 
 		public static NodifyGraphConnectionViewModel Create(
 			ArchitectureGraphEdgeViewModel edge,

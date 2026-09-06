@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                     xsi:noNamespaceSchemaLocation="AnaalIJzer.xsd"
+                     xsi:noNamespaceSchemaLocation="src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
                      description="Helpful solution baseline for RonSijm.AnaalIJzer. This configuration groups assemblies by responsibility instead of mirroring every individual project reference, so it stays readable and useful as an architectural example.">
   <Layer name="Foundation"
          description="Shared architectural vocabulary, matcher logic, findings, policies, and configuration primitives.">

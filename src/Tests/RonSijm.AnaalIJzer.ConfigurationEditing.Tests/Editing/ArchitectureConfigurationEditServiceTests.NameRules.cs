@@ -71,4 +71,35 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 		content.Should().Contain("{nameof(PatientController)}");
 		ArchitectureConfigurationEditService.GetLayerDetails(handle).NameRules.Should().ContainSingle();
 	}
+
+	[Fact]
+	public void RequireMatchingNames_ValueTrackingIsInspectableAndEditable()
+	{
+		using var directory = new TemporaryDirectory();
+		var path = directory.WriteFile(
+			"Architecture.anl",
+			"""
+			<ArchitecturalLevels>
+			  <Layer name="Application">
+			    <Class endsWith="Service" />
+			    <NameRules>
+			      <RequireMatchingNames valueTracking="Direct">
+			        <Source endsWith="Id" />
+			        <Target endsWith="Id" />
+			      </RequireMatchingNames>
+			    </NameRules>
+			  </Layer>
+			</ArchitecturalLevels>
+			""");
+		var handle = new ArchitectureLayerEditHandle(ArchitectureConfigurationSourceKind.XmlFile, path, 0, "Application", "Application", string.Empty, null);
+		var rule = ArchitectureConfigurationEditService.GetLayerDetails(handle).NameRules.Should().ContainSingle().Which;
+
+		rule.Attributes["valueTracking"].Should().Be("Direct");
+		var edit = ArchitectureConfigurationEditService.SetConfigurationElementAttributes(
+			rule.Handle,
+			Attributes(("valueTracking", "IntraProcedural")));
+
+		edit.Succeeded.Should().BeTrue(edit.Message);
+		File.ReadAllText(path).Should().Contain("valueTracking=\"IntraProcedural\"");
+	}
 }

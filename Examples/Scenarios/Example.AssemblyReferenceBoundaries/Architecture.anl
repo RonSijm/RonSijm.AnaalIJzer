@@ -1,0 +1,19 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd">
+
+  <ProjectArchitecture requireRecognizedProjects="true"
+                       description="Workspace-level raw assembly reference rules for this scenario.">
+    <ProjectGroup name="Domain" description="Core domain projects.">
+      <Project endsWith=".Domain" />
+    </ProjectGroup>
+
+    <AssemblyReferencePolicy projectGroup="Domain"
+                             description="Domain code does not take a direct dependency on the legacy transport DLL.">
+      <Forbidden>
+        <Assembly exactName="Legacy.Transport"
+                  description="The fixture models a legacy DLL that should stay outside the domain project." />
+      </Forbidden>
+    </AssemblyReferencePolicy>
+  </ProjectArchitecture>
+
+</ArchitecturalLevels>

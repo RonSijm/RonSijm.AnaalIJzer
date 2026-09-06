@@ -72,7 +72,9 @@ internal static class ArchitectureConfigurationMaterializer
 			exceptionReviews.ToImmutable(),
 			[..layerNames],
 			[..forbiddenPatterns],
-			ArchitecturalConfigParser.ParseProjectArchitecture(elements, configPath, issues));
+			ArchitecturalConfigParser.ParseProjectArchitecture(elements, configPath, issues),
+			ArchitecturalConfigParser.ParseSolutionTopology(elements, configPath, issues),
+			ArchitecturalConfigParser.ParseOperationContracts(elements.Where(item => item.Element.Name.LocalName == "Operations"), layerNodesByPath, issues));
 
 		return result;
 	}

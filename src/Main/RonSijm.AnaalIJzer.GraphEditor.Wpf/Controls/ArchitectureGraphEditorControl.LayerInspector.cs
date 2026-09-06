@@ -48,6 +48,8 @@ public sealed partial class ArchitectureGraphEditorControl
 		AddNameRuleEditors(panel, details.NameRules, handle);
 		AddInheritancePolicyEditors(panel, details.InheritancePolicies, handle);
 		AddReturnValuePolicyEditors(panel, details.ReturnValuePolicies, handle);
+		AddForbiddenOperationPolicyEditors(panel, details.ForbiddenOperationPolicies, handle);
+		AddBehavioralOperationPolicyEditors(panel, details.BehavioralOperationPolicies, handle);
 		AddVisibilityPolicyEditors(panel, details.VisibilityPolicies, handle);
 		AddApiSurfaceEditors(panel, details.ApiSurfacePolicies, handle);
 

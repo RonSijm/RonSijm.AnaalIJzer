@@ -7,3 +7,8 @@ Reported when a dependency type matches an applicable `<Forbidden>` pattern or d
 error ARCH003: 'ReportingService' (layer Application) may not use 'LegacyOrderStore':
   the type matches a global <Forbidden> rule: Persistence types must use the Repository suffix.
 ```
+
+#### Real-world uses
+
+- Require persistence abstractions to use a `Repository` convention and reject legacy `Store` or `Manager` types at the dependency site.
+- Keep selected framework types, such as EF Core attributes or transport DTOs, out of a domain boundary with a scoped `<Forbidden>` policy.

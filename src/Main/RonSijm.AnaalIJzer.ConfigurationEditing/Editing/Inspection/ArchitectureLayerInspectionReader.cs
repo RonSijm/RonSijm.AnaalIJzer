@@ -56,6 +56,14 @@ internal static class ArchitectureLayerInspectionReader
 			.Elements(ArchitectureConfigurationXmlNames.ReturnValuePolicyElementName)
 			.Select(child => ArchitectureConfigurationXmlEditor.CreateElementDetails(child, handle, ArchitectureConfigurationXmlNames.ReturnValuePolicyElementName))
 			.ToImmutableArray();
+		var forbiddenOperationPolicies = element
+			.Elements(ArchitectureConfigurationXmlNames.ForbiddenOperationsElementName)
+			.Select(child => ArchitectureConfigurationXmlEditor.CreateElementDetails(child, handle, ArchitectureConfigurationXmlNames.ForbiddenOperationsElementName))
+			.ToImmutableArray();
+		var behavioralOperationPolicies = element
+			.Elements(ArchitectureConfigurationXmlNames.BehavioralOperationsElementName)
+			.Select(child => ArchitectureConfigurationXmlEditor.CreateElementDetails(child, handle, ArchitectureConfigurationXmlNames.BehavioralOperationsElementName))
+			.ToImmutableArray();
 		var visibilityPolicies = element
 			.Elements(ArchitectureConfigurationXmlNames.VisibilityPolicyElementName)
 			.Select(child => ArchitectureConfigurationXmlEditor.CreateElementDetails(child, handle, ArchitectureConfigurationXmlNames.VisibilityPolicyElementName))
@@ -75,6 +83,8 @@ internal static class ArchitectureLayerInspectionReader
 			nameRules,
 			inheritancePolicies,
 			returnValuePolicies,
+			forbiddenOperationPolicies,
+			behavioralOperationPolicies,
 			visibilityPolicies,
 			apiSurfacePolicies);
 

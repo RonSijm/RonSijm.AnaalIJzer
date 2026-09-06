@@ -1,0 +1,21 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+                     description="Generated kitchen code is inspected only where the project deliberately opts in.">
+  <GeneratedCode mode="IncludeConfigured"
+                 maximumDocumentLength="8192"
+                 description="Only the selected generated kitchen file participates in architecture analysis.">
+    <Path endsWith="Generated_Clock_Kitchen.g.cs" description="The checked-in generated kitchen output." />
+  </GeneratedCode>
+
+  <Layer name="Kitchen" description="Kitchen code uses the restaurant clock rather than the system clock.">
+    <Class endsWith="Kitchen" />
+    <ForbiddenOperations>
+      <ForbiddenOperation allowedSites="StaticMember" description="A generated kitchen must not hide a direct system-clock read.">
+        <OperationMatcher kind="PropertyRead" staticAccess="true">
+          <ContainingType exactFullName="System.DateTime" />
+          <Member exactName="UtcNow" memberKind="Property" />
+        </OperationMatcher>
+      </ForbiddenOperation>
+    </ForbiddenOperations>
+  </Layer>
+</ArchitecturalLevels>

@@ -51,6 +51,43 @@ public sealed class ProjectArchitectureCodeFixTests
 	}
 
 	[Fact]
+	public async Task MissingAllowedProjectReference_CanAddAnExactProjectSelectorRule()
+	{
+		const string config = """
+			<ArchitecturalLevels>
+			  <ProjectArchitecture requireRecognizedProjects="true">
+			    <ProjectGroup name="Presentation">
+			      <Project endsWith=".Web" />
+			    </ProjectGroup>
+			    <ProjectGroup name="Application">
+			      <Project endsWith=".Application" />
+			    </ProjectGroup>
+			    <ProjectGroup name="Domain">
+			      <Project endsWith=".Domain" />
+			    </ProjectGroup>
+			    <AllowedProjectReference from="Presentation" to="Application" />
+			  </ProjectArchitecture>
+			</ArchitecturalLevels>
+			""";
+		var manifest = string.Join(
+			"\n",
+			ArchitectureReferenceManifest.Header,
+			string.Join("\t", "Project", @"D:\repo\Shop.Web.csproj", @"D:\repo\Shop.Domain.csproj"));
+		const string source = "public sealed class Placeholder { }";
+
+		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
+			source,
+			[("Architecture.anl", config), (ArchitectureReferenceManifest.FileName, manifest)],
+			ArchitecturalDiagnosticIds.ProjectReferenceViolation,
+			"Allow project 'Shop.Web' to reference 'Shop.Domain'",
+			"Architecture.anl");
+
+		updatedConfig.Should().Contain("<AllowedProjectReference from=\"Presentation\" to=\"Domain\">");
+		updatedConfig.Should().Contain("<From exactName=\"Shop.Web\" />");
+		updatedConfig.Should().Contain("<To exactName=\"Shop.Domain\" />");
+	}
+
+	[Fact]
 	public async Task SameGroupProjectReference_AddsExplicitSelfEdge()
 	{
 		const string config = """

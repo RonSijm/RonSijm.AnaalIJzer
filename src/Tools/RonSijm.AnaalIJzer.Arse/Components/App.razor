@@ -107,9 +107,9 @@
 			<FileSelector Label="Output"
 			              Value="@_outputPath"
 			              ValueChanged="OnOutputPathChanged"
-			              Placeholder="path\to\architecture-health.md"
+			              Placeholder="path\to\architecture-health.md or .json"
 			              FocusOrder="0"
-			              FileExtensions="@MarkdownFileExtensions"
+			              FileExtensions="@InspectionOutputFileExtensions"
 			              OnKeyUp="OnInspectionSaveKey" />
 
 			<Columns>
@@ -271,6 +271,16 @@
 			           FocusOrder="1"
 			           @onkeyup="OnFormKeyUp"
 			           Expand="true" />
+		}
+
+		@if (operation.Kind == ApplicationOperationKind.Inspect && input.Kind == ApplicationInputKind.Solution)
+		{
+			<Select TItem="string"
+			        Options="@SolutionTopologyOptions"
+			        Value="@_solutionTopologyEnforcement"
+			        ValueChanged="OnSolutionTopologyEnforcementChanged"
+			        @onkeyup="OnFormKeyUp"
+			        Expand="true"></Select>
 		}
 
 		@if (operation.Kind == ApplicationOperationKind.GenerateConfig)

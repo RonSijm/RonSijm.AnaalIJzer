@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Example.ProjectReferenceRuleSelectors.Orders.Application/Example.ProjectReferenceRuleSelectors.Orders.Application.csproj" />
+  <Project Path="Example.ProjectReferenceRuleSelectors.Orders.Contracts/Example.ProjectReferenceRuleSelectors.Orders.Contracts.csproj" />
+  <Project Path="Example.ProjectReferenceRuleSelectors.Payments.Contracts/Example.ProjectReferenceRuleSelectors.Payments.Contracts.csproj" />
+</Solution>

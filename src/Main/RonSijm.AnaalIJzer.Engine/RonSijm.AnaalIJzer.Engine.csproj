@@ -30,6 +30,9 @@
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Contracts\RonSijm.AnaalIJzer.Core.Contracts.csproj" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Inheritance\RonSijm.AnaalIJzer.Core.Inheritance.csproj" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.ReturnValues\RonSijm.AnaalIJzer.Core.ReturnValues.csproj" />
+		<ProjectReference Include="..\RonSijm.AnaalIJzer.Core.OperationPolicies\RonSijm.AnaalIJzer.Core.OperationPolicies.csproj" />
+		<ProjectReference Include="..\RonSijm.AnaalIJzer.Core.OperationContracts\RonSijm.AnaalIJzer.Core.OperationContracts.csproj" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.SemanticOperations\RonSijm.AnaalIJzer.Core.SemanticOperations.csproj" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Exceptions\RonSijm.AnaalIJzer.Core.Exceptions.csproj" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Indicators\RonSijm.AnaalIJzer.Core.Indicators.csproj" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Violations\RonSijm.AnaalIJzer.Core.Violations.csproj" />
@@ -47,7 +50,6 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.14.0" />
     </ItemGroup>
 
 </Project>

@@ -18,7 +18,12 @@ The XML root element is `<ArchitecturalLevels>`. It supports the child elements 
 | Inheritance policies | `inheritance-policies.md` |
 | Contract purity | `contract-policies.md` |
 | Return-value policies | `return-value-policies.md` |
+| Forbidden operation policies | `forbidden-operation-policies.md` |
+| Behavioral operation policies | `behavioral-operation-policies.md` |
+| Generated code analysis | `generated-code.md` |
 | Project architecture | `project-architecture.md` |
+| Assembly reference policies | `assembly-reference-policies.md` |
+| Solution topology | `solution-topology.md` |
 | API surface policies | `api-surface.md` |
 | Transitive API exposure | `transitive-api-exposure.md` |
 | Boundary entry points | `boundary-entry-points.md` |

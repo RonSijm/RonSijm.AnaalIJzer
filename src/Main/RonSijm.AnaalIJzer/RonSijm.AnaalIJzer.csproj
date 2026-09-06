@@ -44,7 +44,9 @@
         <!-- These assemblies are bundled below as analyzer assets. They must not become NuGet
              dependencies because the supporting projects are intentionally not published packages. -->
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Diagnostics\RonSijm.AnaalIJzer.Diagnostics.csproj" PrivateAssets="all" Pack="false" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.CodeFixes\RonSijm.AnaalIJzer.CodeFixes.csproj" PrivateAssets="all" Pack="false" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Engine\RonSijm.AnaalIJzer.Engine.csproj" PrivateAssets="all" Pack="false" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.OperationContracts\RonSijm.AnaalIJzer.Core.OperationContracts.csproj" PrivateAssets="all" Pack="false" />
     </ItemGroup>
 
     <ItemGroup>
@@ -73,13 +75,17 @@
             RonSijm.AnaalIJzer.Core.Visibility;
             RonSijm.AnaalIJzer.Core.Contracts;
             RonSijm.AnaalIJzer.Core.Inheritance;
-            RonSijm.AnaalIJzer.Core.ReturnValues;
+			RonSijm.AnaalIJzer.Core.ReturnValues;
+			RonSijm.AnaalIJzer.Core.OperationPolicies;
+			RonSijm.AnaalIJzer.Core.OperationContracts;
+			RonSijm.AnaalIJzer.Core.SemanticOperations;
             RonSijm.AnaalIJzer.Core.Exceptions;
             RonSijm.AnaalIJzer.Core.BuildMetadata;
             RonSijm.AnaalIJzer.Core.Indicators;
             RonSijm.AnaalIJzer.Core.Violations;
             RonSijm.AnaalIJzer.Core.Findings;
             RonSijm.AnaalIJzer.Diagnostics;
+            RonSijm.AnaalIJzer.CodeFixes;
             RonSijm.AnaalIJzer.Core.Observations;
             RonSijm.AnaalIJzer.Core.ProjectArchitecture;
             RonSijm.AnaalIJzer.Core.Configuration.Compilation;

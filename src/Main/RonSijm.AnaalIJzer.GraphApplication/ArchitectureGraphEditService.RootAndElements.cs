@@ -62,4 +62,11 @@ internal sealed partial class ArchitectureGraphEditService
 
 		return result;
 	}
+
+	public ArchitectureConfigurationEditResult AddOperationContracts(ArchitectureConfigurationSource source, ImmutableDictionary<string, string> attributes, string childXml)
+	{
+		var result = ArchitectureConfigurationEditService.AddOperationContracts(source, attributes, childXml);
+
+		return result;
+	}
 }

@@ -96,6 +96,39 @@ public sealed class ProjectReferenceBoundaryAnalyzerTests
 	}
 
 	[Fact]
+	public async Task ProjectReferenceSelector_RejectsAProjectOutsideTheAllowedTargetSelector()
+	{
+		const string config = """
+		                      <ArchitecturalLevels>
+		                        <ProjectArchitecture requireRecognizedProjects="true">
+		                          <ProjectGroup name="Application">
+		                            <Project endsWith=".Application" />
+		                          </ProjectGroup>
+		                          <ProjectGroup name="Contracts">
+		                            <Project endsWith=".Contracts" />
+		                          </ProjectGroup>
+		                          <AllowedProjectReference from="Application" to="Contracts">
+		                            <From exactName="Shop.Orders.Application" />
+		                            <To exactName="Shop.Orders.Contracts" />
+		                          </AllowedProjectReference>
+		                        </ProjectArchitecture>
+		                      </ArchitecturalLevels>
+		                      """;
+		var manifest = string.Join(
+			Environment.NewLine,
+			ArchitectureReferenceManifest.Header,
+			"Project\tD:\\src\\Shop.Orders.Application.csproj\tD:\\src\\Shop.Payments.Contracts.csproj");
+
+		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(
+			"public class Placeholder { }",
+			("Architecture.anl", config),
+			(ArchitectureReferenceManifest.FileName, manifest));
+
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ProjectReferenceViolation)
+			.Which.GetMessage().Should().Contain("no AllowedProjectReference permits");
+	}
+
+	[Fact]
 	public async Task ForbiddenPackageReference_ReportsARCH011()
 	{
 		const string config = """

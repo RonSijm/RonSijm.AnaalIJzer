@@ -117,4 +117,44 @@ public sealed class NameRuleAllowMappingCodeFixTests
 
 		updatedSource.Should().Contain("<Allow from=\"legacy.customer.id\" to=\"customer.id\" />");
 	}
+
+	[Fact]
+	public async Task RequireMatchingNames_IntraProceduralAlias_AddsAllowMappingForTheRecoveredSource()
+	{
+		const string config = """
+			<ArchitecturalLevels>
+			  <Layer name="Application">
+			    <Class endsWith="Service" />
+			    <NameRules>
+			      <RequireMatchingNames valueTracking="IntraProcedural">
+			        <Source endsWith="Id" />
+			        <Target endsWith="Id" />
+			      </RequireMatchingNames>
+			    </NameRules>
+			  </Layer>
+			</ArchitecturalLevels>
+			""";
+		const string source = """
+			public class OrderService
+			{
+			    public void Run(int legacyCustomerId)
+			    {
+			        var pending = legacyCustomerId;
+			        Save(pending);
+			    }
+
+			    private void Save(int customerId)
+			    {
+			    }
+			}
+			""";
+
+		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
+			source,
+			config,
+			ArchitecturalDiagnosticIds.NameRuleViolation,
+			"Add <Allow from=\"legacy.customer.id\" to=\"customer.id\" /> to name rule");
+
+		updatedConfig.Should().Contain("<Allow from=\"legacy.customer.id\" to=\"customer.id\" />");
+	}
 }

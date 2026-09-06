@@ -223,6 +223,51 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 	}
 
 	[Fact]
+	public void OperationContracts_CanBeInspectedAddedAndEditedAtTheRoot()
+	{
+		using var directory = new TemporaryDirectory();
+		var path = directory.WriteFile(
+			"Architecture.anl",
+			"""
+			<ArchitecturalLevels>
+			  <Operations description="Existing operations.">
+			    <Operation name="PlacePizzaOrder">
+			      <Owner><DeclarationMatcher><Member exactName="PlacePizzaOrder" memberKind="Method" /></DeclarationMatcher></Owner>
+			    </Operation>
+			  </Operations>
+			</ArchitecturalLevels>
+			""");
+		var source = new ArchitectureConfigurationSource(ArchitectureConfigurationSourceKind.XmlFile, path);
+
+		var details = ArchitectureConfigurationEditService.GetRootDetails(source);
+
+		details.Succeeded.Should().BeTrue(details.Message);
+		var existing = details.OperationContracts.Should().ContainSingle().Subject;
+		existing.Attributes["description"].Should().Be("Existing operations.");
+		ArchitectureConfigurationEditService.SetConfigurationElementChildren(
+			existing.Handle,
+			"""
+			<Operation name="PlacePizzaOrder">
+			  <Owner><DeclarationMatcher><Member exactName="PlacePizzaOrder" memberKind="Method" /></DeclarationMatcher></Owner>
+			  <Request><Class exactName="PlacePizzaOrderRequest" /></Request>
+			</Operation>
+			""").Succeeded.Should().BeTrue();
+		ArchitectureConfigurationEditService.AddOperationContracts(
+			source,
+			Attributes(("description", "Another explicit operation.")),
+			"""
+			<Operation name="CancelPizzaOrder">
+			  <Owner><DeclarationMatcher><Member exactName="CancelPizzaOrder" memberKind="Method" /></DeclarationMatcher></Owner>
+			</Operation>
+			""").Succeeded.Should().BeTrue();
+
+		var content = File.ReadAllText(path);
+		content.Should().Contain("PlacePizzaOrderRequest");
+		content.Should().Contain("CancelPizzaOrder");
+		content.Should().Contain("Another explicit operation.");
+	}
+
+	[Fact]
 	public void SetRootSettings_UpdatesRootAttributes()
 	{
 		using var directory = new TemporaryDirectory();

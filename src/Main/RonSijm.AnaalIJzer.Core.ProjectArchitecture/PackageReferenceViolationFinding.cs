@@ -14,7 +14,7 @@ public readonly struct PackageReferenceViolationFinding(
 	PackageReferenceKind referenceKind,
 	string violationReason,
 	PackagePolicy? matchedPolicy,
-	PackageMatcher? matchedMatcher)
+	ReferenceIdentityMatcher? matchedMatcher)
 {
 	public string SourceProjectPath { get; } = sourceProjectPath;
 	public string SourceProjectName { get; } = sourceProjectName;
@@ -24,7 +24,7 @@ public readonly struct PackageReferenceViolationFinding(
 	public PackageReferenceKind ReferenceKind { get; } = referenceKind;
 	public string ViolationReason { get; } = violationReason;
 	public PackagePolicy? MatchedPolicy { get; } = matchedPolicy;
-	public PackageMatcher? MatchedMatcher { get; } = matchedMatcher;
+	public ReferenceIdentityMatcher? MatchedMatcher { get; } = matchedMatcher;
 
 	public ArchitectureFinding ToArchitectureFinding()
 	{

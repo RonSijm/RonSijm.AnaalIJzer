@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using RonSijm.AnaalIJzer.Diagnostics.CodeFixes;
+using RonSijm.AnaalIJzer.CodeFixes;
 using RonSijm.AnaalIJzer.Workspace.Analysis.ConfigurationFixes;
 
 namespace RonSijm.AnaalIJzer.Workspace.Analysis;

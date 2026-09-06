@@ -1,0 +1,16 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+                     description="Application services use repositories; repositories own DbContext access.">
+  <Layer name="Application" description="Application services coordinate use cases without holding an EF Core context.">
+    <Class endsWith="Service" />
+  </Layer>
+  <Layer name="Repository" description="Repositories are the persistence-facing adapters that receive DbContext.">
+    <Class endsWith="Repository" />
+  </Layer>
+  <Layer name="Context" description="DbContext represents the EF Core unit of work.">
+    <Class inherits="DbContext" />
+  </Layer>
+
+  <AllowedDependency from="Application" to="Repository" description="Application code may ask a repository for data." />
+  <AllowedDependency from="Repository" to="Context" allowedSites="Constructor" description="A repository may receive its DbContext through constructor injection." />
+</ArchitecturalLevels>

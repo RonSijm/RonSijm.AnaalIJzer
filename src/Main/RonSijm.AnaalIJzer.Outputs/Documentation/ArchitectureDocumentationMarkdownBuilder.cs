@@ -33,6 +33,7 @@ internal static partial class ArchitectureDocumentationMarkdownBuilder
 		}
 
 		AppendRootSettings(sb, config);
+		AppendGeneratedCodeScope(sb, config);
 		AppendExceptionPolicy(sb, config);
 		AppendDependencyDiagrams(sb, config);
 		AppendTypePolicies(sb, config);
@@ -40,10 +41,14 @@ internal static partial class ArchitectureDocumentationMarkdownBuilder
 		AppendVisibilityPolicies(sb, config);
 		AppendContractPolicies(sb, config);
 		AppendReturnValuePolicies(sb, config);
+		AppendForbiddenOperationPolicies(sb, config);
+		AppendBehavioralOperationPolicies(sb, config);
+		AppendOperationContracts(sb, config);
 		AppendApiSurfacePolicies(sb, config);
 		AppendSourceLocationPolicies(sb, config);
 		AppendBoundaryEntryPointPolicies(sb, config);
 		AppendProjectArchitecture(sb, config);
+		AppendSolutionTopology(sb, config);
 		AppendConfigurationOrder(sb, config);
 
 		var result = sb.ToString();

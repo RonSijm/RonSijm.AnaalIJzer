@@ -3,7 +3,6 @@ using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
-using RonSijm.AnaalIJzer.Core.Observations;
 using RonSijm.AnaalIJzer.Core.SourceLocations;
 using RonSijm.AnaalIJzer.Diagnostics;
 using AnalyzerConfig = RonSijm.AnaalIJzer.Core.RuntimeConfig.Config.Model.AnalyzerConfig;
@@ -43,7 +42,7 @@ internal static class LayerSourceLocationAnalyzer
 		foreach (var syntaxReference in syntaxReferences)
 		{
 			var syntax = syntaxReference.GetSyntax(context.CancellationToken);
-			if (GeneratedCodeDetector.IsGenerated(syntax.SyntaxTree, context.CancellationToken))
+			if (!config.GeneratedCodeScope.ShouldAnalyze(syntax.SyntaxTree, context.CancellationToken))
 			{
 				continue;
 			}

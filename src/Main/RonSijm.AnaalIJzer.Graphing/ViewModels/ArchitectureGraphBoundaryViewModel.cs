@@ -22,7 +22,9 @@ internal sealed class ArchitectureGraphBoundaryViewModel(
     int incomingViolationCount = 0,
     int outgoingViolationCount = 0,
     int exceptionReviewCount = 0,
-    ImmutableArray<string> exceptionReviewSummaries = default)
+	ImmutableArray<string> exceptionReviewSummaries = default,
+	ArchitectureGraphNodeKind kind = ArchitectureGraphNodeKind.Layer,
+	string? readOnlyDetails = null)
 {
     public string Path { get; } = path;
 
@@ -68,5 +70,9 @@ internal sealed class ArchitectureGraphBoundaryViewModel(
 
     public int ExceptionReviewCount { get; } = exceptionReviewCount;
 
-    public ImmutableArray<string> ExceptionReviewSummaries { get; } = exceptionReviewSummaries.IsDefault ? ImmutableArray<string>.Empty : exceptionReviewSummaries;
+	public ImmutableArray<string> ExceptionReviewSummaries { get; } = exceptionReviewSummaries.IsDefault ? ImmutableArray<string>.Empty : exceptionReviewSummaries;
+
+	public ArchitectureGraphNodeKind Kind { get; } = kind;
+
+	public string? ReadOnlyDetails { get; } = readOnlyDetails;
 }

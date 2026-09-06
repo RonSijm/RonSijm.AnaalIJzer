@@ -1,0 +1,79 @@
+name: Solution topology
+
+on:
+  workflow_dispatch:
+    inputs:
+      solution:
+        description: Solution file to inspect, relative to the repository root
+        required: true
+        type: string
+      configuration:
+        description: MSBuild configuration
+        required: false
+        default: Release
+        type: string
+  workflow_call:
+    inputs:
+      solution:
+        description: Solution file to inspect, relative to the repository root
+        required: true
+        type: string
+      configuration:
+        description: MSBuild configuration
+        required: false
+        default: Release
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    name: Inspect solution topology
+    runs-on: ubuntu-latest
+    env:
+      SOLUTION_PATH: ${{ inputs.solution }}
+      BUILD_CONFIGURATION: ${{ inputs.configuration }}
+      ARTIFACT_DIRECTORY: build/Artifacts/SolutionTopology
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore Arse
+        run: dotnet restore src/Tools/RonSijm.AnaalIJzer.Arse/RonSijm.AnaalIJzer.Arse.csproj
+
+      - name: Build Arse
+        run: dotnet build src/Tools/RonSijm.AnaalIJzer.Arse/RonSijm.AnaalIJzer.Arse.csproj --no-restore --configuration "$BUILD_CONFIGURATION"
+
+      - name: Inspect solution topology as Markdown
+        id: inspect_markdown
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path $env:ARTIFACT_DIRECTORY -Force | Out-Null
+          dotnet src/Tools/RonSijm.AnaalIJzer.Arse/bin/$env:BUILD_CONFIGURATION/net10.0/RonSijm.AnaalIJzer.Arse.dll inspect --solution $env:SOLUTION_PATH --configuration $env:BUILD_CONFIGURATION --enforce-topology --output "$env:ARTIFACT_DIRECTORY/architecture-health.md" --force
+          exit $LASTEXITCODE
+
+      - name: Inspect solution topology as JSON
+        id: inspect_json
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          dotnet src/Tools/RonSijm.AnaalIJzer.Arse/bin/$env:BUILD_CONFIGURATION/net10.0/RonSijm.AnaalIJzer.Arse.dll inspect --solution $env:SOLUTION_PATH --configuration $env:BUILD_CONFIGURATION --enforce-topology --output "$env:ARTIFACT_DIRECTORY/architecture-health.json" --force
+          exit $LASTEXITCODE
+
+      - name: Upload topology evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: solution-topology-evidence
+          path: ${{ env.ARTIFACT_DIRECTORY }}
+          if-no-files-found: error
+
+      - name: Fail when topology findings exist
+        if: steps.inspect_markdown.outcome == 'failure' || steps.inspect_json.outcome == 'failure'
+        shell: pwsh
+        run: exit 1

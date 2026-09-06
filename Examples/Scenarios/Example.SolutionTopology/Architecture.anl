@@ -1,0 +1,23 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd">
+  <SolutionTopology requireRecognizedProjects="true"
+                    enforceAcyclic="true"
+                    description="The cafe's order screen may ask the service, but the service must not reach into storage directly.">
+    <Module name="DiningRoom" description="The customer-facing order screen.">
+      <Project endsWith=".Web" />
+    </Module>
+    <Module name="Kitchen" description="The order-processing service.">
+      <Project endsWith=".Application" />
+    </Module>
+    <Module name="Pantry" description="The storage implementation.">
+      <Project endsWith=".Infrastructure" />
+    </Module>
+
+    <AllowedModuleReference from="DiningRoom"
+                            to="Kitchen"
+                            description="The order screen may ask the kitchen to prepare an order." />
+    <BlockedModuleReference from="Kitchen"
+                            to="Pantry"
+                            description="The kitchen must not reach into storage; a dedicated adapter belongs between them." />
+  </SolutionTopology>
+</ArchitecturalLevels>

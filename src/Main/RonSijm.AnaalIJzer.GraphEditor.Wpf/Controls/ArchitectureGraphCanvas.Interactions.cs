@@ -22,8 +22,8 @@ internal sealed partial class ArchitectureGraphCanvas
 		{
 			if (sender is FrameworkElement { DataContext: NodifyGraphNodeViewModel node })
 			{
-				_logger?.LogDebug("Selected layer node '{LayerPath}'.", node.Path);
-				_selectionHandler?.Invoke(ArchitectureGraphSelection.ForLayer(node.EditHandle));
+				_logger?.LogDebug("Selected graph node '{NodePath}'.", node.Path);
+				_selectionHandler?.Invoke(node.CreateSelection());
 			}
 		}
 		catch (Exception exception)
@@ -40,8 +40,8 @@ internal sealed partial class ArchitectureGraphCanvas
 		{
 			if (sender is FrameworkElement { DataContext: NodifyGraphBoundaryViewModel boundary })
 			{
-				_logger?.LogDebug("Selected layer boundary '{LayerPath}'.", boundary.Path);
-				_selectionHandler?.Invoke(ArchitectureGraphSelection.ForLayer(boundary.EditHandle));
+				_logger?.LogDebug("Selected graph boundary '{NodePath}'.", boundary.Path);
+				_selectionHandler?.Invoke(boundary.CreateSelection());
 			}
 		}
 		catch (Exception exception)
@@ -59,9 +59,7 @@ internal sealed partial class ArchitectureGraphCanvas
 			if (sender is FrameworkElement { DataContext: NodifyGraphConnectionViewModel connection })
 			{
 				_logger?.LogDebug("Selected dependency connection '{Kind}' from '{From}' to '{To}'.", connection.Kind, connection.From, connection.To);
-				_selectionHandler?.Invoke(connection.IsEvidence
-					? ArchitectureGraphSelection.ForCodeEvidence(connection.From, connection.To, connection.LabelText, connection.EvidenceDetails)
-					: ArchitectureGraphSelection.ForDependency(connection.EditHandle));
+				_selectionHandler?.Invoke(connection.CreateSelection());
 				e.Handled = true;
 			}
 		}

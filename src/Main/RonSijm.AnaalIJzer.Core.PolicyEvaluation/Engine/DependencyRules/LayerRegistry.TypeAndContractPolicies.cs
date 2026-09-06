@@ -1,9 +1,13 @@
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using RonSijm.AnaalIJzer.Core.Contracts.Contracts;
 using RonSijm.AnaalIJzer.Core.Inheritance.Policies;
 using RonSijm.AnaalIJzer.Core.LayerModel;
+using RonSijm.AnaalIJzer.Core.OperationPolicies.Behavioral;
+using RonSijm.AnaalIJzer.Core.OperationPolicies.Policies;
 using RonSijm.AnaalIJzer.Core.ReturnValues.Policies;
+	using RonSijm.AnaalIJzer.Core.SemanticOperations.Model;
 
 namespace RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.DependencyRules;
 
@@ -113,5 +117,48 @@ public readonly partial struct LayerRegistry
 		}
 
 		return null;
+	}
+
+	public ForbiddenOperationPolicyEvaluation? EvaluateForbiddenOperationPolicies(LayerMatch layerMatch, SemanticOperation operation)
+	{
+		foreach (var layer in layerMatch.Layers)
+		{
+			if (!_catalog.NodesByPath.TryGetValue(layer.Name, out var node))
+			{
+				continue;
+			}
+
+			foreach (var policy in node.ForbiddenOperationPolicies)
+			{
+				var result = policy.Evaluate(operation);
+				if (result is not null)
+				{
+					return result;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	public ImmutableArray<BehavioralOperationPolicyEvaluation> EvaluateBehavioralOperationPolicies(LayerMatch layerMatch, BehavioralOperationBodyAnalysis body)
+	{
+		var evaluations = ImmutableArray.CreateBuilder<BehavioralOperationPolicyEvaluation>();
+		foreach (var layer in layerMatch.Layers)
+		{
+			if (!_catalog.NodesByPath.TryGetValue(layer.Name, out var node))
+			{
+				continue;
+			}
+
+			foreach (var policy in node.BehavioralOperationPolicies)
+			{
+				evaluations.AddRange(policy.Evaluate(body));
+			}
+		}
+
+		var result = evaluations.ToImmutable();
+
+		return result;
 	}
 }

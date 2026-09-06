@@ -86,7 +86,7 @@ internal sealed partial class ArchitectureGraphCanvas : UserControl
 				HasCustomContextMenu = true,
 				PendingConnection = new object(),
 				PendingConnectionTemplate = CreatePendingConnectionTemplate(),
-				ConnectionCompletedCommand = new DelegateCommand(CompleteConnection),
+				ConnectionCompletedCommand = new DelegateCommand(CompleteConnection, _ => !_group.IsReadOnly && _group.ConfigurationSource.CanEdit),
 				ContextMenu = CreateCanvasContextMenu(),
 				HorizontalAlignment = HorizontalAlignment.Stretch,
 				VerticalAlignment = VerticalAlignment.Stretch

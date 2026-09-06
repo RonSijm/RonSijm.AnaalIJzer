@@ -61,8 +61,8 @@ internal sealed partial class GraphImageExportCommand
 	{
 		var control = new ArchitectureGraphEditorControl(snapshot, ArchitectureGraphFocusMode.ShowAll, logger: null, useExportSizing: true);
 		var size = CalculateExportSize(snapshot);
-		control.Measure(size);
-		var arrangedSize = new Size(size.Width, Math.Max(size.Height, control.DesiredSize.Height));
+		control.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+		var arrangedSize = new Size(Math.Max(size.Width, control.DesiredSize.Width), Math.Max(size.Height, control.DesiredSize.Height));
 		control.Arrange(new Rect(arrangedSize));
 		control.UpdateLayout();
 		DrainDispatcher();
@@ -85,7 +85,7 @@ internal sealed partial class GraphImageExportCommand
 
 		var contentWidth = groups.Max(CalculateGroupExportWidth);
 		var contentHeight = groups.Sum(CalculateGroupExportHeight);
-		var exportWidth = Math.Min(_width, Math.Max(ExportMinimumWidth, contentWidth));
+		var exportWidth = Math.Max(ExportMinimumWidth, contentWidth);
 		var exportHeight = Math.Max(ExportMinimumHeight, contentHeight);
 		var result = new Size(Math.Ceiling(exportWidth), Math.Ceiling(exportHeight));
 

@@ -2,7 +2,9 @@ using System.Collections.Immutable;
 using RonSijm.AnaalIJzer.Core.DependencyRules;
 using RonSijm.AnaalIJzer.Core.Exceptions;
 using RonSijm.AnaalIJzer.Core.LayerModel;
+using RonSijm.AnaalIJzer.Core.OperationContracts.Model;
 using RonSijm.AnaalIJzer.Core.ProjectArchitecture;
+using RonSijm.AnaalIJzer.Core.ProjectArchitecture.SolutionTopology;
 
 namespace RonSijm.AnaalIJzer.Core.Configuration.Compilation.Compilation;
 
@@ -16,7 +18,9 @@ internal readonly struct ArchitectureConfigurationMaterializationResult
         ImmutableArray<ArchitectureExceptionReview> exceptionReviews,
         ImmutableArray<string> layerNames,
         ImmutableArray<ArchitectureForbiddenPattern> forbiddenPatterns,
-        ProjectArchitectureConfig projectArchitecture)
+        ProjectArchitectureConfig projectArchitecture,
+        SolutionTopologyConfig solutionTopology = default,
+        OperationContractCatalog operationContracts = default)
     {
         LayerCatalog = layerCatalog;
         DependencyEdges = dependencyEdges;
@@ -26,6 +30,8 @@ internal readonly struct ArchitectureConfigurationMaterializationResult
         LayerNames = layerNames;
         ForbiddenPatterns = forbiddenPatterns;
         ProjectArchitecture = projectArchitecture;
+        SolutionTopology = solutionTopology;
+        OperationContracts = operationContracts;
     }
 
     internal CompiledLayerCatalog LayerCatalog { get; }
@@ -43,4 +49,8 @@ internal readonly struct ArchitectureConfigurationMaterializationResult
     internal ImmutableArray<ArchitectureForbiddenPattern> ForbiddenPatterns { get; }
 
     internal ProjectArchitectureConfig ProjectArchitecture { get; }
+
+    internal SolutionTopologyConfig SolutionTopology { get; }
+
+    internal OperationContractCatalog OperationContracts { get; }
 }

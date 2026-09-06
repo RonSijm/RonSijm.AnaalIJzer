@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using RonSijm.AnaalIJzer.Core.Configuration.Document.Sources;
 using RonSijm.AnaalIJzer.Core.Findings;
+using RonSijm.AnaalIJzer.Core.ProjectArchitecture.SolutionTopology;
 using RonSijm.AnaalIJzer.Workspace.Analysis;
 
 namespace RonSijm.AnaalIJzer.Workspace.Tests.Workspace;
@@ -308,6 +309,86 @@ public sealed class WorkspaceAnalysisServiceTests
 	}
 
 	[Fact]
+	public async Task ProjectAnalysisHost_CollectsConfiguredTopologyReferencesFromScenario()
+	{
+		var cancellationToken = TestContext.Current.CancellationToken;
+		var repositoryRoot = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(FindSchemaPath())!, "..", "..", "..", ".."));
+		var solutionPath = Path.Combine(repositoryRoot, "Examples", "Scenarios", "Example.SolutionTopology", "Example.SolutionTopology.slnx");
+		using var host = new ProjectAnalysisHost("Release");
+		var result = await host.AnalyzeSolutionAsync(solutionPath, cancellationToken);
+		var topology = result.Projects.Single(project => project.AssemblyName == "Example.SolutionTopology.Application").Config.SolutionTopology;
+		var analysis = SolutionTopologyAnalysisService.Analyze(topology, result.EffectiveProjectReferences);
+
+		topology.Modules.Should().HaveCount(3);
+		topology.RequireRecognizedProjects.Should().BeTrue();
+		result.EffectiveProjectReferences.Should().Contain(reference =>
+			string.Equals(reference.SourceProjectName, "Example.SolutionTopology.Application", StringComparison.Ordinal)
+			&& string.Equals(reference.TargetProjectName, "Example.SolutionTopology.Infrastructure", StringComparison.Ordinal));
+		analysis.ReferenceViolations.Should().ContainSingle(violation =>
+			string.Equals(violation.Reference.SourceProjectName, "Example.SolutionTopology.Application", StringComparison.Ordinal)
+			&& string.Equals(violation.Reference.TargetProjectName, "Example.SolutionTopology.Infrastructure", StringComparison.Ordinal));
+	}
+
+	[Fact]
+	public async Task ProjectAnalysisHost_CollectsOnlyDirectSolutionProjectReferences()
+	{
+		var cancellationToken = TestContext.Current.CancellationToken;
+		var tempDirectory = Path.Combine(Path.GetTempPath(), $"AnaalIJzer-solution-reference-test-{Guid.NewGuid():N}");
+		Directory.CreateDirectory(tempDirectory);
+
+		try
+		{
+			var domainProjectPath = Path.Combine(tempDirectory, "Shop.Domain", "Shop.Domain.csproj");
+			var applicationProjectPath = Path.Combine(tempDirectory, "Shop.Application", "Shop.Application.csproj");
+			var webProjectPath = Path.Combine(tempDirectory, "Shop.Web", "Shop.Web.csproj");
+			await WriteSimpleProjectAsync(domainProjectPath, null, cancellationToken);
+			await WriteSimpleProjectAsync(applicationProjectPath, domainProjectPath, cancellationToken);
+			await WriteSimpleProjectAsync(webProjectPath, applicationProjectPath, cancellationToken);
+
+			var solutionPath = WriteSolutionFile(tempDirectory, domainProjectPath, applicationProjectPath, webProjectPath);
+			using var host = new ProjectAnalysisHost("Release");
+			var result = await host.AnalyzeSolutionAsync(solutionPath, cancellationToken);
+
+			result.EffectiveProjectReferences.Should().BeEquivalentTo(
+			[
+				new SolutionProjectReference(applicationProjectPath, "Shop.Application", domainProjectPath, "Shop.Domain"),
+				new SolutionProjectReference(webProjectPath, "Shop.Web", applicationProjectPath, "Shop.Application")
+			]);
+		}
+		finally
+		{
+			Directory.Delete(tempDirectory, true);
+		}
+	}
+
+	[Fact]
+	public async Task ProjectAnalysisHost_CollectsDirectSolutionProjectReferences_WhenProjectReferencesUseWindowsSeparators()
+	{
+		var cancellationToken = TestContext.Current.CancellationToken;
+		var tempDirectory = Path.Combine(Path.GetTempPath(), $"AnaalIJzer-windows-path-solution-reference-test-{Guid.NewGuid():N}");
+		Directory.CreateDirectory(tempDirectory);
+
+		try
+		{
+			var domainProjectPath = Path.Combine(tempDirectory, "Shop.Domain", "Shop.Domain.csproj");
+			var applicationProjectPath = Path.Combine(tempDirectory, "Shop.Application", "Shop.Application.csproj");
+			await WriteSimpleProjectAsync(domainProjectPath, null, cancellationToken);
+			await WriteSimpleProjectAsync(applicationProjectPath, domainProjectPath, cancellationToken, useWindowsPathSeparators: true);
+
+			var solutionPath = WriteSolutionFile(tempDirectory, domainProjectPath, applicationProjectPath);
+			using var host = new ProjectAnalysisHost("Release");
+			var result = await host.AnalyzeSolutionAsync(solutionPath, cancellationToken);
+
+			result.EffectiveProjectReferences.Should().ContainSingle()
+				.Which.Should().BeEquivalentTo(new SolutionProjectReference(applicationProjectPath, "Shop.Application", domainProjectPath, "Shop.Domain"));
+		}
+		finally
+		{
+			Directory.Delete(tempDirectory, true);
+		}
+	}
+
+	[Fact]
 	public async Task ProjectAnalysisHost_GeneratesPackageReferenceManifest_ForProjectArchitecture()
 	{
 		var cancellationToken = TestContext.Current.CancellationToken;
@@ -372,6 +453,57 @@ public sealed class WorkspaceAnalysisServiceTests
 		}
 	}
 
+	[Fact]
+	public async Task ProjectAnalysisHost_CollectsDirectAssemblyReferenceManifest_ForWorkspacePolicies()
+	{
+		var cancellationToken = TestContext.Current.CancellationToken;
+		var tempDirectory = Path.Combine(Path.GetTempPath(), $"AnaalIJzer-assembly-manifest-test-{Guid.NewGuid():N}");
+		Directory.CreateDirectory(tempDirectory);
+
+		try
+		{
+			var projectPath = Path.Combine(tempDirectory, "Shop.Domain.csproj");
+			await File.WriteAllTextAsync(projectPath, """
+			                                         <Project Sdk="Microsoft.NET.Sdk">
+			                                           <PropertyGroup>
+			                                             <TargetFramework>net10.0</TargetFramework>
+			                                             <Nullable>enable</Nullable>
+			                                           </PropertyGroup>
+			                                           <ItemGroup>
+			                                             <AdditionalFiles Include="Architecture.anl" />
+			                                             <Reference Include="System.Xml" />
+			                                           </ItemGroup>
+			                                         </Project>
+			                                         """, cancellationToken);
+			await File.WriteAllTextAsync(Path.Combine(tempDirectory, "Example.cs"), "namespace Shop.Domain; public sealed class PizzaRecipe { }", cancellationToken);
+			await File.WriteAllTextAsync(Path.Combine(tempDirectory, "Architecture.anl"), """
+			                                                            <ArchitecturalLevels>
+			                                                              <ProjectArchitecture requireRecognizedProjects="true">
+			                                                                <ProjectGroup name="Domain"><Project endsWith=".Domain" /></ProjectGroup>
+			                                                                <AssemblyReferencePolicy projectGroup="Domain">
+			                                                                  <Forbidden><Assembly exactName="System.Xml" /></Forbidden>
+			                                                                </AssemblyReferencePolicy>
+			                                                              </ProjectArchitecture>
+			                                                            </ArchitecturalLevels>
+			                                                            """, cancellationToken);
+
+			using var host = new ProjectAnalysisHost("Release");
+			var result = await host.AnalyzeAsync(projectPath, cancellationToken);
+
+			result.WorkspaceFailures.Should().BeEmpty();
+			result.CompilerErrors.Should().BeEmpty();
+			result.AnalyzerDiagnostics.Should().BeEmpty("raw assembly-reference policies are intentionally evaluated by workspace inspection, not by compiler diagnostics");
+			var reference = result.ReferenceManifest.AssemblyReferences.Should().ContainSingle(reference =>
+				string.Equals(reference.SourceProjectPath, projectPath, StringComparison.OrdinalIgnoreCase)
+				&& string.Equals(reference.AssemblyIdentity, "System.Xml", StringComparison.Ordinal)).Which;
+			reference.HintPath.Should().BeNull();
+		}
+		finally
+		{
+			Directory.Delete(tempDirectory, true);
+		}
+	}
+
 	private static string FindSchemaPath()
 	{
 		for (var directory = new DirectoryInfo(AppContext.BaseDirectory); directory is not null; directory = directory.Parent)
@@ -403,6 +535,37 @@ public sealed class WorkspaceAnalysisServiceTests
 		new XDocument(new XElement("Solution", projectPaths.Select(projectPath => new XElement("Project", new XAttribute("Path", projectPath))))).Save(solutionPath);
 
 		return solutionPath;
+	}
+
+	private static async Task WriteSimpleProjectAsync(string projectPath, string? referencedProjectPath, CancellationToken cancellationToken, bool useWindowsPathSeparators = false)
+	{
+		var projectDirectory = Path.GetDirectoryName(projectPath)!;
+		Directory.CreateDirectory(projectDirectory);
+		var relativeProjectPath = referencedProjectPath is null
+			? string.Empty
+			: Path.GetRelativePath(projectDirectory, referencedProjectPath);
+		if (useWindowsPathSeparators)
+		{
+			relativeProjectPath = relativeProjectPath.Replace('/', '\\');
+		}
+
+		var projectReference = referencedProjectPath is null
+			? string.Empty
+			: $"""
+
+			  <ItemGroup>
+			    <ProjectReference Include="{relativeProjectPath}" />
+			  </ItemGroup>
+			""";
+		await File.WriteAllTextAsync(projectPath, $"""
+		                                         <Project Sdk="Microsoft.NET.Sdk">
+		                                           <PropertyGroup>
+		                                             <TargetFramework>net10.0</TargetFramework>
+		                                             <Nullable>enable</Nullable>
+		                                           </PropertyGroup>{projectReference}
+		                                         </Project>
+		                                         """, cancellationToken);
+		await File.WriteAllTextAsync(Path.Combine(projectDirectory, "Example.cs"), $"namespace {Path.GetFileNameWithoutExtension(projectPath)}; public sealed class ExampleType {{ }}", cancellationToken);
 	}
 
 	private sealed class TestAdditionalText(string path, string? content = null) : AdditionalText

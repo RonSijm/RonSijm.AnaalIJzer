@@ -43,7 +43,18 @@ internal static partial class ArchitectureGraphViewModelBuilder
 
 		if (layerByPath.TryGetValue(path, out var layer))
 		{
-			nodes.Add(path, new ArchitectureGraphNodeViewModel(layer.Path, layer.DisplayName, layer.Description, layer.Depth, layer.PaletteSlot, layer.IsActive, isSource ? NodeStartX : NodeStartX + NodeColumnWidth, NodeStartY + nodes.Count * 80));
+			nodes.Add(path, new ArchitectureGraphNodeViewModel(
+				layer.Path,
+				layer.DisplayName,
+				layer.Description,
+				layer.Depth,
+				layer.PaletteSlot,
+				layer.IsActive,
+				isSource ? NodeStartX : NodeStartX + NodeColumnWidth,
+				NodeStartY + nodes.Count * 80,
+				layer.EditHandle,
+				kind: layer.Kind,
+				readOnlyDetails: layer.ReadOnlyDetails));
 			return;
 		}
 
@@ -77,20 +88,24 @@ internal static partial class ArchitectureGraphViewModelBuilder
 	{
 		var result = dependencies
 			.GroupBy(dependency => new { dependency.CallerLayerPath, dependency.DependencyLayerPath })
-			.Where(group => group.Any(dependency => dependency.IsViolation))
+			.Where(group => group.Any(dependency => dependency.IsViolation) || group.All(dependency => dependency.Site == "ProjectReference"))
 			.Select(group =>
 			{
 				var observedUsageCount = group.Count();
 				var violationCount = group.Count(dependency => dependency.IsViolation);
+				var isProjectReference = group.All(dependency => dependency.Site == "ProjectReference");
+				var label = isProjectReference
+					? FormatProjectReferenceLabel(violationCount, observedUsageCount)
+					: violationCount + " violation" + (violationCount == 1 ? string.Empty : "s") + " in " + observedUsageCount + " observed use" + (observedUsageCount == 1 ? string.Empty : "s");
 				return new ArchitectureGraphEdgeViewModel(
 					group.Key.CallerLayerPath,
 					group.Key.DependencyLayerPath,
 					"CodeEvidence",
-					violationCount + " violation" + (violationCount == 1 ? string.Empty : "s") + " in " + observedUsageCount + " observed use" + (observedUsageCount == 1 ? string.Empty : "s"),
+					label,
 					false,
 					true,
 					description: string.Join(Environment.NewLine, group
-						.Where(dependency => dependency.IsViolation)
+						.Where(dependency => dependency.IsViolation || isProjectReference)
 						.OrderBy(dependency => dependency.FilePath, StringComparer.OrdinalIgnoreCase)
 						.ThenBy(dependency => dependency.LineNumber)
 						.Take(8)
@@ -111,6 +126,15 @@ internal static partial class ArchitectureGraphViewModelBuilder
 			.OrderBy(edge => edge.From, StringComparer.Ordinal)
 			.ThenBy(edge => edge.To, StringComparer.Ordinal)
 			.ToImmutableArray();
+
+		return result;
+	}
+
+	private static string FormatProjectReferenceLabel(int violationCount, int observedUsageCount)
+	{
+		var result = violationCount == 0
+			? observedUsageCount + " observed project reference" + (observedUsageCount == 1 ? string.Empty : "s")
+			: violationCount + " topology violation" + (violationCount == 1 ? string.Empty : "s") + " in " + observedUsageCount + " project reference" + (observedUsageCount == 1 ? string.Empty : "s");
 
 		return result;
 	}
@@ -181,7 +205,7 @@ internal static partial class ArchitectureGraphViewModelBuilder
 	{
 		var cascade = rule.AppliesToDescendants ? ", cascades to descendants" : string.Empty;
 		var scope = string.IsNullOrWhiteSpace(rule.ScopePath) ? "root" : rule.ScopePath;
-		var arrow = rule.Kind == "BlockedDependency" ? " -x-> " : " -> ";
+		var arrow = rule.Kind is "BlockedDependency" or "BlockedModuleReference" ? " -x-> " : " -> ";
 		var result = rule.Kind + " [" + scope + "]: " + rule.From + arrow + rule.To + " (" + rule.SiteText + cascade + ")";
 
 		return result;

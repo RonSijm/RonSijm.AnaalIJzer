@@ -16,7 +16,8 @@ public sealed class NameMatchingRule(
 	string? description,
 	string xmlPath,
 	int xmlLineNumber,
-	int xmlLinePosition)
+	int xmlLinePosition,
+	NameRuleValueTrackingMode valueTracking = NameRuleValueTrackingMode.Direct)
 {
 	public NameRuleKind Kind { get; } = kind;
 	public NameRuleTrigger Trigger { get; } = trigger;
@@ -30,6 +31,7 @@ public sealed class NameMatchingRule(
 	public string XmlPath { get; } = xmlPath;
 	public int XmlLineNumber { get; } = xmlLineNumber;
 	public int XmlLinePosition { get; } = xmlLinePosition;
+	public NameRuleValueTrackingMode ValueTracking { get; } = valueTracking;
 
 	public NameRuleViolation? Evaluate(NameRuleSubject source, NameRuleSubject target, string site)
 	{

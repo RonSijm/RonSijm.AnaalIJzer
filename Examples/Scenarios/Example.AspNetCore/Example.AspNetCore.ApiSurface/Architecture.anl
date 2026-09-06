@@ -1,0 +1,26 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+                     description="HTTP endpoints may expose response contracts, but not raw query surfaces.">
+  <Layer name="Endpoint" description="Controllers shape the public HTTP API.">
+    <Class withAttribute="ApiController" />
+    <ApiSurface description="A public controller return type must be a contract, not a query mechanism.">
+      <AllowedLayer path="/Contracts" />
+      <BlockedLayer path="/QuerySurface" />
+    </ApiSurface>
+  </Layer>
+  <Layer name="Application" description="Application services may assemble responses and query source data.">
+    <Class endsWith="Service" />
+  </Layer>
+  <Layer name="Contracts" description="Response types are safe to expose to an HTTP client.">
+    <Class endsWith="Response" />
+  </Layer>
+  <Layer name="QuerySurface" description="IQueryable is a deferred query mechanism, not a public API contract.">
+    <Class exactName="IQueryable" typeKind="Interface" />
+  </Layer>
+
+  <AllowedDependency from="Endpoint" to="Application" />
+  <AllowedDependency from="Endpoint" to="Contracts" />
+  <AllowedDependency from="Endpoint" to="QuerySurface" />
+  <AllowedDependency from="Application" to="Contracts" />
+  <AllowedDependency from="Application" to="QuerySurface" />
+</ArchitecturalLevels>

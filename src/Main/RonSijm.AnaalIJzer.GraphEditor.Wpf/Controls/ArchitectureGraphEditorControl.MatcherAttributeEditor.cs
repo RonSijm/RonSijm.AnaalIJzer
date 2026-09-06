@@ -39,7 +39,7 @@ public sealed partial class ArchitectureGraphEditorControl
 				return false;
 			}
 
-			var validatedName = name;
+			var validatedName = name!;
 			attributes = ImmutableDictionary.CreateRange(StringComparer.Ordinal, [new KeyValuePair<string, string>(validatedName, value)]);
 			message = string.Empty;
 			return true;

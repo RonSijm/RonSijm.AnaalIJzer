@@ -19,6 +19,8 @@ public partial class App : ComponentBase
 	private const string GenerateDocumentation = "Generate documentation";
 	private const string DoNotIncludeInput = "Do not include input settings";
 	private const string IncludeInput = "Include input settings";
+	private const string DoNotEnforceSolutionTopology = "Do not enforce solution topology";
+	private const string EnforceSolutionTopology = "Enforce solution topology";
 	private const string AssociateAnlFiles = "Associate .anl files with Arse";
 	private const string UnassociateAnlFiles = "Unassociate .anl files from Arse";
 
@@ -28,10 +30,12 @@ public partial class App : ComponentBase
 	private static readonly string[] CodeEvidenceOptions = [StaticDocumentation, IncludeCodeEvidence];
 	private static readonly string[] GeneratedDocumentationOptions = [DoNotGenerateDocumentation, GenerateDocumentation];
 	private static readonly string[] InputInclusionOptions = [DoNotIncludeInput, IncludeInput];
+	private static readonly string[] SolutionTopologyOptions = [DoNotEnforceSolutionTopology, EnforceSolutionTopology];
 	private static readonly string[] ProjectFileExtensions = [".csproj"];
 	private static readonly string[] SolutionFileExtensions = [".sln", ".slnx"];
 	private static readonly string[] ArchitectureConfigFileExtensions = [".anl", ".xml"];
 	private static readonly string[] MarkdownFileExtensions = [".md"];
+	private static readonly string[] InspectionOutputFileExtensions = [".md", ".json"];
 
 	private string? _selectedOperation;
 	private string? _selectedInput;
@@ -44,6 +48,7 @@ public partial class App : ComponentBase
 	private string _codeEvidence = StaticDocumentation;
 	private string _generatedDocumentation = DoNotGenerateDocumentation;
 	private string _inputInclusion = DoNotIncludeInput;
+	private string _solutionTopologyEnforcement = DoNotEnforceSolutionTopology;
 	private string _overwrite = DoNotOverwrite;
 	private string _status = string.Empty;
 	private string _statusTitle = string.Empty;

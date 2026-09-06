@@ -103,6 +103,101 @@ public sealed class ArchitectureGraphEditServiceTests
 		File.ReadAllText(path).Should().Contain("<Literal value=\"null\" />");
 	}
 
+	[Fact]
+	public void AddForbiddenOperationPolicy_PersistsThroughGraphEditService()
+	{
+		using var directory = new TemporaryDirectory();
+		var path = directory.WriteFile(
+			"Architecture.anl",
+			"""
+			<ArchitecturalLevels>
+			  <Layer name="Kitchen"><Class endsWith="Kitchen" /></Layer>
+			</ArchitecturalLevels>
+			""");
+		var handle = new ArchitectureLayerEditHandle(ArchitectureConfigurationSourceKind.XmlFile, path, 0, "Kitchen", "Kitchen", string.Empty, null);
+		var service = new ArchitectureGraphEditService();
+
+		var result = service.AddForbiddenOperationPolicy(
+			handle,
+			ImmutableDictionary<string, string>.Empty.Add("description", "Use a shared kitchen clock."),
+			"""
+			<ForbiddenOperation allowedSites="StaticMember">
+			  <OperationMatcher kind="PropertyRead" staticAccess="true">
+			    <ContainingType exactFullName="System.DateTime" />
+			    <Member exactName="UtcNow" memberKind="Property" />
+			  </OperationMatcher>
+			</ForbiddenOperation>
+			""");
+
+		result.Succeeded.Should().BeTrue(result.Message);
+		File.ReadAllText(path).Should().Contain("<ForbiddenOperations description=\"Use a shared kitchen clock.\"");
+		File.ReadAllText(path).Should().Contain("<Member exactName=\"UtcNow\" memberKind=\"Property\" />");
+	}
+
+	[Fact]
+	public void AddBehavioralOperationPolicy_PersistsThroughGraphEditService()
+	{
+		using var directory = new TemporaryDirectory();
+		var path = directory.WriteFile(
+			"Architecture.anl",
+			"""
+			<ArchitecturalLevels>
+			  <Layer name="Kitchen"><Class endsWith="Kitchen" /></Layer>
+			</ArchitecturalLevels>
+			""");
+		var handle = new ArchitectureLayerEditHandle(ArchitectureConfigurationSourceKind.XmlFile, path, 0, "Kitchen", "Kitchen", string.Empty, null);
+		var service = new ArchitectureGraphEditService();
+
+		var result = service.AddBehavioralOperationPolicy(
+			handle,
+			ImmutableDictionary<string, string>.Empty.Add("description", "Validate before saving."),
+			"""
+			<RequiredOperationBefore>
+			  <DeclarationMatcher><Member exactName="Submit" memberKind="Method" /></DeclarationMatcher>
+			  <OperationMatcher kind="Invocation"><Member exactName="Validate" memberKind="Method" /></OperationMatcher>
+			  <BeforeOperation><OperationMatcher kind="Invocation"><Member exactName="Save" memberKind="Method" /></OperationMatcher></BeforeOperation>
+			</RequiredOperationBefore>
+			""");
+
+		result.Succeeded.Should().BeTrue(result.Message);
+		File.ReadAllText(path).Should().Contain("<BehavioralOperations description=\"Validate before saving.\"");
+		File.ReadAllText(path).Should().Contain("<RequiredOperationBefore>");
+	}
+
+	[Fact]
+	public void AddOperationContracts_PersistsThroughGraphEditService()
+	{
+		using var directory = new TemporaryDirectory();
+		var path = directory.WriteFile(
+			"Architecture.anl",
+			"""
+			<ArchitecturalLevels>
+			  <Layer name="Controller"><Class endsWith="Controller" /></Layer>
+			  <Layer name="Application"><Class endsWith="Kitchen" /></Layer>
+			</ArchitecturalLevels>
+			""");
+		var source = new ArchitectureConfigurationSource(ArchitectureConfigurationSourceKind.XmlFile, path);
+		var service = new ArchitectureGraphEditService();
+
+		var result = service.AddOperationContracts(
+			source,
+			ImmutableDictionary<string, string>.Empty.Add("description", "A waiter directly calls the kitchen owner."),
+			"""
+			<Operation name="PlacePizzaOrder" allowedOwnerLayers="Application" allowedEntryPointLayers="Controller">
+			  <Owner>
+			    <DeclarationMatcher>
+			      <ContainingType endsWith="Kitchen" />
+			      <Member exactName="PlacePizzaOrder" memberKind="Method" />
+			    </DeclarationMatcher>
+			  </Owner>
+			</Operation>
+			""");
+
+		result.Succeeded.Should().BeTrue(result.Message);
+		File.ReadAllText(path).Should().Contain("<Operations description=\"A waiter directly calls the kitchen owner.\"");
+		File.ReadAllText(path).Should().Contain("<Operation name=\"PlacePizzaOrder\" allowedOwnerLayers=\"Application\" allowedEntryPointLayers=\"Controller\">");
+	}
+
 	private sealed class TemporaryDirectory : IDisposable
 	{
 		private readonly string _path = Path.Combine(Path.GetTempPath(), "AnaalIJzerGraphEditingTests", Guid.NewGuid().ToString("N"));

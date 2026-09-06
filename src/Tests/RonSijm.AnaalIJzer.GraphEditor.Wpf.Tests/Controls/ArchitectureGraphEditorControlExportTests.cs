@@ -74,6 +74,37 @@ public sealed partial class ArchitectureGraphCanvasTests
 		});
 	}
 
+	[Fact]
+	public void GraphEditorControl_ExportSizingIncludesNodesBeyondTheVisibleViewport()
+	{
+		RunOnStaThread(() =>
+		{
+			var directory = Path.Combine(Path.GetTempPath(), "AnaalIJzerGraphExportTests", Guid.NewGuid().ToString("N"));
+			var path = Path.Combine(directory, "wide-graph.png");
+			try
+			{
+				var control = new ArchitectureGraphEditorControl(CreateWideSnapshot(), ArchitectureGraphFocusMode.ShowAll);
+				control.Measure(new Size(680, 480));
+				control.Arrange(new Rect(0, 0, 680, 480));
+				control.UpdateLayout();
+				DrainDispatcher();
+
+				control.ExportGraphsAsPng(path);
+
+				using var stream = File.OpenRead(path);
+				var decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
+				decoder.Frames[0].PixelWidth.Should().BeGreaterThan(680);
+			}
+			finally
+			{
+				if (Directory.Exists(directory))
+				{
+					Directory.Delete(directory, true);
+				}
+			}
+		});
+	}
+
 	private static ArchitectureGraphSnapshot CreateTallSnapshot()
 	{
 		var layers = ImmutableArray.CreateBuilder<ArchitectureGraphLayer>();
@@ -91,6 +122,19 @@ public sealed partial class ArchitectureGraphCanvasTests
 		}
 
 		var result = new ArchitectureGraphSnapshot(true, false, layers.ToImmutable(), rules.ToImmutable(), ["Caller"], ImmutableArray<string>.Empty);
+
+		return result;
+	}
+
+	private static ArchitectureGraphSnapshot CreateWideSnapshot()
+	{
+		var layers = Enumerable.Range(0, 4)
+			.Select(index => new ArchitectureGraphLayer("Layer" + index, "Layer" + index, null, 0, index + 1, false))
+			.ToImmutableArray();
+		var rules = layers
+			.Zip(layers.Skip(1), (from, to) => new ArchitectureGraphRule(from.Path, to.Path, string.Empty, "AllowedDependency", "all sites", false, false, true))
+			.ToImmutableArray();
+		var result = new ArchitectureGraphSnapshot(true, false, layers, rules, [layers[0].Path], ImmutableArray<string>.Empty);
 
 		return result;
 	}

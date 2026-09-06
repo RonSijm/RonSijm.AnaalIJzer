@@ -26,13 +26,7 @@ internal sealed partial class ArchitectureGraphCanvas
 
 		private void ShowConfigurationFixes()
 		{
-			if (IsEvidence)
-			{
-				_selectionHandler?.Invoke(ArchitectureGraphSelection.ForCodeEvidence(From, To, SiteText, EvidenceDetails));
-				return;
-			}
-
-			_selectionHandler?.Invoke(ArchitectureGraphSelection.ForDependency(EditHandle));
+			_selectionHandler?.Invoke(CreateSelection());
 		}
 
 		private void ToggleAllowedSite(string site)

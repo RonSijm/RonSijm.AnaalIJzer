@@ -22,6 +22,15 @@
     <Project Path="Examples/Diagnostics/Example.Arch020.ExplicitNullReturn/Example.Arch020.ExplicitNullReturn.csproj" />
     <Project Path="Examples/Diagnostics/Example.Arch020.AnnotatedInvocationReturn/Example.Arch020.AnnotatedInvocationReturn.csproj" />
     <Project Path="Examples/Diagnostics/Example.Arch020.ConfiguredLiteralReturns/Example.Arch020.ConfiguredLiteralReturns.csproj" />
+    <Project Path="Examples/Diagnostics/Example.Arch021.BlockingTaskAccess/Example.Arch021.BlockingTaskAccess.csproj" />
+    <Project Path="Examples/Diagnostics/Example.Arch021.ClockAccess/Example.Arch021.ClockAccess.csproj" />
+    <Project Path="Examples/Diagnostics/Example.Arch021.SelectedEnvironmentMember/Example.Arch021.SelectedEnvironmentMember.csproj" />
+    <Project Path="Examples/Diagnostics/Example.Arch021.ServiceLocation/Example.Arch021.ServiceLocation.csproj" />
+    <Project Path="Examples/Diagnostics/Example.Arch022.RequiredOperation/Example.Arch022.RequiredOperation.csproj" />
+    <Project Path="Examples/Diagnostics/Example.Arch022.RequiredOperationBefore/Example.Arch022.RequiredOperationBefore.csproj" />
+    <Project Path="Examples/Diagnostics/Example.Arch022.ForbiddenOperationAfter/Example.Arch022.ForbiddenOperationAfter.csproj" />
+    <Project Path="Examples/Diagnostics/Example.Arch022.MaximumOperationCount/Example.Arch022.MaximumOperationCount.csproj" />
+    <Project Path="Examples/Diagnostics/Example.Arch023.OperationContract/Example.Arch023.OperationContract.csproj" />
   </Folder>
   <Folder Name="/Examples/Features/">
     <Project Path="Examples/Features/Example.AllowedSites/Example.AllowedSites.csproj" />
@@ -32,12 +41,15 @@
     <Project Path="Examples/Features/Example.CascadingDependencyRules/Example.CascadingDependencyRules.csproj" />
     <Project Path="Examples/Features/Example.CombinedMatchers/Example.CombinedMatchers.csproj" />
     <Project Path="Examples/Features/Example.DeclarationNameMatchesType/Example.DeclarationNameMatchesType.csproj" />
+	<Project Path="Examples/Features/Example.GeneratedCode/Example.GeneratedCode.csproj" />
     <Project Path="Examples/Features/Example.ExceptionPolicy/Example.ExceptionPolicy.csproj" />
     <Project Path="Examples/Features/Example.Exceptions/Example.Exceptions.csproj" />
     <Project Path="Examples/Features/Example.IncludeSettings/Example.IncludeSettings.csproj" />
     <Project Path="Examples/Features/Example.IncludeWildcardSettings/Example.IncludeWildcardSettings.csproj" />
     <Project Path="Examples/Features/Example.InlineXml/Example.InlineXml.csproj" />
     <Project Path="Examples/Features/Example.LayerScopedRecognizedDependencies/Example.LayerScopedRecognizedDependencies.csproj" />
+	<Project Path="Examples/Features/Example.NameRuleIntraProceduralTracking/Example.NameRuleIntraProceduralTracking.csproj" />
+	<Project Path="Examples/Features/Example.NameRuleLanguageForms/Example.NameRuleLanguageForms.csproj" />
     <Project Path="Examples/Features/Example.NameRules/Example.NameRules.csproj" />
     <Project Path="Examples/Features/Example.NestedExceptions/Example.NestedExceptions.csproj" />
     <Project Path="Examples/Features/Example.NestedLayers/Example.NestedLayers.csproj" />
@@ -55,13 +67,31 @@
     <Project Path="Examples/Documentation/Example.VisualStudioSiteDiagnostics/Example.VisualStudioSiteDiagnostics.csproj" />
   </Folder>
   <Folder Name="/Examples/Scenarios/">
+    <Project Path="Examples/Scenarios/Example.AspNetCore/Example.AspNetCore.ApiSurface/Example.AspNetCore.ApiSurface.csproj" />
+    <Project Path="Examples/Scenarios/Example.AspNetCore/Example.AspNetCore.LayerBoundaries/Example.AspNetCore.LayerBoundaries.csproj" />
+    <Project Path="Examples/Scenarios/Example.AspNetCore/Example.AspNetCore.ModelBindingNames/Example.AspNetCore.ModelBindingNames.csproj" />
+    <Project Path="Examples/Scenarios/Example.AspNetCore/Example.AspNetCore.OperationContracts/Example.AspNetCore.OperationContracts.csproj" />
+    <Project Path="Examples/Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.ContextBoundary/Example.EntityFrameworkCore.ContextBoundary.csproj" />
+    <Project Path="Examples/Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.ContextCreation/Example.EntityFrameworkCore.ContextCreation.csproj" />
+    <Project Path="Examples/Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.DomainPurity/Example.EntityFrameworkCore.DomainPurity.csproj" />
+    <Project Path="Examples/Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.MigrationPlacement/Example.EntityFrameworkCore.MigrationPlacement.csproj" />
+    <Project Path="Examples/Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.ModelConfigurationPlacement/Example.EntityFrameworkCore.ModelConfigurationPlacement.csproj" />
+    <Project Path="Examples/Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.QuerySurface/Example.EntityFrameworkCore.QuerySurface.csproj" />
+    <Project Path="Examples/Scenarios/Example.AssemblyReferenceBoundaries/Example.AssemblyReferenceBoundaries.Domain/Example.AssemblyReferenceBoundaries.Domain.csproj" />
+    <Project Path="Examples/Scenarios/Example.AssemblyReferenceBoundaries/LegacyTransportFixture/LegacyTransportFixture.csproj" />
     <Project Path="Examples/Scenarios/Example.HonestTypeEndpointNames/Example.HonestTypeEndpointNames.csproj" />
     <Project Path="Examples/Scenarios/Example.PackageReferenceBoundaries/Example.PackageReferenceBoundaries.Data/Example.PackageReferenceBoundaries.Data.csproj" />
     <Project Path="Examples/Scenarios/Example.PackageReferenceBoundaries/Example.PackageReferenceBoundaries.Domain/Example.PackageReferenceBoundaries.Domain.csproj" />
     <Project Path="Examples/Scenarios/Example.ProjectReferenceBoundaries/Example.ProjectReferenceBoundaries.Application/Example.ProjectReferenceBoundaries.Application.csproj" />
     <Project Path="Examples/Scenarios/Example.ProjectReferenceBoundaries/Example.ProjectReferenceBoundaries.Domain/Example.ProjectReferenceBoundaries.Domain.csproj" />
     <Project Path="Examples/Scenarios/Example.ProjectReferenceBoundaries/Example.ProjectReferenceBoundaries.Infrastructure/Example.ProjectReferenceBoundaries.Infrastructure.csproj" />
-    <Project Path="Examples/Scenarios/Example.RepositoryQuerySurface/Example.RepositoryQuerySurface.csproj" />
+    <Project Path="Examples/Scenarios/Example.ProjectReferenceRuleSelectors/Example.ProjectReferenceRuleSelectors.Orders.Application/Example.ProjectReferenceRuleSelectors.Orders.Application.csproj" />
+    <Project Path="Examples/Scenarios/Example.ProjectReferenceRuleSelectors/Example.ProjectReferenceRuleSelectors.Orders.Contracts/Example.ProjectReferenceRuleSelectors.Orders.Contracts.csproj" />
+      <Project Path="Examples/Scenarios/Example.ProjectReferenceRuleSelectors/Example.ProjectReferenceRuleSelectors.Payments.Contracts/Example.ProjectReferenceRuleSelectors.Payments.Contracts.csproj" />
+      <Project Path="Examples/Scenarios/Example.RepositoryQuerySurface/Example.RepositoryQuerySurface.csproj" />
+      <Project Path="Examples/Scenarios/Example.SolutionTopology/Example.SolutionTopology.Web/Example.SolutionTopology.Web.csproj" />
+      <Project Path="Examples/Scenarios/Example.SolutionTopology/Example.SolutionTopology.Application/Example.SolutionTopology.Application.csproj" />
+      <Project Path="Examples/Scenarios/Example.SolutionTopology/Example.SolutionTopology.Infrastructure/Example.SolutionTopology.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/Extensions/">
     <Project Path="src/Extensions/RonSijm.AnaalIJzer.VisualStudio/RonSijm.AnaalIJzer.VisualStudio.csproj" />
@@ -70,6 +100,7 @@
   <Folder Name="/Main/Analyzer/">
     <Project Path="src/Main/RonSijm.AnaalIJzer/RonSijm.AnaalIJzer.csproj" />
     <Project Path="src/Main/RonSijm.AnaalIJzer.Diagnostics/RonSijm.AnaalIJzer.Diagnostics.csproj" />
+    <Project Path="src/Main/RonSijm.AnaalIJzer.CodeFixes/RonSijm.AnaalIJzer.CodeFixes.csproj" />
     <Project Path="src/Main/RonSijm.AnaalIJzer.Engine/RonSijm.AnaalIJzer.Engine.csproj" />
   </Folder>
   <Folder Name="/Main/Application/">
@@ -89,6 +120,7 @@
     <Project Path="src/Main/RonSijm.AnaalIJzer.Core.Indicators/RonSijm.AnaalIJzer.Core.Indicators.csproj" />
     <Project Path="src/Main/RonSijm.AnaalIJzer.Core.LayerModel/RonSijm.AnaalIJzer.Core.LayerModel.csproj" />
     <Project Path="src/Main/RonSijm.AnaalIJzer.Core.Observations/RonSijm.AnaalIJzer.Core.Observations.csproj" />
+    <Project Path="src/Main/RonSijm.AnaalIJzer.Core.SemanticOperations/RonSijm.AnaalIJzer.Core.SemanticOperations.csproj" />
     <Project Path="src/Main/RonSijm.AnaalIJzer.Core.Violations/RonSijm.AnaalIJzer.Core.Violations.csproj" />
   </Folder>
   <Folder Name="/Main/Core/Policies/">
@@ -99,6 +131,8 @@
     <Project Path="src/Main/RonSijm.AnaalIJzer.Core.Exceptions/RonSijm.AnaalIJzer.Core.Exceptions.csproj" />
     <Project Path="src/Main/RonSijm.AnaalIJzer.Core.Inheritance/RonSijm.AnaalIJzer.Core.Inheritance.csproj" />
     <Project Path="src/Main/RonSijm.AnaalIJzer.Core.NameRules/RonSijm.AnaalIJzer.Core.NameRules.csproj" />
+	<Project Path="src/Main/RonSijm.AnaalIJzer.Core.OperationPolicies/RonSijm.AnaalIJzer.Core.OperationPolicies.csproj" />
+	<Project Path="src/Main/RonSijm.AnaalIJzer.Core.OperationContracts/RonSijm.AnaalIJzer.Core.OperationContracts.csproj" />
     <Project Path="src/Main/RonSijm.AnaalIJzer.Core.PolicyEvaluation/RonSijm.AnaalIJzer.Core.PolicyEvaluation.csproj" />
     <Project Path="src/Main/RonSijm.AnaalIJzer.Core.ProjectArchitecture/RonSijm.AnaalIJzer.Core.ProjectArchitecture.csproj" />
     <Project Path="src/Main/RonSijm.AnaalIJzer.Core.ReturnValues/RonSijm.AnaalIJzer.Core.ReturnValues.csproj" />
@@ -135,6 +169,8 @@
     <Project Path="src/Tests/RonSijm.AnaalIJzer.Core.Indicators.Tests/RonSijm.AnaalIJzer.Core.Indicators.Tests.csproj" />
     <Project Path="src/Tests/RonSijm.AnaalIJzer.Core.Matchers.Tests/RonSijm.AnaalIJzer.Core.Matchers.Tests.csproj" />
     <Project Path="src/Tests/RonSijm.AnaalIJzer.Core.Observations.Tests/RonSijm.AnaalIJzer.Core.Observations.Tests.csproj" />
+    <Project Path="src/Tests/RonSijm.AnaalIJzer.Core.SemanticOperations.Tests/RonSijm.AnaalIJzer.Core.SemanticOperations.Tests.csproj" />
+	<Project Path="src/Tests/RonSijm.AnaalIJzer.Core.OperationPolicies.Tests/RonSijm.AnaalIJzer.Core.OperationPolicies.Tests.csproj" />
     <Project Path="src/Tests/RonSijm.AnaalIJzer.Core.ProjectArchitecture.Tests/RonSijm.AnaalIJzer.Core.ProjectArchitecture.Tests.csproj" />
     <Project Path="src/Tests/RonSijm.AnaalIJzer.Core.DependencyRules.Tests/RonSijm.AnaalIJzer.Core.DependencyRules.Tests.csproj" />
     <Project Path="src/Tests/RonSijm.AnaalIJzer.Core.EntryPoints.Tests/RonSijm.AnaalIJzer.Core.EntryPoints.Tests.csproj" />
