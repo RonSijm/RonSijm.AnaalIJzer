@@ -5,6 +5,8 @@
 - layer matchers answer "what role does this type have?";
 - source locations answer "does that role live in the right project or folder?"
 
+Source locations validate placement after classification; they do not assign types to layers from folders or projects. See [Layer membership and physical layout](layer-membership-and-layout.md) for the reasoning and the alternatives considered.
+
 Folder structure is the first thing a newcomer reads and among the last things anyone keeps honest.
 
 Restaurant version:

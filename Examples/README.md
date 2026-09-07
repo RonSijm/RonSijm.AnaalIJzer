@@ -88,6 +88,8 @@ The main [`README.md`](../README.md) explains each feature inline. The folders h
 | [`Example.Arch022.ForbiddenOperationAfter`](Diagnostics/Example.Arch022.ForbiddenOperationAfter) | `BehavioralOperations` - a selected operation is forbidden after a configured terminal operation. |
 | [`Example.Arch022.MaximumOperationCount`](Diagnostics/Example.Arch022.MaximumOperationCount) | `BehavioralOperations` - a selected operation may occur only the configured number of times. |
 | [`Example.Arch023.OperationContract`](Diagnostics/Example.Arch023.OperationContract) | `Operations` - an explicit waiter-to-kitchen operation contract checks entry-point delegation and request/response shape. |
+| [`Example.Arch024.AssemblyAttributePolicy.Code`](Diagnostics/Example.Arch024.AssemblyAttributePolicy.Code) | `AssemblyAttributePolicy` - a handwritten `InternalsVisibleTo` attribute is selectively rejected by its compiled semantic type and argument. |
+| [`Example.Arch024.AssemblyAttributePolicy.Project`](Diagnostics/Example.Arch024.AssemblyAttributePolicy.Project) | `AssemblyAttributePolicy` - an SDK `<InternalsVisibleTo>` project item produces the same selectively rejected compiled attribute. |
 
 ### Features
 

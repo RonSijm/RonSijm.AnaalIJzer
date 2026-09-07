@@ -43,11 +43,12 @@ For the broader mental model, ownership rules, and risk labels, see [Configurati
 | `ARCH021` | no automatic fix: a forbidden selected operation does not identify the intended adapter, async flow, or composition-boundary change | `ForbiddenOperationPolicyAnalyzerTests.cs` |
 | `ARCH022` | no automatic fix: adding, moving, or removing an operation requires an explicit workflow decision | `BehavioralOperationPolicyAnalyzerTests.cs` |
 | `ARCH023` | no automatic fix: choosing an operation owner, entry-point delegation, or contract shape requires an explicit workflow decision | `OperationContractAnalyzerTests.cs` |
+| `ARCH024` | no automatic fix: changing emitted assembly metadata or widening its allow/deny policy requires an explicit ownership decision | `AssemblyAttributePolicyCodeFixTests.cs` |
 
 ### Deliberate limits
 
 - `ARCH010` and `ARCH011` are compilation-end diagnostics. The config edits exist and are covered by analyzer tests, but whether an IDE host shows them as ordinary editor light bulbs depends on how that host surfaces `Location.None` diagnostics.
-- `ARCH013`, `ARCH019`, `ARCH020`, `ARCH021`, `ARCH022`, and `ARCH023` stay intentionally narrow. If the analyzer cannot tell which one deterministic edit is the right one, it does not guess. A confidently wrong automatic fix is harder to spot in review than no fix at all.
+- `ARCH013`, `ARCH019`, `ARCH020`, `ARCH021`, `ARCH022`, `ARCH023`, and `ARCH024` stay intentionally narrow. If the analyzer cannot tell which one deterministic edit is the right one, it does not guess. A confidently wrong automatic fix is harder to spot in review than no fix at all.
 - Configuration fixers preserve the owning source where possible:
   - if a rule came from an included `.anl`, that included file is edited;
   - if the config came from inline `AssemblyMetadata`, the source file containing the assembly attribute is rewritten.

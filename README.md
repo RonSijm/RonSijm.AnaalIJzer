@@ -520,11 +520,12 @@ For the broader mental model, ownership rules, and risk labels, see [Configurati
 | `ARCH021` | no automatic fix: a forbidden selected operation does not identify the intended adapter, async flow, or composition-boundary change | `ForbiddenOperationPolicyAnalyzerTests.cs` |
 | `ARCH022` | no automatic fix: adding, moving, or removing an operation requires an explicit workflow decision | `BehavioralOperationPolicyAnalyzerTests.cs` |
 | `ARCH023` | no automatic fix: choosing an operation owner, entry-point delegation, or contract shape requires an explicit workflow decision | `OperationContractAnalyzerTests.cs` |
+| `ARCH024` | no automatic fix: changing emitted assembly metadata or widening its allow/deny policy requires an explicit ownership decision | `AssemblyAttributePolicyCodeFixTests.cs` |
 
 ### Deliberate limits
 
 - `ARCH010` and `ARCH011` are compilation-end diagnostics. The config edits exist and are covered by analyzer tests, but whether an IDE host shows them as ordinary editor light bulbs depends on how that host surfaces `Location.None` diagnostics.
-- `ARCH013`, `ARCH019`, `ARCH020`, `ARCH021`, `ARCH022`, and `ARCH023` stay intentionally narrow. If the analyzer cannot tell which one deterministic edit is the right one, it does not guess. A confidently wrong automatic fix is harder to spot in review than no fix at all.
+- `ARCH013`, `ARCH019`, `ARCH020`, `ARCH021`, `ARCH022`, `ARCH023`, and `ARCH024` stay intentionally narrow. If the analyzer cannot tell which one deterministic edit is the right one, it does not guess. A confidently wrong automatic fix is harder to spot in review than no fix at all.
 - Configuration fixers preserve the owning source where possible:
   - if a rule came from an included `.anl`, that included file is edited;
   - if the config came from inline `AssemblyMetadata`, the source file containing the assembly attribute is rewritten.
@@ -980,6 +981,7 @@ The XML root element is `<ArchitecturalLevels>`. It supports the child elements 
 | Configuration fixers | `config-fixers.md` |
 | Include files | `include.md` |
 | Layers and matchers | `layers.md` |
+| Layer membership and physical layout | `layer-membership-and-layout.md` |
 | Allowed dependencies | `allowed-dependency.md` |
 | Blocked dependencies | `blocked-dependency.md` |
 | Allowed type policies | `allowed-type-policy.md` |
@@ -993,6 +995,7 @@ The XML root element is `<ArchitecturalLevels>`. It supports the child elements 
 | Return-value policies | `return-value-policies.md` |
 | Forbidden operation policies | `forbidden-operation-policies.md` |
 | Behavioral operation policies | `behavioral-operation-policies.md` |
+| Assembly attribute policies | `assembly-attribute-policies.md` |
 | Generated code analysis | `generated-code.md` |
 | Project architecture | `project-architecture.md` |
 | Assembly reference policies | `assembly-reference-policies.md` |
@@ -1092,6 +1095,8 @@ Root attributes such as `requireRecognizedDependencies`, `enforceAcyclic`, `enab
 ### `<Layer>`
 
 Defines a named group of types. The `name` attribute is referenced by `<AllowedDependency>` edges.
+
+Layers are logical roles, not project or folder labels. `Architecture.anl` deliberately owns layer membership; [Layer membership and physical layout](docs/configuration/layer-membership-and-layout.md) explains the boundary and points to the focused features for source folders and project references.
 
 ```xml
 <Layer name="Application">
@@ -1352,6 +1357,86 @@ public class GroupCustomer(IEnumerable<IChef> chefs) { }
 // A promise to find a chef later does not change the boundary.
 public class FutureCustomer(Func<IChef> chefFactory) { }
 ```
+
+## Layer Membership and Physical Layout
+
+Layers describe a type's architectural role. They are deliberately defined by `Architecture.anl`, using logical matchers such as `<Class>`, `<Namespace>`, and `<Assembly>`.
+
+```xml
+<Layer name="Application">
+  <Class endsWith="Service" />
+  <Namespace endsWith=".Application" />
+</Layer>
+```
+
+That rule says what a type *is*. It does not say where the type happens to live today.
+
+### The design boundary
+
+AnaalIJzer intentionally does not assign a layer from:
+
+- a `.csproj` name or project path;
+- a source folder, including its child folders;
+- a solution-folder entry;
+- a project property such as `AnaalIJzerProjectLayer`;
+- an attribute, `.editorconfig` entry, package reference, or observed call graph.
+
+The `.anl` configuration is the single source of truth for layer definitions and membership. A type has one canonical layer path, such as `Ordering/Application`; it is not a collection of unrelated physical labels.
+
+This keeps dependency diagnostics understandable. A `Chef` remains a `Chef` after a project rename or a source-file move. The architecture should not silently change because someone reorganized folders during spring cleaning.
+
+### What was considered
+
+#### Project and folder membership selectors
+
+One possible design was to allow rules such as these:
+
+```xml
+<!-- Not supported. -->
+<Layer name="Tools">
+  <Project exactName="MyCompany.Tools" />
+</Layer>
+
+<Layer name="Shared">
+  <Folder path="src/Shared" includeDescendants="true" />
+</Layer>
+```
+
+This is convenient when a repository currently mirrors its architecture in projects or folders. It becomes misleading when one project contains contracts, application code, infrastructure, and several features, or when a folder is reorganized without intending to rewrite dependency policy. It also makes physical build layout compete with logical type matching for ownership of a layer.
+
+#### A project-declared layer property
+
+Another option was a project-side declaration:
+
+```xml
+<!-- Not supported. -->
+<PropertyGroup>
+  <AnaalIJzerProjectLayer>/Ordering</AnaalIJzerProjectLayer>
+</PropertyGroup>
+```
+
+That can be attractive for reusable rule packs and `Directory.Build.props` inheritance. It was rejected because it lets a project participate in defining its own classification, splits the architecture across `.anl` and MSBuild files, and needs precedence rules when the property disagrees with the configuration. A project property is useful build metadata, but it is not the authority on whether a type is a waiter, chef, or pantry worker.
+
+#### Solution folders and inferred membership
+
+Solution folders are IDE organization rather than compiler input, so they are not reliable during command-line or design-time compilation. Package references, inheritance, call graphs, and method bodies are also poor membership sources: they can change as an implementation detail and would make a type's layer move unexpectedly.
+
+### Use the focused feature instead
+
+| Need | Use |
+|---|---|
+| Define a type's architectural role | `<Layer>` matchers such as `<Class>`, `<Namespace>`, and `<Assembly>` |
+| Add a broader logical boundary with more specific child roles | Nested `<Layer>` elements |
+| Require an already-classified type to live in a project or folder | [`<SourceLocations>`](docs/configuration/source-locations.md) |
+| Govern project-to-project references | [Project architecture](docs/configuration/project-architecture.md) |
+| Share one configuration across a directory of projects | `Directory.Build.props` plus one `Architecture.anl` |
+| Add or remove a rule pack | `<Include>` and explicit `AdditionalFiles` registration |
+
+For example, use a namespace matcher to decide that a type is part of Ordering, then use `<SourceLocations>` to require Ordering code to remain in the `Ordering/` folder. The first answers "what role does this type have?" The second answers "is that role stored in the right place?"
+
+### Reconsidering the boundary
+
+This is an intentional constraint, not a claim that physical structure never matters. Revisit it only when a concrete architecture cannot be expressed with logical matchers, nested layers, source-location policies, and project-architecture policies together. Any future proposal should preserve one canonical layer path, make its source visible in diagnostics and tooling, and avoid silently changing architecture when files or projects move.
 
 ### `<AllowedDependency>`
 
@@ -2573,6 +2658,93 @@ The check deliberately does not follow helpers, delegates, asynchronous continua
 
 **Focused example:** [`Example.Arch023.OperationContract`](Examples/Diagnostics/Example.Arch023.OperationContract)
 
+## Assembly attribute policies
+
+`<AssemblyAttributePolicy>` checks the attributes emitted on the current compiled assembly. It is a compiler analyzer rule, so a violation is reported as `ARCH024` during ordinary builds and in the editor.
+
+This is useful when an assembly-level declaration represents an architectural decision rather than incidental metadata. For example, `InternalsVisibleTo` grants another assembly access to internal code. A team may want that grant to be explicit and limited to approved friends.
+
+```xml
+<ArchitecturalLevels>
+  <AssemblyAttributePolicy description="Friend access stays deliberate.">
+    <Forbidden>
+      <Attribute exactFullName="System.Runtime.CompilerServices.InternalsVisibleToAttribute"
+                 description="This friend has not been approved.">
+        <Argument index="0" exactName="NotAllowedExample" />
+      </Attribute>
+    </Forbidden>
+  </AssemblyAttributePolicy>
+</ArchitecturalLevels>
+```
+
+That configuration rejects either of these equivalent final assembly facts:
+
+```csharp
+[assembly: InternalsVisibleTo("NotAllowedExample")]
+```
+
+```xml
+<ItemGroup>
+  <InternalsVisibleTo Include="NotAllowedExample" />
+</ItemGroup>
+```
+
+The SDK generates the second form as a compiled `InternalsVisibleToAttribute`. The analyzer reads `Compilation.Assembly.GetAttributes()`, so it does not need special logic for this SDK item and it has no dependency on the attribute's assembly. The policy merely names the semantic attribute type in XML.
+
+### Allowed and forbidden rules
+
+An `<Attribute>` rule uses the normal type matcher attributes, including `exactName`, `exactFullName`, `startsWith`, `endsWith`, `contains`, `regex`, and `typeKind`. Attributes on one rule are combined with AND; sibling rules are alternatives.
+
+`<Forbidden>` is a deny list. Any matching rule produces `ARCH024`, even if an `Allowed` rule also matches.
+
+`<Allowed>` is a scoped allow list. It only constrains attribute types selected by at least one of its rules. Unrelated assembly attributes remain untouched. For a selected attribute type, one allowed rule must match its arguments.
+
+```xml
+<AssemblyAttributePolicy>
+  <Allowed>
+    <Attribute exactFullName="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <Argument index="0" exactName="ApprovedKitchen" />
+    </Attribute>
+    <Attribute exactFullName="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <Argument index="0" exactName="ApprovedBakery" />
+    </Attribute>
+  </Allowed>
+</AssemblyAttributePolicy>
+```
+
+Here the two `<Attribute>` rules are alternatives: either approved friend is accepted. This does not prohibit attributes such as `CLSCompliantAttribute`, because none of the allowed rules selects that attribute type.
+
+### Arguments
+
+`<Argument>` selects either a positional constructor argument or a named argument:
+
+```xml
+<Attribute exactFullName="Restaurant.FriendAccessAttribute">
+  <Argument index="0" exactName="PastryTeam" />
+  <Argument name="CanReadRecipes" exactName="true" />
+</Attribute>
+```
+
+Use exactly one of `index` or `name`. Every child `<Argument>` must match, so the rule above requires both the first constructor argument and the named `CanReadRecipes` argument. Values are compared as invariant text using `typeName`, `exactName`, `startsWith`, `endsWith`, `contains`, or `regex`.
+
+### Scope and tooling
+
+Assembly attribute policies are root-level rules. They do not belong to a C# layer, dependency edge, or syntactic site: the check runs once against the completed compilation's assembly metadata.
+
+- The analyzer produces `ARCH024` and a report row with the assembly, attribute type, rule, and reason.
+- Arse documentation and violation reports render the policies in authored configuration order.
+- The shared configuration editor used by the WPF graph editor and Visual Studio graph window can inspect, add, edit, and remove root-level `<AssemblyAttributePolicy>` elements. They are shown as source-metadata policies rather than dependency-graph edges.
+- There is no automatic code fix. Removing a friend, adding one to an allow list, or changing a generated project item requires an explicit ownership decision.
+
+### Phase-one boundary
+
+This feature checks **compiled assembly attributes**, including those generated by an SDK item. It does not inspect arbitrary raw MSBuild properties or items. A future workspace-level MSBuild policy could cover those inputs, but it would be a different feature with different host requirements and should not be hidden behind a compiler analyzer rule.
+
+**Focused examples:**
+
+- [`Example.Arch024.AssemblyAttributePolicy.Code`](Examples/Diagnostics/Example.Arch024.AssemblyAttributePolicy.Code) checks a handwritten C# assembly attribute.
+- [`Example.Arch024.AssemblyAttributePolicy.Project`](Examples/Diagnostics/Example.Arch024.AssemblyAttributePolicy.Project) checks the SDK-generated form from a project-file `InternalsVisibleTo` item.
+
 ## ASP.NET Core example pack
 
 AnaalIjzer does not need an ASP.NET Core dependency to enforce many useful Web API rules. Roslyn resolves the symbols in your application; the ordinary matcher and policy vocabulary can then select facts such as `[ApiController]`, `ControllerBase`, action parameters, public return types, and direct method calls.
@@ -3189,6 +3361,8 @@ See [`Example.Arch016.BoundaryEntryPoints`](Examples/Diagnostics/Example.Arch016
 - layer matchers answer "what role does this type have?";
 - source locations answer "does that role live in the right project or folder?"
 
+Source locations validate placement after classification; they do not assign types to layers from folders or projects. See [Layer membership and physical layout](docs/configuration/layer-membership-and-layout.md) for the reasoning and the alternatives considered.
+
 Folder structure is the first thing a newcomer reads and among the last things anyone keeps honest.
 
 Restaurant version:
@@ -3420,7 +3594,7 @@ Every XML element that participates in the ruleset can carry a `description` att
 
 ## Diagnostics
 
-The analyzer ships with twenty-three diagnostic IDs. The three dependency-direction rules (ARCH001/004/005) are split by the reason a dependency is illegal, while ARCH006 and ARCH007 protect the integrity of the configuration itself. Dependency, name-rule, API-surface, return-value, and operation-policy diagnostics expose their syntactic site through the `Site` property where applicable.
+The analyzer ships with twenty-four diagnostic IDs. The three dependency-direction rules (ARCH001/004/005) are split by the reason a dependency is illegal, while ARCH006 and ARCH007 protect the integrity of the configuration itself. Dependency, name-rule, API-surface, return-value, and operation-policy diagnostics expose their syntactic site through the `Site` property where applicable.
 
 | ID      | Meaning                                                      |
 |---------|--------------------------------------------------------------|
@@ -3447,6 +3621,7 @@ The analyzer ships with twenty-three diagnostic IDs. The three dependency-direct
 | ARCH021 | A selected resolved operation violates a layer forbidden-operation policy |
 | ARCH022 | A declaration body violates a layer behavioral-operation policy |
 | ARCH023 | A selected owner or entry point violates an explicit operation contract |
+| ARCH024 | A compiled assembly attribute violates an `AssemblyAttributePolicy` |
 
 The example projects referenced inline below are self-contained and deliberately broken so Visual Studio, Rider and `dotnet build` show the corresponding `ARCH00X` error. They fail on purpose; the repository is not having a bad day.
 
@@ -4422,6 +4597,28 @@ There is deliberately no automatic code fix. The analyzer can show which declare
 - Require a web endpoint, scheduled job, or message consumer to call the designated application operation with the intended request and response shapes.
 - Prevent a workflow from quietly moving into a controller or worker when the configured application owner is supposed to remain its single entry point.
 
+## ARCH024 - Assembly attribute policy violation
+
+`ARCH024` means an attribute emitted on the current assembly matches a root-level `<AssemblyAttributePolicy>` rule that does not permit it.
+
+The policy examines final semantic assembly metadata. It therefore catches both a C# declaration such as `[assembly: InternalsVisibleTo("OtherAssembly")]` and an SDK item such as `<InternalsVisibleTo Include="OtherAssembly" />` that produces the same attribute during compilation.
+
+The diagnostic identifies the current assembly, the fully qualified attribute type, the matching policy rule, and the policy reason. SDK-generated attributes may not have a useful source location; the diagnostic remains a compilation result because the forbidden metadata is still real.
+
+### Real-world uses
+
+- Limit `InternalsVisibleTo` grants to approved test, migration, or companion assemblies.
+- Prevent a compliance, runtime, or plugin-registration attribute from being attached with an unapproved argument value.
+- Require selected assembly metadata attributes to use a known publisher, capability, or environment value.
+- Keep equivalent handwritten and SDK-generated assembly metadata under one policy instead of maintaining separate source and project-file checks.
+
+There is deliberately no automatic code fix. The analyzer can identify the rejected metadata, but it cannot decide whether to remove an assembly friend, change the project setting that generated it, or widen the policy.
+
+**Examples:**
+
+- [`Example.Arch024.AssemblyAttributePolicy.Code`](Examples/Diagnostics/Example.Arch024.AssemblyAttributePolicy.Code)
+- [`Example.Arch024.AssemblyAttributePolicy.Project`](Examples/Diagnostics/Example.Arch024.AssemblyAttributePolicy.Project)
+
 ### Diagnostic properties
 
 Every dependency diagnostic (ARCH001, ARCH004, ARCH005), name-rule diagnostic (ARCH008), and API-surface diagnostic (ARCH009 and ARCH014) carries a `Site` property in `Diagnostic.Properties` indicating where the issue was found. This lets code-fix providers, custom reporters and CI dashboards filter or group by dependency style without re-parsing the source - which beats a dashboard built on regexes over diagnostic messages that breaks the day the wording improves.
@@ -4435,6 +4632,8 @@ ARCH020 exposes `Site` as `MethodReturn`, together with `DeclaredSymbolName`, `R
 ARCH021 exposes `Site`, `OperationKind`, `OperationDisplayName`, and `OperationPolicyRule` so reports can distinguish, for example, a forbidden `DateTime.UtcNow` property read from a forbidden `Task.Wait()` invocation.
 
 ARCH022 exposes `Site`, `DeclaredSymbolName`, `OperationKind`, `OperationDisplayName`, `OperationPolicyRule`, `BehavioralOperationViolationKind`, and `BehavioralOperationOrdering`. A missing required operation uses the owning declaration location and its ordinary declaration site; a selected failing operation uses that operation's source site.
+
+ARCH024 describes emitted assembly metadata rather than a dependency site. It exposes `AssemblyAttributeTypeName` and `AssemblyAttributePolicyRule` alongside the normal caller, rule-origin, and configuration-location properties. SDK-generated attributes can have no source span, because the project SDK created the final attribute.
 
 ARCH009 additionally exposes `ApiMemberName`, identifying the externally visible declaration that published the dependency type.
 
@@ -4632,6 +4831,8 @@ The violation report groups code dependency and name-rule violations by diagnost
 
 The report is written by `RonSijm.AnaalIJzer.Reporting.ArchitecturalViolationReporter`. Arse runs the analyzer in-process with Roslyn, converts the resulting diagnostics into report rows, and writes the file explicitly. Normal analyzer builds do not perform filesystem I/O, because an analyzer that writes files during a parallel build is a support ticket waiting to be filed.
 
+Assembly-metadata failures (`ARCH024`) are reported in a dedicated table with the current assembly, emitted attribute type, matching policy rule, and reason. This keeps project-file-generated attributes such as `InternalsVisibleTo` visible even when they do not map to a handwritten source location.
+
 ### Example report
 
 This repository ships a [rendered example report](Examples/Documentation/Generated/architectural-violations.md) generated from the [`Examples/Documentation/Example.ReportDemo`](Examples/Documentation/Example.ReportDemo) project, which intentionally contains one violation of each diagnostic ID. To regenerate it from the repo root:
@@ -4719,6 +4920,8 @@ Examples\Documentation\Example.DocumentationDemo\GenerateDocumentation.bat
 The [example batch file](Examples/Documentation/Example.DocumentationDemo/GenerateDocumentation.bat) invokes Arse with `--config` and targets that example's `Architecture.anl` directly. **In your own project**, install the tool and run either `arse documentation --project path\to\Project.csproj --include-code-evidence --include-input` or `arse documentation --config path\to\Architecture.anl --include-input`. Pass `--output` to override `documentationPath`, and `--force` to overwrite an existing file.
 
 Documentation coverage is guarded by [`ToolRunner_GeneratesDocumentationForSupportedConfigurationFeatures`](src/Tests/RonSijm.AnaalIJzer.IntegrationTests/ExampleApplicationIntegrationTests.cs), which runs the real `arse documentation --config` path against a feature-matrix XML containing nested layers, descriptions, type policies, exceptions, rename fixes, site filters, wildcard rules and input inclusion.
+
+Root-level source-metadata policies such as `<AssemblyAttributePolicy>` are rendered in authored configuration order and in their own table. They describe emitted assembly attributes rather than dependency graph edges, so they appear as policy documentation instead of Mermaid nodes.
 
 ---
 

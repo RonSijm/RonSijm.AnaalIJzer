@@ -322,4 +322,41 @@ public sealed class ArchitectureConfigurationExplainerTests
 			}
 		}
 	}
+
+	[Fact]
+	public void Explainer_ExplainsAssemblyAttributePolicies()
+	{
+		var path = Path.Combine(Path.GetTempPath(), "AnaalIJzer-" + Guid.NewGuid().ToString("N") + ".anl");
+		try
+		{
+			File.WriteAllText(
+				path,
+				"""
+				<ArchitecturalLevels>
+				  <AssemblyAttributePolicy description="Friend access stays reviewed.">
+				    <Forbidden>
+				      <Attribute exactFullName="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+				        <Argument index="0" exactName="NotAllowedExample" />
+				      </Attribute>
+				    </Forbidden>
+				  </AssemblyAttributePolicy>
+				</ArchitecturalLevels>
+				""");
+
+			var markdown = ArchitectureConfigurationExplainer.GenerateMarkdown(path);
+
+			markdown.Should().Contain("Assembly-attribute policy checks semantic attributes emitted for the compiled assembly");
+			markdown.Should().Contain("blocks matching selected assembly attributes");
+			markdown.Should().Contain("System.Runtime.CompilerServices.InternalsVisibleToAttribute");
+			markdown.Should().Contain("argument #0");
+			markdown.Should().Contain("NotAllowedExample");
+		}
+		finally
+		{
+			if (File.Exists(path))
+			{
+				File.Delete(path);
+			}
+		}
+	}
 }

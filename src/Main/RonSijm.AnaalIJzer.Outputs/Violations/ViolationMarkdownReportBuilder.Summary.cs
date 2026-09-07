@@ -19,7 +19,7 @@ internal static partial class ViolationMarkdownReportBuilder
 		sb.AppendLine();
 	}
 
-	private static void AppendSummary(StringBuilder sb, int total, int arch001, int arch002, int arch003, int arch004, int arch005, int arch008, int arch009, int arch010, int arch011, int arch012, int arch013, int arch014, int arch015, int arch016, int arch018, int arch019, int arch020, int arch021, int arch022, int arch023)
+	private static void AppendSummary(StringBuilder sb, int total, int arch001, int arch002, int arch003, int arch004, int arch005, int arch008, int arch009, int arch010, int arch011, int arch012, int arch013, int arch014, int arch015, int arch016, int arch018, int arch019, int arch020, int arch021, int arch022, int arch023, int arch024)
 	{
 		sb.AppendLine("## Summary");
 		sb.AppendLine();
@@ -45,6 +45,7 @@ internal static partial class ViolationMarkdownReportBuilder
 		sb.AppendLine($"| ARCH021 — Forbidden operation policy violation | {arch021} |");
 		sb.AppendLine($"| ARCH022 — Behavioral operation policy violation | {arch022} |");
 		sb.AppendLine($"| ARCH023 — Operation contract violation | {arch023} |");
+		sb.AppendLine($"| ARCH024 — Assembly attribute policy violation | {arch024} |");
 		sb.AppendLine($"| **Total** | **{total}** |");
 		sb.AppendLine();
 	}

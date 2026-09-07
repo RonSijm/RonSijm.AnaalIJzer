@@ -69,4 +69,11 @@ internal sealed partial class ArchitectureGraphEditService
 
 		return result;
 	}
+
+	public ArchitectureConfigurationEditResult AddAssemblyAttributePolicy(ArchitectureConfigurationSource source, ImmutableDictionary<string, string> attributes, string childXml)
+	{
+		var result = ArchitectureConfigurationEditService.AddAssemblyAttributePolicy(source, attributes, childXml);
+
+		return result;
+	}
 }

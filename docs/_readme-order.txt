@@ -11,6 +11,7 @@ configuration/mental-model.md
 configuration/index.md
 configuration/include.md
 configuration/layers.md
+configuration/layer-membership-and-layout.md
 configuration/allowed-dependency.md
 configuration/blocked-dependency.md
 configuration/allowed-type-policy.md
@@ -25,6 +26,7 @@ configuration/return-value-policies.md
 configuration/forbidden-operation-policies.md
 configuration/behavioral-operation-policies.md
 configuration/operation-contracts.md
+configuration/assembly-attribute-policies.md
 configuration/asp-net-core-example-pack.md
 configuration/entity-framework-core-example-pack.md
 configuration/generated-code.md
@@ -66,6 +68,7 @@ diagnostics/arch020-return-value-policy.md
 diagnostics/arch021-forbidden-operation-policy.md
 diagnostics/arch022-behavioral-operation-policy.md
 diagnostics/arch023-operation-contract-violation.md
+diagnostics/arch024-assembly-attribute-policy-violation.md
 diagnostics/diagnostic-properties.md
 q-and-a.md
 suppressing-violations.md

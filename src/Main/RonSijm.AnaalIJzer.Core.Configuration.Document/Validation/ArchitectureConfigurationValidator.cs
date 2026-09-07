@@ -35,7 +35,7 @@ public static class ArchitectureConfigurationValidator
 			}
 		}
 
-		foreach (var element in document.Descendants().Where(element => IsMatcherElementName(element.Name.LocalName) && !IsAssemblyReferenceMatcherElement(element)))
+		foreach (var element in document.Descendants().Where(IsMatcherElement))
 		{
 			ValidateMatcherElement(element, configPath, issues);
 		}
@@ -48,6 +48,11 @@ public static class ArchitectureConfigurationValidator
 		foreach (var element in document.Descendants().Where(element => element.Name.LocalName == "Package"))
 		{
 			ValidateReferenceIdentityMatcherElement(element, configPath, issues);
+		}
+
+		foreach (var element in document.Descendants().Where(IsAssemblyAttributeArgumentElement))
+		{
+			ValidateAssemblyAttributeArgumentElement(element, configPath, issues);
 		}
 
 		foreach (var element in document.Descendants().Where(element => element.Name.LocalName == "Assembly" && element.Parent?.Parent?.Name.LocalName == "AssemblyReferencePolicy"))
@@ -198,13 +203,73 @@ public static class ArchitectureConfigurationValidator
 		}
 	}
 
-	private static bool IsMatcherElementName(string name)
+	private static bool IsMatcherElement(XElement element)
 	{
-		var result = name is "Class" or "Namespace" or "Assembly" or "Name" or "Source" or "Target"
-		             || IsDeclarationMatcherElementName(name)
-		             || IsCodeObservationMatcherElementName(name);
+		var name = element.Name.LocalName;
+		var result = !IsAssemblyReferenceMatcherElement(element)
+		             && (name is "Class" or "Namespace" or "Assembly" or "Name" or "Source" or "Target"
+		                 || IsAssemblyAttributeRuleElement(element)
+		                 || IsDeclarationMatcherElementName(name)
+		                 || IsCodeObservationMatcherElementName(name));
 
 		return result;
+	}
+
+	private static bool IsAssemblyAttributeRuleElement(XElement element)
+	{
+		var result = element.Name.LocalName == "Attribute"
+		             && element.Parent?.Name.LocalName is "Allowed" or "Forbidden"
+		             && element.Parent.Parent?.Name.LocalName == "AssemblyAttributePolicy";
+
+		return result;
+	}
+
+	private static bool IsAssemblyAttributeArgumentElement(XElement element)
+	{
+		var result = element.Name.LocalName == "Argument"
+			             && element.Parent?.Name.LocalName == "Attribute"
+			             && element.Parent.Parent?.Parent?.Name.LocalName == "AssemblyAttributePolicy";
+
+		return result;
+	}
+
+	private static void ValidateAssemblyAttributeArgumentElement(XElement element, string configPath, ImmutableArray<ConfigurationIssue>.Builder issues)
+	{
+		var index = element.Attribute("index")?.Value;
+		var name = element.Attribute("name")?.Value;
+		if (string.IsNullOrWhiteSpace(index) == string.IsNullOrWhiteSpace(name))
+		{
+			AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, "AssemblyAttributePolicy Argument requires exactly one of index or name.", element, configPath);
+		}
+
+		var configuredMatchers = element.Attributes()
+			.Where(attribute => MatcherAttributeCatalog.IsSupportedAttribute(attribute.Name.LocalName, MatcherAttributeProfile.ProjectOrPackage))
+			.ToArray();
+		if (configuredMatchers.Length == 0)
+		{
+			AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, "AssemblyAttributePolicy Argument requires at least one textual matcher attribute.", element, configPath);
+		}
+
+		if (element.Attributes().Any(attribute => MatcherAttributeCatalog.IsMatcherAttribute(attribute.Name.LocalName)
+			&& !MatcherAttributeCatalog.IsSupportedAttribute(attribute.Name.LocalName, MatcherAttributeProfile.ProjectOrPackage)))
+		{
+			AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, "AssemblyAttributePolicy Argument supports typeName, exactName, startsWith, endsWith, contains, or regex matchers.", element, configPath);
+		}
+
+		var regex = element.Attribute("regex")?.Value;
+		if (regex is null)
+		{
+			return;
+		}
+
+		try
+		{
+			_ = new Regex(regex, RegexOptions.CultureInvariant);
+		}
+		catch (ArgumentException exception)
+		{
+			AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, $"Invalid regular expression '{regex}': {exception.Message}", element, configPath);
+		}
 	}
 
 	private static bool IsAssemblyReferenceMatcherElement(XElement element)

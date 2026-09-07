@@ -198,6 +198,76 @@ public sealed class ArchitectureGraphEditServiceTests
 		File.ReadAllText(path).Should().Contain("<Operation name=\"PlacePizzaOrder\" allowedOwnerLayers=\"Application\" allowedEntryPointLayers=\"Controller\">");
 	}
 
+	[Fact]
+	public void AddAssemblyAttributePolicy_PersistsThroughGraphEditService()
+	{
+		using var directory = new TemporaryDirectory();
+		var path = directory.WriteFile(
+			"Architecture.anl",
+			"""
+			<ArchitecturalLevels>
+			  <Layer name="Kitchen"><Class endsWith="Kitchen" /></Layer>
+			</ArchitecturalLevels>
+			""");
+		var source = new ArchitectureConfigurationSource(ArchitectureConfigurationSourceKind.XmlFile, path);
+		var service = new ArchitectureGraphEditService();
+
+		var result = service.AddAssemblyAttributePolicy(
+			source,
+			ImmutableDictionary<string, string>.Empty.Add("description", "Only approved pastry teams receive internals."),
+			"""
+			<Forbidden>
+			  <Attribute exactFullName="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			    <Argument index="0" exactName="NotAllowedExample" />
+			  </Attribute>
+			</Forbidden>
+			""");
+
+		result.Succeeded.Should().BeTrue(result.Message);
+		var content = File.ReadAllText(path);
+		content.Should().Contain("<AssemblyAttributePolicy description=\"Only approved pastry teams receive internals.\"");
+		content.Should().Contain("<Argument index=\"0\" exactName=\"NotAllowedExample\" />");
+	}
+
+	[Fact]
+	public void AddAssemblyAttributePolicy_PersistsInlineSettingsThroughGraphEditService()
+	{
+		using var directory = new TemporaryDirectory();
+		var path = directory.WriteFile(
+			"AnaalIJzerSettings.cs",
+			""""
+			using System.Reflection;
+
+			[assembly: AssemblyMetadata("AnaalIJzerSettings", $"""
+			<ArchitecturalLevels>
+			  <Layer name="{nameof(PizzaRecipeBook)}">
+			    <Class typeName="{nameof(PizzaRecipeBook)}" />
+			  </Layer>
+			</ArchitecturalLevels>
+			""")]
+
+			public sealed class PizzaRecipeBook { }
+			"""");
+		var source = new ArchitectureConfigurationSource(ArchitectureConfigurationSourceKind.InlineAssemblyMetadata, path);
+		var service = new ArchitectureGraphEditService();
+
+		var result = service.AddAssemblyAttributePolicy(
+			source,
+			ImmutableDictionary<string, string>.Empty.Add("description", "Only approved pastry teams may receive internals."),
+			"""
+			<Forbidden>
+			  <Attribute exactFullName="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			    <Argument index="0" exactName="NotAllowedExample" />
+			  </Attribute>
+			</Forbidden>
+			""");
+
+		result.Succeeded.Should().BeTrue(result.Message);
+		var content = File.ReadAllText(path);
+		content.Should().Contain("{nameof(PizzaRecipeBook)}");
+		content.Should().Contain("<AssemblyAttributePolicy description=\"Only approved pastry teams may receive internals.\"");
+	}
+
 	private sealed class TemporaryDirectory : IDisposable
 	{
 		private readonly string _path = Path.Combine(Path.GetTempPath(), "AnaalIJzerGraphEditingTests", Guid.NewGuid().ToString("N"));

@@ -18,6 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.AssemblyAttributes\RonSijm.AnaalIJzer.Core.AssemblyAttributes.csproj" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.ApiSurface\RonSijm.AnaalIJzer.Core.ApiSurface.csproj" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Configuration.Document\RonSijm.AnaalIJzer.Core.Configuration.Document.csproj" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Contracts\RonSijm.AnaalIJzer.Core.Contracts.csproj" />

@@ -30,10 +30,11 @@ internal static partial class ViolationMarkdownReportBuilder
 		var arch021 = all.Where(v => v.DiagnosticId == ArchitecturalDiagnosticIds.ForbiddenOperationPolicyViolation).OrderBy(v => v.CallerLayerName).ThenBy(v => v.DependencyTypeName).ToList();
 		var arch022 = all.Where(v => v.DiagnosticId == ArchitecturalDiagnosticIds.BehavioralOperationPolicyViolation).OrderBy(v => v.CallerLayerName).ThenBy(v => v.CallerTypeName).ThenBy(v => v.DependencyTypeName).ToList();
 		var arch023 = all.Where(v => v.DiagnosticId == ArchitecturalDiagnosticIds.OperationContractViolation).OrderBy(v => v.DependencyTypeName).ThenBy(v => v.CallerLayerName).ThenBy(v => v.CallerTypeName).ToList();
+		var arch024 = all.Where(v => v.DiagnosticId == ArchitecturalDiagnosticIds.AssemblyAttributePolicyViolation).OrderBy(v => v.CallerTypeName).ThenBy(v => v.DependencyTypeName).ToList();
 
 		var sb = new StringBuilder();
 		AppendHeader(sb, inputName, inputLabel);
-		AppendSummary(sb, all.Count, arch001.Count, arch002.Count, arch003.Count, arch004.Count, arch005.Count, arch008.Count, arch009.Count, arch010.Count, arch011.Count, arch012.Count, arch013.Count, arch014.Count, arch015.Count, arch016.Count, arch018.Count, arch019.Count, arch020.Count, arch021.Count, arch022.Count, arch023.Count);
+		AppendSummary(sb, all.Count, arch001.Count, arch002.Count, arch003.Count, arch004.Count, arch005.Count, arch008.Count, arch009.Count, arch010.Count, arch011.Count, arch012.Count, arch013.Count, arch014.Count, arch015.Count, arch016.Count, arch018.Count, arch019.Count, arch020.Count, arch021.Count, arch022.Count, arch023.Count, arch024.Count);
 		if (all.Count == 0)
 		{
 			sb.AppendLine("✅ **No violations found.**");
@@ -65,6 +66,7 @@ internal static partial class ViolationMarkdownReportBuilder
 		AppendArch021(sb, arch021);
 		AppendArch022(sb, arch022);
 		AppendArch023(sb, arch023);
+		AppendArch024(sb, arch024);
 
 		var result = sb.ToString();
 

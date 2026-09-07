@@ -25,4 +25,5 @@ public static class ArchitecturalDiagnosticIds
 	public const string ForbiddenOperationPolicyViolation = "ARCH021";
 	public const string BehavioralOperationPolicyViolation = "ARCH022";
 	public const string OperationContractViolation = "ARCH023";
+	public const string AssemblyAttributePolicyViolation = "ARCH024";
 }

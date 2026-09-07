@@ -247,4 +247,26 @@ internal static partial class ViolationMarkdownReportBuilder
 
 		sb.AppendLine();
 	}
+
+	private static void AppendArch024(StringBuilder sb, List<ViolationRecord> violations)
+	{
+		if (violations.Count == 0)
+		{
+			return;
+		}
+
+		sb.AppendLine("## ARCH024 — Assembly Attribute Policy Violations");
+		sb.AppendLine();
+		sb.AppendLine("These compiled assembly attributes do not satisfy a configured assembly attribute policy.");
+		sb.AppendLine();
+		sb.AppendLine("| Assembly | Attribute | Rule | Reason |");
+		sb.AppendLine("|----------|-----------|------|--------|");
+
+		foreach (var violation in violations)
+		{
+			sb.AppendLine($"| `{violation.CallerTypeName}` | `{violation.DependencyTypeName}` | `{violation.DepLayerName}` | {EscapeTable(violation.ViolationReason)} |");
+		}
+
+		sb.AppendLine();
+	}
 }

@@ -2,6 +2,8 @@
 
 Defines a named group of types. The `name` attribute is referenced by `<AllowedDependency>` edges.
 
+Layers are logical roles, not project or folder labels. `Architecture.anl` deliberately owns layer membership; [Layer membership and physical layout](layer-membership-and-layout.md) explains the boundary and points to the focused features for source folders and project references.
+
 ```xml
 <Layer name="Application">
   <Class endsWith="Manager" />

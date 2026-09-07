@@ -44,6 +44,7 @@ internal static partial class ArchitectureDocumentationMarkdownBuilder
 		AppendForbiddenOperationPolicies(sb, config);
 		AppendBehavioralOperationPolicies(sb, config);
 		AppendOperationContracts(sb, config);
+		AppendAssemblyAttributePolicies(sb, config);
 		AppendApiSurfacePolicies(sb, config);
 		AppendSourceLocationPolicies(sb, config);
 		AppendBoundaryEntryPointPolicies(sb, config);

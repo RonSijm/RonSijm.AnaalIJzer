@@ -76,7 +76,7 @@ public static partial class ArchitectureEditorSnapshotService
 				graphSnapshot);
 		}
 
-		if (!config.Engine.HasLayers && !config.HasOperationContracts)
+		if (!config.Engine.HasLayers && !config.HasOperationContracts && !config.HasAssemblyAttributePolicies)
 		{
 			var hasConfiguration = configurationSource.CanEdit;
 			var graphSnapshot = CreateEmptyGraphSnapshot(document, configurationSource, hasConfiguration);

@@ -52,6 +52,9 @@ internal static partial class ArchitectureConfigurationExplainer
 				case "Operations":
 					AppendOperationContracts(sb, element, depth);
 					break;
+				case "AssemblyAttributePolicy":
+					AppendAssemblyAttributePolicy(sb, element, depth);
+					break;
 				case "ApiSurface":
 					AppendApiSurface(sb, element, depth);
 					break;

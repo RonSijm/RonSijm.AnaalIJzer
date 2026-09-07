@@ -20,9 +20,9 @@ internal static partial class ArchitectureHealthReportGenerator
 			findings.Add(new ArchitectureFinding(ArchitectureFindingSeverity.Warning, ArchitecturalDiagnosticIds.ExceptionReview, review.Message, FormatExceptionLocation(review.XmlPath, review.XmlLineNumber), review.Status.ToString(), review.Status.ToString()));
 		}
 
-		if (!config.Engine.HasLayers && !config.HasProjectArchitecture && !config.HasSolutionTopology && !config.HasOperationContracts && findings.Count == 0)
+		if (!config.Engine.HasLayers && !config.HasProjectArchitecture && !config.HasSolutionTopology && !config.HasOperationContracts && !config.HasAssemblyAttributePolicies && findings.Count == 0)
 		{
-			findings.Add(new ArchitectureFinding(ArchitectureFindingSeverity.Error, ArchitectureFindingCodes.Configuration, "No architectural layers were found.", "Add Architecture.anl or AssemblyMetadata(\"AnaalIJzerSettings\", ...)."));
+			findings.Add(new ArchitectureFinding(ArchitectureFindingSeverity.Error, ArchitectureFindingCodes.Configuration, "No architecture configuration was found.", "Add Architecture.anl or AssemblyMetadata(\"AnaalIJzerSettings\", ...)."));
 		}
 
 		foreach (var cycle in DependencyCycleDetector.FindConfiguredCycles(config.LayerNames, config.Graph.DependencyEdges))

@@ -22,6 +22,8 @@ The violation report groups code dependency and name-rule violations by diagnost
 
 The report is written by `RonSijm.AnaalIJzer.Reporting.ArchitecturalViolationReporter`. Arse runs the analyzer in-process with Roslyn, converts the resulting diagnostics into report rows, and writes the file explicitly. Normal analyzer builds do not perform filesystem I/O, because an analyzer that writes files during a parallel build is a support ticket waiting to be filed.
 
+Assembly-metadata failures (`ARCH024`) are reported in a dedicated table with the current assembly, emitted attribute type, matching policy rule, and reason. This keeps project-file-generated attributes such as `InternalsVisibleTo` visible even when they do not map to a handwritten source location.
+
 ### Example report
 
 This repository ships a [rendered example report](../Examples/Documentation/Generated/architectural-violations.md) generated from the [`Examples/Documentation/Example.ReportDemo`](../Examples/Documentation/Example.ReportDemo) project, which intentionally contains one violation of each diagnostic ID. To regenerate it from the repo root:

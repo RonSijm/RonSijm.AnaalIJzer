@@ -28,6 +28,7 @@
   </Folder>
   <Folder Name="/Main/Core/Policies/">
     <Project Path="Main/RonSijm.AnaalIJzer.Core.ApiSurface/RonSijm.AnaalIJzer.Core.ApiSurface.csproj" />
+	<Project Path="Main/RonSijm.AnaalIJzer.Core.AssemblyAttributes/RonSijm.AnaalIJzer.Core.AssemblyAttributes.csproj" />
     <Project Path="Main/RonSijm.AnaalIJzer.Core.Contracts/RonSijm.AnaalIJzer.Core.Contracts.csproj" />
     <Project Path="Main/RonSijm.AnaalIJzer.Core.DependencyRules/RonSijm.AnaalIJzer.Core.DependencyRules.csproj" />
     <Project Path="Main/RonSijm.AnaalIJzer.Core.EntryPoints/RonSijm.AnaalIJzer.Core.EntryPoints.csproj" />
@@ -77,6 +78,7 @@
     <Project Path="Tests/RonSijm.AnaalIJzer.Core.DependencyRules.Tests/RonSijm.AnaalIJzer.Core.DependencyRules.Tests.csproj" />
     <Project Path="Tests/RonSijm.AnaalIJzer.Core.EntryPoints.Tests/RonSijm.AnaalIJzer.Core.EntryPoints.Tests.csproj" />
     <Project Path="Tests/RonSijm.AnaalIJzer.Core.ApiSurface.Tests/RonSijm.AnaalIJzer.Core.ApiSurface.Tests.csproj" />
+	<Project Path="Tests/RonSijm.AnaalIJzer.Core.AssemblyAttributes.Tests/RonSijm.AnaalIJzer.Core.AssemblyAttributes.Tests.csproj" />
     <Project Path="Tests/RonSijm.AnaalIJzer.Core.NameRules.Tests/RonSijm.AnaalIJzer.Core.NameRules.Tests.csproj" />
     <Project Path="Tests/RonSijm.AnaalIJzer.Core.SourceLocations.Tests/RonSijm.AnaalIJzer.Core.SourceLocations.Tests.csproj" />
     <Project Path="Tests/RonSijm.AnaalIJzer.Core.LayerModel.Tests/RonSijm.AnaalIJzer.Core.LayerModel.Tests.csproj" />

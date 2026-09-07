@@ -46,6 +46,7 @@
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Diagnostics\RonSijm.AnaalIJzer.Diagnostics.csproj" PrivateAssets="all" Pack="false" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.CodeFixes\RonSijm.AnaalIJzer.CodeFixes.csproj" PrivateAssets="all" Pack="false" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Engine\RonSijm.AnaalIJzer.Engine.csproj" PrivateAssets="all" Pack="false" />
+        <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.AssemblyAttributes\RonSijm.AnaalIJzer.Core.AssemblyAttributes.csproj" PrivateAssets="all" Pack="false" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.OperationContracts\RonSijm.AnaalIJzer.Core.OperationContracts.csproj" PrivateAssets="all" Pack="false" />
     </ItemGroup>
 
@@ -67,6 +68,7 @@
             RonSijm.AnaalIJzer.Core.DependencyRules;
             RonSijm.AnaalIJzer.Core.EntryPoints;
             RonSijm.AnaalIJzer.Core.ApiSurface;
+            RonSijm.AnaalIJzer.Core.AssemblyAttributes;
             RonSijm.AnaalIJzer.Core.NameRules;
             RonSijm.AnaalIJzer.Core.SourceLocations;
             RonSijm.AnaalIJzer.Core.LayerModel;

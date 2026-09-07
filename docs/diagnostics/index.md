@@ -1,6 +1,6 @@
 ﻿## Diagnostics
 
-The analyzer ships with twenty-three diagnostic IDs. The three dependency-direction rules (ARCH001/004/005) are split by the reason a dependency is illegal, while ARCH006 and ARCH007 protect the integrity of the configuration itself. Dependency, name-rule, API-surface, return-value, and operation-policy diagnostics expose their syntactic site through the `Site` property where applicable.
+The analyzer ships with twenty-four diagnostic IDs. The three dependency-direction rules (ARCH001/004/005) are split by the reason a dependency is illegal, while ARCH006 and ARCH007 protect the integrity of the configuration itself. Dependency, name-rule, API-surface, return-value, and operation-policy diagnostics expose their syntactic site through the `Site` property where applicable.
 
 | ID      | Meaning                                                      |
 |---------|--------------------------------------------------------------|
@@ -27,6 +27,7 @@ The analyzer ships with twenty-three diagnostic IDs. The three dependency-direct
 | ARCH021 | A selected resolved operation violates a layer forbidden-operation policy |
 | ARCH022 | A declaration body violates a layer behavioral-operation policy |
 | ARCH023 | A selected owner or entry point violates an explicit operation contract |
+| ARCH024 | A compiled assembly attribute violates an `AssemblyAttributePolicy` |
 
 The example projects referenced inline below are self-contained and deliberately broken so Visual Studio, Rider and `dotnet build` show the corresponding `ARCH00X` error. They fail on purpose; the repository is not having a bad day.
 

@@ -268,6 +268,96 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 	}
 
 	[Fact]
+	public void AssemblyAttributePolicies_CanBeInspectedAddedAndEditedAtTheRoot()
+	{
+		using var directory = new TemporaryDirectory();
+		var path = directory.WriteFile(
+			"Architecture.anl",
+			"""
+			<ArchitecturalLevels>
+			  <AssemblyAttributePolicy description="Existing friend access rule.">
+			    <Forbidden>
+			      <Attribute exactFullName="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			        <Argument index="0" exactName="NotAllowedExample" />
+			      </Attribute>
+			    </Forbidden>
+			  </AssemblyAttributePolicy>
+			</ArchitecturalLevels>
+			""");
+		var source = new ArchitectureConfigurationSource(ArchitectureConfigurationSourceKind.XmlFile, path);
+
+		var details = ArchitectureConfigurationEditService.GetRootDetails(source);
+
+		details.Succeeded.Should().BeTrue(details.Message);
+		var existing = details.AssemblyAttributePolicies.Should().ContainSingle().Subject;
+		existing.Attributes["description"].Should().Be("Existing friend access rule.");
+		ArchitectureConfigurationEditService.SetConfigurationElementChildren(
+			existing.Handle,
+			"""
+			<Forbidden>
+			  <Attribute exactFullName="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			    <Argument index="0" exactName="NotAllowedExample" />
+			    <Argument name="AllInternalsVisible" exactName="false" />
+			  </Attribute>
+			</Forbidden>
+			""").Succeeded.Should().BeTrue();
+		ArchitectureConfigurationEditService.AddAssemblyAttributePolicy(
+			source,
+			Attributes(("description", "Only named pastry teams may receive internals.")),
+			"""
+			<Allowed>
+			  <Attribute exactFullName="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			    <Argument index="0" exactName="AllowedExample" />
+			  </Attribute>
+			</Allowed>
+			""").Succeeded.Should().BeTrue();
+
+		var content = File.ReadAllText(path);
+		content.Should().Contain("AllInternalsVisible");
+		content.Should().Contain("Only named pastry teams may receive internals.");
+		content.Should().Contain("AllowedExample");
+	}
+
+	[Fact]
+	public void AddAssemblyAttributePolicy_PreservesInlineAssemblyMetadataAndNameofInterpolation()
+	{
+		using var directory = new TemporaryDirectory();
+		var path = directory.WriteFile(
+			"AnaalIJzerSettings.cs",
+			""""
+			using System.Reflection;
+
+			[assembly: AssemblyMetadata("AnaalIJzerSettings", $"""
+			<ArchitecturalLevels>
+			  <Layer name="{nameof(PizzaRecipeBook)}">
+			    <Class typeName="{nameof(PizzaRecipeBook)}" />
+			  </Layer>
+			</ArchitecturalLevels>
+			""")]
+
+			public sealed class PizzaRecipeBook { }
+			"""");
+		var source = new ArchitectureConfigurationSource(ArchitectureConfigurationSourceKind.InlineAssemblyMetadata, path);
+
+		var result = ArchitectureConfigurationEditService.AddAssemblyAttributePolicy(
+			source,
+			Attributes(("description", "Only approved pastry teams may receive internals.")),
+			"""
+			<Forbidden>
+			  <Attribute exactFullName="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			    <Argument index="0" exactName="NotAllowedExample" />
+			  </Attribute>
+			</Forbidden>
+			""");
+
+		result.Succeeded.Should().BeTrue(result.Message);
+		var content = File.ReadAllText(path);
+		content.Should().Contain("{nameof(PizzaRecipeBook)}");
+		content.Should().Contain("<AssemblyAttributePolicy description=\"Only approved pastry teams may receive internals.\"");
+		content.Should().Contain("<Argument index=\"0\" exactName=\"NotAllowedExample\" />");
+	}
+
+	[Fact]
 	public void SetRootSettings_UpdatesRootAttributes()
 	{
 		using var directory = new TemporaryDirectory();

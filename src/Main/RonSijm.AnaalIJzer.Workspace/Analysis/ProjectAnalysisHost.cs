@@ -216,6 +216,6 @@ internal sealed record SolutionAnalysisResult(
 
 	public ProjectAnalysisResult? FirstConfiguredProject
 	{
-		get { return Projects.FirstOrDefault(project => project.Config.HasLayers || project.Config.HasProjectArchitecture || project.Config.HasSolutionTopology || project.Config.HasOperationContracts); }
+		get { return Projects.FirstOrDefault(project => project.Config.HasLayers || project.Config.HasProjectArchitecture || project.Config.HasSolutionTopology || project.Config.HasOperationContracts || project.Config.HasAssemblyAttributePolicies); }
 	}
 }

@@ -120,6 +120,41 @@ internal static class ArchitectureRootCompositionEditor
 		return result;
 	}
 
+	internal static ArchitectureConfigurationDocumentOperationResult AddAssemblyAttributePolicy(ArchitectureConfigurationSource source, ImmutableDictionary<string, string> attributes, string childXml)
+	{
+		if (!source.CanEdit)
+		{
+			return ArchitectureConfigurationDocumentOperationResult.Failure("This configuration source is not editable.");
+		}
+
+		if (attributes.Keys.Any(key => key != "description"))
+		{
+			return ArchitectureConfigurationDocumentOperationResult.Failure("AssemblyAttributePolicy supports only a description attribute.");
+		}
+
+		if (!TryReadAssemblyAttributePolicyChildren(childXml, out var children, out var message))
+		{
+			return ArchitectureConfigurationDocumentOperationResult.Failure(message);
+		}
+
+		var result = ArchitectureConfigurationEditExecution.EditConfiguration(
+			source.Kind,
+			source.Path,
+			document =>
+			{
+				if (document.Root is null)
+				{
+					return ArchitectureConfigurationDocumentOperationResult.Failure("Architecture configuration has no root element.");
+				}
+
+				document.Root.Add(new XElement(ArchitectureConfigurationXmlNames.AssemblyAttributePolicyElementName, attributes.Select(attribute => new XAttribute(attribute.Key, attribute.Value)), children));
+
+				return ArchitectureConfigurationDocumentOperationResult.Success("Added assembly attribute policy.");
+			});
+
+		return result;
+	}
+
 	private static bool TryReadOperationContractChildren(string childXml, out IEnumerable<XNode> children, out string message)
 	{
 		try
@@ -143,6 +178,42 @@ internal static class ArchitectureRootCompositionEditor
 		{
 			children = [];
 			message = "Operation contract XML is invalid: " + exception.Message;
+
+			return false;
+		}
+	}
+
+	private static bool TryReadAssemblyAttributePolicyChildren(string childXml, out IEnumerable<XNode> children, out string message)
+	{
+		try
+		{
+			var wrapper = XElement.Parse("<Root>" + childXml + "</Root>", LoadOptions.PreserveWhitespace);
+			var elements = wrapper.Elements().ToArray();
+			if (elements.Length == 0 || elements.Any(element => element.Name.LocalName is not ("Allowed" or "Forbidden")))
+			{
+				children = [];
+				message = "AssemblyAttributePolicy requires one or more Allowed or Forbidden children.";
+
+				return false;
+			}
+
+			if (elements.Any(element => element.Elements().Any(child => child.Name.LocalName != "Attribute")))
+			{
+				children = [];
+				message = "AssemblyAttributePolicy Allowed and Forbidden children may contain only Attribute rules.";
+
+				return false;
+			}
+
+			children = elements;
+			message = string.Empty;
+
+			return true;
+		}
+		catch (System.Xml.XmlException exception)
+		{
+			children = [];
+			message = "Assembly attribute policy XML is invalid: " + exception.Message;
 
 			return false;
 		}

@@ -23,3 +23,4 @@ ARCH020 | Architecture | Error | A layer-scoped ReturnValuePolicy rejected a con
 ARCH021 | Architecture | Error | A layer-scoped ForbiddenOperations policy rejected a resolved semantic operation
 ARCH022 | Architecture | Error | A layer-scoped BehavioralOperations policy rejected a mechanically provable operation condition
 ARCH023 | Architecture | Error | An explicitly configured operation contract rejected an owner or entry-point method declaration
+ARCH024 | Architecture | Error | A root-level AssemblyAttributePolicy rejected an assembly attribute or configured argument value

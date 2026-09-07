@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Example.AspNetCore.ApiSurface": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:6616;http://localhost:6619"
+    }
+  }
+}

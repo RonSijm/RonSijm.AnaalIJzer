@@ -24,7 +24,8 @@ public sealed class ArchitectureRootInspectionResult
 		ImmutableArray<ArchitectureConfigurationElementDetails> exceptionMatchers,
 		ImmutableArray<ArchitectureConfigurationElementDetails> allowedPolicies,
 		ImmutableArray<ArchitectureConfigurationElementDetails> forbiddenPolicies,
-		ImmutableArray<ArchitectureConfigurationElementDetails> operationContracts)
+		ImmutableArray<ArchitectureConfigurationElementDetails> operationContracts,
+		ImmutableArray<ArchitectureConfigurationElementDetails> assemblyAttributePolicies)
 	{
 		Succeeded = succeeded;
 		Message = message;
@@ -46,6 +47,7 @@ public sealed class ArchitectureRootInspectionResult
 		AllowedPolicies = allowedPolicies;
 		ForbiddenPolicies = forbiddenPolicies;
 		OperationContracts = operationContracts;
+		AssemblyAttributePolicies = assemblyAttributePolicies;
 	}
 
 	public bool Succeeded { get; }
@@ -88,6 +90,8 @@ public sealed class ArchitectureRootInspectionResult
 
 	public ImmutableArray<ArchitectureConfigurationElementDetails> OperationContracts { get; }
 
+	public ImmutableArray<ArchitectureConfigurationElementDetails> AssemblyAttributePolicies { get; }
+
 	public static ArchitectureRootInspectionResult Success(
 		string? description,
 		string? requireRecognizedDependencies,
@@ -106,7 +110,8 @@ public sealed class ArchitectureRootInspectionResult
 		ImmutableArray<ArchitectureConfigurationElementDetails> exceptionMatchers,
 		ImmutableArray<ArchitectureConfigurationElementDetails> allowedPolicies,
 		ImmutableArray<ArchitectureConfigurationElementDetails> forbiddenPolicies,
-		ImmutableArray<ArchitectureConfigurationElementDetails> operationContracts)
+		ImmutableArray<ArchitectureConfigurationElementDetails> operationContracts,
+		ImmutableArray<ArchitectureConfigurationElementDetails> assemblyAttributePolicies)
 	{
 		var result = new ArchitectureRootInspectionResult(
 			true,
@@ -128,7 +133,8 @@ public sealed class ArchitectureRootInspectionResult
 			exceptionMatchers,
 			allowedPolicies,
 			forbiddenPolicies,
-			operationContracts);
+			operationContracts,
+			assemblyAttributePolicies);
 
 		return result;
 	}
@@ -151,6 +157,7 @@ public sealed class ArchitectureRootInspectionResult
 			false,
 			14,
 			null,
+			ImmutableArray<ArchitectureConfigurationElementDetails>.Empty,
 			ImmutableArray<ArchitectureConfigurationElementDetails>.Empty,
 			ImmutableArray<ArchitectureConfigurationElementDetails>.Empty,
 			ImmutableArray<ArchitectureConfigurationElementDetails>.Empty,

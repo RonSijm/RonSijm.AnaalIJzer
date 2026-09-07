@@ -31,6 +31,8 @@
     <Project Path="Examples/Diagnostics/Example.Arch022.ForbiddenOperationAfter/Example.Arch022.ForbiddenOperationAfter.csproj" />
     <Project Path="Examples/Diagnostics/Example.Arch022.MaximumOperationCount/Example.Arch022.MaximumOperationCount.csproj" />
     <Project Path="Examples/Diagnostics/Example.Arch023.OperationContract/Example.Arch023.OperationContract.csproj" />
+    <Project Path="Examples/Diagnostics/Example.Arch024.AssemblyAttributePolicy.Code/Example.Arch024.AssemblyAttributePolicy.Code.csproj" />
+    <Project Path="Examples/Diagnostics/Example.Arch024.AssemblyAttributePolicy.Project/Example.Arch024.AssemblyAttributePolicy.Project.csproj" />
   </Folder>
   <Folder Name="/Examples/Features/">
     <Project Path="Examples/Features/Example.AllowedSites/Example.AllowedSites.csproj" />
@@ -125,6 +127,7 @@
   </Folder>
   <Folder Name="/Main/Core/Policies/">
     <Project Path="src/Main/RonSijm.AnaalIJzer.Core.ApiSurface/RonSijm.AnaalIJzer.Core.ApiSurface.csproj" />
+	<Project Path="src/Main/RonSijm.AnaalIJzer.Core.AssemblyAttributes/RonSijm.AnaalIJzer.Core.AssemblyAttributes.csproj" />
     <Project Path="src/Main/RonSijm.AnaalIJzer.Core.Contracts/RonSijm.AnaalIJzer.Core.Contracts.csproj" />
     <Project Path="src/Main/RonSijm.AnaalIJzer.Core.DependencyRules/RonSijm.AnaalIJzer.Core.DependencyRules.csproj" />
     <Project Path="src/Main/RonSijm.AnaalIJzer.Core.EntryPoints/RonSijm.AnaalIJzer.Core.EntryPoints.csproj" />
@@ -175,6 +178,7 @@
     <Project Path="src/Tests/RonSijm.AnaalIJzer.Core.DependencyRules.Tests/RonSijm.AnaalIJzer.Core.DependencyRules.Tests.csproj" />
     <Project Path="src/Tests/RonSijm.AnaalIJzer.Core.EntryPoints.Tests/RonSijm.AnaalIJzer.Core.EntryPoints.Tests.csproj" />
     <Project Path="src/Tests/RonSijm.AnaalIJzer.Core.ApiSurface.Tests/RonSijm.AnaalIJzer.Core.ApiSurface.Tests.csproj" />
+	<Project Path="src/Tests/RonSijm.AnaalIJzer.Core.AssemblyAttributes.Tests/RonSijm.AnaalIJzer.Core.AssemblyAttributes.Tests.csproj" />
     <Project Path="src/Tests/RonSijm.AnaalIJzer.Core.NameRules.Tests/RonSijm.AnaalIJzer.Core.NameRules.Tests.csproj" />
     <Project Path="src/Tests/RonSijm.AnaalIJzer.Core.SourceLocations.Tests/RonSijm.AnaalIJzer.Core.SourceLocations.Tests.csproj" />
     <Project Path="src/Tests/RonSijm.AnaalIJzer.Core.LayerModel.Tests/RonSijm.AnaalIJzer.Core.LayerModel.Tests.csproj" />

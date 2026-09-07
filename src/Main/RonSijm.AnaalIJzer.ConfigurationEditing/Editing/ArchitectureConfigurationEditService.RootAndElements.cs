@@ -97,4 +97,11 @@ public static partial class ArchitectureConfigurationEditService
 
 		return result;
 	}
+
+	public static ArchitectureConfigurationEditResult AddAssemblyAttributePolicy(ArchitectureConfigurationSource source, ImmutableDictionary<string, string> attributes, string childXml)
+	{
+		var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureRootEditor.AddAssemblyAttributePolicy(source, attributes, childXml));
+
+		return result;
+	}
 }

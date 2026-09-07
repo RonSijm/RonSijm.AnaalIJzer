@@ -31,6 +31,15 @@ internal static partial class ArchitectureConfigurationXmlNavigator
 			return result;
 		}
 
+		if (handle.ContainerKind == ArchitectureConfigurationXmlNames.AssemblyAttributePolicyElementName)
+		{
+			var result = containerRoot
+				.Elements(ArchitectureConfigurationXmlNames.AssemblyAttributePolicyElementName)
+				.Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
+
+			return result;
+		}
+
 		if (handle.ContainerKind == "LayerMatcher")
 		{
 			var result = containerRoot

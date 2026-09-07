@@ -28,5 +28,6 @@ internal static class ArchitectureConfigurationXmlNames
 	public const string ForbiddenOperationsElementName = "ForbiddenOperations";
 	public const string BehavioralOperationsElementName = "BehavioralOperations";
 	public const string OperationsElementName = "Operations";
+	public const string AssemblyAttributePolicyElementName = "AssemblyAttributePolicy";
 	public const string ApiSurfaceElementName = "ApiSurface";
 }

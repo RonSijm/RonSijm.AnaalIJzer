@@ -9,6 +9,7 @@ using RonSijm.AnaalIJzer.Core.Configuration.Compilation.Parsing;
 using RonSijm.AnaalIJzer.Core.Observations;
 using RonSijm.AnaalIJzer.Core.Violations;
 using RonSijm.AnaalIJzer.Diagnostics;
+using RonSijm.AnaalIJzer.Engine.Analysis.AssemblyAttributes;
 using RonSijm.AnaalIJzer.Engine.Analysis.BoundaryRules.LayerDependencies;
 using RonSijm.AnaalIJzer.Engine.Analysis.GeneratedCode;
 using RonSijm.AnaalIJzer.Engine.Analysis.Operations;
@@ -46,6 +47,7 @@ public sealed partial class ArchitecturalLevelAnalyzer : DiagnosticAnalyzer
 		ArchitecturalDiagnostics.ForbiddenOperationPolicyViolation,
 		ArchitecturalDiagnostics.BehavioralOperationPolicyViolation,
 		ArchitecturalDiagnostics.OperationContractViolation,
+		ArchitecturalDiagnostics.AssemblyAttributePolicyViolation,
 		ArchitecturalDiagnostics.ForbiddenTransitiveExposure,
 		ArchitecturalDiagnostics.SourceLocationViolation,
 		ArchitecturalDiagnostics.BoundaryEntryPointViolation,
@@ -79,6 +81,11 @@ public sealed partial class ArchitecturalLevelAnalyzer : DiagnosticAnalyzer
 			if (config.HasOperationContracts)
 			{
 				compilationContext.RegisterCompilationEndAction(reportContext => OperationContractAnalyzer.AnalyzeCompilation(reportContext, config));
+			}
+
+			if (config.HasAssemblyAttributePolicies)
+			{
+				compilationContext.RegisterCompilationEndAction(reportContext => AssemblyAttributePolicyAnalyzer.AnalyzeCompilation(reportContext, config));
 			}
 
 			if (!config.Engine.HasLayers)

@@ -36,6 +36,8 @@ internal static class ExampleBuildExpectationCatalog
 		Expect("Diagnostics/Example.Arch022.ForbiddenOperationAfter", (ArchitecturalDiagnosticIds.BehavioralOperationPolicyViolation, 1)),
 		Expect("Diagnostics/Example.Arch022.MaximumOperationCount", (ArchitecturalDiagnosticIds.BehavioralOperationPolicyViolation, 1)),
 		ExpectFile("Diagnostics/Example.Arch023.OperationContract", (ArchitecturalDiagnosticIds.OperationContractViolation, 2)),
+		ExpectFile("Diagnostics/Example.Arch024.AssemblyAttributePolicy.Code", (ArchitecturalDiagnosticIds.AssemblyAttributePolicyViolation, 1)),
+		ExpectFile("Diagnostics/Example.Arch024.AssemblyAttributePolicy.Project", (ArchitecturalDiagnosticIds.AssemblyAttributePolicyViolation, 1)),
 		ExpectFile("Features/Example.AllowedSites", (ArchitecturalDiagnosticIds.IllegalLevelDependency, 26)),
 		Expect("Features/Example.AllowedTypes", (ArchitecturalDiagnosticIds.ForbiddenDependency, 1)),
 		ExpectFile("Features/Example.ArchitectureHealth"),

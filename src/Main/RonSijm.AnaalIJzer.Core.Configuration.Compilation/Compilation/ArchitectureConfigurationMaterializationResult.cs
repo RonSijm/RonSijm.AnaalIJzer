@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using RonSijm.AnaalIJzer.Core.AssemblyAttributes.Model;
 using RonSijm.AnaalIJzer.Core.DependencyRules;
 using RonSijm.AnaalIJzer.Core.Exceptions;
 using RonSijm.AnaalIJzer.Core.LayerModel;
@@ -20,7 +21,8 @@ internal readonly struct ArchitectureConfigurationMaterializationResult
         ImmutableArray<ArchitectureForbiddenPattern> forbiddenPatterns,
         ProjectArchitectureConfig projectArchitecture,
         SolutionTopologyConfig solutionTopology = default,
-        OperationContractCatalog operationContracts = default)
+        OperationContractCatalog operationContracts = default,
+        AssemblyAttributePolicyCatalog assemblyAttributePolicies = default)
     {
         LayerCatalog = layerCatalog;
         DependencyEdges = dependencyEdges;
@@ -32,6 +34,7 @@ internal readonly struct ArchitectureConfigurationMaterializationResult
         ProjectArchitecture = projectArchitecture;
         SolutionTopology = solutionTopology;
         OperationContracts = operationContracts;
+        AssemblyAttributePolicies = assemblyAttributePolicies;
     }
 
     internal CompiledLayerCatalog LayerCatalog { get; }
@@ -53,4 +56,6 @@ internal readonly struct ArchitectureConfigurationMaterializationResult
     internal SolutionTopologyConfig SolutionTopology { get; }
 
     internal OperationContractCatalog OperationContracts { get; }
+
+    internal AssemblyAttributePolicyCatalog AssemblyAttributePolicies { get; }
 }

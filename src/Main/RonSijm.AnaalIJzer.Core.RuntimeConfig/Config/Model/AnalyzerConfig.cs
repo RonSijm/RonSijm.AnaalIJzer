@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using RonSijm.AnaalIJzer.Core.AssemblyAttributes.Model;
 using RonSijm.AnaalIJzer.Core.ApiSurface.Engine.Policies;
 using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 using RonSijm.AnaalIJzer.Core.Contracts.Contracts;
@@ -77,6 +78,7 @@ public readonly struct AnalyzerConfig(
 	public SolutionTopologyConfig SolutionTopology => CompiledConfig.SolutionTopology;
 	public GeneratedCodeAnalysisScope GeneratedCodeScope => CompiledConfig.GeneratedCodeScope;
 	public OperationContractCatalog OperationContracts => CompiledConfig.OperationContracts;
+	public AssemblyAttributePolicyCatalog AssemblyAttributePolicies => CompiledConfig.AssemblyAttributePolicies;
 
 	public ImmutableHashSet<(string From, string To)> AllowedEdges => CompiledConfig.Graph.AllowedEdges;
 	public ImmutableHashSet<string> WildcardTargets => CompiledConfig.Graph.WildcardTargets;
@@ -99,6 +101,7 @@ public readonly struct AnalyzerConfig(
 	public bool HasForbiddenOperationPolicies => Engine.HasForbiddenOperationPolicies;
 	public bool HasBehavioralOperationPolicies => Engine.HasBehavioralOperationPolicies;
 	public bool HasOperationContracts => OperationContracts.HasDefinitions;
+	public bool HasAssemblyAttributePolicies => AssemblyAttributePolicies.HasPolicies;
 	public bool HasVisibilityPolicies => Engine.HasVisibilityPolicies;
 	public bool HasApiSurfacePolicies => Engine.HasApiSurfacePolicies;
 	public bool HasEntryPointPolicies => Engine.HasEntryPointPolicies;

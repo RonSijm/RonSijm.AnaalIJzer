@@ -7,6 +7,7 @@ The XML root element is `<ArchitecturalLevels>`. It supports the child elements 
 | Configuration fixers | `config-fixers.md` |
 | Include files | `include.md` |
 | Layers and matchers | `layers.md` |
+| Layer membership and physical layout | `layer-membership-and-layout.md` |
 | Allowed dependencies | `allowed-dependency.md` |
 | Blocked dependencies | `blocked-dependency.md` |
 | Allowed type policies | `allowed-type-policy.md` |
@@ -20,6 +21,7 @@ The XML root element is `<ArchitecturalLevels>`. It supports the child elements 
 | Return-value policies | `return-value-policies.md` |
 | Forbidden operation policies | `forbidden-operation-policies.md` |
 | Behavioral operation policies | `behavioral-operation-policies.md` |
+| Assembly attribute policies | `assembly-attribute-policies.md` |
 | Generated code analysis | `generated-code.md` |
 | Project architecture | `project-architecture.md` |
 | Assembly reference policies | `assembly-reference-policies.md` |

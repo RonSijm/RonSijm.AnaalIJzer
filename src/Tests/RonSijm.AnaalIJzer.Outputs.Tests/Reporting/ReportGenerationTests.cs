@@ -762,6 +762,54 @@ public sealed class ReportGenerationTests
 		markdown.Should().Contain("The waiter sends an order to the kitchen.");
 	}
 
+	[Fact]
+	public void DocumentationGenerator_RendersAssemblyAttributePoliciesInConfigurationOrder()
+	{
+		var config = ParseConfig("""
+			<ArchitecturalLevels>
+			  <AssemblyAttributePolicy description="Friend access is reviewed.">
+			    <Forbidden>
+			      <Attribute exactFullName="System.Runtime.CompilerServices.InternalsVisibleToAttribute" description="Unapproved friends do not receive recipe access.">
+			        <Argument index="0" exactName="NotAllowedExample" />
+			      </Attribute>
+			    </Forbidden>
+			  </AssemblyAttributePolicy>
+			</ArchitecturalLevels>
+			""");
+
+		var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
+
+		markdown.Should().Contain("## Assembly Attribute Policies");
+		markdown.Should().Contain("System.Runtime.CompilerServices.InternalsVisibleToAttribute");
+		markdown.Should().Contain("NotAllowedExample");
+		markdown.Should().Contain("Unapproved friends do not receive recipe access.");
+		markdown.Should().Contain("- **AssemblyAttributePolicy** `Assembly attribute policy`");
+	}
+
+	[Fact]
+	public void ViolationReporter_RendersAssemblyAttributePolicyViolation()
+	{
+		var report = ArchitecturalViolationReporter.GenerateMarkdownReport(
+			[
+				new ViolationRecord(
+					ArchitecturalDiagnosticIds.AssemblyAttributePolicyViolation,
+					"Shop.Kitchen",
+					"Assembly",
+					"System.Runtime.CompilerServices.InternalsVisibleToAttribute",
+					"attribute System.Runtime.CompilerServices.InternalsVisibleToAttribute with argument #0 exactName=\"NotAllowedExample\"",
+					"the AssemblyAttributePolicy blocks the unapproved friend",
+					null,
+					"AssemblyAttribute")
+			],
+			AnalyzerConfiguration.Empty,
+			null);
+
+		report.Should().Contain("| ARCH024 — Assembly attribute policy violation | 1 |");
+		report.Should().Contain("## ARCH024 — Assembly Attribute Policy Violations");
+		report.Should().Contain("`Shop.Kitchen`");
+		report.Should().Contain("`System.Runtime.CompilerServices.InternalsVisibleToAttribute`");
+	}
+
 	private static AnalyzerConfiguration ParseConfig(string config)
 	{
 		var additionalText = new TestAdditionalText("Architecture.anl", config);

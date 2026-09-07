@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using RonSijm.AnaalIJzer.Core.AssemblyAttributes.Model;
 using RonSijm.AnaalIJzer.Core.Configuration.Compilation.Parsing;
 using RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
 using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
@@ -74,7 +75,8 @@ internal static class ArchitectureConfigurationMaterializer
 			[..forbiddenPatterns],
 			ArchitecturalConfigParser.ParseProjectArchitecture(elements, configPath, issues),
 			ArchitecturalConfigParser.ParseSolutionTopology(elements, configPath, issues),
-			ArchitecturalConfigParser.ParseOperationContracts(elements.Where(item => item.Element.Name.LocalName == "Operations"), layerNodesByPath, issues));
+			ArchitecturalConfigParser.ParseOperationContracts(elements.Where(item => item.Element.Name.LocalName == "Operations"), layerNodesByPath, issues),
+			ArchitecturalConfigParser.ParseAssemblyAttributePolicies(elements.Where(item => item.Element.Name.LocalName == "AssemblyAttributePolicy"), issues));
 
 		return result;
 	}

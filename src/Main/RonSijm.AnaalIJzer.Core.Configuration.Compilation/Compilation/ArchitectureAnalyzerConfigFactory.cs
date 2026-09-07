@@ -38,7 +38,8 @@ internal static class ArchitectureAnalyzerConfigFactory
 			issues.ToImmutable(),
 			materialization.SolutionTopology,
 			rootSettings.GeneratedCodeScope,
-			materialization.OperationContracts);
+			materialization.OperationContracts,
+			materialization.AssemblyAttributePolicies);
 		var result = new AnalyzerConfig(compiledConfig);
 
 		return result;

@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using RonSijm.AnaalIJzer.Core.AssemblyAttributes.Model;
 using RonSijm.AnaalIJzer.Core.Configuration.Document.Model;
 using RonSijm.AnaalIJzer.Core.DependencyRules;
 using RonSijm.AnaalIJzer.Core.Exceptions;
@@ -30,7 +31,8 @@ public readonly struct CompiledArchitectureConfig(
 	ImmutableArray<ConfigurationIssue> configurationIssues,
 	SolutionTopologyConfig solutionTopology = default,
 	GeneratedCodeAnalysisScope generatedCodeScope = default,
-	OperationContractCatalog operationContracts = default)
+	OperationContractCatalog operationContracts = default,
+	AssemblyAttributePolicyCatalog assemblyAttributePolicies = default)
 {
 	public static readonly CompiledArchitectureConfig Empty = new(
 		CompiledLayerCatalog.Empty,
@@ -66,6 +68,7 @@ public readonly struct CompiledArchitectureConfig(
 	public SolutionTopologyConfig SolutionTopology { get; } = solutionTopology;
 	public GeneratedCodeAnalysisScope GeneratedCodeScope { get; } = generatedCodeScope;
 	public OperationContractCatalog OperationContracts { get; } = operationContracts;
+	public AssemblyAttributePolicyCatalog AssemblyAttributePolicies { get; } = assemblyAttributePolicies;
 	public ArchitectureDocumentation Documentation { get; } = documentation;
 	public ImmutableArray<ConfigurationIssue> ConfigurationIssues { get; } = configurationIssues;
 }

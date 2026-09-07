@@ -53,6 +53,7 @@ try {
         "analyzers/dotnet/cs/RonSijm.AnaalIJzer.Diagnostics.dll",
         "analyzers/dotnet/cs/RonSijm.AnaalIJzer.CodeFixes.dll",
         "analyzers/dotnet/cs/RonSijm.AnaalIJzer.Engine.dll",
+        "analyzers/dotnet/cs/RonSijm.AnaalIJzer.Core.AssemblyAttributes.dll",
         "analyzers/dotnet/cs/RonSijm.AnaalIJzer.Core.OperationPolicies.dll",
         "analyzers/dotnet/cs/RonSijm.AnaalIJzer.Core.OperationContracts.dll",
         "analyzers/dotnet/cs/RonSijm.AnaalIJzer.Core.SemanticOperations.dll",

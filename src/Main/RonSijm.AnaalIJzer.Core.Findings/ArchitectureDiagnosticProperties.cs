@@ -75,6 +75,8 @@ public static class ArchitectureDiagnosticProperties
 	public const string PropertyOperationContractName = "OperationContractName";
 	public const string PropertyOperationContractParticipantRole = "OperationContractParticipantRole";
 	public const string PropertyOperationContractViolationKind = "OperationContractViolationKind";
+	public const string PropertyAssemblyAttributeTypeName = "AssemblyAttributeTypeName";
+	public const string PropertyAssemblyAttributePolicyRule = "AssemblyAttributePolicyRule";
 	public const string PropertyRequiredInheritanceTypeName = "RequiredInheritanceTypeName";
 	public const string PropertyBoundaryLayerName = "BoundaryLayerName";
 	public const string PropertyMatchedEntryPoint = "MatchedEntryPoint";

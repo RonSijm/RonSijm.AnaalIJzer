@@ -62,4 +62,11 @@ internal static class ArchitectureRootEditor
 
 		return result;
 	}
+
+	internal static ArchitectureConfigurationDocumentOperationResult AddAssemblyAttributePolicy(ArchitectureConfigurationSource source, ImmutableDictionary<string, string> attributes, string childXml)
+	{
+		var result = ArchitectureRootCompositionEditor.AddAssemblyAttributePolicy(source, attributes, childXml);
+
+		return result;
+	}
 }

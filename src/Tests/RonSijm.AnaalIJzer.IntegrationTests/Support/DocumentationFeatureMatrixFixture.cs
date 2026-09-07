@@ -38,6 +38,15 @@ internal static class DocumentationFeatureMatrixFixture
       </Exceptions>
     </Class>
   </Forbidden>
+  <AssemblyAttributePolicy description="Friend access stays deliberate.">
+    <Forbidden>
+      <Attribute exactFullName="System.Runtime.CompilerServices.InternalsVisibleToAttribute"
+                 description="Unapproved friends do not receive recipe access.">
+        <Argument index="0"
+                  exactName="UnapprovedKitchenTests" />
+      </Attribute>
+    </Forbidden>
+  </AssemblyAttributePolicy>
   <Layer name="Ordering"
          requireRecognizedDependencies="MethodReturn"
          description="Ordering boundary with nested application and repository roles.">

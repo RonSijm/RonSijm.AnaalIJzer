@@ -25,6 +25,7 @@ internal static class ViolationRecordFactory
 		    or ArchitecturalDiagnosticIds.ForbiddenOperationPolicyViolation
 		    or ArchitecturalDiagnosticIds.BehavioralOperationPolicyViolation
 		    or ArchitecturalDiagnosticIds.OperationContractViolation
+		    or ArchitecturalDiagnosticIds.AssemblyAttributePolicyViolation
 		    or ArchitecturalDiagnosticIds.ForbiddenTransitiveExposure
 		    or ArchitecturalDiagnosticIds.SourceLocationViolation
 		    or ArchitecturalDiagnosticIds.BoundaryEntryPointViolation
@@ -46,6 +47,7 @@ internal static class ViolationRecordFactory
 			ArchitecturalDiagnosticIds.ForbiddenOperationPolicyViolation => Get(ArchitecturalDiagnostics.PropertyOperationDisplayName) ?? "UnknownOperation",
 			ArchitecturalDiagnosticIds.BehavioralOperationPolicyViolation => Get(ArchitecturalDiagnostics.PropertyOperationDisplayName) ?? Get(ArchitecturalDiagnostics.PropertyOperationPolicyRule) ?? "UnknownOperationPolicy",
 			ArchitecturalDiagnosticIds.OperationContractViolation => Get(ArchitecturalDiagnostics.PropertyOperationContractName) ?? "UnknownOperationContract",
+			ArchitecturalDiagnosticIds.AssemblyAttributePolicyViolation => Get(ArchitecturalDiagnostics.PropertyAssemblyAttributeTypeName) ?? "UnknownAssemblyAttribute",
 			ArchitecturalDiagnosticIds.ProjectReferenceViolation => Get(ArchitecturalDiagnostics.PropertyTargetProjectName) ?? "UnknownTargetProject",
 			ArchitecturalDiagnosticIds.PackageReferenceViolation => Get(ArchitecturalDiagnostics.PropertyPackageId) ?? "UnknownPackage",
 			ArchitecturalDiagnosticIds.ObservedDependencyCycle => Get(ArchitecturalDiagnostics.PropertyCycleLayers) ?? "UnknownCycle",
@@ -57,6 +59,8 @@ internal static class ViolationRecordFactory
 				? Get(ArchitecturalDiagnostics.PropertyTargetProjectGroup) ?? string.Empty
 			: diagnostic.Id == ArchitecturalDiagnosticIds.PackageReferenceViolation
 				? Get(ArchitecturalDiagnostics.PropertyPackageVersion) ?? string.Empty
+			: diagnostic.Id == ArchitecturalDiagnosticIds.AssemblyAttributePolicyViolation
+				? Get(ArchitecturalDiagnostics.PropertyAssemblyAttributePolicyRule) ?? string.Empty
 			: Get(ArchitecturalDiagnostics.PropertyDepLayerName) ?? string.Empty;
 		var violationReason = diagnostic.Id == ArchitecturalDiagnosticIds.ObservedDependencyCycle
 			? diagnostic.GetMessage().Replace("Observed architectural dependency cycle: ", string.Empty)

@@ -57,4 +57,6 @@ The [example batch file](../Examples/Documentation/Example.DocumentationDemo/Gen
 
 Documentation coverage is guarded by [`ToolRunner_GeneratesDocumentationForSupportedConfigurationFeatures`](../src/Tests/RonSijm.AnaalIJzer.IntegrationTests/ExampleApplicationIntegrationTests.cs), which runs the real `arse documentation --config` path against a feature-matrix XML containing nested layers, descriptions, type policies, exceptions, rename fixes, site filters, wildcard rules and input inclusion.
 
+Root-level source-metadata policies such as `<AssemblyAttributePolicy>` are rendered in authored configuration order and in their own table. They describe emitted assembly attributes rather than dependency graph edges, so they appear as policy documentation instead of Mermaid nodes.
+
 ---

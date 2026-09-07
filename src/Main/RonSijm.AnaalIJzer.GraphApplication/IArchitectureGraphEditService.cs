@@ -39,6 +39,8 @@ internal interface IArchitectureGraphEditService
 
 	ArchitectureConfigurationEditResult AddOperationContracts(ArchitectureConfigurationSource source, ImmutableDictionary<string, string> attributes, string childXml);
 
+	ArchitectureConfigurationEditResult AddAssemblyAttributePolicy(ArchitectureConfigurationSource source, ImmutableDictionary<string, string> attributes, string childXml);
+
 	ArchitectureConfigurationEditResult SetLayerDescription(ArchitectureLayerEditHandle handle, string? description);
 
 	ArchitectureConfigurationEditResult SetLayerName(ArchitectureLayerEditHandle handle, string name);
