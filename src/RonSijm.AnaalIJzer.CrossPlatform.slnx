@@ -59,6 +59,14 @@
   <Folder Name="/Main/Workspace/">
     <Project Path="Main/RonSijm.AnaalIJzer.Workspace/RonSijm.AnaalIJzer.Workspace.csproj" />
   </Folder>
+  <Folder Name="/Main/Statistics/">
+    <Project Path="Main/RonSijm.Anaaltomy.Charting/RonSijm.Anaaltomy.Charting.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer.Core.Statistics/RonSijm.AnaalIJzer.Core.Statistics.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer.Statistics.Roslyn/RonSijm.AnaalIJzer.Statistics.Roslyn.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer.Statistics.Persistence.Sqlite/RonSijm.AnaalIJzer.Statistics.Persistence.Sqlite.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer.Statistics.Workspace/RonSijm.AnaalIJzer.Statistics.Workspace.csproj" />
+    <Project Path="Main/RonSijm.AnaalIJzer.Statistics.GitHistory/RonSijm.AnaalIJzer.Statistics.GitHistory.csproj" />
+  </Folder>
   <Folder Name="/Tests/">
     <Project Path="Tests/RonSijm.AnaalIJzer.ConfigurationEditing.Tests/RonSijm.AnaalIJzer.ConfigurationEditing.Tests.csproj" />
     <Project Path="Tests/RonSijm.AnaalIJzer.Core.BuildMetadata.Tests/RonSijm.AnaalIJzer.Core.BuildMetadata.Tests.csproj" />
@@ -98,8 +106,16 @@
     <Project Path="Tests/RonSijm.AnaalIJzer.Application.Tests/RonSijm.AnaalIJzer.Application.Tests.csproj" />
     <Project Path="Tests/RonSijm.AnaalIJzer.Analyzer.Tests/RonSijm.AnaalIJzer.Analyzer.Tests.csproj" />
     <Project Path="Tests/RonSijm.AnaalIJzer.Workspace.Tests/RonSijm.AnaalIJzer.Workspace.Tests.csproj" />
+    <Project Path="Tests/RonSijm.AnaalIJzer.Core.Statistics.Tests/RonSijm.AnaalIJzer.Core.Statistics.Tests.csproj" />
+    <Project Path="Tests/RonSijm.AnaalIJzer.Statistics.Roslyn.Tests/RonSijm.AnaalIJzer.Statistics.Roslyn.Tests.csproj" />
+    <Project Path="Tests/RonSijm.AnaalIJzer.Statistics.Persistence.Sqlite.Tests/RonSijm.AnaalIJzer.Statistics.Persistence.Sqlite.Tests.csproj" />
+    <Project Path="Tests/RonSijm.AnaalIJzer.Statistics.Workspace.Tests/RonSijm.AnaalIJzer.Statistics.Workspace.Tests.csproj" />
+    <Project Path="Tests/RonSijm.AnaalIJzer.Statistics.GitHistory.Tests/RonSijm.AnaalIJzer.Statistics.GitHistory.Tests.csproj" />
+    <Project Path="Tests/RonSijm.Anaaltomy.Charting.Tests/RonSijm.Anaaltomy.Charting.Tests.csproj" />
+    <Project Path="Tests/RonSijm.Anaaltomy.Tests/RonSijm.Anaaltomy.Tests.csproj" />
   </Folder>
   <Folder Name="/Tools/">
     <Project Path="Tools/RonSijm.AnaalIJzer.Arse/RonSijm.AnaalIJzer.Arse.csproj" />
+    <Project Path="Tools/RonSijm.Anaaltomy/RonSijm.Anaaltomy.csproj" />
   </Folder>
 </Solution>

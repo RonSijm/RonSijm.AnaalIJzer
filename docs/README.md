@@ -18,6 +18,7 @@ This folder intentionally contains current product and tooling documentation onl
 - [Configuration reference](configuration/index.md)
 - [Diagnostics](diagnostics/index.md)
 - [Arse TUI](tools/arse.md)
+- [Anaaltomy statistics](tools/anaaltomy.md)
 - [WPF graph editor component](components/wpf-graph-editor.md)
 - [Visual Studio companion extension](components/visual-studio-addon.md)
 - [Violation report](violation-report.md)

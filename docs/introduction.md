@@ -24,6 +24,7 @@ The compose order is defined in [`docs/_readme-order.txt`](../docs/_readme-order
 | [`docs/configuration/ide-code-fixes.md`](../docs/configuration/ide-code-fixes.md) | Which diagnostics have IDE fixers, what they edit, and where the analyzer tests live. |
 | [`docs/components/visual-studio-addon.md`](../docs/components/visual-studio-addon.md) | Visual Studio companion extension behavior, options, graph editor, and CodeLens UI. |
 | [`docs/tools/arse.md`](../docs/tools/arse.md) | Arse command/TUI usage, reports, generated config, documentation, and file associations. |
+| [`docs/tools/anaaltomy.md`](../docs/tools/anaaltomy.md) | Anaaltomy compiled-code statistics, SQLite storage, and Git-history trend analysis. |
 | [`docs/components/wpf-graph-editor.md`](../docs/components/wpf-graph-editor.md) | Standalone WPF graph editor usage and graph image export. |
 | [`docs/configuration/mental-model.md`](../docs/configuration/mental-model.md) | Beginner-friendly rule precedence and the "four questions" model. |
 | [`docs/configuration/*.md`](../docs/configuration/) | Detailed settings reference for layers, dependency rules, type policies, exceptions, name rules, reports, and generated documentation. |

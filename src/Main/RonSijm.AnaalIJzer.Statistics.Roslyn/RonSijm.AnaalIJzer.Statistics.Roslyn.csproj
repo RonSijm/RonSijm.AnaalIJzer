@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <EnableArchitecturalLevelAnalyzer>false</EnableArchitecturalLevelAnalyzer>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Statistics\RonSijm.AnaalIJzer.Core.Statistics.csproj" />
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Matchers\RonSijm.AnaalIJzer.Core.Matchers.csproj" />
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Observations\RonSijm.AnaalIJzer.Core.Observations.csproj" />
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.SemanticOperations\RonSijm.AnaalIJzer.Core.SemanticOperations.csproj" />
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Visibility\RonSijm.AnaalIJzer.Core.Visibility.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+  </ItemGroup>
+
+</Project>

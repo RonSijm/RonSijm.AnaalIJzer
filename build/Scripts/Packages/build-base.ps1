@@ -16,6 +16,7 @@ $artifactRoot = Join-Path $repositoryRoot "build\Artifacts"
 $packageOutput = Join-Path $artifactRoot "Packages"
 $analyzerProject = Join-Path $repositoryRoot "src\Main\RonSijm.AnaalIJzer\RonSijm.AnaalIJzer.csproj"
 $arseProject = Join-Path $repositoryRoot "src\Tools\RonSijm.AnaalIJzer.Arse\RonSijm.AnaalIJzer.Arse.csproj"
+$anaaltomyProject = Join-Path $repositoryRoot "src\Tools\RonSijm.Anaaltomy\RonSijm.Anaaltomy.csproj"
 $testScript = Join-Path $repositoryRoot "build\Scripts\Testing\test-all.ps1"
 
 function Invoke-Step {
@@ -65,6 +66,18 @@ Invoke-Step "Build Arse" {
     )
 }
 
+Invoke-Step "Build Anaaltomy" {
+    Invoke-NativeCommand "dotnet" @(
+        "build",
+        $anaaltomyProject,
+        "--configuration", $Configuration,
+        "--disable-build-servers",
+        "-m:1",
+        "-p:UseSharedCompilation=false",
+        "-p:GeneratePackageOnBuild=false"
+    )
+}
+
 if (-not $SkipTests) {
     Invoke-Step "Test" {
         $arguments = @(
@@ -88,6 +101,7 @@ if (-not $SkipPack -or $PublishNuGet) {
         New-Item -ItemType Directory -Path $packageOutput | Out-Null
         Invoke-NativeCommand "dotnet" @("pack", $analyzerProject, "--configuration", $Configuration, "--no-build", "--output", $packageOutput)
         Invoke-NativeCommand "dotnet" @("pack", $arseProject, "--configuration", $Configuration, "--no-build", "--output", $packageOutput)
+        Invoke-NativeCommand "dotnet" @("pack", $anaaltomyProject, "--configuration", $Configuration, "--no-build", "--output", $packageOutput)
     }
 
     Invoke-Step "Verify analyzer package consumer" {
@@ -100,6 +114,18 @@ if (-not $SkipPack -or $PublishNuGet) {
         }
 
         & (Join-Path $scriptDirectory "verify-analyzer-package.ps1") -PackagePath $analyzerPackage.FullName
+    }
+
+    Invoke-Step "Verify Anaaltomy global tool package" {
+        $anaaltomyPackage = Get-ChildItem -LiteralPath $packageOutput -Filter "RonSijm.Anaaltomy.*.nupkg" |
+            Where-Object { $_.BaseName -match '^RonSijm\.Anaaltomy\.\d' } |
+            Select-Object -First 1
+
+        if ($null -eq $anaaltomyPackage) {
+            throw "The Anaaltomy global tool package was not found in $packageOutput."
+        }
+
+        & (Join-Path $scriptDirectory "verify-anaaltomy-package.ps1") -PackagePath $anaaltomyPackage.FullName
     }
 }
 

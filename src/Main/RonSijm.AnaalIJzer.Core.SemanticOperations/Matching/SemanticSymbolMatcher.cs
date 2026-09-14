@@ -47,7 +47,7 @@ public readonly struct SemanticSymbolMatcher(
 			return true;
 		}
 
-		if (!TryGetMemberKind(symbol, out var memberKind))
+		if (!symbol.TryGetSemanticOperationMemberKind(out var memberKind))
 		{
 			return false;
 		}
@@ -162,28 +162,4 @@ public readonly struct SemanticSymbolMatcher(
 		return result;
 	}
 
-	private static bool TryGetMemberKind(ISymbol symbol, out SemanticOperationMemberKind memberKind)
-	{
-		switch (symbol)
-		{
-			case IMethodSymbol { MethodKind: MethodKind.Constructor or MethodKind.StaticConstructor }:
-				memberKind = SemanticOperationMemberKind.Constructor;
-				return true;
-			case IMethodSymbol:
-				memberKind = SemanticOperationMemberKind.Method;
-				return true;
-			case IPropertySymbol:
-				memberKind = SemanticOperationMemberKind.Property;
-				return true;
-			case IFieldSymbol:
-				memberKind = SemanticOperationMemberKind.Field;
-				return true;
-			case IEventSymbol:
-				memberKind = SemanticOperationMemberKind.Event;
-				return true;
-			default:
-				memberKind = default;
-				return false;
-		}
-	}
 }

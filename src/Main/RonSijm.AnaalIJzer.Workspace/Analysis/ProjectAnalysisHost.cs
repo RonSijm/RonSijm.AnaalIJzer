@@ -8,21 +8,24 @@ using RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
 using RonSijm.AnaalIJzer.Core.Configuration.Document.Sources;
 using RonSijm.AnaalIJzer.Core.ProjectArchitecture.SolutionTopology;
 using RonSijm.AnaalIJzer.Engine;
+using RonSijm.AnaalIJzer.Workspace.Loading;
 using AnalyzerConfiguration = RonSijm.AnaalIJzer.Core.RuntimeConfig.Config.Model.AnalyzerConfig;
 
 namespace RonSijm.AnaalIJzer.Workspace.Analysis;
 
 internal sealed partial class ProjectAnalysisHost : IDisposable
 {
+	private readonly string _configuration;
 	private readonly MSBuildWorkspace _workspace;
 	private readonly List<string> _workspaceFailures = [];
 
 	public ProjectAnalysisHost(string configuration)
 	{
-		RegisterMsBuild();
+		_configuration = string.IsNullOrWhiteSpace(configuration) ? "Release" : configuration;
+		WorkspaceBuildRegistration.EnsureRegistered();
 		_workspace = MSBuildWorkspace.Create(new Dictionary<string, string>
 		{
-			["Configuration"] = configuration,
+			["Configuration"] = _configuration,
 			["DesignTimeBuild"] = "true",
 			["EnableArchitecturalLevelAnalyzer"] = "false",
 			["EnableSourceLink"] = "false"
@@ -39,7 +42,7 @@ internal sealed partial class ProjectAnalysisHost : IDisposable
 
 	public async Task<ProjectAnalysisResult> AnalyzeAsync(string projectPath, CancellationToken cancellationToken)
 	{
-		EnsureRestored(projectPath);
+		WorkspaceRestoreService.EnsureProjectRestored(projectPath, _configuration, WorkspaceRestoreMode.Auto);
 		_workspaceFailures.Clear();
 		var project = await _workspace.OpenProjectAsync(projectPath, cancellationToken: cancellationToken);
 		var result = await AnalyzeProjectAsync(project, projectPath, cancellationToken);
@@ -49,7 +52,7 @@ internal sealed partial class ProjectAnalysisHost : IDisposable
 
 	public async Task<SolutionAnalysisResult> AnalyzeSolutionAsync(string solutionPath, CancellationToken cancellationToken)
 	{
-		EnsureSolutionRestored(solutionPath);
+		WorkspaceRestoreService.EnsureSolutionRestored(solutionPath, _configuration, WorkspaceRestoreMode.Auto);
 		_workspaceFailures.Clear();
 		var solution = await _workspace.OpenSolutionAsync(solutionPath, cancellationToken: cancellationToken);
 		var solutionConfigFile = FindSolutionConfigFile(solutionPath, cancellationToken);
@@ -169,8 +172,7 @@ internal sealed partial class ProjectAnalysisHost : IDisposable
 
 	internal static bool IsIgnorableWorkspaceFailure(string diagnosticText)
 	{
-		var result = diagnosticText.Contains("Audit source 'nuget.org' did not provide any vulnerability data.", StringComparison.Ordinal)
-			|| diagnosticText.Contains("Error occurred while getting package vulnerability data:", StringComparison.Ordinal);
+		var result = WorkspaceFailureFilter.IsIgnorable(diagnosticText);
 
 		return result;
 	}

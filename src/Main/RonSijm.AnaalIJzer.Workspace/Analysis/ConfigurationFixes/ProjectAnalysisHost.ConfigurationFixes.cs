@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using RonSijm.AnaalIJzer.CodeFixes;
 using RonSijm.AnaalIJzer.Workspace.Analysis.ConfigurationFixes;
+using RonSijm.AnaalIJzer.Workspace.Loading;
 
 namespace RonSijm.AnaalIJzer.Workspace.Analysis;
 
@@ -9,7 +10,7 @@ internal sealed partial class ProjectAnalysisHost
 {
 	public async Task<ConfigurationFixCollectionResult> FindProjectConfigurationFixesAsync(string projectPath, CancellationToken cancellationToken)
 	{
-		EnsureRestored(projectPath);
+		WorkspaceRestoreService.EnsureProjectRestored(projectPath, _configuration, WorkspaceRestoreMode.Auto);
 		_workspaceFailures.Clear();
 		var project = await _workspace.OpenProjectAsync(projectPath, cancellationToken: cancellationToken);
 		var analysis = await AnalyzeProjectAsync(project, projectPath, cancellationToken);
@@ -21,7 +22,7 @@ internal sealed partial class ProjectAnalysisHost
 
 	public async Task<ConfigurationFixCollectionResult> FindSolutionConfigurationFixesAsync(string solutionPath, CancellationToken cancellationToken)
 	{
-		EnsureSolutionRestored(solutionPath);
+		WorkspaceRestoreService.EnsureSolutionRestored(solutionPath, _configuration, WorkspaceRestoreMode.Auto);
 		_workspaceFailures.Clear();
 		var solution = await _workspace.OpenSolutionAsync(solutionPath, cancellationToken: cancellationToken);
 		var solutionConfigFile = FindSolutionConfigFile(solutionPath, cancellationToken);
@@ -43,7 +44,7 @@ internal sealed partial class ProjectAnalysisHost
 
 	public async Task<ConfigurationFixApplyResult> ApplyProjectConfigurationFixAsync(string projectPath, string fixId, CancellationToken cancellationToken)
 	{
-		EnsureRestored(projectPath);
+		WorkspaceRestoreService.EnsureProjectRestored(projectPath, _configuration, WorkspaceRestoreMode.Auto);
 		_workspaceFailures.Clear();
 		var project = await _workspace.OpenProjectAsync(projectPath, cancellationToken: cancellationToken);
 		var analysis = await AnalyzeProjectAsync(project, projectPath, cancellationToken);
@@ -59,7 +60,7 @@ internal sealed partial class ProjectAnalysisHost
 
 	public async Task<ConfigurationFixApplyResult> ApplySolutionConfigurationFixAsync(string solutionPath, string fixId, CancellationToken cancellationToken)
 	{
-		EnsureSolutionRestored(solutionPath);
+		WorkspaceRestoreService.EnsureSolutionRestored(solutionPath, _configuration, WorkspaceRestoreMode.Auto);
 		_workspaceFailures.Clear();
 		var solution = await _workspace.OpenSolutionAsync(solutionPath, cancellationToken: cancellationToken);
 		var solutionConfigFile = FindSolutionConfigFile(solutionPath, cancellationToken);

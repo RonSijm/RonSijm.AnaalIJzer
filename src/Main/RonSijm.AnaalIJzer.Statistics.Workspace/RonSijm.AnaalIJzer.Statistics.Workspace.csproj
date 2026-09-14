@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <EnableArchitecturalLevelAnalyzer>false</EnableArchitecturalLevelAnalyzer>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Observations\RonSijm.AnaalIJzer.Core.Observations.csproj" />
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Statistics\RonSijm.AnaalIJzer.Core.Statistics.csproj" />
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Statistics.Roslyn\RonSijm.AnaalIJzer.Statistics.Roslyn.csproj" />
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Workspace\RonSijm.AnaalIJzer.Workspace.csproj" />
+  </ItemGroup>
+
+</Project>

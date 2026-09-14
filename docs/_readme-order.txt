@@ -6,6 +6,7 @@ components/visual-studio-addon.md
 configuration/ide-code-fixes.md
 configuration/config-fixers.md
 tools/arse.md
+tools/anaaltomy.md
 components/wpf-graph-editor.md
 configuration/mental-model.md
 configuration/index.md

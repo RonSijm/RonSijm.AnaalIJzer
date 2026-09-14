@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <EnableArchitecturalLevelAnalyzer>false</EnableArchitecturalLevelAnalyzer>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Statistics\RonSijm.AnaalIJzer.Core.Statistics.csproj" />
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Statistics.Persistence.Sqlite\RonSijm.AnaalIJzer.Statistics.Persistence.Sqlite.csproj" />
+    <ProjectReference Include="..\RonSijm.AnaalIJzer.Statistics.Workspace\RonSijm.AnaalIJzer.Statistics.Workspace.csproj" />
+  </ItemGroup>
+
+</Project>
