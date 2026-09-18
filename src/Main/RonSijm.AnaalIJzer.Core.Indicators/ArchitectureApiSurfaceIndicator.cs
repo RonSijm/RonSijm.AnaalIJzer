@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis.Text;
+using RonSijm.AnaalIJzer.Core.Findings;
 
 namespace RonSijm.AnaalIJzer.Core.Indicators;
 
@@ -15,7 +16,7 @@ public sealed class ArchitectureApiSurfaceIndicator(
 	string? description,
 	string configurationPath,
 	int configurationLine,
-	string diagnosticId = "ARCH009",
+	string diagnosticId = ArchitecturalDiagnosticIds.ApiExposureNotAllowed,
 	string? exposurePath = null,
 	int? exposureDepth = null,
 	ImmutableArray<ArchitectureExposurePathSegment> exposureSegments = default)

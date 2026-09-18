@@ -169,6 +169,9 @@ public sealed class ArchitectureConfigurationExplainerTests
 				      <Literal value="null" />
 				      <Literal value="" />
 				      <Invocation withAttribute="JetBrains.Annotations.CanBeNullAttribute" />
+				      <AllowedReturn description="Serve a named result once the kitchen has decided.">
+				        <Identifier />
+				      </AllowedReturn>
 				    </ReturnValuePolicy>
 				  </Layer>
 				</ArchitecturalLevels>
@@ -179,7 +182,42 @@ public sealed class ArchitectureConfigurationExplainerTests
 			markdown.Should().Contain("Return-value policy forbids configured direct returned expressions");
 			markdown.Should().Contain("Forbids returned literal value=\"null\"");
 			markdown.Should().Contain("Forbids returned invocation withAttribute=\"JetBrains.Annotations.CanBeNullAttribute\"");
+			markdown.Should().Contain("Allows only returned expressions matching one of these alternatives.");
+			markdown.Should().Contain("Allows returned identifier");
+			markdown.Should().Contain("Serve a named result once the kitchen has decided.");
 			markdown.Should().Contain("No sentinel meals.");
+		}
+		finally
+		{
+			if (File.Exists(path))
+			{
+				File.Delete(path);
+			}
+		}
+	}
+
+	[Fact]
+	public void Explainer_ExplainsGlobalReturnValuePolicy()
+	{
+		var path = Path.Combine(Path.GetTempPath(), "AnaalIJzer-" + Guid.NewGuid().ToString("N") + ".anl");
+		try
+		{
+			File.WriteAllText(
+				path,
+				"""
+				<ArchitecturalLevels>
+				  <ReturnValuePolicy description="Every meal uses a named hand-off.">
+				    <AllowedReturn>
+				      <Identifier />
+				    </AllowedReturn>
+				  </ReturnValuePolicy>
+				</ArchitecturalLevels>
+				""");
+
+			var markdown = ArchitectureConfigurationExplainer.GenerateMarkdown(path);
+
+			markdown.Should().Contain("Global return-value policy forbids configured direct returned expressions across every analyzed method");
+			markdown.Should().Contain("Every meal uses a named hand-off.");
 		}
 		finally
 		{

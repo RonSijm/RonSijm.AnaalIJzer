@@ -5,11 +5,13 @@ using RonSijm.AnaalIJzer.Core.DependencyRules;
 using RonSijm.AnaalIJzer.Core.Exceptions;
 using RonSijm.AnaalIJzer.Core.LayerModel;
 using RonSijm.AnaalIJzer.Core.Observations;
+using RonSijm.AnaalIJzer.Core.NamespaceHierarchy.Policies;
 using RonSijm.AnaalIJzer.Core.OperationContracts.Model;
 using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Config.Model;
 using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.DependencyRules;
 using RonSijm.AnaalIJzer.Core.ProjectArchitecture;
 using RonSijm.AnaalIJzer.Core.ProjectArchitecture.SolutionTopology;
+using RonSijm.AnaalIJzer.Core.ReturnValues.Policies;
 
 namespace RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.Policies;
 
@@ -32,7 +34,9 @@ public readonly struct CompiledArchitectureConfig(
 	SolutionTopologyConfig solutionTopology = default,
 	GeneratedCodeAnalysisScope generatedCodeScope = default,
 	OperationContractCatalog operationContracts = default,
-	AssemblyAttributePolicyCatalog assemblyAttributePolicies = default)
+	AssemblyAttributePolicyCatalog assemblyAttributePolicies = default,
+	ImmutableArray<ReturnValuePolicy> globalReturnValuePolicies = default,
+	ImmutableArray<NamespaceHierarchyPolicy> namespaceHierarchyPolicies = default)
 {
 	public static readonly CompiledArchitectureConfig Empty = new(
 		CompiledLayerCatalog.Empty,
@@ -69,6 +73,8 @@ public readonly struct CompiledArchitectureConfig(
 	public GeneratedCodeAnalysisScope GeneratedCodeScope { get; } = generatedCodeScope;
 	public OperationContractCatalog OperationContracts { get; } = operationContracts;
 	public AssemblyAttributePolicyCatalog AssemblyAttributePolicies { get; } = assemblyAttributePolicies;
+	public ImmutableArray<ReturnValuePolicy> GlobalReturnValuePolicies { get; } = globalReturnValuePolicies.IsDefault ? ImmutableArray<ReturnValuePolicy>.Empty : globalReturnValuePolicies;
+	public ImmutableArray<NamespaceHierarchyPolicy> NamespaceHierarchyPolicies { get; } = namespaceHierarchyPolicies.IsDefault ? ImmutableArray<NamespaceHierarchyPolicy>.Empty : namespaceHierarchyPolicies;
 	public ArchitectureDocumentation Documentation { get; } = documentation;
 	public ImmutableArray<ConfigurationIssue> ConfigurationIssues { get; } = configurationIssues;
 }

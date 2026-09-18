@@ -31,7 +31,7 @@ public sealed class InheritancePolicyCodeFixTests
 		var newSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
 			source,
 			config,
-			ArchitecturalDiagnosticIds.InheritancePolicyViolation,
+			ArchitecturalDiagnosticIds.InheritanceNotAllowed,
 			"Add required base type 'Entity'");
 
 		newSource.Should().Contain("public class SyrupEntity : Entity");
@@ -56,7 +56,7 @@ public sealed class InheritancePolicyCodeFixTests
 		var newSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
 			source,
 			config,
-			ArchitecturalDiagnosticIds.InheritancePolicyViolation,
+			ArchitecturalDiagnosticIds.InheritanceNotAllowed,
 			"Add required interface 'IPizzaProvider'");
 
 		newSource.Should().Contain("public class GetPizzaRequest : IPizzaProvider");
@@ -79,7 +79,7 @@ public sealed class InheritancePolicyCodeFixTests
 			public class GetPizzaRequest { }
 			""";
 
-		var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(source, config, ArchitecturalDiagnosticIds.InheritancePolicyViolation);
+		var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(source, config, ArchitecturalDiagnosticIds.InheritanceNotAllowed);
 
 		titles.Should().BeEmpty();
 	}

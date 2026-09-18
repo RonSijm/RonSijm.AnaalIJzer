@@ -11,7 +11,7 @@ public sealed class AllowedMethodReturnSiteExample
         return null!;
     }
 
-    // ARCH001: the same dependency is not allowed at Site=Method.
+    // ARCH_DEP_001: the same dependency is not allowed at Site=Method.
     public void WrongSite(AllowedMethodReturnType wrongSite)
     {
         _ = wrongSite;

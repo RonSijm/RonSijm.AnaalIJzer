@@ -18,7 +18,7 @@ The participating projects are `Example.SolutionTopology.Web`,
 `Example.SolutionTopology.Application`, and
 `Example.SolutionTopology.Infrastructure`.
 
-The solution inspection fails with one `TOPO001` finding:
+The solution inspection fails with one `ARCH_SOL_001` finding:
 
 ```cmd
 arse inspect --solution Example.SolutionTopology.slnx --enforce-topology

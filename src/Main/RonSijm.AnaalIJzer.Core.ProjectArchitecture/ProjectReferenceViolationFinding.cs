@@ -35,7 +35,7 @@ public readonly struct ProjectReferenceViolationFinding(
 		var context = $"{SourceProjectName} -> {TargetProjectName}";
 		var result = new ArchitectureFinding(
 			ArchitectureFindingSeverity.Error,
-			ArchitecturalDiagnosticIds.ProjectReferenceViolation,
+			ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed,
 			ViolationReason,
 			context,
 			properties: properties);

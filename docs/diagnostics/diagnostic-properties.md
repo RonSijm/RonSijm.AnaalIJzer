@@ -1,22 +1,24 @@
 ### Diagnostic properties
 
-Every dependency diagnostic (ARCH001, ARCH004, ARCH005), name-rule diagnostic (ARCH008), and API-surface diagnostic (ARCH009 and ARCH014) carries a `Site` property in `Diagnostic.Properties` indicating where the issue was found. This lets code-fix providers, custom reporters and CI dashboards filter or group by dependency style without re-parsing the source - which beats a dashboard built on regexes over diagnostic messages that breaks the day the wording improves.
+Every dependency diagnostic (ARCH_DEP_001, ARCH_DEP_004, ARCH_DEP_005), name-rule diagnostic (ARCH_NAME_008), and API-surface diagnostic (ARCH_API_001 and ARCH_API_010) carries a `Site` property in `Diagnostic.Properties` indicating where the issue was found. This lets code-fix providers, custom reporters and CI dashboards filter or group by dependency style without re-parsing the source - which beats a dashboard built on regexes over diagnostic messages that breaks the day the wording improves.
 
-ARCH012 describes declarations rather than dependency sites. It exposes `DeclarationTarget`, `DeclaredAccessibility`, and `DeclaredSymbolName` alongside the caller layer and rule-origin properties.
+ARCH_VIS_001 describes declarations rather than dependency sites. It exposes `DeclarationTarget`, `DeclaredAccessibility`, and `DeclaredSymbolName` alongside the caller layer and rule-origin properties.
 
-ARCH019 also describes declarations rather than dependency sites. It exposes `DeclaredSymbolName` and `InheritanceViolationKind` alongside the caller layer and rule-origin properties.
+ARCH_INH_001 also describes declarations rather than dependency sites. It exposes `DeclaredSymbolName` and `InheritanceViolationKind` alongside the caller layer and rule-origin properties.
 
-ARCH020 exposes `Site` as `MethodReturn`, together with `DeclaredSymbolName`, `ReturnValueRuleTarget`, and `ReturnValueRule` so reports can distinguish a forbidden literal from an invocation or member-access matcher.
+ARCH_RET_001 exposes `Site` as `MethodReturn`, together with `DeclaredSymbolName`, `ReturnValueRuleTarget`, `ReturnValueRule`, and `ReturnValueRuleMode`. `ReturnValueRuleMode` is `Forbidden` for a matching direct forbidden matcher and `Allowed` when the returned expression did not match an `<AllowedReturn>` shape allow-list.
 
-ARCH021 exposes `Site`, `OperationKind`, `OperationDisplayName`, and `OperationPolicyRule` so reports can distinguish, for example, a forbidden `DateTime.UtcNow` property read from a forbidden `Task.Wait()` invocation.
+ARCH_OPER_001 exposes `Site`, `OperationKind`, `OperationDisplayName`, and `OperationPolicyRule` so reports can distinguish, for example, a forbidden `DateTime.UtcNow` property read from a forbidden `Task.Wait()` invocation.
 
-ARCH022 exposes `Site`, `DeclaredSymbolName`, `OperationKind`, `OperationDisplayName`, `OperationPolicyRule`, `BehavioralOperationViolationKind`, and `BehavioralOperationOrdering`. A missing required operation uses the owning declaration location and its ordinary declaration site; a selected failing operation uses that operation's source site.
+`ARCH_OPER_002`, `ARCH_OPER_011`, and `ARCH_OPER_012` expose `Site`, `DeclaredSymbolName`, `OperationKind`, `OperationDisplayName`, `OperationPolicyRule`, `BehavioralOperationViolationKind`, and `BehavioralOperationOrdering`. A missing required operation uses the owning declaration location and its ordinary declaration site; a selected failing operation uses that operation's source site.
 
-ARCH024 describes emitted assembly metadata rather than a dependency site. It exposes `AssemblyAttributeTypeName` and `AssemblyAttributePolicyRule` alongside the normal caller, rule-origin, and configuration-location properties. SDK-generated attributes can have no source span, because the project SDK created the final attribute.
+ARCH_ASSM_001 describes emitted assembly metadata rather than a dependency site. It exposes `AssemblyAttributeTypeName` and `AssemblyAttributePolicyRule` alongside the normal caller, rule-origin, and configuration-location properties. SDK-generated attributes can have no source span, because the project SDK created the final attribute.
 
-ARCH009 additionally exposes `ApiMemberName`, identifying the externally visible declaration that published the dependency type.
+ARCH_NS_007 exposes `CallerNamespace`, `DependencyNamespace`, `NamespaceHierarchyRoot`, `NamespaceHierarchyRelation`, `NamespaceHierarchyRuleXmlPath`, `NamespaceHierarchyRuleXmlLine`, and `NamespaceHierarchyRuleXmlCol`. Its `Site` identifies the resolved source dependency that crossed the configured namespace-ownership boundary.
 
-ARCH014 adds `ExposureRootMember`, `ExposurePath`, `ExposureDepth`, `NestedMemberName`, and `NestedMemberContainingType`. Its `Site` identifies the nested public member that exposed the forbidden type rather than the root signature site.
+ARCH_API_001 additionally exposes `ApiMemberName`, identifying the externally visible declaration that published the dependency type.
+
+ARCH_API_010 adds `ExposureRootMember`, `ExposurePath`, `ExposureDepth`, `NestedMemberName`, and `NestedMemberContainingType`. Its `Site` identifies the nested public member that exposed the forbidden type rather than the root signature site.
 
 | `Site` value        | Where the dependency was introduced                                        |
 |---------------------|----------------------------------------------------------------------------|
@@ -34,7 +36,7 @@ ARCH014 adds `ExposureRootMember`, `ExposurePath`, `ExposureDepth`, `NestedMembe
 | `Attribute`         | Attribute used on a type or one of its members                              |
 | `StaticMember`      | Static method, property, field, event, or reduced extension-method access   |
 
-**Example project:** [`Example.Arch001.NonConstructorInjection`](../../Examples/Diagnostics/Example.Arch001.NonConstructorInjection)
+**Example project:** [`Example.Arch_DEP_001.NonConstructorInjection`](../../Examples/Diagnostics/DEP/Example.Arch_DEP_001.NonConstructorInjection)
 
 **Rule:** Dependencies introduced outside the constructor are still dependencies. Fields, properties, method signatures, local variables, inheritance, interface implementation, attributes, static member access, `new` expressions and generic service-locator invocations are all checked against the configured layer edges. Classes, records, structs, and interfaces can all act as callers.
 
@@ -53,37 +55,37 @@ flowchart LR
 ```
 
 ```csharp
-// ARCH001: field dependency
+// ARCH_DEP_001: field dependency
 public class FieldDependencyCustomer
 {
     private readonly IChef _chef = null!;
 }
 
-// ARCH001: property dependency
+// ARCH_DEP_001: property dependency
 public class PropertyDependencyCustomer
 {
     public IChef Chef { get; set; } = null!;
 }
 
-// ARCH001: method parameter
+// ARCH_DEP_001: method parameter
 public class MethodDependencyCustomer
 {
     public void OrderFrom(IChef chef) { }
 }
 
-// ARCH001: method return type
+// ARCH_DEP_001: method return type
 public class MethodReturnCustomer
 {
     public IChef FindChef() => null!;
 }
 
-// ARCH001: creating a Chef directly
+// ARCH_DEP_001: creating a Chef directly
 public class NewingCustomer
 {
     public void Run() => _ = new DirectChef();
 }
 
-// ARCH001: a hidden lookup still bypasses the Waiter.
+// ARCH_DEP_001: a hidden lookup still bypasses the Waiter.
 public class ServiceLocatorCustomer
 {
     public void Run(IServiceProvider services)

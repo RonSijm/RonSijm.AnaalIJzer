@@ -17,7 +17,7 @@ public sealed class VisibilityPolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.VisibilityPolicyViolation).Subject;
+		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.VisibilityNotAllowed).Subject;
 		violation.Properties[ArchitecturalDiagnostics.PropertyDeclaredSymbolName].Should().Be("PublicQueryable");
 		violation.Properties[ArchitecturalDiagnostics.PropertyDeclarationTarget].Should().Be("Type");
 		violation.Properties[ArchitecturalDiagnostics.PropertyDeclaredAccessibility].Should().Be("Public");
@@ -47,7 +47,7 @@ public sealed class VisibilityPolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violations = diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.VisibilityPolicyViolation).ToArray();
+		var violations = diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.VisibilityNotAllowed).ToArray();
 		violations.Should().HaveCount(9);
 		violations.Select(item => item.Properties[ArchitecturalDiagnostics.PropertyDeclarationTarget]).Should().BeEquivalentTo(
 			"Type", "Constructor", "Method", "Property", "Field", "Event", "Operator", "Conversion", "NestedType");
@@ -71,7 +71,7 @@ public sealed class VisibilityPolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violations = diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.VisibilityPolicyViolation).ToArray();
+		var violations = diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.VisibilityNotAllowed).ToArray();
 		violations.Should().HaveCount(4);
 		violations.Select(item => item.Properties[ArchitecturalDiagnostics.PropertyDeclaredAccessibility]).Should().BeEquivalentTo("Internal", "Public", "Internal", "Private");
 	}
@@ -101,7 +101,7 @@ public sealed class VisibilityPolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.VisibilityPolicyViolation);
+		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.VisibilityNotAllowed);
 	}
 
 	[Fact]
@@ -128,7 +128,7 @@ public sealed class VisibilityPolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.VisibilityPolicyViolation).Subject;
+		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.VisibilityNotAllowed).Subject;
 		violation.GetMessage().Should().Contain("layer 'Application' blocks Public");
 		violation.Properties[ArchitecturalDiagnostics.PropertyCallerLayerName].Should().Be("Application/Services");
 	}
@@ -154,7 +154,7 @@ public sealed class VisibilityPolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.VisibilityPolicyViolation);
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.VisibilityNotAllowed);
 	}
 
 	[Fact]
@@ -175,7 +175,7 @@ public sealed class VisibilityPolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.VisibilityPolicyViolation);
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.VisibilityNotAllowed);
 	}
 
 	[Theory]
@@ -198,8 +198,8 @@ public sealed class VisibilityPolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class PolicySubject { }", config);
 
-		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.InvalidConfiguration);
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.VisibilityPolicyViolation);
+		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
+		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.VisibilityNotAllowed);
 	}
 
 	[Fact]
@@ -215,7 +215,7 @@ public sealed class VisibilityPolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class PolicySubject { public void Run() { } }", config);
 
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.VisibilityPolicyViolation);
+		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.VisibilityNotAllowed);
 	}
 
 	private static string CreateConfig(string targets, string? allowed = null, string? blocked = null)

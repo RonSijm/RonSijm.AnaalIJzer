@@ -88,7 +88,7 @@ public sealed class SourceLocationCodeFixTests
 		workspace.TryApplyChanges(solution);
 
 		var document = workspace.CurrentSolution.GetDocument(documentId)!;
-		var actions = await GetCodeFixActionsAsync(document, globalOptions, ArchitecturalDiagnosticIds.SourceLocationViolation);
+		var actions = await GetCodeFixActionsAsync(document, globalOptions, ArchitecturalDiagnosticIds.SourceBoundaryPlacement);
 		var action = actions.First(candidate => candidate.Title.StartsWith(titlePrefix, StringComparison.Ordinal));
 		var updatedSolution = await ApplyCodeFixAsync(action);
 		var updatedDocument = updatedSolution.GetAdditionalDocument(configDocumentId)!;
@@ -113,7 +113,7 @@ public sealed class SourceLocationCodeFixTests
 		workspace.TryApplyChanges(solution);
 
 		var document = workspace.CurrentSolution.GetDocument(documentId)!;
-		var actions = await GetCodeFixActionsAsync(document, globalOptions, ArchitecturalDiagnosticIds.SourceLocationViolation);
+		var actions = await GetCodeFixActionsAsync(document, globalOptions, ArchitecturalDiagnosticIds.SourceBoundaryPlacement);
 		var action = actions.First(candidate => candidate.Title.StartsWith(titlePrefix, StringComparison.Ordinal));
 		var updatedSolution = await ApplyCodeFixAsync(action);
 		var updatedDocument = updatedSolution.GetDocument(documentId)!;

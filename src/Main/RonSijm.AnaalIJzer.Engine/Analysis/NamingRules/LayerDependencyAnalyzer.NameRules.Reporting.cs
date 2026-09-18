@@ -47,8 +47,8 @@ public static partial class LayerDependencyAnalyzer
 				violation.Reason,
 				null);
 
-		var result = Diagnostic.Create(
-			ArchitecturalDiagnostics.NameRuleViolation,
+		var result = ArchitecturalDiagnostics.CreateDiagnostic(
+			ArchitecturalDiagnostics.NameShapeMismatch,
 			reportLocation,
 			properties,
 			callerTypeName, callerLayerName, violation.RuleKind, violation.Site, violation.Reason);
@@ -58,6 +58,6 @@ public static partial class LayerDependencyAnalyzer
 
 	private static void RecordNameRuleViolation(ConcurrentBag<ViolationRecord> violations, string callerTypeName, string callerLayerName, NameRuleViolation violation)
 	{
-		violations.Add(new ViolationRecord(ArchitecturalDiagnosticIds.NameRuleViolation, callerTypeName, callerLayerName, violation.SourceName, violation.TargetName, violation.Reason, null));
+		violations.Add(new ViolationRecord(ArchitecturalDiagnosticIds.NameShapeMismatch, callerTypeName, callerLayerName, violation.SourceName, violation.TargetName, violation.Reason, null));
 	}
 }

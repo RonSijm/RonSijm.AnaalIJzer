@@ -108,7 +108,16 @@ public static class ApplicationOperationCatalog
 			[ApplicationInputKind.ConfigurationFile],
 			ApplicationInputKind.ConfigurationFile,
 			"explain-config --config <file.anl> [--output <architecture-explanation.md>] [--force]",
-			["explain"])
+			["explain"]),
+		new(
+			ApplicationOperationKind.MigrateDiagnosticIds,
+			"migrate-diagnostic-ids",
+			"Find obsolete diagnostic IDs",
+			"Scan project or solution files for chronological diagnostic IDs and report their taxonomy replacements without modifying source files.",
+			[ApplicationInputKind.Project, ApplicationInputKind.Solution],
+			ApplicationInputKind.Solution,
+			"migrate-diagnostic-ids (--project <project.csproj> | --solution <solution.slnx>) [--output <diagnostic-id-migration.md>] [--force]",
+			["diagnostic-id-migration"])
 	];
 
 	public static ApplicationOperationDefinition Get(ApplicationOperationKind kind)

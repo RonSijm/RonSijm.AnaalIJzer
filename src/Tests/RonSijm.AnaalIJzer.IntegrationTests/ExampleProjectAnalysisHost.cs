@@ -25,7 +25,7 @@ internal sealed class ExampleProjectAnalysisHost : IDisposable
 			.Select(diagnostic => diagnostic.ToString())
 			.ToImmutableArray();
 		var result = new ExampleProjectAnalysisResult(
-			analysis.Config.HasLayers || analysis.Config.HasProjectArchitecture || analysis.Config.HasSolutionTopology || analysis.Config.HasAssemblyAttributePolicies,
+			analysis.Config.HasConfiguredRules,
 			CountAnalyzerDiagnostics(analysis.AnalyzerDiagnostics),
 			analyzerDiagnosticMessages,
 			analysis.CompilerErrors,

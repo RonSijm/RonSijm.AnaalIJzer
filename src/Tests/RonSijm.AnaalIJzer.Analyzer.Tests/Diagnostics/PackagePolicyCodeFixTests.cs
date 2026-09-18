@@ -11,7 +11,7 @@ public sealed class PackagePolicyCodeFixTests
 	{
 		new ArchitecturalLevelCodeFixProvider()
 			.FixableDiagnosticIds
-			.Should().Contain(ArchitecturalDiagnosticIds.PackageReferenceViolation);
+			.Should().Contain(ArchitecturalDiagnosticIds.PackageReferenceNotAllowed);
 	}
 
 	[Fact]
@@ -40,7 +40,7 @@ public sealed class PackagePolicyCodeFixTests
 		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
 			source,
 			[("Architecture.anl", config), (ArchitectureReferenceManifest.FileName, manifest)],
-			ArchitecturalDiagnosticIds.PackageReferenceViolation,
+			ArchitecturalDiagnosticIds.PackageReferenceNotAllowed,
 			"Allow package 'Microsoft.Extensions.Logging' for project group 'Domain'",
 			"Architecture.anl");
 
@@ -73,7 +73,7 @@ public sealed class PackagePolicyCodeFixTests
 		var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(
 			source,
 			[("Architecture.anl", config), (ArchitectureReferenceManifest.FileName, manifest)],
-			ArchitecturalDiagnosticIds.PackageReferenceViolation);
+			ArchitecturalDiagnosticIds.PackageReferenceNotAllowed);
 
 		titles.Should().BeEmpty();
 	}
@@ -111,7 +111,7 @@ public sealed class PackagePolicyCodeFixTests
 		var updatedSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
 			source,
 			[(ArchitectureReferenceManifest.FileName, manifest)],
-			ArchitecturalDiagnosticIds.PackageReferenceViolation,
+			ArchitecturalDiagnosticIds.PackageReferenceNotAllowed,
 			"Allow package 'Microsoft.Extensions.Logging' for project group 'Domain'");
 
 		updatedSource.Should().Contain("<Package exactName=\"Microsoft.Extensions.Logging\" />");

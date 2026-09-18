@@ -29,7 +29,7 @@ public sealed class ContractPurityCodeFixTests
 		var newSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
 			source,
 			config,
-			ArchitecturalDiagnosticIds.ContractPurityViolation,
+			ArchitecturalDiagnosticIds.ContractShapeMismatch,
 			"Remove disallowed set accessor");
 
 		newSource.Should().Contain("string Name { get; }");
@@ -59,7 +59,7 @@ public sealed class ContractPurityCodeFixTests
 			}
 			""";
 
-		var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(source, config, ArchitecturalDiagnosticIds.ContractPurityViolation);
+		var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(source, config, ArchitecturalDiagnosticIds.ContractShapeMismatch);
 
 		titles.Should().BeEmpty();
 	}

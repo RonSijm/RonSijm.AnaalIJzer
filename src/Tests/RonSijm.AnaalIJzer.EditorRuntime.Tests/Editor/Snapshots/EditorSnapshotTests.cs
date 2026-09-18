@@ -111,7 +111,7 @@ public sealed partial class EditorSnapshotTests
 		snapshot.HasConfiguration.Should().BeTrue();
 		snapshot.HasConfigurationIssues.Should().BeFalse();
 		snapshot.LayerIndicators.Should().BeEmpty();
-		var indicator = snapshot.SiteIndicators.Should().ContainSingle(item => item.DiagnosticId == ArchitecturalDiagnosticIds.OperationContractViolation).Subject;
+		var indicator = snapshot.SiteIndicators.Should().ContainSingle(item => item.DiagnosticId == ArchitecturalDiagnosticIds.OperationContractRequiredMissing).Subject;
 		indicator.Site.Should().Be(ArchitectureDependencySites.Method);
 		indicator.CallerLayerPath.Should().Be("Unclassified");
 		indicator.DependencyTypeName.Should().Be("PlacePizzaOrder");
@@ -200,7 +200,7 @@ public sealed partial class EditorSnapshotTests
 		snapshot.GraphSnapshot.Evidence.Dependencies.Should().Contain(dependency =>
 			dependency.CallerLayerPath == "Customer"
 			&& dependency.DependencyLayerPath == "Chef"
-			&& dependency.DiagnosticId == ArchitecturalDiagnosticIds.IllegalLevelDependency);
+			&& dependency.DiagnosticId == ArchitecturalDiagnosticIds.DependencyNotAllowed);
 	}
 
 	[Fact]

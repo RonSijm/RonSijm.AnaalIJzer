@@ -25,7 +25,7 @@ public sealed class RecognizedDependencyRequirementTests
 
 	[Theory]
 	[MemberData(nameof(RecognitionSiteCases))]
-	public async Task EveryConfiguredSite_ReportsARCH002(string site, string callerSource)
+	public async Task EveryConfiguredSite_ReportsARCH_DEP_002(string site, string callerSource)
 	{
 		var declaresTargetDependency = callerSource.Contains("class TargetDependency", StringComparison.Ordinal) || callerSource.Contains("interface TargetDependency", StringComparison.Ordinal);
 		var source = declaresTargetDependency
@@ -39,13 +39,13 @@ public sealed class RecognizedDependencyRequirementTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.UnrecognizedDependency).Which;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyRequiredMissing).Which;
 		diagnostic.Properties[ArchitecturalDiagnostics.PropertySite].Should().Be(site);
 		diagnostic.GetMessage(CultureInfo.InvariantCulture).Should().Contain("TargetDependency");
 	}
 
 	[Fact]
-	public async Task RecognitionRequirement_UnrecognizedDependency_ReportsARCH002()
+	public async Task RecognitionRequirement_UnrecognizedDependency_ReportsARCH_DEP_002()
 	{
 		const string source = """
 		                      public interface IPartnerStore { }
@@ -55,7 +55,7 @@ public sealed class RecognizedDependencyRequirementTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.RequireRecognizedDependenciesConfig);
 
-		var arch002 = diagnostics.Where(d => d.Id == ArchitecturalDiagnosticIds.UnrecognizedDependency).ToList();
+		var arch002 = diagnostics.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyRequiredMissing).ToList();
 		arch002.Count.Should().Be(1);
 		arch002[0].GetMessage(CultureInfo.InvariantCulture)
 			.Should().Contain("IPartnerStore");
@@ -97,7 +97,7 @@ public sealed class RecognizedDependencyRequirementTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, requirementDisabledConfig);
 
-		diagnostics.Should().NotContain(d => d.Id == ArchitecturalDiagnosticIds.UnrecognizedDependency);
+		diagnostics.Should().NotContain(d => d.Id == ArchitecturalDiagnosticIds.DependencyRequiredMissing);
 	}
 
 	[Fact]
@@ -117,7 +117,7 @@ public sealed class RecognizedDependencyRequirementTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.UnrecognizedDependency).Which;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyRequiredMissing).Which;
 		diagnostic.GetMessage(CultureInfo.InvariantCulture).Should().Contain("AuditedChef").And.Contain("MysteryBox");
 	}
 
@@ -142,7 +142,7 @@ public sealed class RecognizedDependencyRequirementTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.UnrecognizedDependency).Which;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyRequiredMissing).Which;
 		diagnostic.Properties[ArchitecturalDiagnostics.PropertySite].Should().Be(DependencySites.Constructor);
 		diagnostic.GetMessage(CultureInfo.InvariantCulture).Should().Contain("ChefService");
 	}
@@ -176,13 +176,13 @@ public sealed class RecognizedDependencyRequirementTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.UnrecognizedDependency)
+		diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.DependencyRequiredMissing)
 			.Select(item => item.Properties[ArchitecturalDiagnostics.PropertySite])
 			.Should().BeEquivalentTo(DependencySites.Constructor, DependencySites.Local);
 	}
 
 	[Fact]
-	public async Task RecognitionRequirement_UnknownLayerScopedSiteReportsARCH006()
+	public async Task RecognitionRequirement_UnknownLayerScopedSiteReportsARCH_CONF_003()
 	{
 		const string source = "public class CallerType { }";
 		const string config = """
@@ -193,7 +193,7 @@ public sealed class RecognizedDependencyRequirementTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InvalidConfiguration)
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid)
 			.Which.GetMessage(CultureInfo.InvariantCulture).Should().Contain("Layer 'Caller'").And.Contain("requireRecognizedDependencies");
 	}
 
@@ -233,13 +233,13 @@ public sealed class RecognizedDependencyRequirementTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.UnrecognizedDependency)
+		diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.DependencyRequiredMissing)
 			.Select(item => item.Properties[ArchitecturalDiagnostics.PropertySite])
 			.Should().BeEquivalentTo(DependencySites.Constructor, DependencySites.Local);
 	}
 
 	[Fact]
-	public async Task RecognitionRequirement_UnknownSiteReportsARCH006()
+	public async Task RecognitionRequirement_UnknownSiteReportsARCH_CONF_003()
 	{
 		const string source = "public class CallerType { }";
 		const string config = """
@@ -250,7 +250,7 @@ public sealed class RecognizedDependencyRequirementTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InvalidConfiguration)
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid)
 			.Which.GetMessage(CultureInfo.InvariantCulture).Should().Contain("requireRecognizedDependencies");
 	}
 
@@ -269,7 +269,7 @@ public sealed class RecognizedDependencyRequirementTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.UnrecognizedDependency);
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyRequiredMissing);
 	}
 
 	[Fact]
@@ -290,7 +290,7 @@ public sealed class RecognizedDependencyRequirementTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.UnrecognizedDependency).Which;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyRequiredMissing).Which;
 		diagnostic.Properties[ArchitecturalDiagnostics.PropertySite].Should().Be(DependencySites.GenericArgument);
 		diagnostic.GetMessage(CultureInfo.InvariantCulture).Should().Contain("TargetDependency");
 	}
@@ -325,7 +325,7 @@ public sealed class RecognizedDependencyRequirementTests
 			("Architecture.anl", rootConfig),
 			("Shared.anl", sharedConfig));
 
-		diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.UnrecognizedDependency)
+		diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.DependencyRequiredMissing)
 			.Select(item => item.Properties[ArchitecturalDiagnostics.PropertySite])
 			.Should().BeEquivalentTo(DependencySites.Constructor, DependencySites.Local);
 	}
@@ -354,6 +354,6 @@ public sealed class RecognizedDependencyRequirementTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.UnrecognizedDependency);
+		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.DependencyRequiredMissing);
 	}
 }

@@ -1,6 +1,6 @@
-﻿### `<Allowed>` type policy
+### `<Allowed>` type policy
 
-`<Allowed>` is a whitelist for dependency types. A dependency assigned to a configured layer must match at least one `<Class>` or `<Namespace>` matcher in every applicable allow-list; otherwise the analyzer reports **ARCH003**.
+`<Allowed>` is a whitelist for dependency types. A dependency assigned to a configured layer must match at least one `<Class>` or `<Namespace>` matcher in every applicable allow-list; otherwise the analyzer reports **ARCH_TYPE_001**.
 
 At the root, the allow-list applies to every dependency that belongs to a configured layer:
 
@@ -17,7 +17,7 @@ This is useful when an architecture permits only a small vocabulary, such as com
 public class CreateOrderCommand { }
 public class CancelOrderCommand { }
 
-// ARCH003: Process is not in the approved global verb list.
+// ARCH_TYPE_001: Process is not in the approved global verb list.
 public class ProcessOrderCommand { }
 public class WorkflowService(ProcessOrderCommand command) { }
 ```

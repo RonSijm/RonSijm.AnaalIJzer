@@ -29,30 +29,35 @@ public sealed partial class ArchitecturalLevelAnalyzer : DiagnosticAnalyzer
 {
 	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
 	[
-		ArchitecturalDiagnostics.IllegalDependency,
-		ArchitecturalDiagnostics.UnrecognizedDependency,
-		ArchitecturalDiagnostics.ForbiddenDependency,
-		ArchitecturalDiagnostics.WrongDirectionDependency,
-		ArchitecturalDiagnostics.SameLayerDependency,
-		ArchitecturalDiagnostics.InvalidConfiguration,
-		ArchitecturalDiagnostics.CyclicDependencyGraph,
-		ArchitecturalDiagnostics.NameRuleViolation,
-		ArchitecturalDiagnostics.ApiSurfaceLeakage,
-		ArchitecturalDiagnostics.ProjectReferenceViolation,
-		ArchitecturalDiagnostics.PackageReferenceViolation,
-		ArchitecturalDiagnostics.VisibilityPolicyViolation,
-		ArchitecturalDiagnostics.ContractPurityViolation,
-		ArchitecturalDiagnostics.InheritancePolicyViolation,
-		ArchitecturalDiagnostics.ReturnValuePolicyViolation,
-		ArchitecturalDiagnostics.ForbiddenOperationPolicyViolation,
-		ArchitecturalDiagnostics.BehavioralOperationPolicyViolation,
-		ArchitecturalDiagnostics.OperationContractViolation,
-		ArchitecturalDiagnostics.AssemblyAttributePolicyViolation,
-		ArchitecturalDiagnostics.ForbiddenTransitiveExposure,
-		ArchitecturalDiagnostics.SourceLocationViolation,
-		ArchitecturalDiagnostics.BoundaryEntryPointViolation,
-		ArchitecturalDiagnostics.ExceptionReview,
-		ArchitecturalDiagnostics.ObservedDependencyCycle,
+		ArchitecturalDiagnostics.DependencyNotAllowed,
+		ArchitecturalDiagnostics.DependencyRequiredMissing,
+		ArchitecturalDiagnostics.TypeNotAllowed,
+		ArchitecturalDiagnostics.DependencyReverseDirection,
+		ArchitecturalDiagnostics.DependencyPeerScope,
+		ArchitecturalDiagnostics.ConfigurationInvalid,
+		ArchitecturalDiagnostics.ConfigurationCycle,
+		ArchitecturalDiagnostics.NameShapeMismatch,
+		ArchitecturalDiagnostics.ApiExposureNotAllowed,
+		ArchitecturalDiagnostics.ProjectReferenceNotAllowed,
+		ArchitecturalDiagnostics.PackageReferenceNotAllowed,
+		ArchitecturalDiagnostics.VisibilityNotAllowed,
+		ArchitecturalDiagnostics.ContractShapeMismatch,
+		ArchitecturalDiagnostics.InheritanceNotAllowed,
+		ArchitecturalDiagnostics.ReturnNotAllowed,
+		ArchitecturalDiagnostics.OperationNotAllowed,
+		ArchitecturalDiagnostics.OperationRequiredMissing,
+		ArchitecturalDiagnostics.OperationCardinality,
+		ArchitecturalDiagnostics.OperationOrdering,
+		ArchitecturalDiagnostics.OperationContractNotAllowed,
+		ArchitecturalDiagnostics.OperationContractRequiredMissing,
+		ArchitecturalDiagnostics.OperationContractShapeMismatch,
+		ArchitecturalDiagnostics.AssemblyAttributeNotAllowed,
+		ArchitecturalDiagnostics.NamespaceBoundaryPlacement,
+		ArchitecturalDiagnostics.ApiTransitiveExposure,
+		ArchitecturalDiagnostics.SourceBoundaryPlacement,
+		ArchitecturalDiagnostics.BoundaryEntryPlacement,
+		ArchitecturalDiagnostics.ExceptionReviewLifecycle,
+		ArchitecturalDiagnostics.DependencyCycle,
 	];
 
 	public override void Initialize(AnalysisContext context)
@@ -88,7 +93,25 @@ public sealed partial class ArchitecturalLevelAnalyzer : DiagnosticAnalyzer
 				compilationContext.RegisterCompilationEndAction(reportContext => AssemblyAttributePolicyAnalyzer.AnalyzeCompilation(reportContext, config));
 			}
 
-			if (!config.Engine.HasLayers)
+			if (config.Engine.HasReturnValuePolicies)
+			{
+				compilationContext.RegisterSyntaxNodeAction(nodeContext =>
+				{
+					if (GeneratedCodeAnalysisGate.ShouldAnalyze(nodeContext.Node.SyntaxTree, config, nodeContext.CancellationToken))
+					{
+						ReturnValuePolicyAnalyzer.AnalyzeReturnStatement(nodeContext, config);
+					}
+				}, SyntaxKind.ReturnStatement);
+				compilationContext.RegisterSyntaxNodeAction(nodeContext =>
+				{
+					if (GeneratedCodeAnalysisGate.ShouldAnalyze(nodeContext.Node.SyntaxTree, config, nodeContext.CancellationToken))
+					{
+						ReturnValuePolicyAnalyzer.AnalyzeArrowExpressionClause(nodeContext, config);
+					}
+				}, SyntaxKind.ArrowExpressionClause);
+			}
+
+			if (!config.Engine.HasLayers && !config.HasNamespaceHierarchyPolicies)
 			{
 				return;
 			}
@@ -131,24 +154,6 @@ public sealed partial class ArchitecturalLevelAnalyzer : DiagnosticAnalyzer
 						InheritancePolicyAnalyzer.AnalyzeSymbol(symbolContext, config, analyzedInheritanceSymbols);
 					}
 				}, SymbolKind.NamedType);
-			}
-
-			if (config.Engine.HasReturnValuePolicies)
-			{
-				compilationContext.RegisterSyntaxNodeAction(nodeContext =>
-				{
-					if (GeneratedCodeAnalysisGate.ShouldAnalyze(nodeContext.Node.SyntaxTree, config, nodeContext.CancellationToken))
-					{
-						ReturnValuePolicyAnalyzer.AnalyzeReturnStatement(nodeContext, config);
-					}
-				}, SyntaxKind.ReturnStatement);
-				compilationContext.RegisterSyntaxNodeAction(nodeContext =>
-				{
-					if (GeneratedCodeAnalysisGate.ShouldAnalyze(nodeContext.Node.SyntaxTree, config, nodeContext.CancellationToken))
-					{
-						ReturnValuePolicyAnalyzer.AnalyzeArrowExpressionClause(nodeContext, config);
-					}
-				}, SyntaxKind.ArrowExpressionClause);
 			}
 
 			if (config.Engine.HasForbiddenOperationPolicies)

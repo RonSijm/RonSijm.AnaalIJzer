@@ -6,6 +6,8 @@ using RonSijm.AnaalIJzer.Core.LayerModel;
 using RonSijm.AnaalIJzer.Core.OperationContracts.Model;
 using RonSijm.AnaalIJzer.Core.ProjectArchitecture;
 using RonSijm.AnaalIJzer.Core.ProjectArchitecture.SolutionTopology;
+using RonSijm.AnaalIJzer.Core.NamespaceHierarchy.Policies;
+using RonSijm.AnaalIJzer.Core.ReturnValues.Policies;
 
 namespace RonSijm.AnaalIJzer.Core.Configuration.Compilation.Compilation;
 
@@ -22,7 +24,9 @@ internal readonly struct ArchitectureConfigurationMaterializationResult
         ProjectArchitectureConfig projectArchitecture,
         SolutionTopologyConfig solutionTopology = default,
         OperationContractCatalog operationContracts = default,
-        AssemblyAttributePolicyCatalog assemblyAttributePolicies = default)
+        AssemblyAttributePolicyCatalog assemblyAttributePolicies = default,
+		ImmutableArray<ReturnValuePolicy> globalReturnValuePolicies = default,
+		ImmutableArray<NamespaceHierarchyPolicy> namespaceHierarchyPolicies = default)
     {
         LayerCatalog = layerCatalog;
         DependencyEdges = dependencyEdges;
@@ -35,6 +39,8 @@ internal readonly struct ArchitectureConfigurationMaterializationResult
         SolutionTopology = solutionTopology;
         OperationContracts = operationContracts;
         AssemblyAttributePolicies = assemblyAttributePolicies;
+        GlobalReturnValuePolicies = globalReturnValuePolicies.IsDefault ? ImmutableArray<ReturnValuePolicy>.Empty : globalReturnValuePolicies;
+		NamespaceHierarchyPolicies = namespaceHierarchyPolicies.IsDefault ? ImmutableArray<NamespaceHierarchyPolicy>.Empty : namespaceHierarchyPolicies;
     }
 
     internal CompiledLayerCatalog LayerCatalog { get; }
@@ -58,4 +64,8 @@ internal readonly struct ArchitectureConfigurationMaterializationResult
     internal OperationContractCatalog OperationContracts { get; }
 
     internal AssemblyAttributePolicyCatalog AssemblyAttributePolicies { get; }
+
+    internal ImmutableArray<ReturnValuePolicy> GlobalReturnValuePolicies { get; }
+
+	internal ImmutableArray<NamespaceHierarchyPolicy> NamespaceHierarchyPolicies { get; }
 }

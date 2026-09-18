@@ -45,19 +45,15 @@ internal static class ReturnValuePolicyAnalyzer
 		}
 
 		var caller = LayerDependencyAnalyzer.TryGetCallerLayer(context, config, returnSite);
-		if (caller is null)
-		{
-			return;
-		}
-
 		var directExpression = UnwrapNonHandlingExpression(expression);
-		var evaluation = config.Engine.EvaluateReturnValuePolicies(caller.Value.Match, directExpression, context.SemanticModel, context.CancellationToken);
+		LayerMatch? callerMatch = caller is { } callerInfo ? callerInfo.Match : null;
+		var evaluation = config.EvaluateReturnValuePolicies(callerMatch, directExpression, context.SemanticModel, context.CancellationToken);
 		if (evaluation is null)
 		{
 			return;
 		}
 
-		Report(context, caller.Value, method, expression.GetLocation(), evaluation.Value);
+		Report(context, caller, method, expression.GetLocation(), evaluation.Value);
 	}
 
 	private static bool TryGetReturningMethod(SyntaxNodeAnalysisContext context, ExpressionSyntax expression, out IMethodSymbol method)
@@ -100,28 +96,31 @@ internal static class ReturnValuePolicyAnalyzer
 		return result;
 	}
 
-	private static void Report(SyntaxNodeAnalysisContext context, (string TypeName, LayerMatch Match) caller, IMethodSymbol method, Location location, ReturnValuePolicyEvaluation evaluation)
+	private static void Report(SyntaxNodeAnalysisContext context, (string TypeName, LayerMatch Match)? caller, IMethodSymbol method, Location location, ReturnValuePolicyEvaluation evaluation)
 	{
+		var callerTypeName = caller?.TypeName ?? method.ContainingType?.Name ?? "UnknownType";
+		var callerLayerName = caller?.Match.Layer.Name ?? "unclassified";
 		var rule = evaluation.Rule;
 		var properties = ImmutableDictionary<string, string?>.Empty
-			.Add(ArchitecturalDiagnostics.PropertyCallerTypeName, caller.TypeName)
-			.Add(ArchitecturalDiagnostics.PropertyCallerLayerName, caller.Match.Layer.Name)
+			.Add(ArchitecturalDiagnostics.PropertyCallerTypeName, callerTypeName)
+			.Add(ArchitecturalDiagnostics.PropertyCallerLayerName, callerLayerName)
 			.Add(ArchitecturalDiagnostics.PropertyDeclaredSymbolName, method.Name)
 			.Add(ArchitecturalDiagnostics.PropertyDeclarationTarget, DependencySites.MethodReturn)
 			.Add(ArchitecturalDiagnostics.PropertySite, DependencySites.MethodReturn)
 			.Add(ArchitecturalDiagnostics.PropertyReturnValueRuleTarget, rule.Matcher.Target.ToString())
 			.Add(ArchitecturalDiagnostics.PropertyReturnValueRule, rule.DisplayName)
+			.Add(ArchitecturalDiagnostics.PropertyReturnValueRuleMode, evaluation.RuleMode.ToString())
 			.Add(ArchitecturalDiagnostics.PropertyViolationReason, evaluation.Reason)
 			.Add(ArchitecturalDiagnostics.PropertyRuleXmlPath, rule.XmlPath)
 			.Add(ArchitecturalDiagnostics.PropertyRuleXmlLine, rule.XmlLineNumber.ToString(System.Globalization.CultureInfo.InvariantCulture))
 			.Add(ArchitecturalDiagnostics.PropertyRuleXmlCol, rule.XmlLinePosition.ToString(System.Globalization.CultureInfo.InvariantCulture));
 
-		context.ReportDiagnostic(Diagnostic.Create(
-			ArchitecturalDiagnostics.ReturnValuePolicyViolation,
+		context.ReportDiagnostic(ArchitecturalDiagnostics.CreateDiagnostic(
+			ArchitecturalDiagnostics.ReturnNotAllowed,
 			location,
 			properties,
 			method.Name,
-			caller.Match.Layer.Name,
+			callerLayerName,
 			DependencySites.MethodReturn,
 			evaluation.Reason));
 	}

@@ -30,6 +30,8 @@ internal static class ArchitectureConfigurationMaterializer
 		var layerRequiredRecognizedDependencySites = ImmutableDictionary.CreateBuilder<string, ImmutableHashSet<string>>(StringComparer.Ordinal);
 		var forbiddenPatterns = new List<ArchitectureForbiddenPattern>();
 		var rootLayerElements = elements.Where(item => item.Element.Name.LocalName == "Layer").ToArray();
+		var globalReturnValuePolicies = ArchitecturalConfigParser.ParseGlobalReturnValuePolicies(elements.Where(item => item.Element.Name.LocalName == "ReturnValuePolicy"), issues);
+		var namespaceHierarchyPolicies = ArchitecturalConfigParser.ParseNamespaceHierarchyPolicies(elements.Where(item => item.Element.Name.LocalName == "NamespaceHierarchyPolicy"), issues);
 		var declaredLayerPaths = ArchitecturalConfigParser.CollectDeclaredLayerPaths(rootLayerElements);
 		var roots = ArchitecturalConfigParser.ParseLayerCollection(rootLayerElements, string.Empty, layerNames, layerNodesByPath, declaredLayerPaths, layerRequiredRecognizedDependencySites, rootSettings.ExceptionPolicy, exceptionDefinitions, exceptionReviews, issues);
 		var allowedTypeMatchers = ArchitecturalConfigParser.ParseTypePolicyMatchers(elements.Where(item => item.Element.Name.LocalName == "Allowed"), LayerDefinition.Normal("global", null), false, rootSettings.ExceptionPolicy, exceptionDefinitions, exceptionReviews);
@@ -76,7 +78,9 @@ internal static class ArchitectureConfigurationMaterializer
 			ArchitecturalConfigParser.ParseProjectArchitecture(elements, configPath, issues),
 			ArchitecturalConfigParser.ParseSolutionTopology(elements, configPath, issues),
 			ArchitecturalConfigParser.ParseOperationContracts(elements.Where(item => item.Element.Name.LocalName == "Operations"), layerNodesByPath, issues),
-			ArchitecturalConfigParser.ParseAssemblyAttributePolicies(elements.Where(item => item.Element.Name.LocalName == "AssemblyAttributePolicy"), issues));
+			ArchitecturalConfigParser.ParseAssemblyAttributePolicies(elements.Where(item => item.Element.Name.LocalName == "AssemblyAttributePolicy"), issues),
+			globalReturnValuePolicies,
+			namespaceHierarchyPolicies);
 
 		return result;
 	}

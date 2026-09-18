@@ -42,7 +42,7 @@ public sealed class DeclarationNameMatchesTypeTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, AllSitesConfig);
 
-		diagnostics.Where(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.NameRuleViolation).Should().BeEmpty();
+		diagnostics.Where(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Should().BeEmpty();
 	}
 
 	[Fact]
@@ -69,7 +69,7 @@ public sealed class DeclarationNameMatchesTypeTests
 			""";
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, AllSitesConfig);
-		var nameDiagnostics = diagnostics.Where(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.NameRuleViolation).ToArray();
+		var nameDiagnostics = diagnostics.Where(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).ToArray();
 
 		nameDiagnostics.Should().HaveCount(6);
 		nameDiagnostics.Select(diagnostic => diagnostic.Properties["Site"]).Should().BeEquivalentTo("Constructor", "Method", "MethodReturn", "Field", "Property", "Local");
@@ -104,7 +104,7 @@ public sealed class DeclarationNameMatchesTypeTests
 			""";
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
-		var nameDiagnostics = diagnostics.Where(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.NameRuleViolation).ToArray();
+		var nameDiagnostics = diagnostics.Where(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).ToArray();
 
 		nameDiagnostics.Should().HaveCount(2);
 		nameDiagnostics.Select(diagnostic => diagnostic.Properties["DeclaredName"]).Should().BeEquivalentTo("patientId", "doctorId");
@@ -152,7 +152,7 @@ public sealed class DeclarationNameMatchesTypeTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Where(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.NameRuleViolation).Should().HaveCount(2);
+		diagnostics.Where(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Should().HaveCount(2);
 	}
 
 	[Fact]
@@ -182,7 +182,7 @@ public sealed class DeclarationNameMatchesTypeTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Where(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.NameRuleViolation).Should().BeEmpty();
+		diagnostics.Where(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Should().BeEmpty();
 	}
 
 	[Fact]
@@ -211,7 +211,7 @@ public sealed class DeclarationNameMatchesTypeTests
 			""";
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.NameRuleViolation).Which;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Which;
 
 		diagnostic.GetMessage().Should().Contain("allowedSites does not include Property");
 	}
@@ -246,7 +246,7 @@ public sealed class DeclarationNameMatchesTypeTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Where(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.NameRuleViolation).Should().BeEmpty();
+		diagnostics.Where(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Should().BeEmpty();
 	}
 
 	[Fact]
@@ -281,6 +281,6 @@ public sealed class DeclarationNameMatchesTypeTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().ContainSingle(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.NameRuleViolation);
+		diagnostics.Should().ContainSingle(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.NameShapeMismatch);
 	}
 }

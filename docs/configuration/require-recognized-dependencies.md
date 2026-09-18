@@ -1,6 +1,6 @@
-﻿### `requireRecognizedDependencies` attribute
+### `requireRecognizedDependencies` attribute
 
-`requireRecognizedDependencies` is a comma-separated list of [dependency sites](#site-filters). At each listed site, a dependency used by a layered caller must itself belong to a configured layer. An unknown type reports **ARCH002**. When the attribute is omitted, unknown types do not report ARCH002 - otherwise a brand-new config would flag every framework type in the project before lunch, and be switched off shortly after.
+`requireRecognizedDependencies` is a comma-separated list of [dependency sites](#site-filters). At each listed site, a dependency used by a layered caller must itself belong to a configured layer. An unknown type reports **ARCH_DEP_002**. When the attribute is omitted, unknown types do not report ARCH_DEP_002 - otherwise a brand-new config would flag every framework type in the project before lunch, and be switched off shortly after.
 
 The attribute can be placed on `<ArchitecturalLevels>` or on a `<Layer>`:
 
@@ -14,16 +14,16 @@ The attribute can be placed on `<ArchitecturalLevels>` or on a `<Layer>`:
 </ArchitecturalLevels>
 ```
 
-The values are trimmed and case-insensitive. Supported values are `Constructor`, `Method`, `MethodReturn`, `Field`, `Property`, `Local`, `New`, `GenericInvocation`, `GenericArgument`, `Inheritance`, `InterfaceImplementation`, `Attribute`, and `StaticMember`. Empty or unknown values make the configuration invalid and report ARCH006.
+The values are trimmed and case-insensitive. Supported values are `Constructor`, `Method`, `MethodReturn`, `Field`, `Property`, `Local`, `New`, `GenericInvocation`, `GenericArgument`, `Inheritance`, `InterfaceImplementation`, `Attribute`, and `StaticMember`. Empty or unknown values make the configuration invalid and report ARCH_CONF_003.
 
-**Example projects:** [`Example.Arch002.UnrecognizedDependency`](../../Examples/Diagnostics/Example.Arch002.UnrecognizedDependency), [`Example.RequiredRecognizedDependencySites`](../../Examples/Features/Example.RequiredRecognizedDependencySites), [`Example.LayerScopedRecognizedDependencies`](../../Examples/Features/Example.LayerScopedRecognizedDependencies)
+**Example projects:** [`Example.Arch_DEP_002.UnrecognizedDependency`](../../Examples/Diagnostics/DEP/Example.Arch_DEP_002.UnrecognizedDependency), [`Example.RequiredRecognizedDependencySites`](../../Examples/Features/Example.RequiredRecognizedDependencySites), [`Example.LayerScopedRecognizedDependencies`](../../Examples/Features/Example.LayerScopedRecognizedDependencies)
 
 **Rule:** The configured site determines where an unknown dependency is an error.
 
 ```mermaid
 flowchart LR
     Chef --> Pantry
-    Chef -. "ARCH002 at Constructor" .-> Mystery["MysteryBox<br/>no configured layer"]
+    Chef -. "ARCH_DEP_002 at Constructor" .-> Mystery["MysteryBox<br/>no configured layer"]
 ```
 
 ```xml
@@ -38,7 +38,7 @@ flowchart LR
 // Chef -> Pantry is recognized and allowed.
 public class PizzaChef(IIngredientPantry pantry) { }
 
-// ARCH002 at Constructor: MysteryBox belongs to no configured layer.
+// ARCH_DEP_002 at Constructor: MysteryBox belongs to no configured layer.
 public class ExperimentalChef(MysteryBox box) { }
 ```
 
@@ -60,13 +60,13 @@ For partial adoption, keep the root loose and require recognized dependencies on
 // Valid: LegacyKitchen does not require unknown constructor dependencies yet.
 public class LegacyChef(MysteryBox box) { }
 
-// ARCH002: AuditedKitchen requires constructor dependencies to be classified.
+// ARCH_DEP_002: AuditedKitchen requires constructor dependencies to be classified.
 public class AuditedChef(MysteryBox box) { }
 ```
 
-This setting controls whether ARCH002 is produced, not its severity. Use Roslyn's standard `.editorconfig` mechanism to show it as a warning:
+This setting controls whether ARCH_DEP_002 is produced, not its severity. Use Roslyn's standard `.editorconfig` mechanism to show it as a warning:
 
 ```ini
 [*.cs]
-dotnet_diagnostic.ARCH002.severity = warning
+dotnet_diagnostic.ARCH_DEP_002.severity = warning
 ```

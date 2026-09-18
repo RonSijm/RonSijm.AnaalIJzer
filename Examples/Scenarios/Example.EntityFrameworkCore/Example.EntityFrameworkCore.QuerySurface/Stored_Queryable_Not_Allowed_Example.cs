@@ -34,7 +34,7 @@ public sealed class PizzaOrderApplicationService(PizzaOrderRepository repository
 
     public PizzaOrderProjection GetPizzaOrderAfterKeepingTheQuery(int pizzaOrderId)
     {
-        // ARCH001: Application -> QuerySurface is not allowed at Site=Local.
+        // ARCH_DEP_001: Application -> QuerySurface is not allowed at Site=Local.
         IQueryable<PizzaOrder> query = repository.QueryPizzaOrders();
         var result = query
             .Where(order => order.Id == pizzaOrderId)

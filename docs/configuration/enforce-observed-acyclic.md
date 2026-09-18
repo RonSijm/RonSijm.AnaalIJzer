@@ -24,7 +24,7 @@ Example:
 </ArchitecturalLevels>
 ```
 
-That configuration is still legal as a configured graph. It only becomes `ARCH018` when code really uses both directions and closes the cycle. Permission for two layers to talk both ways is cheap; a codebase where neither can be changed without the other is the expensive part.
+That configuration is still legal as a configured graph. It only becomes `ARCH_DEP_006` when code really uses both directions and closes the cycle. Permission for two layers to talk both ways is cheap; a codebase where neither can be changed without the other is the expensive part.
 
 Restaurant version:
 
@@ -35,8 +35,8 @@ Behavior:
 
 - default is `false`;
 - accepted values are `true`, `false`, `1`, and `0`;
-- invalid values report `ARCH006` and disable observed-cycle enforcement;
+- invalid values report `ARCH_CONF_003` and disable observed-cycle enforcement;
 - a project build only sees cycles inside that compilation;
 - `arse inspect --solution` can also find cross-project observed cycles.
 
-See [`Example.Arch018.ObservedCycle`](../../Examples/Diagnostics/Example.Arch018.ObservedCycle).
+See [`Example.Arch_DEP_006.ObservedCycle`](../../Examples/Diagnostics/DEP/Example.Arch_DEP_006.ObservedCycle).

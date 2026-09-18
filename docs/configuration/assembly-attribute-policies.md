@@ -1,6 +1,6 @@
 ## Assembly attribute policies
 
-`<AssemblyAttributePolicy>` checks the attributes emitted on the current compiled assembly. It is a compiler analyzer rule, so a violation is reported as `ARCH024` during ordinary builds and in the editor.
+`<AssemblyAttributePolicy>` checks the attributes emitted on the current compiled assembly. It is a compiler analyzer rule, so a violation is reported as `ARCH_ASSM_001` during ordinary builds and in the editor.
 
 This is useful when an assembly-level declaration represents an architectural decision rather than incidental metadata. For example, `InternalsVisibleTo` grants another assembly access to internal code. A team may want that grant to be explicit and limited to approved friends.
 
@@ -35,7 +35,7 @@ The SDK generates the second form as a compiled `InternalsVisibleToAttribute`. T
 
 An `<Attribute>` rule uses the normal type matcher attributes, including `exactName`, `exactFullName`, `startsWith`, `endsWith`, `contains`, `regex`, and `typeKind`. Attributes on one rule are combined with AND; sibling rules are alternatives.
 
-`<Forbidden>` is a deny list. Any matching rule produces `ARCH024`, even if an `Allowed` rule also matches.
+`<Forbidden>` is a deny list. Any matching rule produces `ARCH_ASSM_001`, even if an `Allowed` rule also matches.
 
 `<Allowed>` is a scoped allow list. It only constrains attribute types selected by at least one of its rules. Unrelated assembly attributes remain untouched. For a selected attribute type, one allowed rule must match its arguments.
 
@@ -71,7 +71,7 @@ Use exactly one of `index` or `name`. Every child `<Argument>` must match, so th
 
 Assembly attribute policies are root-level rules. They do not belong to a C# layer, dependency edge, or syntactic site: the check runs once against the completed compilation's assembly metadata.
 
-- The analyzer produces `ARCH024` and a report row with the assembly, attribute type, rule, and reason.
+- The analyzer produces `ARCH_ASSM_001` and a report row with the assembly, attribute type, rule, and reason.
 - Arse documentation and violation reports render the policies in authored configuration order.
 - The shared configuration editor used by the WPF graph editor and Visual Studio graph window can inspect, add, edit, and remove root-level `<AssemblyAttributePolicy>` elements. They are shown as source-metadata policies rather than dependency-graph edges.
 - There is no automatic code fix. Removing a friend, adding one to an allow list, or changing a generated project item requires an explicit ownership decision.
@@ -82,5 +82,5 @@ This feature checks **compiled assembly attributes**, including those generated 
 
 **Focused examples:**
 
-- [`Example.Arch024.AssemblyAttributePolicy.Code`](../../Examples/Diagnostics/Example.Arch024.AssemblyAttributePolicy.Code) checks a handwritten C# assembly attribute.
-- [`Example.Arch024.AssemblyAttributePolicy.Project`](../../Examples/Diagnostics/Example.Arch024.AssemblyAttributePolicy.Project) checks the SDK-generated form from a project-file `InternalsVisibleTo` item.
+- [`Example.Arch_ASSM_001.AssemblyAttributePolicy.Code`](../../Examples/Diagnostics/ASSM/Example.Arch_ASSM_001.AssemblyAttributePolicy.Code) checks a handwritten C# assembly attribute.
+- [`Example.Arch_ASSM_001.AssemblyAttributePolicy.Project`](../../Examples/Diagnostics/ASSM/Example.Arch_ASSM_001.AssemblyAttributePolicy.Project) checks the SDK-generated form from a project-file `InternalsVisibleTo` item.

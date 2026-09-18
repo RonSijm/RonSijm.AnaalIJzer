@@ -17,7 +17,7 @@ public sealed class DependencySiteTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
-		var d = diagnostics.First(x => x.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency);
+		var d = diagnostics.First(x => x.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed);
 		d.Properties["Site"].Should().Be("Constructor");
 	}
 
@@ -34,7 +34,7 @@ public sealed class DependencySiteTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
-		var d = diagnostics.First(x => x.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency);
+		var d = diagnostics.First(x => x.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed);
 		d.Properties["Site"].Should().Be("Field");
 	}
 
@@ -51,7 +51,7 @@ public sealed class DependencySiteTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
-		var d = diagnostics.First(x => x.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency);
+		var d = diagnostics.First(x => x.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed);
 		d.Properties["Site"].Should().Be("GenericArgument");
 	}
 
@@ -68,7 +68,7 @@ public sealed class DependencySiteTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
-		var d = diagnostics.First(x => x.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency);
+		var d = diagnostics.First(x => x.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed);
 		d.Properties["Site"].Should().Be("MethodReturn");
 	}
 
@@ -85,7 +85,7 @@ public sealed class DependencySiteTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
 			.Should().NotBeEmpty();
 	}
 
@@ -105,7 +105,7 @@ public sealed class DependencySiteTests
 	// ---- Primary constructors ----
 
 	[Fact]
-	public async Task PrimaryConstructor_IllegalDependency_ReportsARCH005()
+	public async Task PrimaryConstructor_IllegalDependency_ReportsARCH_DEP_005()
 	{
 		// OtherController and PatientController are both in the Controller layer.
 		const string source = """
@@ -116,7 +116,7 @@ public sealed class DependencySiteTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.SameLayerDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyPeerScope)
 			.Should().NotBeEmpty();
 	}
 
@@ -136,7 +136,7 @@ public sealed class DependencySiteTests
 	// ---- Non-constructor dependency sites ----
 
 	[Fact]
-	public async Task FieldInjection_IllegalDependency_ReportsARCH001()
+	public async Task FieldInjection_IllegalDependency_ReportsARCH_DEP_001()
 	{
 		const string source = """
 		                      public interface IPatientRepository { }
@@ -149,7 +149,7 @@ public sealed class DependencySiteTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
 			.Should().NotBeEmpty();
 	}
 
@@ -170,7 +170,7 @@ public sealed class DependencySiteTests
 	}
 
 	[Fact]
-	public async Task PropertyInjection_IllegalDependency_ReportsARCH001()
+	public async Task PropertyInjection_IllegalDependency_ReportsARCH_DEP_001()
 	{
 		const string source = """
 		                      public interface IPatientRepository { }
@@ -183,12 +183,12 @@ public sealed class DependencySiteTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
 			.Should().NotBeEmpty();
 	}
 
 	[Fact]
-	public async Task MethodInjection_IllegalDependency_ReportsARCH001()
+	public async Task MethodInjection_IllegalDependency_ReportsARCH_DEP_001()
 	{
 		const string source = """
 		                      public interface IPatientRepository { }
@@ -201,12 +201,12 @@ public sealed class DependencySiteTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
 			.Should().NotBeEmpty();
 	}
 
 	[Fact]
-	public async Task MethodReturn_IllegalDependency_ReportsARCH001()
+	public async Task MethodReturn_IllegalDependency_ReportsARCH_DEP_001()
 	{
 		const string source = """
 		                      public interface IPatientRepository { }
@@ -219,7 +219,7 @@ public sealed class DependencySiteTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
 			.Should().ContainSingle()
 			.Which.Properties["Site"].Should().Be("MethodReturn");
 	}
@@ -241,7 +241,7 @@ public sealed class DependencySiteTests
 	}
 
 	[Fact]
-	public async Task ObjectCreation_NewingForbiddenLayer_ReportsARCH001()
+	public async Task ObjectCreation_NewingForbiddenLayer_ReportsARCH_DEP_001()
 	{
 		const string source = """
 		                      public class PatientRepository { }
@@ -258,12 +258,12 @@ public sealed class DependencySiteTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
 			.Should().NotBeEmpty();
 	}
 
 	[Fact]
-	public async Task ObjectCreation_ImplicitNew_ReportsARCH001()
+	public async Task ObjectCreation_ImplicitNew_ReportsARCH_DEP_001()
 	{
 		const string source = """
 		                      public class PatientRepository { }
@@ -276,12 +276,12 @@ public sealed class DependencySiteTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
 			.Should().NotBeEmpty();
 	}
 
 	[Fact]
-	public async Task ServiceLocator_GenericInvocation_ReportsARCH001()
+	public async Task ServiceLocator_GenericInvocation_ReportsARCH_DEP_001()
 	{
 		const string source = """
 		                      using System;
@@ -303,12 +303,12 @@ public sealed class DependencySiteTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
 			.Should().NotBeEmpty();
 	}
 
 	[Fact]
-	public async Task ServiceLocator_UnqualifiedGenericInvocation_ReportsARCH001()
+	public async Task ServiceLocator_UnqualifiedGenericInvocation_ReportsARCH_DEP_001()
 	{
 		const string source = """
 		                      public interface IPatientRepository { }
@@ -327,7 +327,7 @@ public sealed class DependencySiteTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
 			.Select(d => d.Properties["Site"])
 			.Should().BeEquivalentTo("GenericInvocation", "Local");
 	}
@@ -422,9 +422,9 @@ public sealed class DependencySiteTests
 	}
 
 	[Fact]
-	public async Task NonConstructorSites_RecognitionRequirement_DoNotEmitARCH002_ForUnlayeredTypes()
+	public async Task NonConstructorSites_RecognitionRequirement_DoNotEmitARCH_DEP_002_ForUnlayeredTypes()
 	{
-		// ARCH002 remains a constructor-only fallback so that
+		// ARCH_DEP_002 remains a constructor-only fallback so that
 		// fields/properties/method returns/new/invocations don't drown projects in noise for primitives.
 		const string source = """
 		                      public class PatientManager
@@ -443,7 +443,7 @@ public sealed class DependencySiteTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.RequireRecognizedDependenciesConfig);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.UnrecognizedDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyRequiredMissing)
 			.Should().BeEmpty();
 	}
 

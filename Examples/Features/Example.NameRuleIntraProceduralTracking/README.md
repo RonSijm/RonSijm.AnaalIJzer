@@ -1,6 +1,6 @@
 # Example.NameRuleIntraProceduralTracking
 
-The two services contain the same neutral local alias. `DirectTicketService` is quiet because `Direct` mode only sees `pending`. `TrackedTicketService` uses `valueTracking="IntraProcedural"`, so it follows the unambiguous `customerId -> pending` alias and reports three `ARCH008` diagnostics when that value reaches an `orderId` parameter, an `orderId` method return, and an `orderId` parameter from a lambda body.
+The two services contain the same neutral local alias. `DirectTicketService` is quiet because `Direct` mode only sees `pending`. `TrackedTicketService` uses `valueTracking="IntraProcedural"`, so it follows the unambiguous `customerId -> pending` alias and reports three `ARCH_NAME_008` diagnostics when that value reaches an `orderId` parameter, an `orderId` method return, and an `orderId` parameter from a lambda body.
 
 ```cmd
 dotnet build Examples\Features\Example.NameRuleIntraProceduralTracking -c Release

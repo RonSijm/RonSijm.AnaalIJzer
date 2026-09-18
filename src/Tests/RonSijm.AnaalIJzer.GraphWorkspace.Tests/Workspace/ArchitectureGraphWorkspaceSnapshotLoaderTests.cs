@@ -24,7 +24,7 @@ public sealed class ArchitectureGraphWorkspaceSnapshotLoaderTests
 			snapshot.Evidence.HasEvidence.Should().BeTrue();
 			snapshot.Evidence.Types.Should().Contain(type => type.LayerPath == "Application" && type.TypeName == "OrderService");
 			snapshot.Evidence.Dependencies.Should().Contain(dependency =>
-				dependency.DiagnosticId == "ARCH001"
+				dependency.DiagnosticId == "ARCH_DEP_001"
 				&& dependency.CallerTypeName == "OrderService"
 				&& dependency.DependencyTypeName == "OrderQuery"
 				&& dependency.Site == "Local");
@@ -58,7 +58,7 @@ public sealed class ArchitectureGraphWorkspaceSnapshotLoaderTests
 			dependency.CallerLayerPath == "SolutionTopology/Kitchen"
 			&& dependency.DependencyLayerPath == "SolutionTopology/Pantry"
 			&& dependency.Site == "ProjectReference"
-			&& dependency.DiagnosticId == "TOPO001");
+			&& dependency.DiagnosticId == "ARCH_SOL_001");
 	}
 
 	private static string FindRepositoryProject(params string[] pathParts)

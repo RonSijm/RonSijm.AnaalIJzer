@@ -110,7 +110,7 @@ public sealed partial class ApplicationOperationsTests
 			documentation.Should().Contain("`Example.RepositoryQuerySurface.OrderEndpoint` -> `Example.RepositoryQuerySurface.OrderService` at `Constructor`");
 			documentation.Should().Contain("OrderService");
 			documentation.Should().Contain("### Current Rule Violations");
-			documentation.Should().Contain("`ARCH001`");
+			documentation.Should().Contain("`ARCH_DEP_001`");
 			documentation.Should().Contain("OrderDashboardService");
 			documentation.Should().Contain("Local");
 		}
@@ -132,8 +132,9 @@ public sealed partial class ApplicationOperationsTests
 			var projectPath = FindRepositoryProject(
 				"Examples",
 				"Diagnostics",
-				"Example.Arch012.VisibilityPolicy",
-				"Example.Arch012.VisibilityPolicy.csproj");
+				"VIS",
+				"Example.Arch_VIS_001.VisibilityPolicy",
+				"Example.Arch_VIS_001.VisibilityPolicy.csproj");
 			var outputPath = Path.Combine(tempDirectory, "architecture-documentation.md");
 			await new ApplicationRunner().ExecuteAsync(new ApplicationRequest(ApplicationOperationKind.Documentation)
 			{
@@ -145,8 +146,8 @@ public sealed partial class ApplicationOperationsTests
 
 			var documentation = await File.ReadAllTextAsync(outputPath, cancellationToken);
 			documentation.Should().Contain("### Visibility Policy Declarations");
-			documentation.Should().Contain("**passes** `Example.Arch012.VisibilityPolicy.LollyQueryable`");
-			documentation.Should().Contain("**violates** `Example.Arch012.VisibilityPolicy.SourLollyQueryable`");
+			documentation.Should().Contain("**passes** `Example.Arch_VIS_001.VisibilityPolicy.LollyQueryable`");
+			documentation.Should().Contain("**violates** `Example.Arch_VIS_001.VisibilityPolicy.SourLollyQueryable`");
 			documentation.Should().Contain("not effectively external");
 			documentation.Should().Contain("externally visible");
 		}
@@ -212,6 +213,44 @@ public sealed partial class ApplicationOperationsTests
 			documentation.Should().Contain("Repository");
 			documentation.Should().Contain("Services may use repositories");
 			documentation.Should().NotContain("## Code Evidence");
+		}
+		finally
+		{
+			Directory.Delete(tempDirectory, true);
+		}
+	}
+
+	[Fact]
+	public async Task ApplicationRunner_GeneratesDocumentationForGlobalReturnValuePolicyWithoutLayers()
+	{
+		var cancellationToken = TestContext.Current.CancellationToken;
+		var tempDirectory = Path.Combine(Path.GetTempPath(), $"AnaalIJzer-global-return-policy-{Guid.NewGuid():N}");
+		Directory.CreateDirectory(tempDirectory);
+
+		try
+		{
+			var configPath = Path.Combine(tempDirectory, "Architecture.anl");
+			var outputPath = Path.Combine(tempDirectory, "architecture.md");
+			await File.WriteAllTextAsync(configPath, """
+			                                         <ArchitecturalLevels>
+			                                           <ReturnValuePolicy description="Every meal uses a named hand-off.">
+			                                             <AllowedReturn>
+			                                               <Identifier />
+			                                             </AllowedReturn>
+			                                           </ReturnValuePolicy>
+			                                         </ArchitecturalLevels>
+			                                         """, cancellationToken);
+
+			var result = await new ApplicationRunner().ExecuteAsync(new ApplicationRequest(ApplicationOperationKind.Documentation)
+			{
+				InputKind = ApplicationInputKind.ConfigurationFile,
+				InputPaths = [configPath],
+				OutputPath = outputPath
+			}, cancellationToken);
+
+			result.OutputPath.Should().Be(outputPath);
+			var documentation = await File.ReadAllTextAsync(outputPath, cancellationToken);
+			documentation.Should().Contain("| `Global configuration` | Allows only Identifier | Every meal uses a named hand-off. |");
 		}
 		finally
 		{

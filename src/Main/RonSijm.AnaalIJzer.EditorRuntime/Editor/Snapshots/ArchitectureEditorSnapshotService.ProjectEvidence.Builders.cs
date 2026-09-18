@@ -66,8 +66,8 @@ public static partial class ArchitectureEditorSnapshotService
 	{
 		var result = diagnosticId switch
 		{
-			ArchitecturalDiagnosticIds.ApiSurfaceLeakage => ArchitectureDependencySiteStatus.TypePolicyViolation.ToString(),
-			ArchitecturalDiagnosticIds.ForbiddenTransitiveExposure => ArchitectureDependencySiteStatus.TypePolicyViolation.ToString(),
+			ArchitecturalDiagnosticIds.ApiExposureNotAllowed => ArchitectureDependencySiteStatus.TypePolicyViolation.ToString(),
+			ArchitecturalDiagnosticIds.ApiTransitiveExposure => ArchitectureDependencySiteStatus.TypePolicyViolation.ToString(),
 			_ => ArchitectureDependencySiteStatus.Allowed.ToString()
 		};
 

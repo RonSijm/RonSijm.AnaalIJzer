@@ -22,6 +22,9 @@ jobs:
       - name: Check generated docs, schema, and links
         shell: pwsh
         run: ./build/Scripts/Docs/check-docs.ps1
+      - name: Check portable project files
+        shell: pwsh
+        run: ./build/Scripts/Testing/check-portable-project-files.ps1
       - name: Restore cross-platform test graph
         run: dotnet restore src/RonSijm.AnaalIJzer.CrossPlatform.slnx
       - name: Run cross-platform tests

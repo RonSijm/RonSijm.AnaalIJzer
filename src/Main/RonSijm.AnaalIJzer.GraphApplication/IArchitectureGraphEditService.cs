@@ -41,6 +41,8 @@ internal interface IArchitectureGraphEditService
 
 	ArchitectureConfigurationEditResult AddAssemblyAttributePolicy(ArchitectureConfigurationSource source, ImmutableDictionary<string, string> attributes, string childXml);
 
+	ArchitectureConfigurationEditResult AddNamespaceHierarchyPolicy(ArchitectureConfigurationSource source, ImmutableDictionary<string, string> attributes, string childXml);
+
 	ArchitectureConfigurationEditResult SetLayerDescription(ArchitectureLayerEditHandle handle, string? description);
 
 	ArchitectureConfigurationEditResult SetLayerName(ArchitectureLayerEditHandle handle, string name);

@@ -11,7 +11,7 @@ public sealed class ProjectArchitectureCodeFixTests
 	{
 		new ArchitecturalLevelCodeFixProvider()
 			.FixableDiagnosticIds
-			.Should().Contain(ArchitecturalDiagnosticIds.ProjectReferenceViolation);
+			.Should().Contain(ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed);
 	}
 
 	[Fact]
@@ -43,7 +43,7 @@ public sealed class ProjectArchitectureCodeFixTests
 		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
 			source,
 			[("Architecture.anl", config), (ArchitectureReferenceManifest.FileName, manifest)],
-			ArchitecturalDiagnosticIds.ProjectReferenceViolation,
+			ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed,
 			"Allow project group 'Presentation' to reference 'Domain'",
 			"Architecture.anl");
 
@@ -78,7 +78,7 @@ public sealed class ProjectArchitectureCodeFixTests
 		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
 			source,
 			[("Architecture.anl", config), (ArchitectureReferenceManifest.FileName, manifest)],
-			ArchitecturalDiagnosticIds.ProjectReferenceViolation,
+			ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed,
 			"Allow project 'Shop.Web' to reference 'Shop.Domain'",
 			"Architecture.anl");
 
@@ -112,7 +112,7 @@ public sealed class ProjectArchitectureCodeFixTests
 		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
 			source,
 			[("Architecture.anl", config), (ArchitectureReferenceManifest.FileName, manifest)],
-			ArchitecturalDiagnosticIds.ProjectReferenceViolation,
+			ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed,
 			"Allow project group 'Domain' to reference itself",
 			"Architecture.anl");
 
@@ -144,7 +144,7 @@ public sealed class ProjectArchitectureCodeFixTests
 		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
 			source,
 			[("Architecture.anl", config), (ArchitectureReferenceManifest.FileName, manifest)],
-			ArchitecturalDiagnosticIds.ProjectReferenceViolation,
+			ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed,
 			"Remove blocking <BlockedProjectReference from=\"Domain\" to=\"Infrastructure\" />",
 			"Architecture.anl");
 
@@ -187,7 +187,7 @@ public sealed class ProjectArchitectureCodeFixTests
 		var updatedSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
 			source,
 			[(ArchitectureReferenceManifest.FileName, manifest)],
-			ArchitecturalDiagnosticIds.ProjectReferenceViolation,
+			ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed,
 			"Allow project group 'Presentation' to reference 'Domain'");
 
 		updatedSource.Should().Contain("<AllowedProjectReference from=\"Presentation\" to=\"Domain\" />");

@@ -32,7 +32,7 @@ public sealed class AllowedTypePolicyCodeFixTests
 		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
 			source,
 			config,
-			ArchitecturalDiagnosticIds.ForbiddenDependency,
+			ArchitecturalDiagnosticIds.TypeNotAllowed,
 			"Allow 'CheeseShelf' in applicable <Allowed> lists");
 
 		updatedConfig.Should().Contain("<Class typeName=\"CheeseShelf\" />");
@@ -67,7 +67,7 @@ public sealed class AllowedTypePolicyCodeFixTests
 		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
 			source,
 			config,
-			ArchitecturalDiagnosticIds.ForbiddenDependency,
+			ArchitecturalDiagnosticIds.TypeNotAllowed,
 			"Allow 'CheeseShelf' in applicable <Allowed> lists");
 
 		var document = XDocument.Parse(updatedConfig);
@@ -107,7 +107,7 @@ public sealed class AllowedTypePolicyCodeFixTests
 
 		var updatedSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
 			source,
-			ArchitecturalDiagnosticIds.ForbiddenDependency,
+			ArchitecturalDiagnosticIds.TypeNotAllowed,
 			"Allow 'CheeseShelf' in applicable <Allowed> lists");
 
 		updatedSource.Should().Contain("<Class typeName=\"CheeseShelf\" />");

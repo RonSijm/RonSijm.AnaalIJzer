@@ -31,10 +31,10 @@ The analyzer normalizes names before comparing them. For example, `customerId` a
 // Valid: customerId normalizes to Customer.Id.
 customer.Id = customerId;
 
-// ARCH008: animalId does not mean Customer.Id.
+// ARCH_NAME_008: animalId does not mean Customer.Id.
 customer.Id = animalId;
 
-// ARCH008: arguments are swapped.
+// ARCH_NAME_008: arguments are swapped.
 Log(animalId, fruitId);
 
 void Log(int fruitId, int animalId) { }
@@ -104,7 +104,7 @@ Use `Direct` for the least surprising and fastest rule. Enable `IntraProcedural`
 
 ```csharp
 var pending = customerId;
-Save(pending); // ARCH008 when Save accepts orderId.
+Save(pending); // ARCH_NAME_008 when Save accepts orderId.
 ```
 
 Method-like bodies use Roslyn control-flow graphs, so a branch join keeps provenance only when every path agrees. Roslyn does not expose a standalone control-flow graph root for a lambda body, so lambda bodies use a conservative ordered scan and discard local provenance before a conditional, loop, switch, or `try` block. A captured parameter can still be the direct source inside a lambda, but a local alias never crosses a callback boundary. Tracking intentionally stops at method calls, virtual dispatch, collections, delegate invocation, reflection, and method boundaries. That is a bounded local-provenance check, not a whole-program taint-analysis promise.
@@ -128,10 +128,10 @@ Method-like bodies use Roslyn control-flow graphs, so a branch join keeps proven
 
 ```csharp
 public void GetPatient(PatientId patientId) { } // Allowed
-public void GetPatient(DoctorId patientId) { }  // ARCH008
+public void GetPatient(DoctorId patientId) { }  // ARCH_NAME_008
 
 public PatientId PatientId { get; set; } // Allowed
-public DoctorId PatientId { get; set; }  // ARCH008
+public DoctorId PatientId { get; set; }  // ARCH_NAME_008
 ```
 
 `Type` selects semantic declared types. `Name` optionally selects declaration identifiers. Both use the same conjunctive matcher attributes as `Class`, and multiple sibling matchers are alternatives:

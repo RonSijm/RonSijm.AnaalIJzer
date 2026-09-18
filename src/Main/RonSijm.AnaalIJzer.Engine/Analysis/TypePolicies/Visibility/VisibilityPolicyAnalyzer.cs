@@ -60,8 +60,8 @@ internal static class VisibilityPolicyAnalyzer
 			.Add(ArchitecturalDiagnostics.PropertyRuleXmlLine, policy.XmlLineNumber.ToString(System.Globalization.CultureInfo.InvariantCulture))
 			.Add(ArchitecturalDiagnostics.PropertyRuleXmlCol, policy.XmlLinePosition.ToString(System.Globalization.CultureInfo.InvariantCulture));
 
-		context.ReportDiagnostic(Diagnostic.Create(
-			ArchitecturalDiagnostics.VisibilityPolicyViolation,
+		context.ReportDiagnostic(ArchitecturalDiagnostics.CreateDiagnostic(
+			ArchitecturalDiagnostics.VisibilityNotAllowed,
 			location,
 			properties,
 			symbolName,

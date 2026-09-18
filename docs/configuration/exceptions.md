@@ -63,7 +63,7 @@ flowchart LR
 public class LegacyOrderStore { }
 public class OrderHistoryManager(LegacyOrderStore store) { }
 
-// ARCH003: OrderStore still triggers the rule; the carve-out is scoped.
+// ARCH_TYPE_001: OrderStore still triggers the rule; the carve-out is scoped.
 public class OrderStore { }
 public class OrderManager(OrderStore store) { }
 ```
@@ -82,7 +82,7 @@ public class OrderManager(OrderStore store) { }
 
 Forbidden-rule diagnostics with an originating matcher register an **"Add '`TypeName`' to exceptions"** code action that appends the offending type to that matcher's `<Exceptions>` block, creating the block if needed. This works for both `Architecture.anl` and inline `AssemblyMetadata("AnaalIJzerSettings", ...)`, and if the matcher came from an included file the fix edits that owning file instead of the top-level one.
 
-Allow-list failures are different: there is no single matcher to except, so the IDE offers an **allow-list** fixer instead that adds an exact `<Class typeName="..."/>` matcher to every applicable `<Allowed>` list. ARCH002 also has no exception action; it offers layer classification or `requireRecognizedDependencies` relaxation because that is what actually resolves the finding.
+Allow-list failures are different: there is no single matcher to except, so the IDE offers an **allow-list** fixer instead that adds an exact `<Class typeName="..."/>` matcher to every applicable `<Allowed>` list. ARCH_DEP_002 also has no exception action; it offers layer classification or `requireRecognizedDependencies` relaxation because that is what actually resolves the finding.
 
 #### Nesting
 
@@ -95,9 +95,9 @@ Exceptions can be nested. Each deeper *matching* exception level flips the previ
 | Type | Deepest match | Depth | Result |
 |------|--------------|-------|--------|
 | `InMemoryOrderRepository` | `startsWith="InMemory"` | 1 (odd) | Not in Persistence |
-| `InMemoryCachedOrderRepository` | `startsWith="InMemoryCached"` | 2 (even) | In Persistence, ARCH001 |
+| `InMemoryCachedOrderRepository` | `startsWith="InMemoryCached"` | 2 (even) | In Persistence, ARCH_DEP_001 |
 | `InMemoryCachedTestOrderRepository` | exact type name | 3 (odd) | Not in Persistence |
-| `LegacyInMemoryCachedOrderRepository` | exact type name | 4 (even) | In Persistence, ARCH001 |
+| `LegacyInMemoryCachedOrderRepository` | exact type name | 4 (even) | In Persistence, ARCH_DEP_001 |
 
 ```xml
 <Layer name="Persistence">
@@ -125,12 +125,12 @@ Exceptions can be nested. Each deeper *matching* exception level flips the previ
 // Depth 1 (odd): not in Persistence.
 public class OrderEndpoint(InMemoryOrderRepository repository) { }
 
-// ARCH001: Depth 2 (even): in Persistence.
+// ARCH_DEP_001: Depth 2 (even): in Persistence.
 public class AdminEndpoint(InMemoryCachedOrderRepository repository) { }
 
 // Depth 3 (odd): not in Persistence again.
 public class TestEndpoint(InMemoryCachedTestOrderRepository repository) { }
 
-// ARCH001: Depth 4 (even): in Persistence again.
+// ARCH_DEP_001: Depth 4 (even): in Persistence again.
 public class LegacyEndpoint(LegacyInMemoryCachedOrderRepository repository) { }
 ```

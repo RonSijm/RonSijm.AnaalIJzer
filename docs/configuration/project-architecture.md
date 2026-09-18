@@ -37,7 +37,7 @@ With that configuration:
 
 - `Shop.Web -> Shop.Application` is allowed
 - `Shop.Application -> Shop.Domain` is allowed
-- `Shop.Web -> Shop.Domain` raises `ARCH010`
+- `Shop.Web -> Shop.Domain` raises `ARCH_PROJ_001`
 
 ### Matchers
 
@@ -107,7 +107,7 @@ It does not block another project merely because it shares the `Application` gro
 
 A nonmatching `From` selector does not place every project in its group into allowlist
 mode. Once a source selector matches, however, its `To` selector is enforced: an
-unselected target produces `ARCH010`. Blocked selectors still win over a broad allowed
+unselected target produces `ARCH_PROJ_001`. Blocked selectors still win over a broad allowed
 group edge.
 
 ### Recognition
@@ -119,7 +119,7 @@ When enabled:
 - the source project must match a `ProjectGroup`
 - the target project must match a `ProjectGroup`
 
-If either side is unrecognized, `ARCH010` reports that directly.
+If either side is unrecognized, `ARCH_PROJ_001` reports that directly.
 
 ### Build Integration
 
@@ -129,7 +129,7 @@ The analyzer package therefore ships a `buildTransitive` target that writes a sm
 
 Arse and solution inspection do not need that generated manifest because they can inspect `MSBuildWorkspace` project references directly.
 
-For rules about logical modules across an entire solution, use [solution topology](solution-topology.md) instead. `ProjectArchitecture` remains a compiler analyzer feature and produces `ARCH010`; `SolutionTopology` is explicit workspace inspection and produces `TOPO001` / `TOPO002` report findings.
+For rules about logical modules across an entire solution, use [solution topology](solution-topology.md) instead. `ProjectArchitecture` remains a compiler analyzer feature and produces `ARCH_PROJ_001`; `SolutionTopology` is explicit workspace inspection and produces `ARCH_SOL_001` / `ARCH_SOL_006` report findings.
 
 ### Raw Assembly References
 
@@ -142,10 +142,10 @@ as compiler `ARCHxxx` diagnostics.
 
 For deterministic cases, the config fixer layer can update project architecture rules too:
 
-- `ARCH010` can add a missing `<AllowedProjectReference from="..." to="..." />`
-- `ARCH010` can add a narrow exact-project rule with `<From>` and `<To>` selectors
-- same-group `ARCH010` can add an explicit self-edge
-- blocked-edge `ARCH010` can remove the matching `<BlockedProjectReference ... />`
-- `ARCH011` can append an exact `<Package exactName="..."/>` matcher to the matched allowed package list
+- `ARCH_PROJ_001` can add a missing `<AllowedProjectReference from="..." to="..." />`
+- `ARCH_PROJ_001` can add a narrow exact-project rule with `<From>` and `<To>` selectors
+- same-group `ARCH_PROJ_001` can add an explicit self-edge
+- blocked-edge `ARCH_PROJ_001` can remove the matching `<BlockedProjectReference ... />`
+- `ARCH_PKG_001` can append an exact `<Package exactName="..."/>` matcher to the matched allowed package list
 
-Because `ARCH010` and `ARCH011` are compilation-end diagnostics, host UX varies a little: build reports and host tooling are the most reliable surfaces, while editor light-bulb visibility depends on how the IDE exposes `Location.None` diagnostics.
+Because `ARCH_PROJ_001` and `ARCH_PKG_001` are compilation-end diagnostics, host UX varies a little: build reports and host tooling are the most reliable surfaces, while editor light-bulb visibility depends on how the IDE exposes `Location.None` diagnostics.

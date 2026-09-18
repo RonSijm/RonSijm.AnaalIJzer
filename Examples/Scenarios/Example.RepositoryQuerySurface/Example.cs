@@ -16,7 +16,7 @@ public sealed class OrderService(OrderRepository repository)
 {
     public OrderProjection GetOrder() => repository.QueryOrders().ForCurrentCustomer().Project();
 
-    // ARCH001: Application -> QuerySurface is not allowed at Site=Local.
+    // ARCH_DEP_001: Application -> QuerySurface is not allowed at Site=Local.
     public OrderProjection GetOrderThroughLocalQuery()
     {
         OrderQuery query = repository.QueryOrders();
@@ -42,7 +42,7 @@ public sealed class OrderQuery
 
 public sealed record OrderProjection(int OrderId);
 
-// ARCH001: Application -> QuerySurface is not allowed at Site=Constructor.
+// ARCH_DEP_001: Application -> QuerySurface is not allowed at Site=Constructor.
 public sealed class OrderDashboardService(OrderQuery query)
 {
     public OrderProjection PreviewOrder() => query.Project();

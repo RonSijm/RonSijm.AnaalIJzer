@@ -10,5 +10,6 @@ internal enum AnaaltomyCommand
 	Compare,
 	Commits,
 	Export,
+	ExportDatabase,
 	Chart
 }

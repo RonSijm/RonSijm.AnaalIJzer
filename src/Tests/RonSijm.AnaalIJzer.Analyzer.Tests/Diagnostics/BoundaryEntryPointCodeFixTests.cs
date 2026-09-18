@@ -40,7 +40,7 @@ public sealed class BoundaryEntryPointCodeFixTests
 		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
 			source,
 			config,
-			ArchitecturalDiagnosticIds.BoundaryEntryPointViolation,
+			ArchitecturalDiagnosticIds.BoundaryEntryPlacement,
 			"Add entry point 'Implementation' to boundary 'Ordering'");
 
 		updatedConfig.Should().Contain("""<EntryPoint layer="Implementation" />""");
@@ -78,7 +78,7 @@ public sealed class BoundaryEntryPointCodeFixTests
 		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
 			source,
 			config,
-			ArchitecturalDiagnosticIds.BoundaryEntryPointViolation,
+			ArchitecturalDiagnosticIds.BoundaryEntryPlacement,
 			"Remove site 'Constructor' from blocked entry point for 'Ordering/Contracts'");
 
 		updatedConfig.Should().NotContain("blockedSites=\"Constructor\"");
@@ -121,7 +121,7 @@ public sealed class BoundaryEntryPointCodeFixTests
 
 		var updatedSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
 			source,
-			ArchitecturalDiagnosticIds.BoundaryEntryPointViolation,
+			ArchitecturalDiagnosticIds.BoundaryEntryPlacement,
 			"Add entry point 'Implementation' to boundary 'Ordering'");
 
 		updatedSource.Should().Contain("""<EntryPoint layer="Implementation" />""");

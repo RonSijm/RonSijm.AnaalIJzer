@@ -1,0 +1,30 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+                     description="Each policy demonstrates the site filter of one namespace hierarchy block.">
+  <NamespaceHierarchyPolicy rootNamespace="Restaurant.NamespaceHierarchySites.AllowedConstructor"><BlockedRelation relation="DescendantToAncestor" allowedSites="Constructor" /></NamespaceHierarchyPolicy>
+  <NamespaceHierarchyPolicy rootNamespace="Restaurant.NamespaceHierarchySites.AllowedMethod"><BlockedRelation relation="DescendantToAncestor" allowedSites="Method" /></NamespaceHierarchyPolicy>
+  <NamespaceHierarchyPolicy rootNamespace="Restaurant.NamespaceHierarchySites.AllowedMethodReturn"><BlockedRelation relation="DescendantToAncestor" allowedSites="MethodReturn" /></NamespaceHierarchyPolicy>
+  <NamespaceHierarchyPolicy rootNamespace="Restaurant.NamespaceHierarchySites.AllowedField"><BlockedRelation relation="DescendantToAncestor" allowedSites="Field" /></NamespaceHierarchyPolicy>
+  <NamespaceHierarchyPolicy rootNamespace="Restaurant.NamespaceHierarchySites.AllowedProperty"><BlockedRelation relation="DescendantToAncestor" allowedSites="Property" /></NamespaceHierarchyPolicy>
+  <NamespaceHierarchyPolicy rootNamespace="Restaurant.NamespaceHierarchySites.AllowedLocal"><BlockedRelation relation="DescendantToAncestor" allowedSites="Local" /></NamespaceHierarchyPolicy>
+  <NamespaceHierarchyPolicy rootNamespace="Restaurant.NamespaceHierarchySites.AllowedNew"><BlockedRelation relation="DescendantToAncestor" allowedSites="New" /></NamespaceHierarchyPolicy>
+  <NamespaceHierarchyPolicy rootNamespace="Restaurant.NamespaceHierarchySites.AllowedGenericInvocation"><BlockedRelation relation="DescendantToAncestor" allowedSites="GenericInvocation" /></NamespaceHierarchyPolicy>
+  <NamespaceHierarchyPolicy rootNamespace="Restaurant.NamespaceHierarchySites.AllowedGenericArgument"><BlockedRelation relation="DescendantToAncestor" allowedSites="GenericArgument" /></NamespaceHierarchyPolicy>
+  <NamespaceHierarchyPolicy rootNamespace="Restaurant.NamespaceHierarchySites.AllowedInheritance"><BlockedRelation relation="DescendantToAncestor" allowedSites="Inheritance" /></NamespaceHierarchyPolicy>
+  <NamespaceHierarchyPolicy rootNamespace="Restaurant.NamespaceHierarchySites.AllowedInterfaceImplementation"><BlockedRelation relation="DescendantToAncestor" allowedSites="InterfaceImplementation" /></NamespaceHierarchyPolicy>
+  <NamespaceHierarchyPolicy rootNamespace="Restaurant.NamespaceHierarchySites.AllowedAttribute"><BlockedRelation relation="DescendantToAncestor" allowedSites="Attribute" /></NamespaceHierarchyPolicy>
+  <NamespaceHierarchyPolicy rootNamespace="Restaurant.NamespaceHierarchySites.AllowedStaticMember"><BlockedRelation relation="DescendantToAncestor" allowedSites="StaticMember" /></NamespaceHierarchyPolicy>
+  <NamespaceHierarchyPolicy rootNamespace="Restaurant.NamespaceHierarchySites.BlockedConstructor"><BlockedRelation relation="DescendantToAncestor" blockedSites="Constructor" /></NamespaceHierarchyPolicy>
+  <NamespaceHierarchyPolicy rootNamespace="Restaurant.NamespaceHierarchySites.BlockedMethod"><BlockedRelation relation="DescendantToAncestor" blockedSites="Method" /></NamespaceHierarchyPolicy>
+  <NamespaceHierarchyPolicy rootNamespace="Restaurant.NamespaceHierarchySites.BlockedMethodReturn"><BlockedRelation relation="DescendantToAncestor" blockedSites="MethodReturn" /></NamespaceHierarchyPolicy>
+  <NamespaceHierarchyPolicy rootNamespace="Restaurant.NamespaceHierarchySites.BlockedField"><BlockedRelation relation="DescendantToAncestor" blockedSites="Field" /></NamespaceHierarchyPolicy>
+  <NamespaceHierarchyPolicy rootNamespace="Restaurant.NamespaceHierarchySites.BlockedProperty"><BlockedRelation relation="DescendantToAncestor" blockedSites="Property" /></NamespaceHierarchyPolicy>
+  <NamespaceHierarchyPolicy rootNamespace="Restaurant.NamespaceHierarchySites.BlockedLocal"><BlockedRelation relation="DescendantToAncestor" blockedSites="Local" /></NamespaceHierarchyPolicy>
+  <NamespaceHierarchyPolicy rootNamespace="Restaurant.NamespaceHierarchySites.BlockedNew"><BlockedRelation relation="DescendantToAncestor" blockedSites="New" /></NamespaceHierarchyPolicy>
+  <NamespaceHierarchyPolicy rootNamespace="Restaurant.NamespaceHierarchySites.BlockedGenericInvocation"><BlockedRelation relation="DescendantToAncestor" blockedSites="GenericInvocation" /></NamespaceHierarchyPolicy>
+  <NamespaceHierarchyPolicy rootNamespace="Restaurant.NamespaceHierarchySites.BlockedGenericArgument"><BlockedRelation relation="DescendantToAncestor" blockedSites="GenericArgument" /></NamespaceHierarchyPolicy>
+  <NamespaceHierarchyPolicy rootNamespace="Restaurant.NamespaceHierarchySites.BlockedInheritance"><BlockedRelation relation="DescendantToAncestor" blockedSites="Inheritance" /></NamespaceHierarchyPolicy>
+  <NamespaceHierarchyPolicy rootNamespace="Restaurant.NamespaceHierarchySites.BlockedInterfaceImplementation"><BlockedRelation relation="DescendantToAncestor" blockedSites="InterfaceImplementation" /></NamespaceHierarchyPolicy>
+  <NamespaceHierarchyPolicy rootNamespace="Restaurant.NamespaceHierarchySites.BlockedAttribute"><BlockedRelation relation="DescendantToAncestor" blockedSites="Attribute" /></NamespaceHierarchyPolicy>
+  <NamespaceHierarchyPolicy rootNamespace="Restaurant.NamespaceHierarchySites.BlockedStaticMember"><BlockedRelation relation="DescendantToAncestor" blockedSites="StaticMember" /></NamespaceHierarchyPolicy>
+</ArchitecturalLevels>

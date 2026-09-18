@@ -26,7 +26,7 @@ public sealed class DependencyRuleCodeFixTests
 		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
 			source,
 			config,
-			ArchitecturalDiagnosticIds.IllegalLevelDependency,
+			ArchitecturalDiagnosticIds.DependencyNotAllowed,
 			"Add allowed dependency 'Waiter' -> 'Chef'");
 
 		updatedConfig.Should().Contain("<AllowedDependency from=\"Waiter\" to=\"Chef\" />");
@@ -61,7 +61,7 @@ public sealed class DependencyRuleCodeFixTests
 		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
 			source,
 			config,
-			ArchitecturalDiagnosticIds.IllegalLevelDependency,
+			ArchitecturalDiagnosticIds.DependencyNotAllowed,
 			"Add site 'Local' to allowedSites");
 
 		updatedConfig.Should().Contain("allowedSites=\"Constructor, Local\"");
@@ -92,7 +92,7 @@ public sealed class DependencyRuleCodeFixTests
 		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
 			source,
 			config,
-			ArchitecturalDiagnosticIds.IllegalLevelDependency,
+			ArchitecturalDiagnosticIds.DependencyNotAllowed,
 			"Remove site 'Field' from blockedSites");
 
 		updatedConfig.Should().Contain("blockedSites=\"Property\"");
@@ -117,7 +117,7 @@ public sealed class DependencyRuleCodeFixTests
 		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
 			source,
 			config,
-			ArchitecturalDiagnosticIds.SameLayerDependency,
+			ArchitecturalDiagnosticIds.DependencyPeerScope,
 			"Allow same-layer dependency 'DataAbstraction' -> 'DataAbstraction' at InterfaceImplementation");
 
 		updatedConfig.Should().Contain("<AllowedDependency from=\"DataAbstraction\" to=\"DataAbstraction\" allowedSites=\"InterfaceImplementation\" />");
@@ -146,7 +146,7 @@ public sealed class DependencyRuleCodeFixTests
 
 		var updatedSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
 			source,
-			ArchitecturalDiagnosticIds.IllegalLevelDependency,
+			ArchitecturalDiagnosticIds.DependencyNotAllowed,
 			"Add allowed dependency 'Waiter' -> 'Chef'");
 
 		updatedSource.Should().Contain("<AllowedDependency from=\"Waiter\" to=\"Chef\" />");
@@ -174,7 +174,7 @@ public sealed class DependencyRuleCodeFixTests
 		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
 			source,
 			config,
-			ArchitecturalDiagnosticIds.WrongDirectionDependency,
+			ArchitecturalDiagnosticIds.DependencyReverseDirection,
 			"Add allowed dependency 'Controller' -> 'Application'");
 
 		updatedConfig.Should().Contain("<AllowedDependency from=\"Controller\" to=\"Application\" />");
@@ -199,7 +199,7 @@ public sealed class DependencyRuleCodeFixTests
 			public sealed class PizzaController(PizzaKitchen kitchen) { }
 			""";
 
-		var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(source, config, ArchitecturalDiagnosticIds.WrongDirectionDependency);
+		var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(source, config, ArchitecturalDiagnosticIds.DependencyReverseDirection);
 
 		titles.Should().Contain("Add allowed dependency 'Controller' -> 'Application'");
 		titles.Should().Contain("Flip configured dependency 'Application' -> 'Controller' to 'Controller' -> 'Application'");
@@ -227,7 +227,7 @@ public sealed class DependencyRuleCodeFixTests
 		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
 			source,
 			config,
-			ArchitecturalDiagnosticIds.WrongDirectionDependency,
+			ArchitecturalDiagnosticIds.DependencyReverseDirection,
 			"Flip configured dependency 'Application' -> 'Controller' to 'Controller' -> 'Application'");
 
 		updatedConfig.Should().Contain("<AllowedDependency from=\"Controller\" to=\"Application\" />");

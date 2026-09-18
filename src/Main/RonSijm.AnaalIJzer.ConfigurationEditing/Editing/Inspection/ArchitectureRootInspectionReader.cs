@@ -48,6 +48,10 @@ internal static class ArchitectureRootInspectionReader
 			.Elements(ArchitectureConfigurationXmlNames.AssemblyAttributePolicyElementName)
 			.Select(child => ArchitectureConfigurationXmlEditor.CreateElementDetails(child, rootHandle, ArchitectureConfigurationXmlNames.AssemblyAttributePolicyElementName))
 			.ToImmutableArray();
+		var namespaceHierarchyPolicies = root
+			.Elements(ArchitectureConfigurationXmlNames.NamespaceHierarchyPolicyElementName)
+			.Select(child => ArchitectureConfigurationXmlEditor.CreateElementDetails(child, rootHandle, ArchitectureConfigurationXmlNames.NamespaceHierarchyPolicyElementName))
+			.ToImmutableArray();
 		var result = ArchitectureRootInspectionResult.Success(
 			root.Attribute(ArchitectureConfigurationXmlNames.DescriptionAttributeName)?.Value,
 			root.Attribute(ArchitectureConfigurationXmlNames.RequireRecognizedDependenciesAttributeName)?.Value,
@@ -67,7 +71,8 @@ internal static class ArchitectureRootInspectionReader
 			allowedPolicies,
 			forbiddenPolicies,
 			operationContracts,
-			assemblyAttributePolicies);
+			assemblyAttributePolicies,
+			namespaceHierarchyPolicies);
 
 		return result;
 	}

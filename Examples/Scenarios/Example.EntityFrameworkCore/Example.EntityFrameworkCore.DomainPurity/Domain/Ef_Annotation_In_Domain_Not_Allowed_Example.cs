@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Example.EntityFrameworkCore.DomainPurity.Domain;
 
-// ARCH001: Domain -> EfCoreAnnotation is blocked at Site=Attribute.
+// ARCH_DEP_001: Domain -> EfCoreAnnotation is blocked at Site=Attribute.
 [Index(nameof(PizzaOrder.OrderNumber))]
 public sealed class PizzaOrder
 {

@@ -95,7 +95,7 @@ internal static class ArchitectureLayerPolicyEditor
 	{
 		if (attributes.Keys.Any(attributeName => attributeName is not "description" and not "comment"))
 		{
-			return ArchitectureConfigurationDocumentOperationResult.Failure("ReturnValuePolicy supports description and comment attributes. Configure forbidden returned expressions as child matchers.");
+			return ArchitectureConfigurationDocumentOperationResult.Failure("ReturnValuePolicy supports description and comment attributes. Configure forbidden returned expressions as child matchers or use one AllowedReturn block.");
 		}
 
 		if (!ArchitectureConfigurationXmlEditor.TryCreateAttributes(attributes, out var xAttributes, out var attributeMessage))
@@ -112,9 +112,10 @@ internal static class ArchitectureLayerPolicyEditor
 			.Where(node => node is not XText text || !string.IsNullOrWhiteSpace(text.Value))
 			.ToArray();
 		var rules = meaningfulChildNodes.OfType<XElement>().ToArray();
-		if (rules.Length == 0 || rules.Length != meaningfulChildNodes.Length || rules.Any(IsInvalidReturnValueRule))
+		var allowedReturnCount = rules.Count(rule => rule.Name.LocalName == ArchitectureConfigurationXmlNames.AllowedReturnElementName);
+		if (rules.Length == 0 || rules.Length != meaningfulChildNodes.Length || allowedReturnCount > 1 || rules.Any(IsInvalidReturnValuePolicyChild))
 		{
-			return ArchitectureConfigurationDocumentOperationResult.Failure("ReturnValuePolicy requires one or more Literal, Invocation, New, Identifier, or MemberAccess matcher children with supported matcher attributes.");
+			return ArchitectureConfigurationDocumentOperationResult.Failure("ReturnValuePolicy requires one or more forbidden Literal, Invocation, New, Identifier, or MemberAccess matcher children, or one AllowedReturn block containing those matchers.");
 		}
 
 		var result = ArchitectureLayerMutationExecutor.EditLayer(
@@ -345,6 +346,27 @@ internal static class ArchitectureLayerPolicyEditor
 			|| (!supportsMemberKind && child.Attribute("memberKind") is not null);
 
 		return result;
+	}
+
+	private static bool IsInvalidReturnValuePolicyChild(XElement child)
+	{
+		if (child.Name.LocalName == ArchitectureConfigurationXmlNames.AllowedReturnElementName)
+		{
+			var allowedChildNodes = child.Nodes()
+				.Where(node => node is not XText text || !string.IsNullOrWhiteSpace(text.Value))
+				.ToArray();
+			var allowedChildren = allowedChildNodes.OfType<XElement>().ToArray();
+			var result = child.Attributes().Any(attribute => attribute.Name.LocalName is not ("description" or "comment"))
+				|| allowedChildren.Length == 0
+				|| allowedChildren.Length != allowedChildNodes.Length
+				|| allowedChildren.Any(IsInvalidReturnValueRule);
+
+			return result;
+		}
+
+		var directRuleResult = IsInvalidReturnValueRule(child);
+
+		return directRuleResult;
 	}
 
 	private static bool IsInvalidReturnValueRule(XElement rule)

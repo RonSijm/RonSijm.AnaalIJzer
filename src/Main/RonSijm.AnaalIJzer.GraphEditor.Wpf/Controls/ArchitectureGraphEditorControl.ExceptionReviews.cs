@@ -18,7 +18,7 @@ public sealed partial class ArchitectureGraphEditorControl
 	{
 		var reviews = GetVisibleExceptionReviews(ownerLayerPath);
 		panel.Children.Add(CreateSectionTitle("Exception reviews"));
-		panel.Children.Add(CreateHintTextBlock("These are ARCH017 review items. Filter by status to focus on invalid, expiring, expired, or stale exceptions.", new Thickness(0, 0, 0, 4)));
+		panel.Children.Add(CreateHintTextBlock("These are ARCH_EXC_009 review items. Filter by status to focus on invalid, expiring, expired, or stale exceptions.", new Thickness(0, 0, 0, 4)));
 		panel.Children.Add(CreateExceptionReviewFilterPanel());
 		if (reviews.Length == 0)
 		{

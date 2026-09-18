@@ -123,7 +123,7 @@ public static partial class ArchitectureEditorSnapshotService
 					transitivePolicy.TransitiveExposure?.Description ?? transitivePolicy.Description,
 					transitivePolicy.XmlPath,
 					transitivePolicy.XmlLineNumber,
-					ArchitecturalDiagnosticIds.ForbiddenTransitiveExposure,
+					ArchitecturalDiagnosticIds.ApiTransitiveExposure,
 					path,
 					transitiveViolation.Value.Depth,
 					segments));

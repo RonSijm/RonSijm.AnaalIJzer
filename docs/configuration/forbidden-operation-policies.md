@@ -20,12 +20,12 @@ This is a semantic policy. AnaalIjzer compares Roslyn symbols, so an alias and a
 </Layer>
 ```
 
-That produces `ARCH021` for `DateTime.UtcNow` in `Kitchen` code. An injected `PizzaClock.UtcNow` property is unaffected because it is a different resolved symbol.
+That produces `ARCH_OPER_001` for `DateTime.UtcNow` in `Kitchen` code. An injected `PizzaClock.UtcNow` property is unaffected because it is a different resolved symbol.
 
 ### How matching works
 
 - Every `<ForbiddenOperation>` is a separate forbidden rule.
-- Sibling `<OperationMatcher>` children in one rule are alternatives: matching **any** one reports `ARCH021`.
+- Sibling `<OperationMatcher>` children in one rule are alternatives: matching **any** one reports `ARCH_OPER_001`.
 - `ContainingType` and `Member` inside one matcher are both required.
 - Multiple matcher attributes on either child are also combined, using the normal AND-within / OR-between matcher model.
 - `staticAccess="true"` or `staticAccess="false"` narrows the matcher. Omit it when both forms are meaningful.
@@ -46,7 +46,7 @@ That produces `ARCH021` for `DateTime.UtcNow` in `Kitchen` code. An injected `Pi
 | `Return` | A return operation, without a selected member |
 | `Argument` | An argument operation, without a selected member |
 
-`<Member>` is available only for the operation kinds that select a member. Its optional `memberKind` is one of `Method`, `Constructor`, `Property`, `Field`, or `Event`; incompatible combinations are configuration errors (`ARCH006`).
+`<Member>` is available only for the operation kinds that select a member. Its optional `memberKind` is one of `Method`, `Constructor`, `Property`, `Field`, or `Event`; incompatible combinations are configuration errors (`ARCH_CONF_003`).
 
 ### Common patterns
 
@@ -68,13 +68,13 @@ That produces `ARCH021` for `DateTime.UtcNow` in `Kitchen` code. An injected `Pi
 </ForbiddenOperation>
 ```
 
-There is no automatic code fix for `ARCH021`. A selected operation tells the analyzer what is not permitted, but it cannot decide whether your replacement should be an injected adapter, `await`, an explicit result type, or a different composition boundary.
+There is no automatic code fix for `ARCH_OPER_001`. A selected operation tells the analyzer what is not permitted, but it cannot decide whether your replacement should be an injected adapter, `await`, an explicit result type, or a different composition boundary.
 
-When Sites Diagnostics is enabled in the Visual Studio companion, a matching operation is shown with its regular site label and an `ARCH021` policy-status explanation in QuickInfo. This remains opt-in with the rest of the site indicators, so a policy does not add editor adornments by default.
+When Sites Diagnostics is enabled in the Visual Studio companion, a matching operation is shown with its regular site label and an `ARCH_OPER_001` policy-status explanation in QuickInfo. This remains opt-in with the rest of the site indicators, so a policy does not add editor adornments by default.
 
 **Focused examples:**
 
-- [`Example.Arch021.ClockAccess`](../../Examples/Diagnostics/Example.Arch021.ClockAccess) - `DateTime.UtcNow`, `DateTime.Now`, and `DateTime.Today`.
-- [`Example.Arch021.BlockingTaskAccess`](../../Examples/Diagnostics/Example.Arch021.BlockingTaskAccess) - `Task.Wait()` at `Method` and `Task<T>.Result` at `Local`.
-- [`Example.Arch021.ServiceLocation`](../../Examples/Diagnostics/Example.Arch021.ServiceLocation) - `IServiceProvider.GetService` outside the composition root.
-- [`Example.Arch021.SelectedEnvironmentMember`](../../Examples/Diagnostics/Example.Arch021.SelectedEnvironmentMember) - one forbidden `Environment` property while another remains allowed.
+- [`Example.Arch_OPER_001.ClockAccess`](../../Examples/Diagnostics/OPER/Example.Arch_OPER_001.ClockAccess) - `DateTime.UtcNow`, `DateTime.Now`, and `DateTime.Today`.
+- [`Example.Arch_OPER_001.BlockingTaskAccess`](../../Examples/Diagnostics/OPER/Example.Arch_OPER_001.BlockingTaskAccess) - `Task.Wait()` at `Method` and `Task<T>.Result` at `Local`.
+- [`Example.Arch_OPER_001.ServiceLocation`](../../Examples/Diagnostics/OPER/Example.Arch_OPER_001.ServiceLocation) - `IServiceProvider.GetService` outside the composition root.
+- [`Example.Arch_OPER_001.SelectedEnvironmentMember`](../../Examples/Diagnostics/OPER/Example.Arch_OPER_001.SelectedEnvironmentMember) - one forbidden `Environment` property while another remains allowed.

@@ -206,7 +206,7 @@ public sealed class AddToExceptionsCodeFixTests
 	}
 
 	[Fact]
-	public async Task AddToExceptionsCodeFix_AppliedToARCH003_UpdatesAdditionalDocument()
+	public async Task AddToExceptionsCodeFix_AppliedToARCH_TYPE_001_UpdatesAdditionalDocument()
 	{
 		const string config = """
 		                      <?xml version="1.0" encoding="utf-8"?>
@@ -226,7 +226,7 @@ public sealed class AddToExceptionsCodeFixTests
 		                      """;
 
 		var updatedXml = await AnalyzerTestHelper.ApplyAddToExceptionsCodeFixAsync(
-			source, config, ArchitecturalDiagnosticIds.ForbiddenDependency);
+			source, config, ArchitecturalDiagnosticIds.TypeNotAllowed);
 
 		var reparsed = XDocument.Parse(updatedXml);
 		var exceptions = reparsed.Descendants("Class")
@@ -240,10 +240,10 @@ public sealed class AddToExceptionsCodeFixTests
 	}
 
 	[Fact]
-	public async Task AddToExceptionsCodeFix_AppliedToARCH005_UpdatesAdditionalDocument()
+	public async Task AddToExceptionsCodeFix_AppliedToARCH_DEP_005_UpdatesAdditionalDocument()
 	{
 		// Verifies the code fix is wired for every ARCH ID it claims to cover, not
-		// only ARCH003. The target rule here is the Manager layer rule itself.
+		// only ARCH_TYPE_001. The target rule here is the Manager layer rule itself.
 		const string config = """
 		                      <?xml version="1.0" encoding="utf-8"?>
 		                      <ArchitecturalLevels>
@@ -259,7 +259,7 @@ public sealed class AddToExceptionsCodeFixTests
 		                      """;
 
 		var updatedXml = await AnalyzerTestHelper.ApplyAddToExceptionsCodeFixAsync(
-			source, config, ArchitecturalDiagnosticIds.SameLayerDependency);
+			source, config, ArchitecturalDiagnosticIds.DependencyPeerScope);
 
 		var reparsed = XDocument.Parse(updatedXml);
 		var exceptions = reparsed.Descendants("Class")
@@ -295,7 +295,7 @@ public sealed class AddToExceptionsCodeFixTests
 		                      """;
 
 		var updatedXml = await AnalyzerTestHelper.ApplyAddToExceptionsCodeFixAsync(
-			source, config, ArchitecturalDiagnosticIds.SameLayerDependency);
+			source, config, ArchitecturalDiagnosticIds.DependencyPeerScope);
 
 		var reparsed = XDocument.Parse(updatedXml);
 		var exceptionElement = reparsed.Descendants("Class")
@@ -339,7 +339,7 @@ public sealed class AddToExceptionsCodeFixTests
 				("Architecture.anl", parentConfig),
 				("SharedPizzeriaLayers.xml", sharedConfig),
 			],
-			ArchitecturalDiagnosticIds.IllegalLevelDependency,
+			ArchitecturalDiagnosticIds.DependencyNotAllowed,
 			"SharedPizzeriaLayers.xml");
 
 		var reparsed = XDocument.Parse(updatedXml);
@@ -373,7 +373,7 @@ public sealed class AddToExceptionsCodeFixTests
 
 		var updatedSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
 			source,
-			ArchitecturalDiagnosticIds.SameLayerDependency,
+			ArchitecturalDiagnosticIds.DependencyPeerScope,
 			"Add 'IPatientManager' to exceptions");
 
 		updatedSource.Should().Contain("<Exceptions>");
@@ -383,7 +383,7 @@ public sealed class AddToExceptionsCodeFixTests
 	private static Diagnostic CreateDiagnosticWithProperties(ImmutableDictionary<string, string?> properties)
 	{
 		var result = Diagnostic.Create(
-			ArchitecturalDiagnostics.IllegalDependency,
+			ArchitecturalDiagnostics.DependencyNotAllowed,
 			Location.None,
 			properties,
 			"PizzaController",

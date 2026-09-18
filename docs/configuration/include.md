@@ -56,7 +56,7 @@ public class OrderEndpoint(IOrderService service) { }
 // Application -> Persistence comes from the included shared settings.
 public class OrderService(IOrderRepository repository) { }
 
-// ARCH001: Presentation -> Persistence has no AllowedDependency edge.
+// ARCH_DEP_001: Presentation -> Persistence has no AllowedDependency edge.
 public class AdminEndpoint(IOrderRepository repository) { }
 ```
 

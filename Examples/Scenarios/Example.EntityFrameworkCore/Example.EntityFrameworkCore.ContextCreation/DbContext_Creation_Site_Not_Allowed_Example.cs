@@ -17,7 +17,7 @@ public sealed class PizzaOrderApplicationService(PizzaOrderRepository repository
 {
     public void CreateContextOutsideTheFactory()
     {
-        // ARCH001: Application -> Context is not allowed at Site=New.
+        // ARCH_DEP_001: Application -> Context is not allowed at Site=New.
         _ = new PizzaOrderingDbContext();
     }
 }

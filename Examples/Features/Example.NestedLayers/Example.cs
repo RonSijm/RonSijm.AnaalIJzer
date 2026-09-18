@@ -14,15 +14,15 @@ public class OrderModule(OrderRepository repository) { }
 
 public class ShippingContract { }
 
-// ARCH001: the root Catalog -> Shipping gate is missing.
+// ARCH_DEP_001: the root Catalog -> Shipping gate is missing.
 public class CatalogService(ShippingContract contract) { }
 
 public class SupportContract { }
 
-// ARCH001: Fulfillment/Application has no egress gate to Support/Contracts.
+// ARCH_DEP_001: Fulfillment/Application has no egress gate to Support/Contracts.
 public class FulfillmentService(SupportContract contract) { }
 
 public class PaymentContract { }
 
-// ARCH001: Payments has no ingress gate into Contracts.
+// ARCH_DEP_001: Payments has no ingress gate into Contracts.
 public class InventoryService(PaymentContract contract) { }

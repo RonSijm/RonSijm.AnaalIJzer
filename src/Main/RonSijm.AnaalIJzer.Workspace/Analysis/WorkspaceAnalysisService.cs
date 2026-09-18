@@ -46,13 +46,13 @@ internal sealed class WorkspaceAnalysisService(string configuration)
 
 	public void EnsureConfigHasRules(AnalyzerConfig config)
 	{
-		if (!config.Engine.HasLayers && !config.HasProjectArchitecture && !config.HasSolutionTopology && !config.HasOperationContracts && !config.HasAssemblyAttributePolicies)
+		if (!config.HasConfiguredRules)
 		{
 			throw new InvalidOperationException("No ArchitecturalLevels config was found. Add Architecture.anl or AssemblyMetadata(\"AnaalIJzerSettings\", ...).");
 		}
 	}
 
-	public ProjectAnalysisResult EnsureSolutionHasLayers(SolutionAnalysisResult result)
+	public ProjectAnalysisResult EnsureSolutionHasRules(SolutionAnalysisResult result)
 	{
 		var representativeProject = result.FirstConfiguredProject;
 		if (representativeProject is null)

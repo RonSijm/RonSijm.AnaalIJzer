@@ -11,7 +11,7 @@ public sealed class BlockedMethodSiteExample
         _ = allowed;
     }
 
-    // ARCH001: blockedSites="Method" blocks this method parameter.
+    // ARCH_DEP_001: blockedSites="Method" blocks this method parameter.
     public void WrongSite(BlockedMethodType blocked)
     {
         _ = blocked;

@@ -29,7 +29,7 @@ public sealed partial class SemanticMatcherTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.ForbiddenDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
 			.Should().ContainSingle();
 	}
 
@@ -56,7 +56,7 @@ public sealed partial class SemanticMatcherTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.ForbiddenDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
 			.Should().ContainSingle();
 	}
 
@@ -93,7 +93,7 @@ public sealed partial class SemanticMatcherTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.ForbiddenDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
 			.Should().ContainSingle();
 	}
 

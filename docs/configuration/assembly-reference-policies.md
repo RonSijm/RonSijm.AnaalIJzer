@@ -67,8 +67,8 @@ folder layout.
 ### When to use a different rule
 
 - Use [`project-architecture.md`](project-architecture.md) for another project in the
-  solution. That is compiler-enforced `ARCH010` territory.
-- Use a `PackagePolicy` for a NuGet package ID. That is compiler-enforced `ARCH011`
+  solution. That is compiler-enforced `ARCH_PROJ_001` territory.
+- Use a `PackagePolicy` for a NuGet package ID. That is compiler-enforced `ARCH_PKG_001`
   territory.
 - Use `AssemblyReferencePolicy` only when the build really has a raw assembly reference.
 

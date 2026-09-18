@@ -61,8 +61,8 @@ internal static class ForbiddenOperationPolicyAnalyzer
 			.Add(ArchitecturalDiagnostics.PropertyRuleXmlLine, rule.XmlLineNumber.ToString(System.Globalization.CultureInfo.InvariantCulture))
 			.Add(ArchitecturalDiagnostics.PropertyRuleXmlCol, rule.XmlLinePosition.ToString(System.Globalization.CultureInfo.InvariantCulture));
 
-		context.ReportDiagnostic(Diagnostic.Create(
-			ArchitecturalDiagnostics.ForbiddenOperationPolicyViolation,
+		context.ReportDiagnostic(ArchitecturalDiagnostics.CreateDiagnostic(
+			ArchitecturalDiagnostics.OperationNotAllowed,
 			operation.Location,
 			properties,
 			callerType.Name,

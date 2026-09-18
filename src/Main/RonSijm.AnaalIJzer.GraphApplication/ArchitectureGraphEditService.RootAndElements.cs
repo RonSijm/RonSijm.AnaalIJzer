@@ -76,4 +76,11 @@ internal sealed partial class ArchitectureGraphEditService
 
 		return result;
 	}
+
+	public ArchitectureConfigurationEditResult AddNamespaceHierarchyPolicy(ArchitectureConfigurationSource source, ImmutableDictionary<string, string> attributes, string childXml)
+	{
+		var result = ArchitectureConfigurationEditService.AddNamespaceHierarchyPolicy(source, attributes, childXml);
+
+		return result;
+	}
 }

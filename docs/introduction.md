@@ -28,7 +28,7 @@ The compose order is defined in [`docs/_readme-order.txt`](../docs/_readme-order
 | [`docs/components/wpf-graph-editor.md`](../docs/components/wpf-graph-editor.md) | Standalone WPF graph editor usage and graph image export. |
 | [`docs/configuration/mental-model.md`](../docs/configuration/mental-model.md) | Beginner-friendly rule precedence and the "four questions" model. |
 | [`docs/configuration/*.md`](../docs/configuration/) | Detailed settings reference for layers, dependency rules, type policies, exceptions, name rules, reports, and generated documentation. |
-| [`docs/diagnostics/index.md`](../docs/diagnostics/index.md) | Diagnostic overview and links to the `ARCH001` through `ARCH008` pages. |
+| [`docs/diagnostics/index.md`](../docs/diagnostics/index.md) | Diagnostic overview and links to the `ARCH_DEP_001` through `ARCH_NAME_008` pages. |
 | [`docs/q-and-a.md`](../docs/q-and-a.md) | Common questions such as framework types, nested boundaries, and same-project interfaces. |
 | [`docs/suppressing-violations.md`](../docs/suppressing-violations.md) | Local suppression guidance. |
 | [`docs/violation-report.md`](../docs/violation-report.md) | Generated violation report output. |
@@ -88,9 +88,9 @@ Customer ──► Waiter    ✅ allowed
 Waiter ──► Chef        ✅ allowed
 Chef ──► Pantry        ✅ allowed
 
-Customer ──► Chef      ❌ ARCH001 - no AllowedDependency edge configured
-Pantry ──► Chef        ❌ ARCH004 - wrong direction (reverse of the allowed edge)
-Chef ──► Chef          ❌ ARCH005 - same layer
+Customer ──► Chef      ❌ ARCH_DEP_001 - no AllowedDependency edge configured
+Pantry ──► Chef        ❌ ARCH_DEP_004 - wrong direction (reverse of the allowed edge)
+Chef ──► Chef          ❌ ARCH_DEP_005 - same layer
 ```
 
 ### Where it hooks into Roslyn
@@ -118,7 +118,7 @@ The integration points are:
 3. It registers `SyntaxNodeAction` callbacks only for syntax that can introduce an architectural dependency: type and constructor declarations, methods, fields, properties, locals, object creation, invocations, attributes, inheritance, and static member access. Generated code is ignored, and callbacks may run concurrently.
 4. [`LayerDependencyAnalyzer`](../src/Main/RonSijm.AnaalIJzer.Engine/Analysis/BoundaryRules/LayerDependencies/LayerDependencyAnalyzer.cs) uses the callback's `SemanticModel` to resolve syntax to real Roslyn symbols such as `ITypeSymbol`. This is why aliases, inferred local types, generic type arguments, implemented interfaces, and referenced types can be evaluated by their actual type identity instead of by source text alone.
 5. The resolved caller and dependency symbols are matched to configured layer paths. The dependency graph evaluates the relevant boundary gates, blocked rules, site filters, recognized-dependency requirements, and forbidden patterns. A failure is returned to Roslyn with `ReportDiagnostic`, including the source location and diagnostic properties such as `Site`.
-6. Configuration failures and configured cycles are reported at the end of the compilation as ARCH006 or ARCH007. If there is no configuration source, no dependency callbacks are registered and the analyzer remains silent.
+6. Configuration failures and configured cycles are reported at the end of the compilation as ARCH_CONF_003 or ARCH_CONF_006. If there is no configuration source, no dependency callbacks are registered and the analyzer remains silent.
 
 Because the same analyzer participates in design-time and command-line compilations, the red squiggle in the editor and the error in CI come from the same rule evaluation.
 

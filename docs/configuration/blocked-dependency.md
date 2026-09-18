@@ -27,7 +27,7 @@ By default, a dependency rule applies to every dependency site. Add `allowedSite
 <AllowedDependency from="Chef" to="Ingredient" blockedSites="MethodReturn" />
 ```
 
-The attributes are mutually exclusive. Site names are comma-separated, trimmed, and case-insensitive. Unknown site names or a rule that declares both attributes report ARCH006 and are ignored fail-closed - a typo in a site list should never widen a rule by accident.
+The attributes are mutually exclusive. Site names are comma-separated, trimmed, and case-insensitive. Unknown site names or a rule that declares both attributes report ARCH_CONF_003 and are ignored fail-closed - a typo in a site list should never widen a rule by accident.
 
 Site filters also apply to wildcard edges such as `from="*"` and `to="*"`.
 
@@ -84,14 +84,14 @@ Site filters are useful when one layer owns a type that other layers may touch o
 public OrderProjection GetOrder()
     => repository.QueryOrders().ForCurrentCustomer().Project();
 
-// ARCH001, Site=Local: application logic now retains a raw query surface.
+// ARCH_DEP_001, Site=Local: application logic now retains a raw query surface.
 public OrderProjection GetOrderThroughLocalQuery()
 {
     OrderQuery query = repository.QueryOrders();
     return query.Project();
 }
 
-// ARCH001, Site=MethodReturn: the raw query surface leaks outside the service API.
+// ARCH_DEP_001, Site=MethodReturn: the raw query surface leaks outside the service API.
 public OrderQuery LeakQuery() => repository.QueryOrders();
 ```
 

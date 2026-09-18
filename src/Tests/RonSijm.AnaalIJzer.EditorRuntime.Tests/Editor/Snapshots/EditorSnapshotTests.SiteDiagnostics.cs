@@ -90,27 +90,27 @@ public sealed partial class EditorSnapshotTests
 	}
 
 	[Theory]
-	[InlineData(ArchitectureDependencySiteStatus.Allowed, ArchitecturalDiagnosticIds.IllegalLevelDependency, """
+	[InlineData(ArchitectureDependencySiteStatus.Allowed, ArchitecturalDiagnosticIds.DependencyNotAllowed, """
 		                                                                                                     <ArchitecturalLevels>
 		                                                                                                       <Layer name="Caller"><Class typeName="CallerType" /></Layer>
 		                                                                                                       <Layer name="Dependency"><Class typeName="TargetDependency" /></Layer>
 		                                                                                                       <AllowedDependency from="Caller" to="Dependency" />
 		                                                                                                     </ArchitecturalLevels>
 		                                                                                                     """)]
-	[InlineData(ArchitectureDependencySiteStatus.MissingAllowedDependency, ArchitecturalDiagnosticIds.IllegalLevelDependency, """
+	[InlineData(ArchitectureDependencySiteStatus.MissingAllowedDependency, ArchitecturalDiagnosticIds.DependencyNotAllowed, """
 		                                                                                                                        <ArchitecturalLevels>
 		                                                                                                                          <Layer name="Caller"><Class typeName="CallerType" /></Layer>
 		                                                                                                                          <Layer name="Dependency"><Class typeName="TargetDependency" /></Layer>
 		                                                                                                                        </ArchitecturalLevels>
 		                                                                                                                        """)]
-	[InlineData(ArchitectureDependencySiteStatus.SiteFiltered, ArchitecturalDiagnosticIds.IllegalLevelDependency, """
+	[InlineData(ArchitectureDependencySiteStatus.SiteFiltered, ArchitecturalDiagnosticIds.DependencyNotAllowed, """
 		                                                                                                              <ArchitecturalLevels>
 		                                                                                                                <Layer name="Caller"><Class typeName="CallerType" /></Layer>
 		                                                                                                                <Layer name="Dependency"><Class typeName="TargetDependency" /></Layer>
 		                                                                                                                <AllowedDependency from="Caller" to="Dependency" allowedSites="Local" />
 		                                                                                                              </ArchitecturalLevels>
 		                                                                                                              """)]
-	[InlineData(ArchitectureDependencySiteStatus.Blocked, ArchitecturalDiagnosticIds.IllegalLevelDependency, """
+	[InlineData(ArchitectureDependencySiteStatus.Blocked, ArchitecturalDiagnosticIds.DependencyNotAllowed, """
 		                                                                                                      <ArchitecturalLevels>
 		                                                                                                        <Layer name="Caller"><Class typeName="CallerType" /></Layer>
 		                                                                                                        <Layer name="Dependency"><Class typeName="TargetDependency" /></Layer>
@@ -118,14 +118,14 @@ public sealed partial class EditorSnapshotTests
 		                                                                                                        <BlockedDependency from="Caller" to="Dependency" />
 		                                                                                                      </ArchitecturalLevels>
 		                                                                                                      """)]
-	[InlineData(ArchitectureDependencySiteStatus.WrongDirection, ArchitecturalDiagnosticIds.WrongDirectionDependency, """
+	[InlineData(ArchitectureDependencySiteStatus.WrongDirection, ArchitecturalDiagnosticIds.DependencyReverseDirection, """
 		                                                                                                                <ArchitecturalLevels>
 		                                                                                                                  <Layer name="Caller"><Class typeName="CallerType" /></Layer>
 		                                                                                                                  <Layer name="Dependency"><Class typeName="TargetDependency" /></Layer>
 		                                                                                                                  <AllowedDependency from="Dependency" to="Caller" />
 		                                                                                                                </ArchitecturalLevels>
 		                                                                                                                """)]
-	[InlineData(ArchitectureDependencySiteStatus.SameLayer, ArchitecturalDiagnosticIds.SameLayerDependency, """
+	[InlineData(ArchitectureDependencySiteStatus.SameLayer, ArchitecturalDiagnosticIds.DependencyPeerScope, """
 		                                                                                                      <ArchitecturalLevels>
 		                                                                                                        <Layer name="Same">
 		                                                                                                          <Class typeName="CallerType" />
@@ -133,7 +133,7 @@ public sealed partial class EditorSnapshotTests
 		                                                                                                        </Layer>
 		                                                                                                      </ArchitecturalLevels>
 		                                                                                                      """)]
-	[InlineData(ArchitectureDependencySiteStatus.TypePolicyViolation, ArchitecturalDiagnosticIds.ForbiddenDependency, """
+	[InlineData(ArchitectureDependencySiteStatus.TypePolicyViolation, ArchitecturalDiagnosticIds.TypeNotAllowed, """
 		                                                                                                                <ArchitecturalLevels>
 		                                                                                                                  <Layer name="Caller"><Class typeName="CallerType" /></Layer>
 		                                                                                                                  <Layer name="Dependency"><Class typeName="TargetDependency" /></Layer>
@@ -191,7 +191,7 @@ public sealed partial class EditorSnapshotTests
 		var indicator = snapshot.SiteIndicators.Should().ContainSingle(indicator => indicator.Site == ArchitectureDependencySites.Constructor).Subject;
 
 		indicator.Status.Should().Be(ArchitectureDependencySiteStatus.Unrecognized);
-		indicator.DiagnosticId.Should().Be(ArchitecturalDiagnosticIds.UnrecognizedDependency);
+		indicator.DiagnosticId.Should().Be(ArchitecturalDiagnosticIds.DependencyRequiredMissing);
 	}
 
 	[Fact]
@@ -222,7 +222,7 @@ public sealed partial class EditorSnapshotTests
 			""";
 
 		var snapshot = await CreateSnapshotAsync(source, config);
-		var indicator = snapshot.SiteIndicators.Should().ContainSingle(item => item.DiagnosticId == ArchitecturalDiagnosticIds.ForbiddenOperationPolicyViolation).Subject;
+		var indicator = snapshot.SiteIndicators.Should().ContainSingle(item => item.DiagnosticId == ArchitecturalDiagnosticIds.OperationNotAllowed).Subject;
 
 		indicator.Site.Should().Be(ArchitectureDependencySites.StaticMember);
 		indicator.Status.Should().Be(ArchitectureDependencySiteStatus.TypePolicyViolation);
@@ -273,7 +273,7 @@ public sealed partial class EditorSnapshotTests
 			""";
 
 		var snapshot = await CreateSnapshotAsync(source, config);
-		var indicator = snapshot.SiteIndicators.Should().ContainSingle(item => item.DiagnosticId == ArchitecturalDiagnosticIds.BehavioralOperationPolicyViolation).Subject;
+		var indicator = snapshot.SiteIndicators.Should().ContainSingle(item => item.DiagnosticId == ArchitecturalDiagnosticIds.OperationOrdering).Subject;
 
 		indicator.Site.Should().Be(ArchitectureDependencySites.StaticMember);
 		indicator.Status.Should().Be(ArchitectureDependencySiteStatus.TypePolicyViolation);
@@ -317,7 +317,7 @@ public sealed partial class EditorSnapshotTests
 			""";
 
 		var snapshot = await CreateSnapshotAsync(source, config);
-		var indicator = snapshot.SiteIndicators.Should().ContainSingle(item => item.DiagnosticId == ArchitecturalDiagnosticIds.BehavioralOperationPolicyViolation).Subject;
+		var indicator = snapshot.SiteIndicators.Should().ContainSingle(item => item.DiagnosticId == ArchitecturalDiagnosticIds.OperationRequiredMissing).Subject;
 
 		indicator.Site.Should().Be(ArchitectureDependencySites.Method);
 		indicator.DependencyTypeName.Should().Contain("RequiredOperation");
@@ -358,7 +358,7 @@ public sealed partial class EditorSnapshotTests
 			""";
 
 		var snapshot = await CreateSnapshotAsync(source, config);
-		var indicator = snapshot.SiteIndicators.Should().ContainSingle(item => item.DiagnosticId == ArchitecturalDiagnosticIds.BehavioralOperationPolicyViolation).Subject;
+		var indicator = snapshot.SiteIndicators.Should().ContainSingle(item => item.DiagnosticId == ArchitecturalDiagnosticIds.OperationRequiredMissing).Subject;
 
 		indicator.Site.Should().Be(ArchitectureDependencySites.Property);
 		indicator.CallerTypeName.Should().Be("PizzaKitchen");

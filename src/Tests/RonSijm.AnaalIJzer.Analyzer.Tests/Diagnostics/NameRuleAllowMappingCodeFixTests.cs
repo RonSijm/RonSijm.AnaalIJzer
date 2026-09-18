@@ -37,7 +37,7 @@ public sealed class NameRuleAllowMappingCodeFixTests
 		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
 			source,
 			config,
-			ArchitecturalDiagnosticIds.NameRuleViolation,
+			ArchitecturalDiagnosticIds.NameShapeMismatch,
 			"Add <Allow from=\"legacy.customer.id\" to=\"customer.id\" /> to name rule");
 
 		updatedConfig.Should().Contain("<Allow from=\"legacy.customer.id\" to=\"customer.id\" />");
@@ -72,7 +72,7 @@ public sealed class NameRuleAllowMappingCodeFixTests
 			}
 			""";
 
-		var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(source, config, ArchitecturalDiagnosticIds.NameRuleViolation);
+		var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(source, config, ArchitecturalDiagnosticIds.NameShapeMismatch);
 
 		titles.Should().Contain("Add <Allow from=\"legacy.customer.id\" to=\"customer.id\" /> to name rule");
 		titles.Should().Contain("Add site-scoped <Allow from=\"legacy.customer.id\" to=\"customer.id\" /> for Method");
@@ -112,7 +112,7 @@ public sealed class NameRuleAllowMappingCodeFixTests
 
 		var updatedSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
 			source,
-			ArchitecturalDiagnosticIds.NameRuleViolation,
+			ArchitecturalDiagnosticIds.NameShapeMismatch,
 			"Add <Allow from=\"legacy.customer.id\" to=\"customer.id\" /> to name rule");
 
 		updatedSource.Should().Contain("<Allow from=\"legacy.customer.id\" to=\"customer.id\" />");
@@ -152,7 +152,7 @@ public sealed class NameRuleAllowMappingCodeFixTests
 		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
 			source,
 			config,
-			ArchitecturalDiagnosticIds.NameRuleViolation,
+			ArchitecturalDiagnosticIds.NameShapeMismatch,
 			"Add <Allow from=\"legacy.customer.id\" to=\"customer.id\" /> to name rule");
 
 		updatedConfig.Should().Contain("<Allow from=\"legacy.customer.id\" to=\"customer.id\" />");

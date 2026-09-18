@@ -1,10 +1,14 @@
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using RonSijm.AnaalIJzer.Core.Findings;
+using RonSijm.AnaalIJzer.Core.Findings.Diagnostics;
 
 namespace RonSijm.AnaalIJzer.Diagnostics;
 
 internal static class ArchitecturalDiagnostics
 {
+	internal const string PropertyDiagnosticConcern = ArchitectureDiagnosticProperties.PropertyDiagnosticConcern;
+	internal const string PropertyDiagnosticReason = ArchitectureDiagnosticProperties.PropertyDiagnosticReason;
 	internal const string PropertyMatchedSuffix = ArchitectureDiagnosticProperties.PropertyMatchedSuffix;
 	internal const string PropertyFixSuffix = ArchitectureDiagnosticProperties.PropertyFixSuffix;
 	internal const string PropertySite = ArchitectureDiagnosticProperties.PropertySite;
@@ -66,6 +70,7 @@ internal static class ArchitecturalDiagnostics
 	internal const string PropertyInheritanceViolationKind = ArchitectureDiagnosticProperties.PropertyInheritanceViolationKind;
 	internal const string PropertyReturnValueRuleTarget = ArchitectureDiagnosticProperties.PropertyReturnValueRuleTarget;
 	internal const string PropertyReturnValueRule = ArchitectureDiagnosticProperties.PropertyReturnValueRule;
+	internal const string PropertyReturnValueRuleMode = ArchitectureDiagnosticProperties.PropertyReturnValueRuleMode;
 	internal const string PropertyOperationKind = ArchitectureDiagnosticProperties.PropertyOperationKind;
 	internal const string PropertyOperationDisplayName = ArchitectureDiagnosticProperties.PropertyOperationDisplayName;
 	internal const string PropertyOperationPolicyRule = ArchitectureDiagnosticProperties.PropertyOperationPolicyRule;
@@ -91,31 +96,93 @@ internal static class ArchitecturalDiagnostics
 	internal const string PropertyExceptionOwner = ArchitectureDiagnosticProperties.PropertyExceptionOwner;
 	internal const string PropertyExceptionExpiresOn = ArchitectureDiagnosticProperties.PropertyExceptionExpiresOn;
 	internal const string PropertyExceptionStatus = ArchitectureDiagnosticProperties.PropertyExceptionStatus;
+	internal const string PropertyCallerNamespace = ArchitectureDiagnosticProperties.PropertyCallerNamespace;
+	internal const string PropertyDependencyNamespace = ArchitectureDiagnosticProperties.PropertyDependencyNamespace;
+	internal const string PropertyNamespaceHierarchyRoot = ArchitectureDiagnosticProperties.PropertyNamespaceHierarchyRoot;
+	internal const string PropertyNamespaceHierarchyRelation = ArchitectureDiagnosticProperties.PropertyNamespaceHierarchyRelation;
+	internal const string PropertyNamespaceHierarchyRuleXmlPath = ArchitectureDiagnosticProperties.PropertyNamespaceHierarchyRuleXmlPath;
+	internal const string PropertyNamespaceHierarchyRuleXmlLine = ArchitectureDiagnosticProperties.PropertyNamespaceHierarchyRuleXmlLine;
+	internal const string PropertyNamespaceHierarchyRuleXmlCol = ArchitectureDiagnosticProperties.PropertyNamespaceHierarchyRuleXmlCol;
 
-	private const string HelpLinkBase = "https://github.com/RonSijm/RonSijm.AnaalIJzer#";
+	private const string HelpLinkBase = "https://github.com/RonSijm/RonSijm.AnaalIJzer/blob/main/docs/";
 
-	internal static readonly DiagnosticDescriptor IllegalDependency = new(ArchitecturalDiagnosticIds.IllegalLevelDependency, "Illegal architectural layer dependency", "'{0}' (layer {1}) may not depend on '{2}' (layer {3}): {4}", "Architecture", DiagnosticSeverity.Error, true, "No AllowedDependency edge permits this dependency site between the caller's layer and the dependency's layer.", HelpLinkBase + "arch001--illegal-layer-dependency");
-	internal static readonly DiagnosticDescriptor UnrecognizedDependency = new(ArchitecturalDiagnosticIds.UnrecognizedDependency, "Unrecognized architectural dependency", "'{0}' (layer {1}) depends on '{2}' which is not assigned to any architectural layer{3}", "Architecture", DiagnosticSeverity.Error, true, "When root-level or caller-layer requireRecognizedDependencies includes a dependency site, types used at that site must belong to a configured architectural layer.", HelpLinkBase + "arch002--unrecognized-dependency");
-	internal static readonly DiagnosticDescriptor ForbiddenDependency = new(ArchitecturalDiagnosticIds.ForbiddenDependency, "Architectural type policy violation", "'{0}' (layer {1}) may not use '{2}': {3}", "Architecture", DiagnosticSeverity.Error, true, "The dependency matches a Forbidden type policy or fails an applicable Allowed type policy.", HelpLinkBase + "arch003--type-policy-violation");
-	internal static readonly DiagnosticDescriptor WrongDirectionDependency = new(ArchitecturalDiagnosticIds.WrongDirectionDependency, "Wrong-direction architectural dependency", "'{0}' (layer {1}) may not depend on '{2}' (layer {3}): {4}", "Architecture", DiagnosticSeverity.Error, true, "The caller depends on a layer that is configured to depend on it — almost always an architectural mistake. Reverse the dependency or invert it with an abstraction.", HelpLinkBase + "arch004--wrong-direction-dependency");
-	internal static readonly DiagnosticDescriptor SameLayerDependency = new(ArchitecturalDiagnosticIds.SameLayerDependency, "Same-layer architectural dependency", "'{0}' and '{2}' are both in layer '{1}': {4}", "Architecture", DiagnosticSeverity.Error, true, "Same-layer dependencies create hidden coupling within a layer. Extract the shared concept to a lower layer or merge the responsibilities.", HelpLinkBase + "arch005--same-layer-dependency");
-	internal static readonly DiagnosticDescriptor InvalidConfiguration = new(ArchitecturalDiagnosticIds.InvalidConfiguration, "Invalid architecture configuration", "{0}", "Architecture", DiagnosticSeverity.Error, true, "The architecture configuration is malformed or refers to rules that cannot be evaluated.", HelpLinkBase + "arch006--invalid-architecture-configuration", customTags: ["CompilationEnd"]);
-	internal static readonly DiagnosticDescriptor CyclicDependencyGraph = new(ArchitecturalDiagnosticIds.CyclicDependencyGraph, "Cyclic architecture dependency graph", "{0}", "Architecture", DiagnosticSeverity.Error, true, "The configured allowed-dependency graph contains a cycle while enforceAcyclic is enabled.", HelpLinkBase + "arch007--cyclic-architecture-dependency-graph");
-	internal static readonly DiagnosticDescriptor NameRuleViolation = new(ArchitecturalDiagnosticIds.NameRuleViolation, "Architectural name rule violation", "'{0}' (layer {1}) violates name rule '{2}' at {3}: {4}", "Architecture", DiagnosticSeverity.Error, true, "Layer-scoped NameRules compare meaningful names with other value names or with their declared semantic types unless an explicit Allow mapping permits the translation.", HelpLinkBase + "arch008--name-rule-violation");
-	internal static readonly DiagnosticDescriptor ApiSurfaceLeakage = new(ArchitecturalDiagnosticIds.ApiSurfaceLeakage, "Architectural API surface leakage", "'{0}' (layer {1}) exposes '{2}' (layer {3}) at {4}: {5}", "Architecture", DiagnosticSeverity.Error, true, "A layer-scoped ApiSurface policy rejected a type exposed by an externally visible declaration.", HelpLinkBase + "arch009--api-surface-leakage");
-	internal static readonly DiagnosticDescriptor ProjectReferenceViolation = new(ArchitecturalDiagnosticIds.ProjectReferenceViolation, "Illegal architectural project reference", "Project '{0}' (project group {1}) may not reference project '{2}' (project group {3}): {4}", "Architecture", DiagnosticSeverity.Error, true, "A ProjectArchitecture policy rejected a direct MSBuild project reference, including currently unused references.", HelpLinkBase + "arch010--illegal-architectural-project-reference", customTags: ["CompilationEnd"]);
-	internal static readonly DiagnosticDescriptor PackageReferenceViolation = new(ArchitecturalDiagnosticIds.PackageReferenceViolation, "Illegal architectural package reference", "Project '{0}' (project group {1}) may not reference package '{2}' {3}: {4}", "Architecture", DiagnosticSeverity.Error, true, "A ProjectArchitecture PackagePolicy rejected a direct or transitive resolved NuGet package reference.", HelpLinkBase + "arch011--illegal-architectural-package-reference", customTags: ["CompilationEnd"]);
-	internal static readonly DiagnosticDescriptor VisibilityPolicyViolation = new(ArchitecturalDiagnosticIds.VisibilityPolicyViolation, "Architectural visibility policy violation", "'{0}' (layer {1}) is declared {2}: {3}", "Architecture", DiagnosticSeverity.Error, true, "A layer-scoped VisibilityPolicy rejected the declared accessibility of a type or member.", HelpLinkBase + "arch012--visibility-policy-violation");
-	internal static readonly DiagnosticDescriptor ContractPurityViolation = new(ArchitecturalDiagnosticIds.ContractPurityViolation, "Architectural contract purity violation", "'{0}' (layer {1}) violates contract purity at {2}: {3}", "Architecture", DiagnosticSeverity.Error, true, "A layer-scoped ContractPolicy rejected the declaration shape of a contract type or member.", HelpLinkBase + "arch013--contract-purity-violation");
-	internal static readonly DiagnosticDescriptor ForbiddenTransitiveExposure = new(ArchitecturalDiagnosticIds.ForbiddenTransitiveExposure, "Forbidden transitive API exposure", "'{0}' (layer {1}) transitively exposes '{2}' (layer {3}) through {4}: {5}", "Architecture", DiagnosticSeverity.Error, true, "A layer-scoped ApiSurface policy rejected a type reachable through the externally visible object graph of an exposed type.", HelpLinkBase + "arch014--forbidden-transitive-exposure");
-	internal static readonly DiagnosticDescriptor SourceLocationViolation = new(ArchitecturalDiagnosticIds.SourceLocationViolation, "Architectural layer source-location violation", "'{0}' belongs to layer '{1}' but source file '{2}' does not match an allowed SourceLocations rule for layer '{3}'", "Architecture", DiagnosticSeverity.Error, true, "A layer-scoped SourceLocations policy rejected the physical file location of a declaration classified into that layer.", HelpLinkBase + "arch015--architectural-layer-source-location-violation");
-	internal static readonly DiagnosticDescriptor BoundaryEntryPointViolation = new(ArchitecturalDiagnosticIds.BoundaryEntryPointViolation, "Architectural boundary entry-point violation", "'{0}' (layer {1}) may not enter boundary '{4}' through '{2}' (layer {3}): {5}", "Architecture", DiagnosticSeverity.Error, true, "A boundary EntryPoints policy rejected an otherwise allowed dependency because it enters the boundary through a non-entry layer or type.", HelpLinkBase + "arch016--boundary-entry-point-violation");
-	internal static readonly DiagnosticDescriptor ExceptionReview = new(ArchitecturalDiagnosticIds.ExceptionReview, "Architecture exception requires review", "{0}", "Architecture", DiagnosticSeverity.Warning, true, "A configured architecture exception is missing required metadata, has expired, or is close to expiry.", HelpLinkBase + "arch017--architecture-exception-requires-review", customTags: ["CompilationEnd"]);
-	internal static readonly DiagnosticDescriptor ObservedDependencyCycle = new(ArchitecturalDiagnosticIds.ObservedDependencyCycle, "Observed architectural dependency cycle", "Observed architectural dependency cycle: {0}", "Architecture", DiagnosticSeverity.Error, true, "Observed source dependencies currently form a cycle between configured layers.", HelpLinkBase + "arch018--observed-architectural-dependency-cycle", customTags: ["CompilationEnd"]);
-	internal static readonly DiagnosticDescriptor InheritancePolicyViolation = new(ArchitecturalDiagnosticIds.InheritancePolicyViolation, "Architectural inheritance policy violation", "'{0}' (layer {1}) violates inheritance policy at {2}: {3}", "Architecture", DiagnosticSeverity.Error, true, "A layer-scoped InheritancePolicy rejected the declared base-type or interface contract of a type.", HelpLinkBase + "arch019--inheritance-policy-violation");
-	internal static readonly DiagnosticDescriptor ReturnValuePolicyViolation = new(ArchitecturalDiagnosticIds.ReturnValuePolicyViolation, "Architectural return-value policy violation", "'{0}' (layer {1}) violates return-value policy at {2}: {3}", "Architecture", DiagnosticSeverity.Error, true, "A layer-scoped ReturnValuePolicy rejected a configured direct method return expression.", HelpLinkBase + "arch020--return-value-policy-violation");
-	internal static readonly DiagnosticDescriptor ForbiddenOperationPolicyViolation = new(ArchitecturalDiagnosticIds.ForbiddenOperationPolicyViolation, "Architectural forbidden-operation policy violation", "'{0}' (layer {1}) may not use operation '{2}' at {3}: {4}", "Architecture", DiagnosticSeverity.Error, true, "A layer-scoped ForbiddenOperations policy rejected a resolved semantic operation.", HelpLinkBase + "arch021--forbidden-operation-policy-violation");
-	internal static readonly DiagnosticDescriptor BehavioralOperationPolicyViolation = new(ArchitecturalDiagnosticIds.BehavioralOperationPolicyViolation, "Architectural behavioral-operation policy violation", "'{0}' (layer {1}) violates behavioral-operation policy '{2}' at {3}: {4}", "Architecture", DiagnosticSeverity.Error, true, "A layer-scoped BehavioralOperations policy rejected a mechanically provable operation presence, ordering, or count condition.", HelpLinkBase + "arch022--behavioral-operation-policy-violation");
-	internal static readonly DiagnosticDescriptor OperationContractViolation = new(ArchitecturalDiagnosticIds.OperationContractViolation, "Architectural operation contract violation", "'{0}' (layer {1}) violates operation contract '{2}' as {3}: {4}", "Architecture", DiagnosticSeverity.Error, true, "An explicitly configured operation contract rejected a selected owner or entry-point method declaration.", HelpLinkBase + "arch023--operation-contract-violation");
-	internal static readonly DiagnosticDescriptor AssemblyAttributePolicyViolation = new(ArchitecturalDiagnosticIds.AssemblyAttributePolicyViolation, "Architectural assembly attribute policy violation", "Assembly '{0}' may not declare attribute '{1}': {2}", "Architecture", DiagnosticSeverity.Error, true, "A root-level AssemblyAttributePolicy rejected an assembly attribute or one of its configured argument values.", HelpLinkBase + "arch024--assembly-attribute-policy-violation", customTags: ["CompilationEnd"]);
+	internal static readonly DiagnosticDescriptor DependencyNotAllowed = CreateDescriptor(ArchitectureDiagnosticCatalog.DependencyNotAllowed, "'{0}' (layer {1}) may not depend on '{2}' (layer {3}): {4}", "No AllowedDependency edge permits this dependency site between the caller's layer and the dependency's layer.");
+	internal static readonly DiagnosticDescriptor DependencyRequiredMissing = CreateDescriptor(ArchitectureDiagnosticCatalog.DependencyRequiredMissing, "'{0}' (layer {1}) depends on '{2}' which is not assigned to any architectural layer{3}", "When requireRecognizedDependencies includes a dependency site, types used at that site must belong to a configured architectural layer.");
+	internal static readonly DiagnosticDescriptor TypeNotAllowed = CreateDescriptor(ArchitectureDiagnosticCatalog.TypeNotAllowed, "'{0}' (layer {1}) may not use '{2}': {3}", "The dependency matches a Forbidden type policy or fails an applicable Allowed type policy.");
+	internal static readonly DiagnosticDescriptor DependencyReverseDirection = CreateDescriptor(ArchitectureDiagnosticCatalog.DependencyReverseDirection, "'{0}' (layer {1}) may not depend on '{2}' (layer {3}): {4}", "The caller depends on a layer that is configured to depend on it. Reverse the dependency or invert it with an abstraction.");
+	internal static readonly DiagnosticDescriptor DependencyPeerScope = CreateDescriptor(ArchitectureDiagnosticCatalog.DependencyPeerScope, "'{0}' and '{2}' are both in layer '{1}': {4}", "Same-layer dependencies create hidden coupling within a layer. Extract the shared concept to a lower layer or merge the responsibilities.");
+	internal static readonly DiagnosticDescriptor ConfigurationInvalid = CreateDescriptor(ArchitectureDiagnosticCatalog.ConfigurationInvalid, "{0}", "The architecture configuration is malformed or refers to rules that cannot be evaluated.", "CompilationEnd");
+	internal static readonly DiagnosticDescriptor ConfigurationCycle = CreateDescriptor(ArchitectureDiagnosticCatalog.ConfigurationCycle, "{0}", "The configured allowed-dependency graph contains a cycle while enforceAcyclic is enabled.");
+	internal static readonly DiagnosticDescriptor NameShapeMismatch = CreateDescriptor(ArchitectureDiagnosticCatalog.NameShapeMismatch, "'{0}' (layer {1}) violates name rule '{2}' at {3}: {4}", "Layer-scoped NameRules compare meaningful names with other value names or with their declared semantic types unless an explicit Allow mapping permits the translation.");
+	internal static readonly DiagnosticDescriptor ApiExposureNotAllowed = CreateDescriptor(ArchitectureDiagnosticCatalog.ApiExposureNotAllowed, "'{0}' (layer {1}) exposes '{2}' (layer {3}) at {4}: {5}", "A layer-scoped ApiSurface policy rejected a type exposed by an externally visible declaration.");
+	internal static readonly DiagnosticDescriptor ProjectReferenceNotAllowed = CreateDescriptor(ArchitectureDiagnosticCatalog.ProjectReferenceNotAllowed, "Project '{0}' (project group {1}) may not reference project '{2}' (project group {3}): {4}", "A ProjectArchitecture policy rejected a direct MSBuild project reference, including currently unused references.", "CompilationEnd");
+	internal static readonly DiagnosticDescriptor PackageReferenceNotAllowed = CreateDescriptor(ArchitectureDiagnosticCatalog.PackageReferenceNotAllowed, "Project '{0}' (project group {1}) may not reference package '{2}' {3}: {4}", "A ProjectArchitecture PackagePolicy rejected a direct or transitive resolved NuGet package reference.", "CompilationEnd");
+	internal static readonly DiagnosticDescriptor VisibilityNotAllowed = CreateDescriptor(ArchitectureDiagnosticCatalog.VisibilityNotAllowed, "'{0}' (layer {1}) is declared {2}: {3}", "A layer-scoped VisibilityPolicy rejected the declared accessibility of a type or member.");
+	internal static readonly DiagnosticDescriptor ContractShapeMismatch = CreateDescriptor(ArchitectureDiagnosticCatalog.ContractShapeMismatch, "'{0}' (layer {1}) violates contract purity at {2}: {3}", "A layer-scoped ContractPolicy rejected the declaration shape of a contract type or member.");
+	internal static readonly DiagnosticDescriptor ApiTransitiveExposure = CreateDescriptor(ArchitectureDiagnosticCatalog.ApiTransitiveExposure, "'{0}' (layer {1}) transitively exposes '{2}' (layer {3}) through {4}: {5}", "A layer-scoped ApiSurface policy rejected a type reachable through the externally visible object graph of an exposed type.");
+	internal static readonly DiagnosticDescriptor SourceBoundaryPlacement = CreateDescriptor(ArchitectureDiagnosticCatalog.SourceBoundaryPlacement, "'{0}' belongs to layer '{1}' but source file '{2}' does not match an allowed SourceLocations rule for layer '{3}'", "A layer-scoped SourceLocations policy rejected the physical file location of a declaration classified into that layer.");
+	internal static readonly DiagnosticDescriptor BoundaryEntryPlacement = CreateDescriptor(ArchitectureDiagnosticCatalog.BoundaryEntryPlacement, "'{0}' (layer {1}) may not enter boundary '{4}' through '{2}' (layer {3}): {5}", "A boundary EntryPoints policy rejected an otherwise allowed dependency because it enters the boundary through a non-entry layer or type.");
+	internal static readonly DiagnosticDescriptor ExceptionReviewLifecycle = CreateDescriptor(ArchitectureDiagnosticCatalog.ExceptionReviewLifecycle, "{0}", "A configured architecture exception is missing required metadata, has expired, or is close to expiry.", "CompilationEnd");
+	internal static readonly DiagnosticDescriptor DependencyCycle = CreateDescriptor(ArchitectureDiagnosticCatalog.DependencyCycle, "Observed architectural dependency cycle: {0}", "Observed source dependencies currently form a cycle between configured layers.", "CompilationEnd");
+	internal static readonly DiagnosticDescriptor InheritanceNotAllowed = CreateDescriptor(ArchitectureDiagnosticCatalog.InheritanceNotAllowed, "'{0}' (layer {1}) violates inheritance policy at {2}: {3}", "A layer-scoped InheritancePolicy rejected the declared base-type or interface contract of a type.");
+	internal static readonly DiagnosticDescriptor ReturnNotAllowed = CreateDescriptor(ArchitectureDiagnosticCatalog.ReturnNotAllowed, "'{0}' (layer {1}) violates return-value policy at {2}: {3}", "A global or layer-scoped ReturnValuePolicy rejected a direct method return expression.");
+	internal static readonly DiagnosticDescriptor OperationNotAllowed = CreateDescriptor(ArchitectureDiagnosticCatalog.OperationNotAllowed, "'{0}' (layer {1}) may not use operation '{2}' at {3}: {4}", "A layer-scoped ForbiddenOperations policy rejected a resolved semantic operation.");
+	internal static readonly DiagnosticDescriptor OperationRequiredMissing = CreateDescriptor(ArchitectureDiagnosticCatalog.OperationRequiredMissing, "'{0}' (layer {1}) is missing required operation '{2}' at {3}: {4}", "A layer-scoped BehavioralOperations policy requires an operation that is absent from the selected declaration.");
+	internal static readonly DiagnosticDescriptor OperationCardinality = CreateDescriptor(ArchitectureDiagnosticCatalog.OperationCardinality, "'{0}' (layer {1}) exceeds the allowed count for operation '{2}' at {3}: {4}", "A layer-scoped BehavioralOperations policy rejected the number of matching operation occurrences.");
+	internal static readonly DiagnosticDescriptor OperationOrdering = CreateDescriptor(ArchitectureDiagnosticCatalog.OperationOrdering, "'{0}' (layer {1}) violates operation ordering for '{2}' at {3}: {4}", "A layer-scoped BehavioralOperations policy rejected a mechanically provable operation ordering.");
+	internal static readonly DiagnosticDescriptor OperationContractNotAllowed = CreateDescriptor(ArchitectureDiagnosticCatalog.OperationContractNotAllowed, "'{0}' (layer {1}) is not allowed by operation contract '{2}' as {3}: {4}", "An explicitly configured operation contract rejected the layer of a selected owner or entry point.");
+	internal static readonly DiagnosticDescriptor OperationContractRequiredMissing = CreateDescriptor(ArchitectureDiagnosticCatalog.OperationContractRequiredMissing, "'{0}' (layer {1}) is missing a requirement of operation contract '{2}' as {3}: {4}", "An explicitly configured operation contract requires a request or owner invocation that is absent.");
+	internal static readonly DiagnosticDescriptor OperationContractShapeMismatch = CreateDescriptor(ArchitectureDiagnosticCatalog.OperationContractShapeMismatch, "'{0}' (layer {1}) has an invalid response shape for operation contract '{2}' as {3}: {4}", "An explicitly configured operation contract rejected the response shape of a selected owner or entry point.");
+	internal static readonly DiagnosticDescriptor AssemblyAttributeNotAllowed = CreateDescriptor(ArchitectureDiagnosticCatalog.AssemblyAttributeNotAllowed, "Assembly '{0}' may not declare attribute '{1}': {2}", "A root-level AssemblyAttributePolicy rejected an assembly attribute or one of its configured argument values.", "CompilationEnd");
+	internal static readonly DiagnosticDescriptor NamespaceBoundaryPlacement = CreateDescriptor(ArchitectureDiagnosticCatalog.NamespaceBoundaryPlacement, "'{0}' (namespace '{1}') may not depend on '{2}' (namespace '{3}') at {4}: {5}", "A global NamespaceHierarchyPolicy rejected a resolved dependency relationship between source namespaces.");
+
+	internal static Diagnostic CreateDiagnostic(DiagnosticDescriptor descriptor, Location location, params object[] messageArgs)
+	{
+		var result = Diagnostic.Create(descriptor, location, AddIdentity(ImmutableDictionary<string, string?>.Empty, descriptor), messageArgs);
+
+		return result;
+	}
+
+	internal static Diagnostic CreateDiagnostic(DiagnosticDescriptor descriptor, Location location, ImmutableDictionary<string, string?> properties, params object[] messageArgs)
+	{
+		var result = Diagnostic.Create(descriptor, location, AddIdentity(properties, descriptor), messageArgs);
+
+		return result;
+	}
+
+	internal static Diagnostic CreateDiagnostic(DiagnosticDescriptor descriptor, Location location, IEnumerable<Location> additionalLocations, ImmutableDictionary<string, string?> properties, params object[] messageArgs)
+	{
+		var result = Diagnostic.Create(descriptor, location, additionalLocations, AddIdentity(properties, descriptor), messageArgs);
+
+		return result;
+	}
+
+	private static DiagnosticDescriptor CreateDescriptor(ArchitectureDiagnosticDefinition definition, string messageFormat, string description, params string[] customTags)
+	{
+		var result = new DiagnosticDescriptor(definition.Id, definition.Title, messageFormat, definition.Category, ToDiagnosticSeverity(definition.DefaultSeverity), true, description, HelpLinkBase + definition.DocumentationPath + ".md", customTags);
+
+		return result;
+	}
+
+	private static ImmutableDictionary<string, string?> AddIdentity(ImmutableDictionary<string, string?> properties, DiagnosticDescriptor descriptor)
+	{
+		var definition = ArchitectureDiagnosticCatalog.Get(descriptor.Id);
+		var result = properties
+			.SetItem(PropertyDiagnosticConcern, definition.Concern.ToString())
+			.SetItem(PropertyDiagnosticReason, definition.Reason.ToString());
+
+		return result;
+	}
+
+	private static DiagnosticSeverity ToDiagnosticSeverity(ArchitectureDiagnosticDefaultSeverity severity)
+	{
+		var result = severity switch
+		{
+			ArchitectureDiagnosticDefaultSeverity.Info => DiagnosticSeverity.Info,
+			ArchitectureDiagnosticDefaultSeverity.Warning => DiagnosticSeverity.Warning,
+			_ => DiagnosticSeverity.Error
+		};
+
+		return result;
+	}
 }

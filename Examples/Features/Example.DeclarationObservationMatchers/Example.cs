@@ -40,7 +40,7 @@ public sealed class RecoveringPizzaDeliveryService : IPizzaFallback
 	}
 }
 
-// ARCH019: the method body throws, so the service must implement IPizzaFallback.
+// ARCH_INH_001: the method body throws, so the service must implement IPizzaFallback.
 public sealed class CrashingPizzaDeliveryService
 {
 	public void PizzaDelivery()
@@ -55,7 +55,7 @@ public sealed class GuardedPizzaCatalog : IPizzaCatalogGuard
 	public PizzaId PizzaId => throw new InvalidOperationException("Catalog is warming up.");
 }
 
-// ARCH019: the throwing PizzaId property must implement IPizzaCatalogGuard.
+// ARCH_INH_001: the throwing PizzaId property must implement IPizzaCatalogGuard.
 public sealed class ExplosivePizzaCatalog
 {
 	public PizzaId PizzaId => throw new InvalidOperationException("Catalog unavailable.");

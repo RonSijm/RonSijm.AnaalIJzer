@@ -24,11 +24,11 @@ public sealed class SourceLocationAnalyzerTests
 			ImmutableDictionary<string, string>.Empty.Add("build_property.MSBuildProjectDirectory", @"D:\repo\Shop"),
 			("Architecture.anl", config));
 
-		diagnostics.Should().NotContain(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.SourceLocationViolation);
+		diagnostics.Should().NotContain(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.SourceBoundaryPlacement);
 	}
 
 	[Fact]
-	public async Task ProjectRelativeSourceLocation_ReportsARCH015ForMisplacedFile()
+	public async Task ProjectRelativeSourceLocation_ReportsARCH_SRC_007ForMisplacedFile()
 	{
 		const string config = """
 		                      <ArchitecturalLevels>
@@ -45,7 +45,7 @@ public sealed class SourceLocationAnalyzerTests
 			ImmutableDictionary<string, string>.Empty.Add("build_property.MSBuildProjectDirectory", @"D:\repo\Shop"),
 			("Architecture.anl", config));
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.SourceLocationViolation).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.SourceBoundaryPlacement).Subject;
 		diagnostic.Properties[ArchitecturalDiagnostics.PropertyCallerLayerName].Should().Be("Ordering");
 		diagnostic.Properties[ArchitecturalDiagnostics.PropertyNormalizedSourcePath].Should().Be("Infrastructure/CandyService.cs");
 	}
@@ -68,7 +68,7 @@ public sealed class SourceLocationAnalyzerTests
 			ImmutableDictionary<string, string>.Empty.Add("build_property.MSBuildProjectDirectory", @"D:\repo\project"),
 			(@"D:\repo\config\Architecture.anl", config));
 
-		diagnostics.Should().NotContain(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.SourceLocationViolation);
+		diagnostics.Should().NotContain(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.SourceBoundaryPlacement);
 	}
 
 	[Fact]
@@ -92,7 +92,7 @@ public sealed class SourceLocationAnalyzerTests
 			ImmutableDictionary<string, string>.Empty.Add("build_property.MSBuildProjectDirectory", @"D:\repo\Shop"),
 			("Architecture.anl", config));
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.SourceLocationViolation).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.SourceBoundaryPlacement).Subject;
 		diagnostic.Location.SourceTree?.FilePath.Should().Be(@"D:\repo\Shop\Infrastructure\CandyService.Partial.cs");
 	}
 
@@ -107,12 +107,12 @@ public sealed class SourceLocationAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source);
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InvalidConfiguration)
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid)
 			.Which.GetMessage().Should().Contain("relativeTo='Configuration'");
 	}
 
 	[Fact]
-	public async Task EmptyFilePath_WithAbsoluteBase_ReportsARCH015()
+	public async Task EmptyFilePath_WithAbsoluteBase_ReportsARCH_SRC_007()
 	{
 		const string config = """
 		                      <ArchitecturalLevels>
@@ -129,7 +129,7 @@ public sealed class SourceLocationAnalyzerTests
 			ImmutableDictionary<string, string>.Empty.Add("build_property.MSBuildProjectDirectory", @"D:\repo\Shop"),
 			("Architecture.anl", config));
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.SourceLocationViolation)
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.SourceBoundaryPlacement)
 			.Which.Properties[ArchitecturalDiagnostics.PropertyViolationReason].Should().Contain("cannot be evaluated");
 	}
 }

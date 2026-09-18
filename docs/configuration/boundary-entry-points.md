@@ -38,7 +38,7 @@ Example:
 
 Rules:
 
-- no `<EntryPoints>` means no `ARCH016`;
+- no `<EntryPoints>` means no `ARCH_BOUND_007`;
 - entry points only restrict callers outside the owning boundary;
 - internal calls inside the same boundary are unchanged;
 - nested boundaries are cumulative from outermost to innermost;
@@ -59,4 +59,4 @@ Each `<EntryPoint>` uses exactly one selector form:
 
 ### Example
 
-See [`Example.Arch016.BoundaryEntryPoints`](../../Examples/Diagnostics/Example.Arch016.BoundaryEntryPoints), where `Presentation -> Ordering` is allowed in general, but only `Ordering/Contracts` is a valid external entry point.
+See [`Example.Arch_BOUND_007.BoundaryEntryPoints`](../../Examples/Diagnostics/BOUND/Example.Arch_BOUND_007.BoundaryEntryPoints), where `Presentation -> Ordering` is allowed in general, but only `Ordering/Contracts` is a valid external entry point.

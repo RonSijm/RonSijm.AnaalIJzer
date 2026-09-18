@@ -43,7 +43,7 @@ public static partial class ArchitectureEditorSnapshotService
 			null,
 			0,
 			ArchitectureDependencySiteStatus.TypePolicyViolation,
-			ArchitecturalDiagnosticIds.ForbiddenOperationPolicyViolation,
+			ArchitecturalDiagnosticIds.OperationNotAllowed,
 			tooltip,
 			evaluation.Value.Reason));
 	}

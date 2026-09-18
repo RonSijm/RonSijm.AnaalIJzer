@@ -56,7 +56,7 @@ internal static partial class ArchitectureHealthReportGenerator
 
 			findings.Add(new ArchitectureFinding(
 				ArchitectureFindingSeverity.Warning,
-				ArchitecturalDiagnosticIds.ExceptionReview,
+				ArchitecturalDiagnosticIds.ExceptionReviewLifecycle,
 				ArchitectureExceptionEvaluator.CreateStaleMessage(definition, projects.Count > 1 ? "solution" : "project"),
 				FormatExceptionLocation(definition.XmlPath, definition.XmlLineNumber),
 				nameof(ArchitectureExceptionStatus.Stale),
@@ -106,7 +106,6 @@ internal static partial class ArchitectureHealthReportGenerator
 		foreach (var cycle in observedCycles)
 		{
 			var severity = config.EnforceObservedAcyclic ? ArchitectureFindingSeverity.Error : ArchitectureFindingSeverity.Warning;
-			var category = config.EnforceObservedAcyclic ? ArchitecturalDiagnosticIds.ObservedDependencyCycle : "Observed dependency cycle";
 			var context = string.Join(
 				"; ",
 				cycle.RepresentativeEdges.Select(edge =>
@@ -116,13 +115,13 @@ internal static partial class ArchitectureHealthReportGenerator
 
 					return result;
 				}));
-			findings.Add(new ArchitectureFinding(severity, category, cycle.GetDisplayPath(), string.IsNullOrWhiteSpace(context) ? "based on current project code" : context));
+			findings.Add(new ArchitectureFinding(severity, ArchitecturalDiagnosticIds.DependencyCycle, cycle.GetDisplayPath(), string.IsNullOrWhiteSpace(context) ? "based on current project code" : context));
 		}
 
 		foreach (var project in projects)
 		{
 			var projectName = project.AssemblyName ?? Path.GetFileNameWithoutExtension(project.ProjectPath);
-			foreach (var diagnostic in project.AnalyzerDiagnostics.Where(diagnostic => diagnostic.Id is not ArchitecturalDiagnosticIds.InvalidConfiguration and not ArchitecturalDiagnosticIds.CyclicDependencyGraph))
+			foreach (var diagnostic in project.AnalyzerDiagnostics.Where(diagnostic => diagnostic.Id is not ArchitecturalDiagnosticIds.ConfigurationInvalid and not ArchitecturalDiagnosticIds.ConfigurationCycle))
 			{
 				var context = AddProjectContext(projectName, FormatDiagnosticLocation(diagnostic, project.ProjectDirectory));
 				findings.Add(ArchitectureFindingFactory.FromDiagnostic(diagnostic, context));

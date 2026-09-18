@@ -43,6 +43,9 @@ internal static partial class ArchitectureConfigurationExplainer
 				case "ReturnValuePolicy":
 					AppendReturnValuePolicy(sb, element, depth);
 					break;
+				case "NamespaceHierarchyPolicy":
+					AppendNamespaceHierarchyPolicy(sb, element, depth);
+					break;
 				case "ForbiddenOperations":
 					AppendForbiddenOperations(sb, element, depth);
 					break;

@@ -5,14 +5,14 @@ namespace RonSijm.AnaalIJzer.Outputs.Violations;
 
 internal static partial class ViolationMarkdownReportBuilder
 {
-	private static void AppendArch001(StringBuilder sb, List<ViolationRecord> violations)
+	private static void AppendDependencyNotAllowed(StringBuilder sb, List<ViolationRecord> violations)
 	{
 		if (violations.Count == 0)
 		{
 			return;
 		}
 
-		sb.AppendLine("## ARCH001 — Illegal Layer Dependencies");
+		sb.AppendLine("## ARCH_DEP_001 — Dependencies Not Allowed");
 		sb.AppendLine();
 		sb.AppendLine("| Caller (layer) | Dependency (layer) | Reason |");
 		sb.AppendLine("|----------------|--------------------|--------|");
@@ -25,14 +25,14 @@ internal static partial class ViolationMarkdownReportBuilder
 		sb.AppendLine();
 	}
 
-	private static void AppendArch004(StringBuilder sb, List<ViolationRecord> violations)
+	private static void AppendDependencyReverseDirection(StringBuilder sb, List<ViolationRecord> violations)
 	{
 		if (violations.Count == 0)
 		{
 			return;
 		}
 
-		sb.AppendLine("## ARCH004 — Wrong-Direction Dependencies");
+		sb.AppendLine("## ARCH_DEP_004 — Reverse-Direction Dependencies");
 		sb.AppendLine();
 		sb.AppendLine("The caller depends on a layer that is configured to depend on it. Reverse the dependency or invert it with an abstraction.");
 		sb.AppendLine();
@@ -47,14 +47,14 @@ internal static partial class ViolationMarkdownReportBuilder
 		sb.AppendLine();
 	}
 
-	private static void AppendArch005(StringBuilder sb, List<ViolationRecord> violations)
+	private static void AppendDependencyPeerScope(StringBuilder sb, List<ViolationRecord> violations)
 	{
 		if (violations.Count == 0)
 		{
 			return;
 		}
 
-		sb.AppendLine("## ARCH005 — Same-Layer Dependencies");
+		sb.AppendLine("## ARCH_DEP_005 — Peer-Scope Dependencies");
 		sb.AppendLine();
 		sb.AppendLine("Types within the same layer may not depend on each other. Extract the shared concept to a lower layer or merge the responsibilities.");
 		sb.AppendLine();
@@ -69,14 +69,14 @@ internal static partial class ViolationMarkdownReportBuilder
 		sb.AppendLine();
 	}
 
-	private static void AppendArch002(StringBuilder sb, List<ViolationRecord> violations)
+	private static void AppendDependencyRequiredMissing(StringBuilder sb, List<ViolationRecord> violations)
 	{
 		if (violations.Count == 0)
 		{
 			return;
 		}
 
-		sb.AppendLine("## ARCH002 — Unrecognized Dependencies");
+		sb.AppendLine("## ARCH_DEP_002 — Required Dependency Classification Missing");
 		sb.AppendLine();
 		sb.AppendLine("These types are injected into layered callers but are not configured in `Architecture.anl`.");
 		sb.AppendLine();
@@ -112,7 +112,7 @@ internal static partial class ViolationMarkdownReportBuilder
 		sb.AppendLine();
 		sb.AppendLine("## Suggested Configuration");
 		sb.AppendLine();
-		sb.AppendLine("Add the following to `Architecture.anl` to resolve all ARCH002 violations:");
+		sb.AppendLine("Add the following to `Architecture.anl` to resolve all `ARCH_DEP_002` violations:");
 		sb.AppendLine();
 		sb.AppendLine("```xml");
 

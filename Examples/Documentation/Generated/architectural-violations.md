@@ -9,22 +9,22 @@
 
 | Rule | Violations |
 |------|------------|
-| ARCH001 — Illegal layer dependency | 1 |
-| ARCH002 — Unrecognized dependency | 1 |
-| ARCH003 — Type policy violation | 1 |
-| ARCH004 — Wrong-direction dependency | 1 |
-| ARCH005 — Same-layer dependency | 1 |
+| ARCH_DEP_001 — Illegal layer dependency | 1 |
+| ARCH_DEP_002 — Unrecognized dependency | 1 |
+| ARCH_TYPE_001 — Type policy violation | 1 |
+| ARCH_DEP_004 — Wrong-direction dependency | 1 |
+| ARCH_DEP_005 — Same-layer dependency | 1 |
 | **Total** | **5** |
 
 ---
 
-## ARCH001 — Illegal Layer Dependencies
+## ARCH_DEP_001 — Illegal Layer Dependencies
 
 | Caller (layer) | Dependency (layer) | Reason |
 |----------------|--------------------|--------|
 | `AdminEndpoint` (Presentation) | `IOrderRepository` (Persistence) | no allowed dependency gate from 'Presentation' to 'Persistence' is configured in the root boundary |
 
-## ARCH004 — Wrong-Direction Dependencies
+## ARCH_DEP_004 — Wrong-Direction Dependencies
 
 The caller depends on a layer that is configured to depend on it. Reverse the dependency or invert it with an abstraction.
 
@@ -32,7 +32,7 @@ The caller depends on a layer that is configured to depend on it. Reverse the de
 |----------------|--------------------|--------|
 | `OrderRepository` (Persistence) | `IOrderService` (Application) | this dependency goes the wrong direction — the reverse ('Application' → 'Persistence') is configured |
 
-## ARCH005 — Same-Layer Dependencies
+## ARCH_DEP_005 — Same-Layer Dependencies
 
 Types within the same layer may not depend on each other. Extract the shared concept to a lower layer or merge the responsibilities.
 
@@ -40,7 +40,7 @@ Types within the same layer may not depend on each other. Extract the shared con
 |----------------|------------|--------|
 | `OrderService` (Application) | `ISecondaryOrderService` | types in the same layer ('Application') may not depend on each other |
 
-## ARCH002 — Unrecognized Dependencies
+## ARCH_DEP_002 — Unrecognized Dependencies
 
 These types are injected into layered callers but are not configured in `Architecture.anl`.
 
@@ -52,7 +52,7 @@ These types are injected into layered callers but are not configured in `Archite
 
 ## Suggested Configuration
 
-Add the following to `Architecture.anl` to resolve all ARCH002 violations:
+Add the following to `Architecture.anl` to resolve all ARCH_DEP_002 violations:
 
 ```xml
 <!-- Resolves 1 violation(s) from layer 'Application' -->
@@ -64,7 +64,7 @@ Add the following to `Architecture.anl` to resolve all ARCH002 violations:
 
 > **Note**: Review layer names and allowed paths before applying.
 
-## ARCH003 — Type Policy Violations
+## ARCH_TYPE_001 — Type Policy Violations
 
 These dependency types match an applicable `Forbidden` policy or fail an applicable `Allowed` policy.
 

@@ -120,7 +120,7 @@ public static class ArchitectureConfigurationValidator
 
 	private static bool IsReturnValueMatcherRule(XElement element)
 	{
-		var result = element.Parent?.Name.LocalName == "ReturnValuePolicy"
+		var result = element.Parent?.Name.LocalName is "ReturnValuePolicy" or "AllowedReturn"
 		             && CodeObservationMatchTargetParser.TryParse(element.Name.LocalName, out _);
 
 		return result;
@@ -131,7 +131,7 @@ public static class ArchitectureConfigurationValidator
 		if (!CodeObservationMatchTargetParser.TryParse(element.Name.LocalName, out var target)
 			|| target == CodeObservationMatchTarget.Throw)
 		{
-			AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, "ReturnValuePolicy supports Literal, Invocation, New, Identifier, and MemberAccess matcher children.", element, configPath);
+			AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, "ReturnValuePolicy and AllowedReturn support Literal, Invocation, New, Identifier, and MemberAccess matcher children.", element, configPath);
 
 			return;
 		}

@@ -44,6 +44,7 @@ internal static class BehavioralOperationPolicyAnalyzer
 
 	private static void Report(OperationBlockAnalysisContext context, INamedTypeSymbol callerType, string callerLayerName, BehavioralOperationBodyAnalysis body, BehavioralOperationPolicyEvaluation evaluation)
 	{
+		var descriptor = GetDescriptor(evaluation.ViolationKind);
 		var occurrence = evaluation.Occurrence;
 		var operation = occurrence?.Operation;
 		var location = operation?.Location ?? body.DeclarationLocation;
@@ -67,8 +68,8 @@ internal static class BehavioralOperationPolicyAnalyzer
 			.Add(ArchitecturalDiagnostics.PropertyRuleXmlLine, evaluation.Rule.XmlLineNumber.ToString(System.Globalization.CultureInfo.InvariantCulture))
 			.Add(ArchitecturalDiagnostics.PropertyRuleXmlCol, evaluation.Rule.XmlLinePosition.ToString(System.Globalization.CultureInfo.InvariantCulture));
 
-		context.ReportDiagnostic(Diagnostic.Create(
-			ArchitecturalDiagnostics.BehavioralOperationPolicyViolation,
+		context.ReportDiagnostic(ArchitecturalDiagnostics.CreateDiagnostic(
+			descriptor,
 			location,
 			properties,
 			callerType.Name,
@@ -76,5 +77,17 @@ internal static class BehavioralOperationPolicyAnalyzer
 			evaluation.Rule.DisplayName,
 			site,
 			evaluation.Reason));
+	}
+
+	private static DiagnosticDescriptor GetDescriptor(BehavioralOperationViolationKind violationKind)
+	{
+		var result = violationKind switch
+		{
+			BehavioralOperationViolationKind.MissingRequiredOperation or BehavioralOperationViolationKind.RequiredOperationDoesNotDominateExit => ArchitecturalDiagnostics.OperationRequiredMissing,
+			BehavioralOperationViolationKind.MaximumOperationCountExceeded => ArchitecturalDiagnostics.OperationCardinality,
+			_ => ArchitecturalDiagnostics.OperationOrdering
+		};
+
+		return result;
 	}
 }

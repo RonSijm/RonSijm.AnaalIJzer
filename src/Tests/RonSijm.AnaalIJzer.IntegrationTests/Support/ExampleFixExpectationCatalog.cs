@@ -18,8 +18,8 @@ internal static class ExampleFixExpectationCatalog
 			"Add site 'Constructor' to allowedSites for 'Caller' -> 'AllowedLocalDependency'",
 			"Remove site 'Field' from blockedSites for 'Caller' -> 'BlockedFieldDependency'"),
 		Expect(
-			"Diagnostics/Example.Arch002.UnrecognizedDependency",
-			@"Diagnostics\Example.Arch002.UnrecognizedDependency\Example.cs",
+			"Diagnostics/DEP/Example.Arch_DEP_002.UnrecognizedDependency",
+			@"Diagnostics\DEP\Example.Arch_DEP_002.UnrecognizedDependency\Example.cs",
 			"Classify 'MysteryBox' into layer 'Chef'",
 			"Stop requiring recognized dependencies at Constructor globally"),
 		Expect(
@@ -32,13 +32,13 @@ internal static class ExampleFixExpectationCatalog
 			@"Features\Example.SourceLocations\Architecture.anl",
 			"Add source location 'Infrastructure/MisplacedCandyService.cs' to layer 'Ordering'"),
 		Expect(
-			"Diagnostics/Example.Arch004.WrongDirection",
-			@"Diagnostics\Example.Arch004.WrongDirection\Example.cs",
+			"Diagnostics/DEP/Example.Arch_DEP_004.WrongDirection",
+			@"Diagnostics\DEP\Example.Arch_DEP_004.WrongDirection\Example.cs",
 			"Add allowed dependency 'Pantry' -> 'Chef'",
 			"Flip configured dependency 'Chef' -> 'Pantry' to 'Pantry' -> 'Chef'"),
 		Expect(
-			"Diagnostics/Example.Arch007.CyclicGraph",
-			@"Diagnostics\Example.Arch007.CyclicGraph\Example.cs",
+			"Diagnostics/CONF/Example.Arch_CONF_006.CyclicGraph",
+			@"Diagnostics\CONF\Example.Arch_CONF_006.CyclicGraph\Example.cs",
 			"Break configured cycle by blocking 'Ordering' -> 'Inventory'",
 			"Break configured cycle by removing allowed dependency 'Ordering' -> 'Inventory'"),
 		Expect(
@@ -46,13 +46,22 @@ internal static class ExampleFixExpectationCatalog
 			"Architecture.anl",
 			"Remove blocking <BlockedProjectReference from=\"Domain\" to=\"Infrastructure\" />"),
 		ExpectNoProposals("Scenarios/Example.PackageReferenceBoundaries/Example.PackageReferenceBoundaries.Domain"),
-		ExpectNoProposals("Diagnostics/Example.Arch018.ObservedCycle"),
-		ExpectNoProposals("Diagnostics/Example.Arch020.ExplicitNullReturn"),
-		ExpectNoProposals("Diagnostics/Example.Arch020.AnnotatedInvocationReturn"),
-		ExpectNoProposals("Diagnostics/Example.Arch020.ConfiguredLiteralReturns"),
-		ExpectNoProposals("Diagnostics/Example.Arch023.OperationContract"),
-		ExpectNoProposals("Diagnostics/Example.Arch024.AssemblyAttributePolicy.Code"),
-		ExpectNoProposals("Diagnostics/Example.Arch024.AssemblyAttributePolicy.Project")
+		ExpectNoProposals("Diagnostics/DEP/Example.Arch_DEP_006.ObservedCycle"),
+		ExpectNoProposals("Diagnostics/RET/Example.Arch_RET_001.ExplicitNullReturn"),
+		ExpectNoProposals("Diagnostics/RET/Example.Arch_RET_001.AnnotatedInvocationReturn"),
+		ExpectNoProposals("Diagnostics/RET/Example.Arch_RET_001.ConfiguredLiteralReturns"),
+		ExpectNoProposals("Diagnostics/RET/Example.Arch_RET_001.OnlyIdentifierReturn"),
+		ExpectNoProposals("Features/Example.GlobalReturnValuePolicy"),
+		ExpectNoProposals("Diagnostics/OPCT/Example.Arch_OPCT_001.ParticipantNotAllowed"),
+		ExpectNoProposals("Diagnostics/OPCT/Example.Arch_OPCT_002.RequiredOwnerInvocation"),
+		ExpectNoProposals("Diagnostics/OPCT/Example.Arch_OPCT_008.ResponseShapeMismatch"),
+		ExpectNoProposals("Diagnostics/ASSM/Example.Arch_ASSM_001.AssemblyAttributePolicy.Code"),
+		ExpectNoProposals("Diagnostics/ASSM/Example.Arch_ASSM_001.AssemblyAttributePolicy.Project"),
+		ExpectNoProposals("Diagnostics/NS/Example.Arch_NS_007.NamespaceHierarchy.AncestorToDescendant"),
+		ExpectNoProposals("Diagnostics/NS/Example.Arch_NS_007.NamespaceHierarchy.DescendantToAncestor"),
+		ExpectNoProposals("Diagnostics/NS/Example.Arch_NS_007.NamespaceHierarchy.SameNamespace"),
+		ExpectNoProposals("Diagnostics/NS/Example.Arch_NS_007.NamespaceHierarchy.SiblingToSibling"),
+		ExpectNoProposals("Features/Example.NamespaceHierarchySites")
 	];
 
 	private static ExampleFixExpectation Expect(string relativeProjectPath, string expectedTargetSuffix, params string[] expectedTitles)

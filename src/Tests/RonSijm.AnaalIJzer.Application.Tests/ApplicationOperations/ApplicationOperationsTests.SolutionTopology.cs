@@ -28,13 +28,15 @@ public sealed partial class ApplicationOperationsTests
 			}, cancellationToken);
 
 			withoutTopology.HasFindings.Should().BeFalse();
-			withoutTopology.Content.Should().NotContain("TOPO001");
+			withoutTopology.Content.Should().NotContain("ARCH_SOL_001");
 			withTopology.HasFindings.Should().BeTrue();
-			withTopology.Content.Should().Contain("TOPO001");
+			withTopology.Content.Should().Contain("ARCH_SOL_001");
 			withTopology.OutputPath.Should().Be(jsonOutputPath);
 			var json = await File.ReadAllTextAsync(jsonOutputPath, cancellationToken);
 			json.Should().Contain("\"schemaVersion\": 1");
-			json.Should().Contain("\"code\": \"TOPO001\"");
+			json.Should().Contain("\"concern\": \"Solution\"");
+			json.Should().Contain("\"reason\": \"NotAllowed\"");
+			json.Should().Contain("\"code\": \"ARCH_SOL_001\"");
 			json.Should().Contain("Example.SolutionTopology.Application");
 		}
 		finally

@@ -5,14 +5,14 @@ namespace RonSijm.AnaalIJzer.Outputs.Violations;
 
 internal static partial class ViolationMarkdownReportBuilder
 {
-	private static void AppendArch009(StringBuilder sb, List<ViolationRecord> violations)
+	private static void AppendApiExposureNotAllowed(StringBuilder sb, List<ViolationRecord> violations)
 	{
 		if (violations.Count == 0)
 		{
 			return;
 		}
 
-		sb.AppendLine("## ARCH009 — API Surface Leakage");
+		sb.AppendLine("## ARCH_API_001 — API Exposure Not Allowed");
 		sb.AppendLine();
 		sb.AppendLine("These externally visible declarations expose types rejected by an applicable layer-scoped `ApiSurface` policy.");
 		sb.AppendLine();
@@ -27,14 +27,14 @@ internal static partial class ViolationMarkdownReportBuilder
 		sb.AppendLine();
 	}
 
-	private static void AppendArch010(StringBuilder sb, List<ViolationRecord> violations)
+	private static void AppendProjectReferenceNotAllowed(StringBuilder sb, List<ViolationRecord> violations)
 	{
 		if (violations.Count == 0)
 		{
 			return;
 		}
 
-		sb.AppendLine("## ARCH010 — Project Reference Violations");
+		sb.AppendLine("## ARCH_PROJ_001 — Project References Not Allowed");
 		sb.AppendLine();
 		sb.AppendLine("These project-to-project references fail the configured `ProjectArchitecture` policy.");
 		sb.AppendLine();
@@ -49,14 +49,14 @@ internal static partial class ViolationMarkdownReportBuilder
 		sb.AppendLine();
 	}
 
-	private static void AppendArch011(StringBuilder sb, List<ViolationRecord> violations)
+	private static void AppendPackageReferenceNotAllowed(StringBuilder sb, List<ViolationRecord> violations)
 	{
 		if (violations.Count == 0)
 		{
 			return;
 		}
 
-		sb.AppendLine("## ARCH011 — Package Reference Violations");
+		sb.AppendLine("## ARCH_PKG_001 — Package References Not Allowed");
 		sb.AppendLine();
 		sb.AppendLine("These resolved NuGet package references fail the configured `ProjectArchitecture` package policies.");
 		sb.AppendLine();
@@ -71,14 +71,14 @@ internal static partial class ViolationMarkdownReportBuilder
 		sb.AppendLine();
 	}
 
-	private static void AppendArch014(StringBuilder sb, List<ViolationRecord> violations)
+	private static void AppendApiTransitiveExposure(StringBuilder sb, List<ViolationRecord> violations)
 	{
 		if (violations.Count == 0)
 		{
 			return;
 		}
 
-		sb.AppendLine("## ARCH014 — Forbidden Transitive Exposure");
+		sb.AppendLine("## ARCH_API_010 — Transitive API Exposure");
 		sb.AppendLine();
 		sb.AppendLine("These externally visible declarations expose a permitted root type whose public object graph reaches a type rejected by an applicable `ApiSurface` policy.");
 		sb.AppendLine();
@@ -93,14 +93,14 @@ internal static partial class ViolationMarkdownReportBuilder
 		sb.AppendLine();
 	}
 
-	private static void AppendArch018(StringBuilder sb, List<ViolationRecord> violations)
+	private static void AppendDependencyCycle(StringBuilder sb, List<ViolationRecord> violations)
 	{
 		if (violations.Count == 0)
 		{
 			return;
 		}
 
-		sb.AppendLine("## ARCH018 — Observed Dependency Cycles");
+		sb.AppendLine("## ARCH_DEP_006 — Observed Dependency Cycles");
 		sb.AppendLine();
 		sb.AppendLine("These cycles come from dependencies actually present in source code, not merely from configured AllowedDependency edges.");
 		sb.AppendLine();

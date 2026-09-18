@@ -7,7 +7,7 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Analysis;
 public sealed class ProjectReferenceBoundaryAnalyzerTests
 {
 	[Fact]
-	public async Task ProjectArchitecture_WithoutManifest_ReportsARCH006()
+	public async Task ProjectArchitecture_WithoutManifest_ReportsARCH_CONF_003()
 	{
 		const string config = """
 		                      <ArchitecturalLevels>
@@ -25,12 +25,12 @@ public sealed class ProjectReferenceBoundaryAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class Placeholder { }", ("Architecture.anl", config));
 
-		diagnostics.Should().ContainSingle(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.InvalidConfiguration)
+		diagnostics.Should().ContainSingle(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid)
 			.Which.GetMessage().Should().Contain("no project-reference manifest");
 	}
 
 	[Fact]
-	public async Task IllegalProjectReference_ReportsARCH010()
+	public async Task IllegalProjectReference_ReportsARCH_PROJ_001()
 	{
 		const string config = """
 		                      <ArchitecturalLevels>
@@ -58,7 +58,7 @@ public sealed class ProjectReferenceBoundaryAnalyzerTests
 			("Architecture.anl", config),
 			(ArchitectureReferenceManifest.FileName, manifest));
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ProjectReferenceViolation).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed).Subject;
 		diagnostic.GetMessage().Should().Contain("Shop.Web");
 		diagnostic.GetMessage().Should().Contain("Shop.Domain");
 		diagnostic.Properties[ArchitecturalDiagnostics.PropertySourceProjectGroup].Should().Be("Presentation");
@@ -66,7 +66,7 @@ public sealed class ProjectReferenceBoundaryAnalyzerTests
 	}
 
 	[Fact]
-	public async Task LegalProjectReference_DoesNotReportARCH010()
+	public async Task LegalProjectReference_DoesNotReportARCH_PROJ_001()
 	{
 		const string config = """
 		                      <ArchitecturalLevels>
@@ -91,8 +91,8 @@ public sealed class ProjectReferenceBoundaryAnalyzerTests
 			("Architecture.anl", config),
 			(ArchitectureReferenceManifest.FileName, manifest));
 
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ProjectReferenceViolation);
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.InvalidConfiguration);
+		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed);
+		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
 	}
 
 	[Fact]
@@ -124,12 +124,12 @@ public sealed class ProjectReferenceBoundaryAnalyzerTests
 			("Architecture.anl", config),
 			(ArchitectureReferenceManifest.FileName, manifest));
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ProjectReferenceViolation)
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed)
 			.Which.GetMessage().Should().Contain("no AllowedProjectReference permits");
 	}
 
 	[Fact]
-	public async Task ForbiddenPackageReference_ReportsARCH011()
+	public async Task ForbiddenPackageReference_ReportsARCH_PKG_001()
 	{
 		const string config = """
 		                      <ArchitecturalLevels>
@@ -155,7 +155,7 @@ public sealed class ProjectReferenceBoundaryAnalyzerTests
 			("Architecture.anl", config),
 			(ArchitectureReferenceManifest.FileName, manifest));
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.PackageReferenceViolation).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.PackageReferenceNotAllowed).Subject;
 		diagnostic.GetMessage().Should().Contain("Microsoft.Extensions.Logging");
 		diagnostic.Properties[ArchitecturalDiagnostics.PropertyPackageReferenceKind].Should().Be("Direct");
 	}
@@ -187,6 +187,6 @@ public sealed class ProjectReferenceBoundaryAnalyzerTests
 			("Architecture.anl", config),
 			(ArchitectureReferenceManifest.FileName, manifest));
 
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.PackageReferenceViolation);
+		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.PackageReferenceNotAllowed);
 	}
 }

@@ -49,7 +49,7 @@ public sealed class ConfigurationTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
 			.Should().ContainSingle()
 			.Which.GetMessage(CultureInfo.InvariantCulture).Should().Contain("MenuController");
 	}
@@ -138,7 +138,7 @@ public sealed class ConfigurationTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, ("Architecture.anl", config));
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
 			.Should().ContainSingle()
 			.Which.GetMessage(CultureInfo.InvariantCulture).Should().Contain("MenuController");
 	}
@@ -182,7 +182,7 @@ public sealed class ConfigurationTests
 			("SharedPizzeriaLayers.xml", sharedConfig));
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
 			.Should().ContainSingle()
 			.Which.GetMessage(CultureInfo.InvariantCulture).Should().Contain("MenuController");
 	}
@@ -279,7 +279,7 @@ public sealed class ConfigurationTests
 			(@"RulePlugins\RestaurantFlow.anl", sharedEdgesConfig));
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
 			.Should().ContainSingle()
 			.Which.GetMessage(CultureInfo.InvariantCulture).Should().Contain("CuriousWaiter");
 	}
@@ -308,7 +308,7 @@ public sealed class ConfigurationTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, customConfig);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.SameLayerDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyPeerScope)
 			.Should().NotBeEmpty();
 	}
 
@@ -340,7 +340,7 @@ public sealed class ConfigurationTests
 	[Fact]
 	public async Task DiagnosticMessage_ContainsCallerAndDependency()
 	{
-		// Same-layer (Controller -> Controller) — exercises the ARCH005 message template.
+		// Same-layer (Controller -> Controller) — exercises the ARCH_DEP_005 message template.
 		const string source = """
 		                      public class OtherController { }
 		                      public class PatientController(OtherController other) { }
@@ -349,7 +349,7 @@ public sealed class ConfigurationTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
 		var msg = diagnostics
-			.First(d => d.Id == ArchitecturalDiagnosticIds.SameLayerDependency)
+			.First(d => d.Id == ArchitecturalDiagnosticIds.DependencyPeerScope)
 			.GetMessage(CultureInfo.InvariantCulture);
 
 		msg.Should().Contain("PatientController");

@@ -1,0 +1,18 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd">
+  <Layer name="Application">
+    <Class endsWith="Kitchen" />
+  </Layer>
+  <Operations>
+    <Operation name="PlacePizzaOrder" allowedOwnerLayers="Application">
+      <Owner>
+        <DeclarationMatcher>
+          <ContainingType endsWith="Kitchen" />
+          <Member exactName="PlacePizzaOrder" memberKind="Method" />
+        </DeclarationMatcher>
+      </Owner>
+      <Request><Class exactName="PlacePizzaOrderRequest" /></Request>
+      <Response><Class exactName="PlacePizzaOrderResponse" /></Response>
+    </Operation>
+  </Operations>
+</ArchitecturalLevels>

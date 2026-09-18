@@ -1,6 +1,6 @@
 # Example.NameRuleLanguageForms
 
-This one-file example keeps `RequireMatchingNames` in its default `Direct` mode and shows eight `ARCH008` diagnostics across direct C# forms: compound assignment, deconstruction, both conditional branches after conversion, an expression-bodied return, and named arguments.
+This one-file example keeps `RequireMatchingNames` in its default `Direct` mode and shows eight `ARCH_NAME_008` diagnostics across direct C# forms: compound assignment, deconstruction, both conditional branches after conversion, an expression-bodied return, and named arguments.
 
 ```cmd
 dotnet build Examples\Features\Example.NameRuleLanguageForms -c Release

@@ -32,7 +32,7 @@ public sealed class PublicPizzaRequest
 	public PizzaId PizzaId { get; } = new();
 }
 
-// ARCH019: this request matches the full configured shape and therefore must implement IPizzaProvider.
+// ARCH_INH_001: this request matches the full configured shape and therefore must implement IPizzaProvider.
 public sealed class CreatePizzaRequest
 {
 	private readonly TenantId _tenantId = new();

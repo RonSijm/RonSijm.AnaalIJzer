@@ -58,11 +58,11 @@ public sealed class CombinedMatcherTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.UnrecognizedDependency);
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyRequiredMissing);
 	}
 
 	[Fact]
-	public async Task UnknownTypeKind_ReportsARCH006()
+	public async Task UnknownTypeKind_ReportsARCH_CONF_003()
 	{
 		const string config = """
 		                      <ArchitecturalLevels>
@@ -72,13 +72,13 @@ public sealed class CombinedMatcherTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class Target { }", config);
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InvalidConfiguration);
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
 	}
 
 	[Theory]
 	[InlineData("Namespace")]
 	[InlineData("Assembly")]
-	public async Task TypeKind_OnNonClassMatcherReportsARCH006(string elementName)
+	public async Task TypeKind_OnNonClassMatcherReportsARCH_CONF_003(string elementName)
 	{
 		var config = $$"""
 		               <ArchitecturalLevels>
@@ -88,7 +88,7 @@ public sealed class CombinedMatcherTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class Target { }", config);
 
-		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.InvalidConfiguration);
+		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
 	}
 
 	[Fact]
@@ -131,7 +131,7 @@ public sealed class CombinedMatcherTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.UnrecognizedDependency);
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyRequiredMissing);
 	}
 
 	[Fact]
@@ -216,7 +216,7 @@ public sealed class CombinedMatcherTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violations = diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenDependency).ToArray();
+		var violations = diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.TypeNotAllowed).ToArray();
 		violations.Should().HaveCount(2);
 	}
 
@@ -243,7 +243,7 @@ public sealed class CombinedMatcherTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenDependency).Which;
+		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.TypeNotAllowed).Which;
 		violation.GetMessage(CultureInfo.InvariantCulture).Should().Contain("INewRepository");
 	}
 
@@ -267,7 +267,7 @@ public sealed class CombinedMatcherTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenDependency).Which;
+		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.TypeNotAllowed).Which;
 		violation.Properties[ArchitecturalDiagnostics.PropertyMatchedSuffix].Should().Be("Store");
 		violation.Properties[ArchitecturalDiagnostics.PropertyFixSuffix].Should().Be("Repository");
 

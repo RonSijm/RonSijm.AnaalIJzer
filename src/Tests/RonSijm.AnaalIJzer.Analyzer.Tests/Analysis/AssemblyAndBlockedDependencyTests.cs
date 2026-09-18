@@ -22,7 +22,7 @@ public sealed class AssemblyAndBlockedDependencyTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency);
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed);
 	}
 
 	[Fact]
@@ -63,7 +63,7 @@ public sealed class AssemblyAndBlockedDependencyTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Subject;
 		diagnostic.GetMessage().Should().Contain("explicitly blocks this dependency at Constructor");
 	}
 
@@ -88,7 +88,7 @@ public sealed class AssemblyAndBlockedDependencyTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Subject;
 		diagnostic.Properties[ArchitecturalDiagnostics.PropertySite].Should().Be(DependencySites.Constructor);
 	}
 }

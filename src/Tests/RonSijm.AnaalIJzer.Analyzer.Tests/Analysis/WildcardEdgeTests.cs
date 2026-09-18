@@ -92,12 +92,12 @@ public sealed class WildcardEdgeTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
 			.Should().NotBeEmpty();
 	}
 
 	[Fact]
-	public async Task WildcardEdge_AllowedToAnyLayer_ForbiddenStillReportsARCH003()
+	public async Task WildcardEdge_AllowedToAnyLayer_ForbiddenStillReportsARCH_TYPE_001()
 	{
 		const string config = """
 		                      <ArchitecturalLevels>
@@ -119,7 +119,7 @@ public sealed class WildcardEdgeTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.ForbiddenDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
 			.Should().NotBeEmpty();
 	}
 
@@ -138,7 +138,7 @@ public sealed class WildcardEdgeTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		// Without the wildcard this would have been ARCH004 (Repository -> Manager goes up).
+		// Without the wildcard this would have been ARCH_DEP_004 (Repository -> Manager goes up).
 		const string source = """
 		                      public class PatientManager { }
 		                      public class PatientRepository(PatientManager mgr) { }

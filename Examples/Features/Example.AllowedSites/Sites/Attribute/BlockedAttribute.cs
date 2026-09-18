@@ -6,7 +6,7 @@ namespace Example.AllowedSites.Sites.Attribute;
 [BlockedAttributeType]
 public sealed class BlockedAttributeSiteExample
 {
-    // The constructor is allowed, while the attribute above produces ARCH001.
+    // The constructor is allowed, while the attribute above produces ARCH_DEP_001.
     public BlockedAttributeSiteExample(BlockedAttributeType allowed)
     {
         _ = allowed;

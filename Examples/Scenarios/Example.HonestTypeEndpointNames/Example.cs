@@ -7,7 +7,7 @@ namespace Example.HonestTypeEndpointNames;
 public sealed class PatientEndpoint
 {
     // Both types are valid endpoint inputs, but external binders commonly use the
-    // parameter names. ARCH008 reports both swapped declarations independently.
+    // parameter names. ARCH_NAME_008 reports both swapped declarations independently.
     public Task<GetPatientResponse> GetPatient(DoctorId patientId, PatientId doctorId)
     {
         return Task.FromResult(new GetPatientResponse());

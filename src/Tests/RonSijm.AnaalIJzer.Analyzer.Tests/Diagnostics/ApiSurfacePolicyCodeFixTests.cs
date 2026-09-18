@@ -35,7 +35,7 @@ public sealed class ApiSurfacePolicyCodeFixTests
 		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
 			source,
 			config,
-			ArchitecturalDiagnosticIds.ApiSurfaceLeakage,
+			ArchitecturalDiagnosticIds.ApiExposureNotAllowed,
 			"Allow API surface to expose '/QuerySurface'");
 
 		updatedConfig.Should().Contain("""<AllowedLayer path="/QuerySurface" />""");
@@ -72,7 +72,7 @@ public sealed class ApiSurfacePolicyCodeFixTests
 		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
 			source,
 			config,
-			ArchitecturalDiagnosticIds.ApiSurfaceLeakage,
+			ArchitecturalDiagnosticIds.ApiExposureNotAllowed,
 			"Add site 'MethodReturn' to ApiSurface AllowedLayer '/QuerySurface'");
 
 		updatedConfig.Should().Contain("allowedSites=\"MethodReturn, Property\"");
@@ -105,7 +105,7 @@ public sealed class ApiSurfacePolicyCodeFixTests
 		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
 			source,
 			config,
-			ArchitecturalDiagnosticIds.ApiSurfaceLeakage,
+			ArchitecturalDiagnosticIds.ApiExposureNotAllowed,
 			"Disable requireRecognizedTypes on ApiSurface");
 
 		updatedConfig.Should().Contain("requireRecognizedTypes=\"false\"");
@@ -138,7 +138,7 @@ public sealed class ApiSurfacePolicyCodeFixTests
 		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
 			source,
 			config,
-			ArchitecturalDiagnosticIds.ApiSurfaceLeakage,
+			ArchitecturalDiagnosticIds.ApiExposureNotAllowed,
 			"Stop blocking API-surface layer '/QuerySurface' at MethodReturn");
 
 		updatedConfig.Should().Contain("allowedSites=\"Property\"");
@@ -179,7 +179,7 @@ public sealed class ApiSurfacePolicyCodeFixTests
 		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
 			source,
 			config,
-			ArchitecturalDiagnosticIds.ForbiddenTransitiveExposure,
+			ArchitecturalDiagnosticIds.ApiTransitiveExposure,
 			"Allow API surface to expose '/QuerySurface'");
 
 		updatedConfig.Should().Contain("""<AllowedLayer path="/QuerySurface" />""");
@@ -217,7 +217,7 @@ public sealed class ApiSurfacePolicyCodeFixTests
 
 		var updatedSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
 			source,
-			ArchitecturalDiagnosticIds.ApiSurfaceLeakage,
+			ArchitecturalDiagnosticIds.ApiExposureNotAllowed,
 			"Allow API surface to expose '/QuerySurface'");
 
 		updatedSource.Should().Contain("""<AllowedLayer path="/QuerySurface" />""");

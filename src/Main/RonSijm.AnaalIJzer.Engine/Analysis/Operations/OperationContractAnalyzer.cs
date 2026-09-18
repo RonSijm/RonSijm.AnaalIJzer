@@ -108,6 +108,7 @@ internal static class OperationContractAnalyzer
 	private static void Report(CompilationAnalysisContext context, IMethodSymbol method, string? layerPath, OperationContractEvaluation evaluation)
 	{
 		var definition = evaluation.Definition;
+		var descriptor = GetDescriptor(evaluation.ViolationKind);
 		var location = GetSourceLocation(method) ?? Location.None;
 		var properties = ImmutableDictionary<string, string?>.Empty
 			.Add(ArchitecturalDiagnostics.PropertyCallerTypeName, method.ContainingType.Name)
@@ -122,8 +123,8 @@ internal static class OperationContractAnalyzer
 			.Add(ArchitecturalDiagnostics.PropertyRuleXmlPath, definition.XmlPath)
 			.Add(ArchitecturalDiagnostics.PropertyRuleXmlLine, definition.XmlLineNumber.ToString(System.Globalization.CultureInfo.InvariantCulture))
 			.Add(ArchitecturalDiagnostics.PropertyRuleXmlCol, definition.XmlLinePosition.ToString(System.Globalization.CultureInfo.InvariantCulture));
-		context.ReportDiagnostic(Diagnostic.Create(
-			ArchitecturalDiagnostics.OperationContractViolation,
+		context.ReportDiagnostic(ArchitecturalDiagnostics.CreateDiagnostic(
+			descriptor,
 			location,
 			properties,
 			method.ContainingType.Name,
@@ -131,6 +132,18 @@ internal static class OperationContractAnalyzer
 			definition.Name,
 			evaluation.ParticipantRole.ToString(),
 			evaluation.Reason));
+	}
+
+	private static DiagnosticDescriptor GetDescriptor(OperationContractViolationKind violationKind)
+	{
+		var result = violationKind switch
+		{
+			OperationContractViolationKind.OwnerOutsideAllowedLayer or OperationContractViolationKind.EntryPointOutsideAllowedLayer => ArchitecturalDiagnostics.OperationContractNotAllowed,
+			OperationContractViolationKind.OwnerInvalidResponse or OperationContractViolationKind.EntryPointInvalidResponse => ArchitecturalDiagnostics.OperationContractShapeMismatch,
+			_ => ArchitecturalDiagnostics.OperationContractRequiredMissing
+		};
+
+		return result;
 	}
 
 	private static Location? GetSourceLocation(IMethodSymbol method)

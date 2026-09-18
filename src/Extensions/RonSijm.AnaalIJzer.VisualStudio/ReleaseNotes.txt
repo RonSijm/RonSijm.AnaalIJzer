@@ -1,5 +1,6 @@
 AnaalIJzer Visual Studio Companion
 
+- Uses semantic diagnostic IDs in the form ARCH_<CONCERN>_<REASON>.
 - Shows layer badges, gutter glyphs, and declaration background tints for configured AnaalIJzer layers.
 - Adds native QuickInfo and WPF tooltip content for layer and dependency-site indicators.
 - Adds the AnaalIJzer: Toggle Sites Diagnostics command for inline dependency-site labels.

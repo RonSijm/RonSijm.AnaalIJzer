@@ -39,7 +39,7 @@ public readonly struct PackageReferenceViolationFinding(
 		var context = $"{SourceProjectName} -> {PackageId}";
 		var result = new ArchitectureFinding(
 			ArchitectureFindingSeverity.Error,
-			ArchitecturalDiagnosticIds.PackageReferenceViolation,
+			ArchitecturalDiagnosticIds.PackageReferenceNotAllowed,
 			ViolationReason,
 			context,
 			properties: properties);

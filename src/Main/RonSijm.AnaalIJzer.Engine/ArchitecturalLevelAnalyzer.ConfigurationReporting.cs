@@ -14,9 +14,9 @@ public sealed partial class ArchitecturalLevelAnalyzer
 		foreach (var issue in config.ConfigurationIssues)
 		{
 			var descriptor = issue.Kind == ConfigurationIssueKind.CyclicDependencyGraph
-				? ArchitecturalDiagnostics.CyclicDependencyGraph
-				: ArchitecturalDiagnostics.InvalidConfiguration;
-			context.ReportDiagnostic(Diagnostic.Create(
+				? ArchitecturalDiagnostics.ConfigurationCycle
+				: ArchitecturalDiagnostics.ConfigurationInvalid;
+			context.ReportDiagnostic(ArchitecturalDiagnostics.CreateDiagnostic(
 				descriptor,
 				CreateConfigurationLocation(issue, additionalFiles, context.CancellationToken),
 				issue.Properties,
@@ -38,8 +38,8 @@ public sealed partial class ArchitecturalLevelAnalyzer
 				.Add(ArchitecturalDiagnostics.PropertyRuleXmlPath, review.XmlPath)
 				.Add(ArchitecturalDiagnostics.PropertyRuleXmlLine, review.XmlLineNumber.ToString(System.Globalization.CultureInfo.InvariantCulture))
 				.Add(ArchitecturalDiagnostics.PropertyRuleXmlCol, review.XmlLinePosition.ToString(System.Globalization.CultureInfo.InvariantCulture));
-			context.ReportDiagnostic(Diagnostic.Create(
-				ArchitecturalDiagnostics.ExceptionReview,
+			context.ReportDiagnostic(ArchitecturalDiagnostics.CreateDiagnostic(
+				ArchitecturalDiagnostics.ExceptionReviewLifecycle,
 				CreateConfigurationLocation(review.XmlPath, review.XmlLineNumber, review.XmlLinePosition, additionalFiles, context.Compilation, context.CancellationToken),
 				properties,
 				review.Message));

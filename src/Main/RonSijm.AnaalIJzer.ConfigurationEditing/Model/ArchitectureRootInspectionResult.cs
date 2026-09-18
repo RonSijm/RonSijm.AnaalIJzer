@@ -25,7 +25,8 @@ public sealed class ArchitectureRootInspectionResult
 		ImmutableArray<ArchitectureConfigurationElementDetails> allowedPolicies,
 		ImmutableArray<ArchitectureConfigurationElementDetails> forbiddenPolicies,
 		ImmutableArray<ArchitectureConfigurationElementDetails> operationContracts,
-		ImmutableArray<ArchitectureConfigurationElementDetails> assemblyAttributePolicies)
+		ImmutableArray<ArchitectureConfigurationElementDetails> assemblyAttributePolicies,
+		ImmutableArray<ArchitectureConfigurationElementDetails> namespaceHierarchyPolicies)
 	{
 		Succeeded = succeeded;
 		Message = message;
@@ -48,6 +49,7 @@ public sealed class ArchitectureRootInspectionResult
 		ForbiddenPolicies = forbiddenPolicies;
 		OperationContracts = operationContracts;
 		AssemblyAttributePolicies = assemblyAttributePolicies;
+		NamespaceHierarchyPolicies = namespaceHierarchyPolicies;
 	}
 
 	public bool Succeeded { get; }
@@ -92,6 +94,8 @@ public sealed class ArchitectureRootInspectionResult
 
 	public ImmutableArray<ArchitectureConfigurationElementDetails> AssemblyAttributePolicies { get; }
 
+	public ImmutableArray<ArchitectureConfigurationElementDetails> NamespaceHierarchyPolicies { get; }
+
 	public static ArchitectureRootInspectionResult Success(
 		string? description,
 		string? requireRecognizedDependencies,
@@ -111,7 +115,8 @@ public sealed class ArchitectureRootInspectionResult
 		ImmutableArray<ArchitectureConfigurationElementDetails> allowedPolicies,
 		ImmutableArray<ArchitectureConfigurationElementDetails> forbiddenPolicies,
 		ImmutableArray<ArchitectureConfigurationElementDetails> operationContracts,
-		ImmutableArray<ArchitectureConfigurationElementDetails> assemblyAttributePolicies)
+		ImmutableArray<ArchitectureConfigurationElementDetails> assemblyAttributePolicies,
+		ImmutableArray<ArchitectureConfigurationElementDetails> namespaceHierarchyPolicies)
 	{
 		var result = new ArchitectureRootInspectionResult(
 			true,
@@ -134,7 +139,8 @@ public sealed class ArchitectureRootInspectionResult
 			allowedPolicies,
 			forbiddenPolicies,
 			operationContracts,
-			assemblyAttributePolicies);
+			assemblyAttributePolicies,
+			namespaceHierarchyPolicies);
 
 		return result;
 	}
@@ -157,6 +163,7 @@ public sealed class ArchitectureRootInspectionResult
 			false,
 			14,
 			null,
+			ImmutableArray<ArchitectureConfigurationElementDetails>.Empty,
 			ImmutableArray<ArchitectureConfigurationElementDetails>.Empty,
 			ImmutableArray<ArchitectureConfigurationElementDetails>.Empty,
 			ImmutableArray<ArchitectureConfigurationElementDetails>.Empty,

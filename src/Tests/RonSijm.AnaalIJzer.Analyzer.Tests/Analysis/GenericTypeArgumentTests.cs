@@ -6,7 +6,7 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Analysis;
 public sealed class GenericTypeArgumentTests
 {
 	[Fact]
-	public async Task GenericTypeArgument_LazyOfRepository_FromController_ReportsARCH001()
+	public async Task GenericTypeArgument_LazyOfRepository_FromController_ReportsARCH_DEP_001()
 	{
 		const string source = """
 		                      using System;
@@ -17,14 +17,14 @@ public sealed class GenericTypeArgumentTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
 			.Should().ContainSingle()
 			.Which.GetMessage(CultureInfo.InvariantCulture)
 			.Should().Contain("IPatientRepository");
 	}
 
 	[Fact]
-	public async Task GenericTypeArgument_EnumerableOfRepository_FromController_ReportsARCH001()
+	public async Task GenericTypeArgument_EnumerableOfRepository_FromController_ReportsARCH_DEP_001()
 	{
 		const string source = """
 		                      using System.Collections.Generic;
@@ -35,7 +35,7 @@ public sealed class GenericTypeArgumentTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
 			.Should().ContainSingle();
 	}
 
@@ -52,7 +52,7 @@ public sealed class GenericTypeArgumentTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
 			.Should().ContainSingle();
 	}
 
@@ -101,7 +101,7 @@ public sealed class GenericTypeArgumentTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
 			.Should().ContainSingle();
 	}
 
@@ -121,7 +121,7 @@ public sealed class GenericTypeArgumentTests
 	}
 
 	[Fact]
-	public async Task GenericTypeArgument_ForbiddenTypeInsideGeneric_ReportsARCH003()
+	public async Task GenericTypeArgument_ForbiddenTypeInsideGeneric_ReportsARCH_TYPE_001()
 	{
 		const string config = """
 		                      <ArchitecturalLevels>
@@ -143,7 +143,7 @@ public sealed class GenericTypeArgumentTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.ForbiddenDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
 			.Should().ContainSingle()
 			.Which.GetMessage(CultureInfo.InvariantCulture)
 			.Should().Contain("IPartnerStore");
@@ -175,7 +175,7 @@ public sealed class GenericTypeArgumentTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var arch003 = diagnostics.First(d => d.Id == ArchitecturalDiagnosticIds.ForbiddenDependency);
+		var arch003 = diagnostics.First(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed);
 		arch003.Properties.ContainsKey(ArchitecturalDiagnostics.PropertyMatchedSuffix).Should().BeFalse();
 		arch003.Properties.ContainsKey(ArchitecturalDiagnostics.PropertyFixSuffix).Should().BeFalse();
 	}
@@ -183,8 +183,8 @@ public sealed class GenericTypeArgumentTests
 	[Fact]
 	public async Task GenericTypeArgument_OuterAndInnerInDifferentLayers_BothReported()
 	{
-		// Outer 'OtherManager' matches Manager (same layer as caller -> ARCH005).
-		// Inner 'IPatientController' matches Controller (wrong direction -> ARCH004).
+		// Outer 'OtherManager' matches Manager (same layer as caller -> ARCH_DEP_005).
+		// Inner 'IPatientController' matches Controller (wrong direction -> ARCH_DEP_004).
 		const string source = """
 		                      using System.Collections.Generic;
 		                      public interface IPatientController { }
@@ -194,12 +194,12 @@ public sealed class GenericTypeArgumentTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
-		diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.SameLayerDependency);
-		diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.WrongDirectionDependency);
+		diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyPeerScope);
+		diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyReverseDirection);
 	}
 
 	[Fact]
-	public async Task GenericTypeArgument_RecognitionRequirement_RecognizedThroughInner_NoARCH002()
+	public async Task GenericTypeArgument_RecognitionRequirement_RecognizedThroughInner_NoARCH_DEP_002()
 	{
 		// Outer 'Lazy' is not in any layer, but inner PatientConsentRepository is,
 		// so the parameter has a recognized architectural dependency.
@@ -215,7 +215,7 @@ public sealed class GenericTypeArgumentTests
 	}
 
 	[Fact]
-	public async Task GenericTypeArgument_RecognitionRequirement_AllUnrecognized_ReportsARCH002Once()
+	public async Task GenericTypeArgument_RecognitionRequirement_AllUnrecognized_ReportsARCH_DEP_002Once()
 	{
 		const string source = """
 		                      using System;
@@ -226,7 +226,7 @@ public sealed class GenericTypeArgumentTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.RequireRecognizedDependenciesConfig);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.UnrecognizedDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyRequiredMissing)
 			.Should().ContainSingle();
 	}
 }

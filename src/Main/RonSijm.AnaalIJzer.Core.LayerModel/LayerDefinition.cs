@@ -14,7 +14,7 @@ public readonly struct LayerDefinition
 	/// <summary>Display name used in <c>AllowedDependency</c> edges and diagnostic messages.</summary>
 	public string Name { get; }
 
-	/// <summary>When <see langword="true" /> depending on this layer always produces ARCH003.</summary>
+	/// <summary>When <see langword="true" /> depending on this layer always produces ARCH_TYPE_001.</summary>
 	public bool IsForbidden { get; }
 
 	public string? Comment { get; }

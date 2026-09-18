@@ -21,8 +21,8 @@ internal static class ProjectReferenceAnalyzer
 		var manifestFile = additionalFiles.FirstOrDefault(file => string.Equals(Path.GetFileName(file.Path), ArchitectureReferenceManifest.FileName, StringComparison.OrdinalIgnoreCase));
 		if (manifestFile is null)
 		{
-			context.ReportDiagnostic(Diagnostic.Create(
-				ArchitecturalDiagnostics.InvalidConfiguration,
+			context.ReportDiagnostic(ArchitecturalDiagnostics.CreateDiagnostic(
+				ArchitecturalDiagnostics.ConfigurationInvalid,
 				Location.None,
 				"ProjectArchitecture is configured but no project-reference manifest was supplied. Ensure the build integration adds the AnaalIJzer reference manifest as an AdditionalFile."));
 			return;
@@ -31,8 +31,8 @@ internal static class ProjectReferenceAnalyzer
 		var manifestText = manifestFile.GetText(context.CancellationToken)?.ToString();
 		if (string.IsNullOrWhiteSpace(manifestText))
 		{
-			context.ReportDiagnostic(Diagnostic.Create(
-				ArchitecturalDiagnostics.InvalidConfiguration,
+			context.ReportDiagnostic(ArchitecturalDiagnostics.CreateDiagnostic(
+				ArchitecturalDiagnostics.ConfigurationInvalid,
 				Location.None,
 				$"ProjectArchitecture is configured but the project-reference manifest '{manifestFile.Path}' is empty."));
 			return;
@@ -42,7 +42,7 @@ internal static class ProjectReferenceAnalyzer
 		var manifest = ArchitectureReferenceManifestReader.Read(manifestText!, manifestFile.Path, issues);
 		foreach (var issue in issues)
 		{
-			context.ReportDiagnostic(Diagnostic.Create(ArchitecturalDiagnostics.InvalidConfiguration, Location.None, issue.Message));
+			context.ReportDiagnostic(ArchitecturalDiagnostics.CreateDiagnostic(ArchitecturalDiagnostics.ConfigurationInvalid, Location.None, issue.Message));
 		}
 
 		var analysis = ProjectArchitectureAnalysisService.Analyze(config.ProjectArchitecture, manifest);
@@ -67,8 +67,8 @@ internal static class ProjectReferenceAnalyzer
 					.Add(ArchitecturalDiagnostics.PropertyRuleXmlCol, matchedRule.XmlLinePosition.ToString());
 			}
 
-			var diagnostic = Diagnostic.Create(
-				ArchitecturalDiagnostics.ProjectReferenceViolation,
+			var diagnostic = ArchitecturalDiagnostics.CreateDiagnostic(
+				ArchitecturalDiagnostics.ProjectReferenceNotAllowed,
 				Location.None,
 				properties,
 				projectReference.SourceProjectName,
@@ -105,8 +105,8 @@ internal static class ProjectReferenceAnalyzer
 				properties = properties.Add(ArchitecturalDiagnostics.PropertyComment, matchedMatcher.Comment);
 			}
 
-			var diagnostic = Diagnostic.Create(
-				ArchitecturalDiagnostics.PackageReferenceViolation,
+			var diagnostic = ArchitecturalDiagnostics.CreateDiagnostic(
+				ArchitecturalDiagnostics.PackageReferenceNotAllowed,
 				Location.None,
 				properties,
 				packageReference.SourceProjectName,

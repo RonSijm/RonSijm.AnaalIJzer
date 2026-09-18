@@ -494,9 +494,9 @@ public sealed class ProjectArchitectureAnalysisServiceTests
 		var packageFinding = packageViolation.ToArchitectureFinding();
 		var assemblyFinding = assemblyViolation.ToArchitectureFinding();
 
-		projectFinding.Code.Should().Be(ArchitecturalDiagnosticIds.ProjectReferenceViolation);
+		projectFinding.Code.Should().Be(ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed);
 		projectFinding.Properties[ArchitectureDiagnosticProperties.PropertySourceProjectGroup].Should().Be("Presentation");
-		packageFinding.Code.Should().Be(ArchitecturalDiagnosticIds.PackageReferenceViolation);
+		packageFinding.Code.Should().Be(ArchitecturalDiagnosticIds.PackageReferenceNotAllowed);
 		packageFinding.Properties[ArchitectureDiagnosticProperties.PropertyPackageId].Should().Be("Microsoft.Extensions.Logging");
 		assemblyFinding.Code.Should().Be(ArchitectureFindingCodes.AssemblyReferencePolicyViolation);
 		assemblyFinding.Properties[ArchitectureDiagnosticProperties.PropertyAssemblyIdentity].Should().Be("Legacy.Transport");

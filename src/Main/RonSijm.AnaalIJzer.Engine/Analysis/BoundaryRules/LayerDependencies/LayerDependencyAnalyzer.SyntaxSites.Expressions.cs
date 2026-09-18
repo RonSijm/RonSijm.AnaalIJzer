@@ -16,7 +16,7 @@ public static partial class LayerDependencyAnalyzer
 	internal static void AnalyzeLocalDeclaration(SyntaxNodeAnalysisContext context, AnalyzerConfig config, ConcurrentBag<ViolationRecord> violations, ObservedDependencyCollector? observedDependencies)
 	{
 		var localDecl = (LocalDeclarationStatementSyntax)context.Node;
-		var caller = TryGetCallerLayer(context, config, localDecl);
+		var caller = TryGetCallerContext(context, config, localDecl);
 		if (caller is null)
 		{
 			return;
@@ -26,7 +26,7 @@ public static partial class LayerDependencyAnalyzer
 		var typeInfo = context.SemanticModel.GetTypeInfo(typeSyntax, context.CancellationToken);
 		if (typeInfo.Type is not null && typeInfo.Type.TypeKind != TypeKind.Error)
 		{
-			AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value.TypeName, caller.Value.Match, typeSyntax.GetLocation(), typeInfo.Type, DependencySites.Local);
+			AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value, typeSyntax.GetLocation(), typeInfo.Type, DependencySites.Local);
 			NamingRules.LayerDependencyAnalyzer.AnalyzeLocalInitializerNameRules(context, config, violations, localDecl);
 			NamingRules.LayerDependencyAnalyzer.AnalyzeLocalDeclarationNameRules(context, config, violations, localDecl);
 			return;
@@ -39,7 +39,7 @@ public static partial class LayerDependencyAnalyzer
 				continue;
 			}
 
-			AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value.TypeName, caller.Value.Match, variable.Identifier.GetLocation(), localSymbol.Type, DependencySites.Local);
+			AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value, variable.Identifier.GetLocation(), localSymbol.Type, DependencySites.Local);
 		}
 
 		NamingRules.LayerDependencyAnalyzer.AnalyzeLocalInitializerNameRules(context, config, violations, localDecl);
@@ -49,7 +49,7 @@ public static partial class LayerDependencyAnalyzer
 	internal static void AnalyzeObjectCreation(SyntaxNodeAnalysisContext context, AnalyzerConfig config, ConcurrentBag<ViolationRecord> violations, ObservedDependencyCollector? observedDependencies)
 	{
 		var node = (ExpressionSyntax)context.Node;
-		var caller = TryGetCallerLayer(context, config, node);
+		var caller = TryGetCallerContext(context, config, node);
 		if (caller is null)
 		{
 			return;
@@ -65,14 +65,14 @@ public static partial class LayerDependencyAnalyzer
 			? objectCreation.Type.GetLocation()
 			: node.GetLocation();
 
-		AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value.TypeName, caller.Value.Match, location, typeInfo.Type, DependencySites.New);
+		AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value, location, typeInfo.Type, DependencySites.New);
 		NamingRules.LayerDependencyAnalyzer.AnalyzeObjectCreationNameRules(context, config, violations, node);
 	}
 
 	internal static void AnalyzeInvocation(SyntaxNodeAnalysisContext context, AnalyzerConfig config, ConcurrentBag<ViolationRecord> violations, ObservedDependencyCollector? observedDependencies)
 	{
 		var invocation = (InvocationExpressionSyntax)context.Node;
-		var caller = TryGetCallerLayer(context, config, invocation);
+		var caller = TryGetCallerContext(context, config, invocation);
 		if (caller is null)
 		{
 			return;
@@ -86,7 +86,7 @@ public static partial class LayerDependencyAnalyzer
 			var staticLocation = invocation.Expression is MemberAccessExpressionSyntax memberAccess
 				? memberAccess.Expression.GetLocation()
 				: invocation.Expression.GetLocation();
-			AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value.TypeName, caller.Value.Match, staticLocation, semanticOperation.ContainingType, DependencySites.StaticMember);
+			AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value, staticLocation, semanticOperation.ContainingType, DependencySites.StaticMember);
 		}
 
 		NamingRules.LayerDependencyAnalyzer.AnalyzeInvocationNameRules(context, config, violations, invocation);
@@ -111,7 +111,7 @@ public static partial class LayerDependencyAnalyzer
 				continue;
 			}
 
-			AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value.TypeName, caller.Value.Match, typeArg.GetLocation(), typeInfo.Type, DependencySites.GenericInvocation);
+			AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value, typeArg.GetLocation(), typeInfo.Type, DependencySites.GenericInvocation);
 		}
 	}
 
@@ -127,12 +127,12 @@ public static partial class LayerDependencyAnalyzer
 			return;
 		}
 
-		var caller = TryGetCallerLayer(context, config, memberAccess);
+		var caller = TryGetCallerContext(context, config, memberAccess);
 		if (caller is null)
 		{
 			return;
 		}
 
-		AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value.TypeName, caller.Value.Match, memberAccess.Expression.GetLocation(), semanticOperation.ContainingType, DependencySites.StaticMember);
+		AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value, memberAccess.Expression.GetLocation(), semanticOperation.ContainingType, DependencySites.StaticMember);
 	}
 }

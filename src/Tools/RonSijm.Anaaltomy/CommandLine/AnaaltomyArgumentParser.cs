@@ -88,6 +88,7 @@ internal static class AnaaltomyArgumentParser
 			"compare" => AnaaltomyCommand.Compare,
 			"commits" => AnaaltomyCommand.Commits,
 			"export" => AnaaltomyCommand.Export,
+			"export-database" => AnaaltomyCommand.ExportDatabase,
 			"chart" => AnaaltomyCommand.Chart,
 			_ => AnaaltomyCommand.Help
 		};
@@ -99,6 +100,7 @@ internal static class AnaaltomyArgumentParser
 			|| value.Equals("compare", StringComparison.OrdinalIgnoreCase)
 			|| value.Equals("commits", StringComparison.OrdinalIgnoreCase)
 			|| value.Equals("export", StringComparison.OrdinalIgnoreCase)
+			|| value.Equals("export-database", StringComparison.OrdinalIgnoreCase)
 			|| value.Equals("chart", StringComparison.OrdinalIgnoreCase);
 
 		return isKnown;
@@ -115,6 +117,7 @@ internal static class AnaaltomyArgumentParser
 			AnaaltomyCommand.Compare => new[] { "--database", "--from", "--to" },
 			AnaaltomyCommand.Commits => new[] { "--database", "--dimension", "--bucket" },
 			AnaaltomyCommand.Export => new[] { "--database", "--format", "--output" },
+			AnaaltomyCommand.ExportDatabase => new[] { "--database", "--format", "--output-directory" },
 			AnaaltomyCommand.Chart => new[] { "--database", "--output-directory", "--dimension", "--bucket", "--group-by" },
 			_ => []
 		};

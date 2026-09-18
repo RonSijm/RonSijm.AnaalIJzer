@@ -96,6 +96,11 @@ public static partial class ArchitecturalConfigParser
 			var apiSurfacePolicies = ParseApiSurfacePolicies(layerEl.Elements("ApiSurface"), canonicalPath, xmlPath, declaredLayerPaths, issues);
 			var entryPointPolicies = ParseBoundaryEntryPointPolicies(layerEl.Elements("EntryPoints"), canonicalPath, xmlPath, nodesByPath, exceptionPolicy, exceptionDefinitions, exceptionReviews, issues);
 			var sourceLocationPolicies = ParseSourceLocationPolicies(layerEl.Elements("SourceLocations"), canonicalPath, xmlPath, isInlineConfiguration, issues);
+			foreach (var namespaceHierarchyPolicy in layerEl.Elements("NamespaceHierarchyPolicy"))
+			{
+				AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, "NamespaceHierarchyPolicy is a root-level policy and cannot be nested inside a Layer.", namespaceHierarchyPolicy, xmlPath);
+			}
+
 			if (matchers.Count == 0 && children.Length == 0)
 			{
 				AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, $"Layer '{canonicalPath}' does not contain a matcher or nested layer.", layerEl, xmlPath);

@@ -30,5 +30,5 @@ public interface IOrderRepository { }
 public interface IOrderService { }
 public class OrderEndpoint(IOrderService service) { }
 
-// ARCH001: Presentation -> Persistence has no AllowedDependency edge.
+// ARCH_DEP_001: Presentation -> Persistence has no AllowedDependency edge.
 public class AdminEndpoint(IOrderRepository repository) { }

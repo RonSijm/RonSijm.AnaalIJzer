@@ -1,0 +1,38 @@
+### ARCH_DEP_004 - Wrong-direction dependency
+
+Reported when a type in layer A depends on a type in layer B and `<AllowedDependency from="B" to="A"/>` is configured - i.e. the dependency runs in the reverse direction of a configured edge. It gets its own ID because adding the reverse edge is such an inviting fix and so seldom the correct one.
+
+**Example output:**
+```
+error ARCH_DEP_004: 'IngredientPantry' (layer Pantry) may not depend on 'IChef'
+  (layer Chef): this is the reverse of the configured 'Chef -> Pantry' edge
+```
+
+**Example project:** [`Example.Arch_DEP_004.WrongDirection`](../../Examples/Diagnostics/DEP/Example.Arch_DEP_004.WrongDirection)
+
+**Rule:** The allowed edge is `Chef -> Pantry`. Depending in the reverse direction is not allowed.
+
+```mermaid
+flowchart LR
+    Chef --> Pantry
+    Pantry -. "bad: reverses the relationship" .-> Chef
+```
+
+```xml
+<AllowedDependency from="Chef" to="Pantry" />
+<!-- Pantry -> Chef: intentionally omitted -->
+```
+
+```csharp
+// Chef -> Pantry is allowed.
+public class PizzaChef(IIngredientPantry pantry) { }
+
+// ARCH_DEP_004: Pantry -> Chef reverses the configured direction.
+// The pantry supplies the chef; it does not direct the chef.
+public class IngredientPantry(IChef chef) { }
+```
+
+#### Real-world uses
+
+- Catch a repository or infrastructure adapter that starts calling an application service to decide what it should persist.
+- Stop a lower-level module from reaching upward into an endpoint, UI, or orchestration layer just because the reverse edge already exists.

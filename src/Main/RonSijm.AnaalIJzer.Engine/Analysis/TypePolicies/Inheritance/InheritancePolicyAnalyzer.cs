@@ -63,8 +63,8 @@ internal static class InheritancePolicyAnalyzer
 			properties = properties.Add(ArchitecturalDiagnostics.PropertyRequiredInheritanceTypeName, evaluation.MissingTypeNames[0]);
 		}
 
-		context.ReportDiagnostic(Diagnostic.Create(
-			ArchitecturalDiagnostics.InheritancePolicyViolation,
+		context.ReportDiagnostic(ArchitecturalDiagnostics.CreateDiagnostic(
+			ArchitecturalDiagnostics.InheritanceNotAllowed,
 			location,
 			properties,
 			symbolName,

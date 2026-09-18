@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Example.EntityFrameworkCore.MigrationPlacement.Application.Migrations;
 
-// ARCH015: a Migration subclass belongs in Persistence/Migrations.
+// ARCH_SRC_007: a Migration subclass belongs in Persistence/Migrations.
 public sealed class PreviewPizzaOrdersMigration : Migration
 {
     protected override void Up(MigrationBuilder migrationBuilder) { }

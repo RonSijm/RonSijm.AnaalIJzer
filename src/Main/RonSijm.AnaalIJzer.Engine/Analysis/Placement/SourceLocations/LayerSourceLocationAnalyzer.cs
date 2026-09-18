@@ -129,8 +129,8 @@ internal static class LayerSourceLocationAnalyzer
 			.Add(ArchitecturalDiagnostics.PropertyRuleXmlLine, policy.XmlLineNumber.ToString(System.Globalization.CultureInfo.InvariantCulture))
 			.Add(ArchitecturalDiagnostics.PropertyRuleXmlCol, policy.XmlLinePosition.ToString(System.Globalization.CultureInfo.InvariantCulture));
 
-		context.ReportDiagnostic(Diagnostic.Create(
-			ArchitecturalDiagnostics.SourceLocationViolation,
+		context.ReportDiagnostic(ArchitecturalDiagnostics.CreateDiagnostic(
+			ArchitecturalDiagnostics.SourceBoundaryPlacement,
 			location,
 			properties,
 			typeName,

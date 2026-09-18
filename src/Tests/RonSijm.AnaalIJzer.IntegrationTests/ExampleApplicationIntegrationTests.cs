@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using RonSijm.AnaalIJzer.Application;
+using RonSijm.AnaalIJzer.Core.Findings;
 using RonSijm.AnaalIJzer.IntegrationTests.Support;
 using Xunit;
 
@@ -224,9 +225,8 @@ public sealed class ExampleApplicationIntegrationTests
 			}, cancellationToken);
 
 			inspection.HasFindings.Should().BeTrue();
-			inspection.Content.Should().Contain("Assembly reference policy");
+			inspection.Content.Should().Contain(ArchitecturalDiagnosticIds.AssemblyReferenceNotAllowed);
 			inspection.Content.Should().Contain("Legacy.Transport");
-			inspection.Content.Should().NotContain("ARCH", "raw assembly-reference policies are workspace findings, not compiler diagnostics");
 
 			var reportPath = Path.Combine(tempDirectory, "architectural-violations.md");
 			await runner.ExecuteAsync(new ApplicationRequest(ApplicationOperationKind.Report)

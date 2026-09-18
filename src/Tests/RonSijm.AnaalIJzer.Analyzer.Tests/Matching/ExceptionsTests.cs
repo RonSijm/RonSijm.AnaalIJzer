@@ -37,7 +37,7 @@ public sealed class ExceptionsTests
 	}
 
 	[Fact]
-	public async Task Exceptions_Forbidden_NewOffender_StillReportsARCH003()
+	public async Task Exceptions_Forbidden_NewOffender_StillReportsARCH_TYPE_001()
 	{
 		const string config = """
 		                      <ArchitecturalLevels>
@@ -63,7 +63,7 @@ public sealed class ExceptionsTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.ForbiddenDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
 			.Should().ContainSingle();
 	}
 
@@ -94,7 +94,7 @@ public sealed class ExceptionsTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		var forbidden = diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.ForbiddenDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
 			.ToList();
 
 		forbidden.Should().ContainSingle();
@@ -128,7 +128,7 @@ public sealed class ExceptionsTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		var forbidden = diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.ForbiddenDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
 			.ToList();
 
 		forbidden.Should().ContainSingle();
@@ -167,7 +167,7 @@ public sealed class ExceptionsTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		var forbidden = diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.ForbiddenDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
 			.ToList();
 
 		forbidden.Should().ContainSingle();
@@ -249,7 +249,7 @@ public sealed class ExceptionsTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		var arch001Messages = diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
 			.Select(d => d.GetMessage(CultureInfo.InvariantCulture))
 			.ToList();
 
@@ -263,11 +263,11 @@ public sealed class ExceptionsTests
 	// ---- One exception-bypass test per ARCH violation kind ----
 
 	[Fact]
-	public async Task Exceptions_ARCH001_ExceptedTargetType_DoesNotFireIllegalDependency()
+	public async Task Exceptions_ARCH_DEP_001_ExceptedTargetType_DoesNotFireIllegalDependency()
 	{
-		// Controller -> Repository normally fires ARCH001 (no AllowedDependency edge).
+		// Controller -> Repository normally fires ARCH_DEP_001 (no AllowedDependency edge).
 		// The exception removes BootstrapRepository from the Repository layer so it's
-		// unlayered, and ARCH001 only fires for type pairs where both sides have layers.
+		// unlayered, and ARCH_DEP_001 only fires for type pairs where both sides have layers.
 		const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Controller">
@@ -292,7 +292,7 @@ public sealed class ExceptionsTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		var arch001 = diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
 			.ToList();
 
 		arch001.Should().ContainSingle();
@@ -300,11 +300,11 @@ public sealed class ExceptionsTests
 	}
 
 	[Fact]
-	public async Task Exceptions_ARCH002_CannotBeBypassedByExceptions_ByDesign()
+	public async Task Exceptions_ARCH_DEP_002_CannotBeBypassedByExceptions_ByDesign()
 	{
-		// ARCH002 fires precisely BECAUSE no layer rule matched. An <Exceptions>
+		// ARCH_DEP_002 fires precisely BECAUSE no layer rule matched. An <Exceptions>
 		// block makes a matched type fall through to "no layer" — which is exactly
-		// the ARCH002 condition. Excepting an unknown type from a non-matching rule
+		// the ARCH_DEP_002 condition. Excepting an unknown type from a non-matching rule
 		// changes nothing. The supported bypass is positive classification (add the
 		// type to a layer via <Class typeName="..." />) or relaxing the recognized-site
 		// requirement for the current site. Exceptions are still not the bypass.
@@ -332,16 +332,16 @@ public sealed class ExceptionsTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.UnrecognizedDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyRequiredMissing)
 			.Should().ContainSingle();
 
 		new ArchitecturalLevelCodeFixProvider()
 			.FixableDiagnosticIds
-			.Should().Contain(ArchitecturalDiagnosticIds.UnrecognizedDependency);
+			.Should().Contain(ArchitecturalDiagnosticIds.DependencyRequiredMissing);
 	}
 
 	[Fact]
-	public async Task Exceptions_ARCH003_ExceptedType_DoesNotFireForbiddenDependency()
+	public async Task Exceptions_ARCH_TYPE_001_ExceptedType_DoesNotFireForbiddenDependency()
 	{
 		// Single-rule restatement of the broader Exceptions_Forbidden_* coverage,
 		// kept here so the per-ARCH grid is symmetric and obvious.
@@ -368,14 +368,14 @@ public sealed class ExceptionsTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.ForbiddenDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
 			.Should().BeEmpty();
 	}
 
 	[Fact]
-	public async Task Exceptions_ARCH004_ExceptedTargetType_DoesNotFireWrongDirection()
+	public async Task Exceptions_ARCH_DEP_004_ExceptedTargetType_DoesNotFireWrongDirection()
 	{
-		// Application -> Controller normally fires ARCH004 (reverse of configured
+		// Application -> Controller normally fires ARCH_DEP_004 (reverse of configured
 		// Controller -> Application edge). Excepting IBootstrapController demotes it
 		// to unlayered, so the wrong-direction check no longer applies.
 		const string config = """
@@ -403,7 +403,7 @@ public sealed class ExceptionsTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		var arch004 = diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.WrongDirectionDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyReverseDirection)
 			.ToList();
 
 		arch004.Should().ContainSingle();
@@ -411,9 +411,9 @@ public sealed class ExceptionsTests
 	}
 
 	[Fact]
-	public async Task Exceptions_ARCH005_ExceptedTargetType_DoesNotFireSameLayer()
+	public async Task Exceptions_ARCH_DEP_005_ExceptedTargetType_DoesNotFireSameLayer()
 	{
-		// Manager -> Manager normally fires ARCH005. Excepting IDispatcherManager
+		// Manager -> Manager normally fires ARCH_DEP_005. Excepting IDispatcherManager
 		// from the Application layer removes it from the same-layer comparison.
 		const string config = """
 		                      <ArchitecturalLevels>
@@ -436,7 +436,7 @@ public sealed class ExceptionsTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		var arch005 = diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.SameLayerDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyPeerScope)
 			.ToList();
 
 		arch005.Should().ContainSingle();

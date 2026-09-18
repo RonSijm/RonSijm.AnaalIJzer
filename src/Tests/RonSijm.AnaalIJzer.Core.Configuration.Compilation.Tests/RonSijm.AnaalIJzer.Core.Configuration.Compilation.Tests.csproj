@@ -26,6 +26,7 @@
         <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Core.DependencyRules\RonSijm.AnaalIJzer.Core.DependencyRules.csproj" />
         <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Core.Exceptions\RonSijm.AnaalIJzer.Core.Exceptions.csproj" />
         <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Core.LayerModel\RonSijm.AnaalIJzer.Core.LayerModel.csproj" />
+		<ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Core.NamespaceHierarchy\RonSijm.AnaalIJzer.Core.NamespaceHierarchy.csproj" />
 		<ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Core.OperationPolicies\RonSijm.AnaalIJzer.Core.OperationPolicies.csproj" />
         <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Core.PolicyEvaluation\RonSijm.AnaalIJzer.Core.PolicyEvaluation.csproj" />
         <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Core.ProjectArchitecture\RonSijm.AnaalIJzer.Core.ProjectArchitecture.csproj" />

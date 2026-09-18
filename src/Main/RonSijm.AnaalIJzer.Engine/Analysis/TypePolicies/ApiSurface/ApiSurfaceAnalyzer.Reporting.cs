@@ -39,8 +39,8 @@ internal static partial class ApiSurfaceAnalyzer
 			apiMemberName,
 			policy);
 
-		context.ReportDiagnostic(Diagnostic.Create(
-			ArchitecturalDiagnostics.ApiSurfaceLeakage,
+		context.ReportDiagnostic(ArchitecturalDiagnostics.CreateDiagnostic(
+			ArchitecturalDiagnostics.ApiExposureNotAllowed,
 			reference.Location,
 			properties,
 			ownerType.Name,
@@ -86,8 +86,8 @@ internal static partial class ApiSurfaceAnalyzer
 			? ImmutableArray.Create(nestedLocation)
 			: ImmutableArray<Location>.Empty;
 
-		context.ReportDiagnostic(Diagnostic.Create(
-			ArchitecturalDiagnostics.ForbiddenTransitiveExposure,
+		context.ReportDiagnostic(ArchitecturalDiagnostics.CreateDiagnostic(
+			ArchitecturalDiagnostics.ApiTransitiveExposure,
 			rootReference.Location,
 			additionalLocations,
 			properties,

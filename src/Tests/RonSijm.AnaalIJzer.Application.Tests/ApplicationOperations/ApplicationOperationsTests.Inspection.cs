@@ -1,3 +1,5 @@
+using RonSijm.AnaalIJzer.Core.Findings;
+
 namespace RonSijm.AnaalIJzer.Application.Tests.ApplicationOperations;
 
 public sealed partial class ApplicationOperationsTests
@@ -86,7 +88,7 @@ public sealed partial class ApplicationOperationsTests
 			var report = await File.ReadAllTextAsync(outputPath, cancellationToken);
 			report.Should().Contain("# Architectural Violation Report");
 			report.Should().Contain("**Solution**");
-			report.Should().Contain("ARCH001");
+			report.Should().Contain("ARCH_DEP_001");
 			report.Should().Contain("OrderDashboardService");
 		}
 		finally
@@ -107,7 +109,7 @@ public sealed partial class ApplicationOperationsTests
 			WriteOutput = false
 		}, TestContext.Current.CancellationToken);
 
-		result.Content.Should().Contain("ARCH005");
+		result.Content.Should().Contain("ARCH_DEP_005");
 		result.Content.Should().NotContain("| Warning | Unmatched matcher |");
 	}
 
@@ -141,7 +143,7 @@ public sealed partial class ApplicationOperationsTests
 			result.Message.Should().Contain("found 1 issue");
 			var report = await File.ReadAllTextAsync(outputPath, cancellationToken);
 			report.Should().Contain("# Architecture Health");
-			report.Should().Contain("Configured cycle");
+			report.Should().Contain(ArchitecturalDiagnosticIds.ConfigurationCycle);
 			report.Should().Contain("Application -> Repository -> Application");
 			report.Should().Contain("enforceAcyclic is disabled");
 		}
@@ -158,14 +160,14 @@ public sealed partial class ApplicationOperationsTests
 
 		try
 		{
-			var sourceDirectory = FindRepositoryProject("Examples", "Diagnostics", "Example.Arch018.ObservedCycle").TrimEnd(Path.DirectorySeparatorChar);
+			var sourceDirectory = FindRepositoryProject("Examples", "Diagnostics", "DEP", "Example.Arch_DEP_006.ObservedCycle").TrimEnd(Path.DirectorySeparatorChar);
 			var clonedExamplesDirectory = Path.Combine(tempDirectory, "Examples");
 			Directory.CreateDirectory(clonedExamplesDirectory);
 			File.Copy(
 				FindRepositoryProject("Examples", "Directory.Build.props"),
 				Path.Combine(clonedExamplesDirectory, "Directory.Build.props"),
 				overwrite: true);
-			var clonedDirectory = Path.Combine(clonedExamplesDirectory, "Example.Arch018.ObservedCycle");
+			var clonedDirectory = Path.Combine(clonedExamplesDirectory, "Example.Arch_DEP_006.ObservedCycle");
 			CopyDirectory(sourceDirectory, clonedDirectory);
 
 			var configPath = Path.Combine(clonedDirectory, "Architecture.anl");
@@ -173,7 +175,7 @@ public sealed partial class ApplicationOperationsTests
 			configText = configText.Replace(" enforceObservedAcyclic=\"true\"", string.Empty, StringComparison.Ordinal);
 			await File.WriteAllTextAsync(configPath, configText, TestContext.Current.CancellationToken);
 
-			var projectPath = Path.Combine(clonedDirectory, "Example.Arch018.ObservedCycle.csproj");
+			var projectPath = Path.Combine(clonedDirectory, "Example.Arch_DEP_006.ObservedCycle.csproj");
 			var result = await new ApplicationRunner().ExecuteAsync(new ApplicationRequest(ApplicationOperationKind.Inspect)
 			{
 				InputKind = ApplicationInputKind.Project,
@@ -181,9 +183,9 @@ public sealed partial class ApplicationOperationsTests
 				WriteOutput = false
 			}, TestContext.Current.CancellationToken);
 
-			result.Content.Should().Contain("| Warning | Observed dependency cycle |");
+			result.Content.Should().Contain($"| Warning | Dependency | Cycle | {ArchitecturalDiagnosticIds.DependencyCycle} |");
 			result.Content.Should().Contain("Notifications -> Ordering -> Notifications");
-			result.Content.Should().NotContain("| Error | ARCH018 |");
+			result.Content.Should().NotContain($"| Error | Dependency | Cycle | {ArchitecturalDiagnosticIds.DependencyCycle} |");
 		}
 		finally
 		{
@@ -192,10 +194,10 @@ public sealed partial class ApplicationOperationsTests
 	}
 
 	[Fact]
-	public async Task ApplicationRunner_Inspection_PromotesObservedCycleToArch018_WhenObservedEnforcementIsEnabled()
+	public async Task ApplicationRunner_Inspection_PromotesObservedCycleToError_WhenObservedEnforcementIsEnabled()
 	{
 		var cancellationToken = TestContext.Current.CancellationToken;
-		var projectPath = FindRepositoryProject("Examples", "Diagnostics", "Example.Arch018.ObservedCycle", "Example.Arch018.ObservedCycle.csproj");
+		var projectPath = FindRepositoryProject("Examples", "Diagnostics", "DEP", "Example.Arch_DEP_006.ObservedCycle", "Example.Arch_DEP_006.ObservedCycle.csproj");
 		var result = await new ApplicationRunner().ExecuteAsync(new ApplicationRequest(ApplicationOperationKind.Inspect)
 		{
 			InputKind = ApplicationInputKind.Project,
@@ -203,8 +205,8 @@ public sealed partial class ApplicationOperationsTests
 			WriteOutput = false
 		}, cancellationToken);
 
-		result.Content.Should().Contain("| Error | ARCH018 |");
-		result.Content.Should().NotContain("| Warning | Observed dependency cycle |");
+		result.Content.Should().Contain($"| Error | Dependency | Cycle | {ArchitecturalDiagnosticIds.DependencyCycle} |");
+		result.Content.Should().NotContain($"| Warning | Dependency | Cycle | {ArchitecturalDiagnosticIds.DependencyCycle} |");
 		result.Content.Should().Contain("Notifications -> Ordering -> Notifications");
 	}
 }

@@ -69,4 +69,11 @@ internal static class ArchitectureRootEditor
 
 		return result;
 	}
+
+	internal static ArchitectureConfigurationDocumentOperationResult AddNamespaceHierarchyPolicy(ArchitectureConfigurationSource source, ImmutableDictionary<string, string> attributes, string childXml)
+	{
+		var result = ArchitectureRootCompositionEditor.AddNamespaceHierarchyPolicy(source, attributes, childXml);
+
+		return result;
+	}
 }

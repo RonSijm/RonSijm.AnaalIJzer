@@ -92,7 +92,7 @@ For framework-like or crosscutting layers, mark a higher-level edge with `applie
 
 Use this for intentionally ambient dependencies. Keep local egress and ingress rules for business boundaries where each parent module should decide what its children may reach. Declaring everything ambient is the fastest route to a single enormous layer named after the company.
 
-References to a parent select its entire subtree. Shared ancestry is containment rather than a same-layer dependency: `Ordering/Application -> Ordering/Repository` is checked by the rule inside `Ordering` and does not produce ARCH005 merely because both types also belong to `Ordering`. ARCH005 applies when both types have the same deepest effective layer.
+References to a parent select its entire subtree. Shared ancestry is containment rather than a same-layer dependency: `Ordering/Application -> Ordering/Repository` is checked by the rule inside `Ordering` and does not produce ARCH_DEP_005 merely because both types also belong to `Ordering`. ARCH_DEP_005 applies when both types have the same deepest effective layer.
 
 **Example project:** [`Example.NestedLayers`](../../Examples/Features/Example.NestedLayers)
 
@@ -164,7 +164,7 @@ One or more matcher attributes are allowed per element. Every attribute on that 
           endsWith=".Contracts" />
 ```
 
-The first rule matches only interfaces whose names start with `I` and end with `Repository`. To express alternatives, add another `<Class>` element. Missing matchers, unsupported attributes, unknown `typeKind` values, and invalid regular expressions report ARCH006.
+The first rule matches only interfaces whose names start with `I` and end with `Repository`. To express alternatives, add another `<Class>` element. Missing matchers, unsupported attributes, unknown `typeKind` values, and invalid regular expressions report ARCH_CONF_003.
 
 #### Structural declaration matchers
 
@@ -198,7 +198,7 @@ This makes "shape" rules possible without inventing a special-purpose matcher pe
 
 That matches request types that own a `PizzaId` property of type `PizzaId`. It does not match requests that only have `DrinkId`, and it does not match requests that expose `PizzaId` through a differently named property.
 
-String matches are **case-sensitive** and applied to the full declared name (so `IOrderRepository` matches `endsWith="Repository"`). A matcher written as `endsWith="repository"` matches nothing and complains about nothing, which costs a lively half hour to discover. `regex` uses `Regex.IsMatch` semantics, so it matches anywhere in the subject unless the pattern is anchored with `^` / `$`; invalid patterns report ARCH006. Patterns are compiled once and cached, so the cost is paid only on first use.
+String matches are **case-sensitive** and applied to the full declared name (so `IOrderRepository` matches `endsWith="Repository"`). A matcher written as `endsWith="repository"` matches nothing and complains about nothing, which costs a lively half hour to discover. `regex` uses `Regex.IsMatch` semantics, so it matches anywhere in the subject unless the pattern is anchored with `^` / `$`; invalid patterns report ARCH_CONF_003. Patterns are compiled once and cached, so the cost is paid only on first use.
 
 **Example projects:** [`Example.AssemblyMatcher`](../../Examples/Features/Example.AssemblyMatcher), [`Example.CombinedMatchers`](../../Examples/Features/Example.CombinedMatchers), [`Example.StructuralDeclarationMatchers`](../../Examples/Features/Example.StructuralDeclarationMatchers)
 
@@ -230,7 +230,7 @@ String matches are **case-sensitive** and applied to the full declared name (so 
 
 Matchers are also applied to the **generic type arguments** of a parameter, recursively. A parameter typed `Lazy<IChef>` is therefore evaluated as both `Lazy` and `IChef`. If the Customer layer may depend on Waiter but not Chef, the wrapper does not hide the Chef dependency. This works for arbitrary wrappers (`Lazy<>`, `Func<>`, `IEnumerable<>`, `Task<>`, ...) and any user-defined generic.
 
-**Example project:** [`Example.Arch001.GenericTypeArgument`](../../Examples/Diagnostics/Example.Arch001.GenericTypeArgument)
+**Example project:** [`Example.Arch_DEP_001.GenericTypeArgument`](../../Examples/Diagnostics/DEP/Example.Arch_DEP_001.GenericTypeArgument)
 
 
 **Rule:** Generic type arguments are inspected. Wrapping a forbidden dependency in `Lazy<>`, `IEnumerable<>`, `Func<>`, … does not hide it from the analyzer.
@@ -251,15 +251,15 @@ flowchart LR
 // Customer -> Waiter is allowed.
 public class HungryCustomer(IWaiter waiter) { }
 
-// ARCH001: Lazy<IChef> still contains an IChef dependency.
+// ARCH_DEP_001: Lazy<IChef> still contains an IChef dependency.
 // Asking for a chef later is still asking for a chef.
 public class PatientCustomer(Lazy<IChef> chef) { }
 
-// ARCH001: IEnumerable<IChef> still contains IChef dependencies.
+// ARCH_DEP_001: IEnumerable<IChef> still contains IChef dependencies.
 // A group of chefs is not a waiter.
 public class GroupCustomer(IEnumerable<IChef> chefs) { }
 
-// ARCH001: Func<IChef> still contains an IChef dependency.
+// ARCH_DEP_001: Func<IChef> still contains an IChef dependency.
 // A promise to find a chef later does not change the boundary.
 public class FutureCustomer(Func<IChef> chefFactory) { }
 ```

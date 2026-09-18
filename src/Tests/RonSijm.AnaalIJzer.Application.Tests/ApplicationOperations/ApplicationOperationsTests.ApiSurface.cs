@@ -14,8 +14,9 @@ public sealed partial class ApplicationOperationsTests
 			var projectPath = FindRepositoryProject(
 				"Examples",
 				"Diagnostics",
-				"Example.Arch009.ApiSurfaceLeakage",
-				"Example.Arch009.ApiSurfaceLeakage.csproj");
+				"API",
+				"Example.Arch_API_001.ApiSurfaceLeakage",
+				"Example.Arch_API_001.ApiSurfaceLeakage.csproj");
 			var outputPath = Path.Combine(tempDirectory, "architecture-documentation.md");
 			await new ApplicationRunner().ExecuteAsync(new ApplicationRequest(ApplicationOperationKind.Documentation)
 			{
@@ -27,11 +28,11 @@ public sealed partial class ApplicationOperationsTests
 
 			var documentation = await File.ReadAllTextAsync(outputPath, cancellationToken);
 			documentation.Should().Contain("### API Exposure Evidence");
-			documentation.Should().Contain("**passes** `Example.Arch009.ApiSurfaceLeakage.CandyOrderingService.OrderProjectedLolly`");
-			documentation.Should().Contain("**violates** `Example.Arch009.ApiSurfaceLeakage.CandyOrderingService.OrderRawLolly`");
+			documentation.Should().Contain("**passes** `Example.Arch_API_001.ApiSurfaceLeakage.CandyOrderingService.OrderProjectedLolly`");
+			documentation.Should().Contain("**violates** `Example.Arch_API_001.ApiSurfaceLeakage.CandyOrderingService.OrderRawLolly`");
 			documentation.Should().Contain("RepositoryQuerySurface");
 			documentation.Should().Contain("MethodReturn");
-			documentation.Should().Contain("`ARCH009`");
+			documentation.Should().Contain("`ARCH_API_001`");
 		}
 		finally
 		{
@@ -51,8 +52,9 @@ public sealed partial class ApplicationOperationsTests
 			var projectPath = FindRepositoryProject(
 				"Examples",
 				"Diagnostics",
-				"Example.Arch014.TransitiveExposure",
-				"Example.Arch014.TransitiveExposure.csproj");
+				"API",
+				"Example.Arch_API_010.TransitiveExposure",
+				"Example.Arch_API_010.TransitiveExposure.csproj");
 			var outputPath = Path.Combine(tempDirectory, "architecture-documentation.md");
 			await new ApplicationRunner().ExecuteAsync(new ApplicationRequest(ApplicationOperationKind.Documentation)
 			{
@@ -68,7 +70,7 @@ public sealed partial class ApplicationOperationsTests
 			documentation.Should().Contain("CandyReceipt.RawQuery");
 			documentation.Should().Contain("LollyQueryable");
 			documentation.Should().Contain("at depth `1`");
-			documentation.Should().Contain("`ARCH014`");
+			documentation.Should().Contain("`ARCH_API_010`");
 		}
 		finally
 		{

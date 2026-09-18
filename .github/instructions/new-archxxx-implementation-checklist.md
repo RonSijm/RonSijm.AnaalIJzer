@@ -1,8 +1,8 @@
-# New ARCHxxx Implementation Checklist
+# New Diagnostic Implementation Checklist
 
 Last updated: 2026-09-01
 
-Use this checklist whenever adding a diagnostic, changing a diagnostic's semantics, or introducing a configuration feature whose primary purpose is to produce a new `ARCHxxx` finding.
+Use this checklist whenever adding a diagnostic, changing a diagnostic's semantics, or introducing a configuration feature whose primary purpose is to produce a new `ARCH_<CONCERN>_<REASON>` finding.
 
 This is intentionally broader than the analyzer itself. An AnaalIJzer diagnostic is a product feature with a rule, configuration, examples, documentation, tests, editor information, and sometimes a user-selected fix.
 
@@ -10,7 +10,10 @@ Not every section applies to every diagnostic. Mark an item `N/A` only with a sh
 
 ## 1. Define The Rule Before Coding
 
-- [ ] Reserve the next unused `ARCHxxx` ID. Do not renumber existing diagnostics.
+- [ ] Choose the owning concern from `ArchitectureDiagnosticConcern`; add a concise new concern only when no existing concern owns the rule.
+- [ ] Choose the shared reason from `ArchitectureDiagnosticReason`. Reuse the same three-digit reason wherever the failure means the same thing across concerns.
+- [ ] Reserve the unique `ARCH_<CONCERN>_<REASON>` pair in `ArchitectureDiagnosticCatalog`. `_000` is reserved and must not be published.
+- [ ] Confirm that the ID is a valid C# identifier and matches `^ARCH_[A-Z][A-Z0-9]*_[0-9]{3}$`.
 - [ ] Give it a concise, user-facing name that describes the architectural failure, not the implementation mechanism.
 - [ ] Write the intended diagnostic message before implementing detection.
 - [ ] State the exact condition that produces the finding.
@@ -36,7 +39,7 @@ Not every section applies to every diagnostic. Mark an item `N/A` only with a sh
 - [ ] State how the rule interacts with nested layers, scoped policies, includes, `appliesToDescendants`, exceptions, allowed/blocked lists, and strict/recognized dependency requirements when applicable.
 - [ ] Decide whether the configuration can be supplied through both `Architecture.anl` and inline `AssemblyMetadata("AnaalIJzerSettings", ...)`.
 - [ ] If it cannot safely support inline settings, document the reason and fail closed rather than silently losing configuration.
-- [ ] Define the error behavior for invalid configuration. Invalid input should produce `ARCH006` with a useful source location, not an analyzer crash or an ignored rule.
+- [ ] Define the error behavior for invalid configuration. Invalid input should produce `ARCH_CONF_003` with a useful source location, not an analyzer crash or an ignored rule.
 - [ ] Decide whether an included `.anl` file owns the rule and must be edited directly by a future fixer.
 
 ## 3. Update The Configuration Model And Schema
@@ -54,8 +57,9 @@ Not every section applies to every diagnostic. Mark an item `N/A` only with a sh
 
 ## 4. Implement The Analyzer Rule
 
-- [ ] Add the ID to `ArchitectureDiagnosticIds`.
-- [ ] Add a `DiagnosticDescriptor` to `ArchitecturalDiagnostics` with title, message format, category, default severity, description, help link, and appropriate custom tags.
+- [ ] Add a semantic constant to `ArchitecturalDiagnosticIds`; production code must not repeat the raw ID.
+- [ ] Add one `ArchitectureDiagnosticDefinition` to `ArchitectureDiagnosticCatalog` with concern, reason, title, documentation path, default severity, and supported surface.
+- [ ] Build the `DiagnosticDescriptor` through `ArchitecturalDiagnostics` and the catalog with title, message format, category, default severity, description, help link, and appropriate custom tags.
 - [ ] Add the ID to `AnalyzerReleases.Unshipped.md`.
 - [ ] Register only the necessary Roslyn analysis callbacks. Avoid registering broad syntax callbacks when symbol or operation analysis is more precise.
 - [ ] Keep the analyzer entry point thin; place detection under the owning feature area in Engine/Core assemblies.
@@ -110,7 +114,7 @@ Not every section applies to every diagnostic. Mark an item `N/A` only with a sh
 
 ## 7. Create Focused Examples
 
-- [ ] Create `Examples/Diagnostics/Example.Archxxx.<ShortCaseName>/` for the diagnostic.
+- [ ] Create `Examples/Diagnostics/<CONCERN>/Example.Arch_<CONCERN>_<REASON>.<ShortCaseName>/` for the diagnostic.
 - [ ] Use a focused `Examples/Features/Example.<FeatureName>/` too if the configuration model deserves a separate explanation.
 - [ ] Use `Examples/Scenarios/` only when multiple projects or a broader real-world pattern are required.
 - [ ] Keep each example minimal: it should teach one behavior rather than become a configuration dump.
@@ -143,7 +147,7 @@ Not every section applies to every diagnostic. Mark an item `N/A` only with a sh
 - [ ] Test every diagnostic route or reason the rule can produce.
 - [ ] Test diagnostic message, ID, location, and important properties.
 - [ ] Test partial declarations, generics, inherited symbols, generated-code behavior, and duplicate suppression where relevant.
-- [ ] Test invalid configuration produces `ARCH006` rather than crashing.
+- [ ] Test invalid configuration produces `ARCH_CONF_003` rather than crashing.
 
 ### Fixer Tests
 
@@ -164,7 +168,7 @@ Not every section applies to every diagnostic. Mark an item `N/A` only with a sh
 
 ## 9. Document It Where Users Will Look
 
-- [ ] Add a page under `docs/diagnostics/archxxx-<slug>.md`.
+- [ ] Add a page under `docs/diagnostics/arch_<concern>_<reason>-<slug>.md` matching the catalog documentation path.
 - [ ] Add the diagnostic to `docs/diagnostics/index.md`.
 - [ ] Add the page to `docs/_readme-order.txt` when it belongs in the generated README.
 - [ ] Document the rule's purpose, message, trigger conditions, non-trigger conditions, configuration syntax, defaults, and examples.
@@ -211,7 +215,7 @@ Not every section applies to every diagnostic. Mark an item `N/A` only with a sh
 
 When closing the work, state:
 
-- the new `ARCHxxx` rule and its user-visible behavior;
+- the new `ARCH_<CONCERN>_<REASON>` rule and its user-visible behavior;
 - configuration and precedence decisions;
 - example project and expected diagnostic behavior;
 - fixer availability or intentional absence;

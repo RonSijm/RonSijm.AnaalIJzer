@@ -6,12 +6,15 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Diagnostics;
 public sealed class OperationContractCodeFixTests
 {
 	[Fact]
-	public void OperationContractViolation_IsNotListedAsFixable()
+	public void OperationContractDiagnostics_AreNotListedAsFixable()
 	{
-		new ArchitecturalLevelCodeFixProvider()
+		var fixableIds = new ArchitecturalLevelCodeFixProvider()
 			.FixableDiagnosticIds
-			.Should()
-			.NotContain(ArchitecturalDiagnosticIds.OperationContractViolation);
+			.ToArray();
+
+		fixableIds.Should().NotContain(ArchitecturalDiagnosticIds.OperationContractNotAllowed);
+		fixableIds.Should().NotContain(ArchitecturalDiagnosticIds.OperationContractRequiredMissing);
+		fixableIds.Should().NotContain(ArchitecturalDiagnosticIds.OperationContractShapeMismatch);
 	}
 
 	[Fact]
@@ -52,7 +55,7 @@ public sealed class OperationContractCodeFixTests
 			</ArchitecturalLevels>
 			""";
 
-		var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(source, config, ArchitecturalDiagnosticIds.OperationContractViolation);
+		var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(source, config, ArchitecturalDiagnosticIds.OperationContractRequiredMissing);
 
 		titles.Should().BeEmpty();
 	}

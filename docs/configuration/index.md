@@ -19,6 +19,7 @@ The XML root element is `<ArchitecturalLevels>`. It supports the child elements 
 | Inheritance policies | `inheritance-policies.md` |
 | Contract purity | `contract-policies.md` |
 | Return-value policies | `return-value-policies.md` |
+| Namespace hierarchy policies | `namespace-hierarchy-policies.md` |
 | Forbidden operation policies | `forbidden-operation-policies.md` |
 | Behavioral operation policies | `behavioral-operation-policies.md` |
 | Assembly attribute policies | `assembly-attribute-policies.md` |

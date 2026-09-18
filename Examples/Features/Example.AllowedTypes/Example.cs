@@ -29,5 +29,5 @@ public class ProcessOrderCommand { }
 // Create and Cancel are approved command verbs.
 public class CheckoutService(CreateOrderCommand create, CancelOrderCommand cancel) { }
 
-// ARCH003: ProcessOrderCommand is in a configured layer, but its verb is not globally allowed.
+// ARCH_TYPE_001: ProcessOrderCommand is in a configured layer, but its verb is not globally allowed.
 public class WorkflowService(ProcessOrderCommand process) { }

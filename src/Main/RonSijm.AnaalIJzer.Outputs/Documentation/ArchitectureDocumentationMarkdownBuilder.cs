@@ -41,6 +41,7 @@ internal static partial class ArchitectureDocumentationMarkdownBuilder
 		AppendVisibilityPolicies(sb, config);
 		AppendContractPolicies(sb, config);
 		AppendReturnValuePolicies(sb, config);
+		AppendNamespaceHierarchyPolicies(sb, config);
 		AppendForbiddenOperationPolicies(sb, config);
 		AppendBehavioralOperationPolicies(sb, config);
 		AppendOperationContracts(sb, config);

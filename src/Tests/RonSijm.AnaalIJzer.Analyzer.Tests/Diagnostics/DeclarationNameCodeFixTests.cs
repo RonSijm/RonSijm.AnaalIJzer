@@ -33,7 +33,7 @@ public sealed class DeclarationNameCodeFixTests
 		var newSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
 			source,
 			config,
-			ArchitecturalDiagnosticIds.NameRuleViolation,
+			ArchitecturalDiagnosticIds.NameShapeMismatch,
 			"Rename 'patient' to 'PatientId'");
 
 		newSource.Should().Contain("GetPatient(PatientId PatientId)");
@@ -69,7 +69,7 @@ public sealed class DeclarationNameCodeFixTests
 			}
 			""";
 
-		var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(source, config, ArchitecturalDiagnosticIds.NameRuleViolation);
+		var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(source, config, ArchitecturalDiagnosticIds.NameShapeMismatch);
 
 		titles.Should().NotContain(title => title.StartsWith("Rename '", StringComparison.Ordinal));
 	}

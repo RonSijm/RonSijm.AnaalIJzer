@@ -42,13 +42,13 @@ public sealed class OrderService
         _ = new Customer(legacyCustomerId);
     }
 
-    // ARCH008: the same legacy mapping is not allowed for method arguments.
+    // ARCH_NAME_008: the same legacy mapping is not allowed for method arguments.
     public void SaveLegacyId(int legacyCustomerId)
     {
         Save(legacyCustomerId);
     }
 
-    // ARCH008: fruitId and animalId are both Id-like names, but they are swapped.
+    // ARCH_NAME_008: fruitId and animalId are both Id-like names, but they are swapped.
     public void SwapIds()
     {
         var fruitId = 1;
@@ -57,7 +57,7 @@ public sealed class OrderService
         Log(animalId, fruitId);
     }
 
-    // ARCH008: local assignment still has to preserve the name.
+    // ARCH_NAME_008: local assignment still has to preserve the name.
     public void StoreLocal(int animalId)
     {
         var fruitId = animalId;

@@ -6,7 +6,7 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Analysis.Operations;
 public sealed class OperationContractAnalyzerTests
 {
 	[Fact]
-	public async Task OwnerWithTheWrongResponse_ReportsArch023()
+	public async Task OwnerWithTheWrongResponse_ReportsShapeMismatch()
 	{
 		const string source = """
 			public sealed class PizzaKitchen
@@ -20,13 +20,13 @@ public sealed class OperationContractAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig(includeEntryPoint: false));
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.OperationContractViolation).Subject;
+		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.OperationContractShapeMismatch).Subject;
 		violation.Properties[ArchitecturalDiagnostics.PropertyOperationContractParticipantRole].Should().Be("Owner");
 		violation.Properties[ArchitecturalDiagnostics.PropertyOperationContractViolationKind].Should().Be("OwnerInvalidResponse");
 	}
 
 	[Fact]
-	public async Task EntryPointThatDoesNotCallTheSelectedOwner_ReportsArch023()
+	public async Task EntryPointThatDoesNotCallTheSelectedOwner_ReportsRequiredMissing()
 	{
 		const string source = """
 			public sealed class PizzaOrderController
@@ -45,13 +45,13 @@ public sealed class OperationContractAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig(includeEntryPoint: true));
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.OperationContractViolation).Subject;
+		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.OperationContractRequiredMissing).Subject;
 		violation.Properties[ArchitecturalDiagnostics.PropertyOperationContractParticipantRole].Should().Be("EntryPoint");
 		violation.Properties[ArchitecturalDiagnostics.PropertyOperationContractViolationKind].Should().Be("EntryPointDoesNotInvokeOwner");
 	}
 
 	[Fact]
-	public async Task EntryPointThatCallsTheSelectedOwner_ProducesNoArch023()
+	public async Task EntryPointThatCallsTheSelectedOwner_ProducesNoOperationContractDiagnostic()
 	{
 		const string source = """
 			public sealed class PizzaOrderController
@@ -75,7 +75,7 @@ public sealed class OperationContractAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig(includeEntryPoint: true));
 
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.OperationContractViolation);
+		diagnostics.Should().NotContain(item => ArchitecturalDiagnosticIds.IsOperationContract(item.Id));
 	}
 
 	[Fact]
@@ -110,7 +110,7 @@ public sealed class OperationContractAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Count(item => item.Id == ArchitecturalDiagnosticIds.OperationContractViolation).Should().Be(1);
+		diagnostics.Count(item => item.Id == ArchitecturalDiagnosticIds.OperationContractRequiredMissing).Should().Be(1);
 	}
 
 	private static string CreateConfig(bool includeEntryPoint)

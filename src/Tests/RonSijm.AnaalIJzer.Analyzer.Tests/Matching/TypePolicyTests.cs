@@ -27,7 +27,7 @@ public sealed class TypePolicyTests
 		                      """;
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenDependency).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.TypeNotAllowed).Subject;
 		diagnostic.GetMessage(CultureInfo.InvariantCulture).Should().Contain("global <Allowed>").And.Contain("ProcessOrderCommand");
 	}
 
@@ -54,7 +54,7 @@ public sealed class TypePolicyTests
 		                      """;
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenDependency).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.TypeNotAllowed).Subject;
 		diagnostic.GetMessage(CultureInfo.InvariantCulture).Should().Contain("layer 'Command'").And.Contain("ProcessOrderCommand");
 	}
 
@@ -81,7 +81,7 @@ public sealed class TypePolicyTests
 		                      """;
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenDependency).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.TypeNotAllowed).Subject;
 		diagnostic.GetMessage(CultureInfo.InvariantCulture).Should().Contain("<Forbidden>").And.Contain("layer 'Query'").And.Contain("DeleteOrderQuery");
 	}
 
@@ -113,7 +113,7 @@ public sealed class TypePolicyTests
 		                      """;
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenDependency).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.TypeNotAllowed).Subject;
 		diagnostic.GetMessage(CultureInfo.InvariantCulture).Should().Contain("Ordering/Command").And.Contain("CreateCustomerCommand");
 	}
 
@@ -142,7 +142,7 @@ public sealed class TypePolicyTests
 		                      """;
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenDependency).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.TypeNotAllowed).Subject;
 		diagnostic.GetMessage(CultureInfo.InvariantCulture).Should().Contain("layer 'Ordering'").And.Contain("DeleteOrderCommand");
 	}
 
@@ -167,7 +167,7 @@ public sealed class TypePolicyTests
 		                      """;
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenDependency).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.TypeNotAllowed).Subject;
 		diagnostic.GetMessage(CultureInfo.InvariantCulture).Should().Contain("<Forbidden>").And.Contain("CreateAdminCommand");
 	}
 
@@ -195,7 +195,7 @@ public sealed class TypePolicyTests
 		                      """;
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenDependency)
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
 			.Which.GetMessage(CultureInfo.InvariantCulture).Should().Contain("DeleteOrderCommand");
 	}
 
@@ -217,7 +217,7 @@ public sealed class TypePolicyTests
 		                      """;
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenDependency).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.TypeNotAllowed).Subject;
 		diagnostic.GetMessage(CultureInfo.InvariantCulture).Should().Contain("global <Forbidden>").And.Contain("DeleteOrderCommand");
 	}
 }

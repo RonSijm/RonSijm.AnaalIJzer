@@ -5,7 +5,7 @@ namespace Example.AllowedSites.Sites.InterfaceImplementation;
 
 public sealed class BlockedInterfaceImplementationSiteExample : IBlockedInterfaceImplementationType
 {
-    // The constructor is allowed, while the interface implementation above produces ARCH001.
+    // The constructor is allowed, while the interface implementation above produces ARCH_DEP_001.
     public BlockedInterfaceImplementationSiteExample(IBlockedInterfaceImplementationType allowed)
     {
         _ = allowed;

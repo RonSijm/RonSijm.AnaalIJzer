@@ -42,6 +42,32 @@ public static class AnalyzerTestHelper
 
 	public static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync((string Path, string Source)[] sources, ImmutableDictionary<string, string>? globalOptions, params (string Path, string Content)[] additionalFiles)
 	{
+		var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
+		var result = await GetDiagnosticsAsync(sources, globalOptions, compilationOptions, additionalFiles);
+
+		return result;
+	}
+
+	public static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsWithEditorConfigOptionsAsync(string source, string levelConfig, ImmutableDictionary<string, string> editorConfigOptions)
+	{
+		var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+			.WithSyntaxTreeOptionsProvider(new TestSyntaxTreeOptionsProvider(editorConfigOptions));
+		var result = await GetDiagnosticsAsync([("Test.cs", source)], null, compilationOptions, ("Architecture.anl", levelConfig));
+
+		return result;
+	}
+
+	public static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsWithSuppressedIdsAsync(string source, string levelConfig, params string[] suppressedIds)
+	{
+		var diagnosticOptions = suppressedIds.ToImmutableDictionary(id => id, _ => ReportDiagnostic.Suppress, StringComparer.Ordinal);
+		var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary).WithSpecificDiagnosticOptions(diagnosticOptions);
+		var result = await GetDiagnosticsAsync([("Test.cs", source)], null, compilationOptions, ("Architecture.anl", levelConfig));
+
+		return result;
+	}
+
+	private static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync((string Path, string Source)[] sources, ImmutableDictionary<string, string>? globalOptions, CSharpCompilationOptions compilationOptions, params (string Path, string Content)[] additionalFiles)
+	{
 		var syntaxTrees = sources
 			.Select(source => CSharpSyntaxTree.ParseText(SourceText.From(source.Source), path: source.Path))
 			.ToArray();
@@ -50,7 +76,7 @@ public static class AnalyzerTestHelper
 			"TestAssembly",
 			syntaxTrees,
 			BasicReferences,
-			new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+			compilationOptions);
 
 		var analyzerOptions = new AnalyzerOptions(
 			[..additionalFiles.Select(file => new TestAdditionalText(file.Path, file.Content))],
@@ -70,7 +96,7 @@ public static class AnalyzerTestHelper
 		var result = await ApplySelectedCodeFixAsync(
 			source,
 			levelConfig,
-			ArchitecturalDiagnosticIds.ForbiddenDependency,
+			ArchitecturalDiagnosticIds.TypeNotAllowed,
 			action => action.Title.StartsWith("Rename '", StringComparison.Ordinal));
 
 		return result;
@@ -371,6 +397,43 @@ public static class AnalyzerTestHelper
 			var result = values.TryGetValue(key, out value!);
 
 			return result;
+		}
+	}
+
+	private sealed class TestSyntaxTreeOptionsProvider(ImmutableDictionary<string, string> values) : SyntaxTreeOptionsProvider
+	{
+		public override GeneratedKind IsGenerated(SyntaxTree tree, CancellationToken cancellationToken)
+		{
+			return GeneratedKind.Unknown;
+		}
+
+		public override bool TryGetDiagnosticValue(SyntaxTree tree, string diagnosticId, CancellationToken cancellationToken, out ReportDiagnostic severity)
+		{
+			var result = TryGetSeverity(diagnosticId, out severity);
+
+			return result;
+		}
+
+		public override bool TryGetGlobalDiagnosticValue(string diagnosticId, CancellationToken cancellationToken, out ReportDiagnostic severity)
+		{
+			var result = TryGetSeverity(diagnosticId, out severity);
+
+			return result;
+		}
+
+		private bool TryGetSeverity(string diagnosticId, out ReportDiagnostic severity)
+		{
+			var key = $"dotnet_diagnostic.{diagnosticId}.severity";
+			if (values.TryGetValue(key, out var value) && string.Equals(value, "none", StringComparison.OrdinalIgnoreCase))
+			{
+				severity = ReportDiagnostic.Suppress;
+
+				return true;
+			}
+
+			severity = ReportDiagnostic.Default;
+
+			return false;
 		}
 	}
 }

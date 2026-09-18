@@ -5,7 +5,7 @@ namespace Example.AllowedSites.Sites.StaticMember;
 
 public sealed class AllowedStaticMemberSiteExample
 {
-    // ARCH001: allowedSites="StaticMember" does not allow this constructor parameter.
+    // ARCH_DEP_001: allowedSites="StaticMember" does not allow this constructor parameter.
     public AllowedStaticMemberSiteExample(AllowedStaticMemberType wrongSite)
     {
         _ = wrongSite;

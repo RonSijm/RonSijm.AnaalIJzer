@@ -26,8 +26,8 @@ public sealed partial class ArchitecturalLevelAnalyzer
 				.Add(ArchitecturalDiagnostics.PropertyObservedSites, string.Join(", ", cycle.ObservedSites))
 				.Add(ArchitecturalDiagnostics.PropertyCycleScope, cycle.Scope)
 				.Add(ArchitecturalDiagnostics.PropertySourceProjectName, context.Compilation.AssemblyName);
-			context.ReportDiagnostic(Diagnostic.Create(
-				ArchitecturalDiagnostics.ObservedDependencyCycle,
+			context.ReportDiagnostic(ArchitecturalDiagnostics.CreateDiagnostic(
+				ArchitecturalDiagnostics.DependencyCycle,
 				primaryEdge.Location,
 				additionalLocations,
 				properties,

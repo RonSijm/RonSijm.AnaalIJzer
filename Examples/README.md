@@ -56,40 +56,49 @@ The main [`README.md`](../README.md) explains each feature inline. The folders h
 
 ### Diagnostics
 
-| Folder | Main README section |
-| ------ | ------------------- |
-| [`Example.Arch001.SkipsLayer`](Diagnostics/Example.Arch001.SkipsLayer) | [`ARCH001 - Illegal layer dependency`](../README.md#arch001---illegal-layer-dependency) |
-| [`Example.Arch001.NoEdge`](Diagnostics/Example.Arch001.NoEdge) | [`ARCH001 - Illegal layer dependency`](../README.md#arch001---illegal-layer-dependency) |
-| [`Example.Arch001.GenericTypeArgument`](Diagnostics/Example.Arch001.GenericTypeArgument) | [`Matcher types`](../README.md#matcher-types) |
-| [`Example.Arch001.NonConstructorInjection`](Diagnostics/Example.Arch001.NonConstructorInjection) | [`Diagnostic properties`](../README.md#diagnostic-properties) |
-| [`Example.Arch002.UnrecognizedDependency`](Diagnostics/Example.Arch002.UnrecognizedDependency) | [`requireRecognizedDependencies`](../README.md#requirerecognizeddependencies-attribute) |
-| [`Example.Arch003.ForbiddenType`](Diagnostics/Example.Arch003.ForbiddenType) | [`<Forbidden>`](../README.md#forbidden) |
-| [`Example.Arch004.WrongDirection`](Diagnostics/Example.Arch004.WrongDirection) | [`ARCH004 - Wrong-direction dependency`](../README.md#arch004---wrong-direction-dependency) |
-| [`Example.Arch005.SameLayer`](Diagnostics/Example.Arch005.SameLayer) | [`ARCH005 - Same-layer dependency`](../README.md#arch005---same-layer-dependency) |
-| [`Example.Arch006.UnknownLayer`](Diagnostics/Example.Arch006.UnknownLayer) | [`ARCH006 - Invalid architecture configuration`](../README.md#arch006---invalid-architecture-configuration) |
-| [`Example.Arch007.CyclicGraph`](Diagnostics/Example.Arch007.CyclicGraph) | [`ARCH007 - Cyclic architecture dependency graph`](../README.md#arch007---cyclic-architecture-dependency-graph) |
-| [`Example.Arch009.ApiSurfaceLeakage`](Diagnostics/Example.Arch009.ApiSurfaceLeakage) | [`API surface policies`](../README.md#api-surface-policies) |
-| [`Example.Arch012.VisibilityPolicy`](Diagnostics/Example.Arch012.VisibilityPolicy) | [`Visibility policies`](../README.md#visibility-policies) |
-| [`Example.Arch013.ContractPurity`](Diagnostics/Example.Arch013.ContractPurity) | [`Contract purity`](../README.md#contract-purity) |
-| [`Example.Arch013.ContractPurity.MethodBodyNotAllowed`](Diagnostics/Example.Arch013.ContractPurity.MethodBodyNotAllowed) | [`Contract purity`](../README.md#contract-purity) |
-| [`Example.Arch014.TransitiveExposure`](Diagnostics/Example.Arch014.TransitiveExposure) | [`Transitive API exposure`](../README.md#transitive-api-exposure) |
-| [`Example.Arch016.BoundaryEntryPoints`](Diagnostics/Example.Arch016.BoundaryEntryPoints) | [`ARCH016 - Boundary entry-point violation`](../README.md#arch016---boundary-entry-point-violation) |
-| [`Example.Arch018.ObservedCycle`](Diagnostics/Example.Arch018.ObservedCycle) | [`ARCH018 - Observed architectural dependency cycle`](../README.md#arch018---observed-architectural-dependency-cycle) |
-| [`Example.Arch019.InheritancePolicy`](Diagnostics/Example.Arch019.InheritancePolicy) | `InheritancePolicy` - layer-scoped required base types and interfaces. |
-| [`Example.Arch020.ExplicitNullReturn`](Diagnostics/Example.Arch020.ExplicitNullReturn) | `ReturnValuePolicy` - a configured `Literal value="null"` is not an acceptable serving decision. |
-| [`Example.Arch020.AnnotatedInvocationReturn`](Diagnostics/Example.Arch020.AnnotatedInvocationReturn) | `ReturnValuePolicy` - a configured nullable-result annotation must be handled before an invocation is returned. |
-| [`Example.Arch020.ConfiguredLiteralReturns`](Diagnostics/Example.Arch020.ConfiguredLiteralReturns) | `ReturnValuePolicy` - empty-string, numeric, and enum-zero sentinel values are configurable literal matchers. |
-| [`Example.Arch021.ClockAccess`](Diagnostics/Example.Arch021.ClockAccess) | `ForbiddenOperations` - `DateTime.UtcNow`, `DateTime.Now`, and `DateTime.Today` are selected forbidden clock reads. |
-| [`Example.Arch021.BlockingTaskAccess`](Diagnostics/Example.Arch021.BlockingTaskAccess) | `ForbiddenOperations` - `Task.Wait()` and `Task<T>.Result` are selected blocking task operations at their own sites. |
-| [`Example.Arch021.ServiceLocation`](Diagnostics/Example.Arch021.ServiceLocation) | `ForbiddenOperations` - `IServiceProvider.GetService` is forbidden outside the composition root. |
-| [`Example.Arch021.SelectedEnvironmentMember`](Diagnostics/Example.Arch021.SelectedEnvironmentMember) | `ForbiddenOperations` - one `Environment` property is forbidden while unrelated properties remain allowed. |
-| [`Example.Arch022.RequiredOperation`](Diagnostics/Example.Arch022.RequiredOperation) | `BehavioralOperations` - a selected kitchen method must perform one required operation. |
-| [`Example.Arch022.RequiredOperationBefore`](Diagnostics/Example.Arch022.RequiredOperationBefore) | `BehavioralOperations` - a required safety check must dominate the selected oven mutation. |
-| [`Example.Arch022.ForbiddenOperationAfter`](Diagnostics/Example.Arch022.ForbiddenOperationAfter) | `BehavioralOperations` - a selected operation is forbidden after a configured terminal operation. |
-| [`Example.Arch022.MaximumOperationCount`](Diagnostics/Example.Arch022.MaximumOperationCount) | `BehavioralOperations` - a selected operation may occur only the configured number of times. |
-| [`Example.Arch023.OperationContract`](Diagnostics/Example.Arch023.OperationContract) | `Operations` - an explicit waiter-to-kitchen operation contract checks entry-point delegation and request/response shape. |
-| [`Example.Arch024.AssemblyAttributePolicy.Code`](Diagnostics/Example.Arch024.AssemblyAttributePolicy.Code) | `AssemblyAttributePolicy` - a handwritten `InternalsVisibleTo` attribute is selectively rejected by its compiled semantic type and argument. |
-| [`Example.Arch024.AssemblyAttributePolicy.Project`](Diagnostics/Example.Arch024.AssemblyAttributePolicy.Project) | `AssemblyAttributePolicy` - an SDK `<InternalsVisibleTo>` project item produces the same selectively rejected compiled attribute. |
+Diagnostic examples are grouped by the concern segment in their diagnostic ID. The [`Diagnostics/` index](Diagnostics) explains the categories.
+
+| Concern | Folder | Main README section |
+| ------- | ------ | ------------------- |
+| [`API`](Diagnostics/API) | [`Example.Arch_API_001.ApiSurfaceLeakage`](Diagnostics/API/Example.Arch_API_001.ApiSurfaceLeakage) | [`API surface policies`](../README.md#api-surface-policies) |
+| [`API`](Diagnostics/API) | [`Example.Arch_API_010.TransitiveExposure`](Diagnostics/API/Example.Arch_API_010.TransitiveExposure) | [`Transitive API exposure`](../README.md#transitive-api-exposure) |
+| [`ASSM`](Diagnostics/ASSM) | [`Example.Arch_ASSM_001.AssemblyAttributePolicy.Code`](Diagnostics/ASSM/Example.Arch_ASSM_001.AssemblyAttributePolicy.Code) | `AssemblyAttributePolicy` - a handwritten `InternalsVisibleTo` attribute is selectively rejected by its compiled semantic type and argument. |
+| [`ASSM`](Diagnostics/ASSM) | [`Example.Arch_ASSM_001.AssemblyAttributePolicy.Project`](Diagnostics/ASSM/Example.Arch_ASSM_001.AssemblyAttributePolicy.Project) | `AssemblyAttributePolicy` - an SDK `<InternalsVisibleTo>` project item produces the same selectively rejected compiled attribute. |
+| [`BOUND`](Diagnostics/BOUND) | [`Example.Arch_BOUND_007.BoundaryEntryPoints`](Diagnostics/BOUND/Example.Arch_BOUND_007.BoundaryEntryPoints) | [`ARCH_BOUND_007 - Boundary entry-point violation`](../README.md#arch_bound_007---boundary-entry-point-violation) |
+| [`CONF`](Diagnostics/CONF) | [`Example.Arch_CONF_003.UnknownLayer`](Diagnostics/CONF/Example.Arch_CONF_003.UnknownLayer) | [`ARCH_CONF_003 - Invalid architecture configuration`](../README.md#arch_conf_003---invalid-architecture-configuration) |
+| [`CONF`](Diagnostics/CONF) | [`Example.Arch_CONF_006.CyclicGraph`](Diagnostics/CONF/Example.Arch_CONF_006.CyclicGraph) | [`ARCH_CONF_006 - Cyclic architecture dependency graph`](../README.md#arch_conf_006---cyclic-architecture-dependency-graph) |
+| [`CONT`](Diagnostics/CONT) | [`Example.Arch_CONT_008.ContractPurity.MethodBodyNotAllowed`](Diagnostics/CONT/Example.Arch_CONT_008.ContractPurity.MethodBodyNotAllowed) | [`Contract purity`](../README.md#contract-purity) |
+| [`CONT`](Diagnostics/CONT) | [`Example.Arch_CONT_008.ContractPurity`](Diagnostics/CONT/Example.Arch_CONT_008.ContractPurity) | [`Contract purity`](../README.md#contract-purity) |
+| [`DEP`](Diagnostics/DEP) | [`Example.Arch_DEP_001.GenericTypeArgument`](Diagnostics/DEP/Example.Arch_DEP_001.GenericTypeArgument) | [`Matcher types`](../README.md#matcher-types) |
+| [`DEP`](Diagnostics/DEP) | [`Example.Arch_DEP_001.NoEdge`](Diagnostics/DEP/Example.Arch_DEP_001.NoEdge) | [`ARCH_DEP_001 - Illegal layer dependency`](../README.md#arch_dep_001---illegal-layer-dependency) |
+| [`DEP`](Diagnostics/DEP) | [`Example.Arch_DEP_001.NonConstructorInjection`](Diagnostics/DEP/Example.Arch_DEP_001.NonConstructorInjection) | [`Diagnostic properties`](../README.md#diagnostic-properties) |
+| [`DEP`](Diagnostics/DEP) | [`Example.Arch_DEP_001.SkipsLayer`](Diagnostics/DEP/Example.Arch_DEP_001.SkipsLayer) | [`ARCH_DEP_001 - Illegal layer dependency`](../README.md#arch_dep_001---illegal-layer-dependency) |
+| [`DEP`](Diagnostics/DEP) | [`Example.Arch_DEP_002.UnrecognizedDependency`](Diagnostics/DEP/Example.Arch_DEP_002.UnrecognizedDependency) | [`requireRecognizedDependencies`](../README.md#requirerecognizeddependencies-attribute) |
+| [`DEP`](Diagnostics/DEP) | [`Example.Arch_DEP_004.WrongDirection`](Diagnostics/DEP/Example.Arch_DEP_004.WrongDirection) | [`ARCH_DEP_004 - Wrong-direction dependency`](../README.md#arch_dep_004---wrong-direction-dependency) |
+| [`DEP`](Diagnostics/DEP) | [`Example.Arch_DEP_005.SameLayer`](Diagnostics/DEP/Example.Arch_DEP_005.SameLayer) | [`ARCH_DEP_005 - Same-layer dependency`](../README.md#arch_dep_005---same-layer-dependency) |
+| [`DEP`](Diagnostics/DEP) | [`Example.Arch_DEP_006.ObservedCycle`](Diagnostics/DEP/Example.Arch_DEP_006.ObservedCycle) | [`ARCH_DEP_006 - Observed architectural dependency cycle`](../README.md#arch_dep_006---observed-architectural-dependency-cycle) |
+| [`INH`](Diagnostics/INH) | [`Example.Arch_INH_001.InheritancePolicy`](Diagnostics/INH/Example.Arch_INH_001.InheritancePolicy) | `InheritancePolicy` - layer-scoped required base types and interfaces. |
+| [`NS`](Diagnostics/NS) | [`Example.Arch_NS_007.NamespaceHierarchy.AncestorToDescendant`](Diagnostics/NS/Example.Arch_NS_007.NamespaceHierarchy.AncestorToDescendant) | [`ARCH_NS_007 - Namespace hierarchy dependency violation`](../README.md#arch_ns_007---namespace-hierarchy-dependency-violation) - a root-level type reaches down into a feature namespace. |
+| [`NS`](Diagnostics/NS) | [`Example.Arch_NS_007.NamespaceHierarchy.DescendantToAncestor`](Diagnostics/NS/Example.Arch_NS_007.NamespaceHierarchy.DescendantToAncestor) | [`ARCH_NS_007 - Namespace hierarchy dependency violation`](../README.md#arch_ns_007---namespace-hierarchy-dependency-violation) - a feature namespace reaches back into its restaurant root. |
+| [`NS`](Diagnostics/NS) | [`Example.Arch_NS_007.NamespaceHierarchy.SameNamespace`](Diagnostics/NS/Example.Arch_NS_007.NamespaceHierarchy.SameNamespace) | [`ARCH_NS_007 - Namespace hierarchy dependency violation`](../README.md#arch_ns_007---namespace-hierarchy-dependency-violation) - types within one strict feature namespace reference each other. |
+| [`NS`](Diagnostics/NS) | [`Example.Arch_NS_007.NamespaceHierarchy.SiblingToSibling`](Diagnostics/NS/Example.Arch_NS_007.NamespaceHierarchy.SiblingToSibling) | [`ARCH_NS_007 - Namespace hierarchy dependency violation`](../README.md#arch_ns_007---namespace-hierarchy-dependency-violation) - two sibling restaurant features take a direct dependency. |
+| [`OPCT`](Diagnostics/OPCT) | [`Example.Arch_OPCT_001.ParticipantNotAllowed`](Diagnostics/OPCT/Example.Arch_OPCT_001.ParticipantNotAllowed) | `ARCH_OPCT_001` - a selected operation owner belongs to a layer that the contract does not allow. |
+| [`OPCT`](Diagnostics/OPCT) | [`Example.Arch_OPCT_002.RequiredOwnerInvocation`](Diagnostics/OPCT/Example.Arch_OPCT_002.RequiredOwnerInvocation) | `ARCH_OPCT_002` - a selected entry point does not invoke the configured owner. |
+| [`OPCT`](Diagnostics/OPCT) | [`Example.Arch_OPCT_008.ResponseShapeMismatch`](Diagnostics/OPCT/Example.Arch_OPCT_008.ResponseShapeMismatch) | `ARCH_OPCT_008` - a selected owner returns a type that does not match the configured response shape. |
+| [`OPER`](Diagnostics/OPER) | [`Example.Arch_OPER_001.BlockingTaskAccess`](Diagnostics/OPER/Example.Arch_OPER_001.BlockingTaskAccess) | `ForbiddenOperations` - `Task.Wait()` and `Task<T>.Result` are selected blocking task operations at their own sites. |
+| [`OPER`](Diagnostics/OPER) | [`Example.Arch_OPER_001.ClockAccess`](Diagnostics/OPER/Example.Arch_OPER_001.ClockAccess) | `ForbiddenOperations` - `DateTime.UtcNow`, `DateTime.Now`, and `DateTime.Today` are selected forbidden clock reads. |
+| [`OPER`](Diagnostics/OPER) | [`Example.Arch_OPER_001.SelectedEnvironmentMember`](Diagnostics/OPER/Example.Arch_OPER_001.SelectedEnvironmentMember) | `ForbiddenOperations` - one `Environment` property is forbidden while unrelated properties remain allowed. |
+| [`OPER`](Diagnostics/OPER) | [`Example.Arch_OPER_001.ServiceLocation`](Diagnostics/OPER/Example.Arch_OPER_001.ServiceLocation) | `ForbiddenOperations` - `IServiceProvider.GetService` is forbidden outside the composition root. |
+| [`OPER`](Diagnostics/OPER) | [`Example.Arch_OPER_002.RequiredOperation`](Diagnostics/OPER/Example.Arch_OPER_002.RequiredOperation) | `BehavioralOperations` - a selected kitchen method must perform one required operation. |
+| [`OPER`](Diagnostics/OPER) | [`Example.Arch_OPER_011.MaximumOperationCount`](Diagnostics/OPER/Example.Arch_OPER_011.MaximumOperationCount) | `BehavioralOperations` - a selected operation may occur only the configured number of times. |
+| [`OPER`](Diagnostics/OPER) | [`Example.Arch_OPER_012.ForbiddenOperationAfter`](Diagnostics/OPER/Example.Arch_OPER_012.ForbiddenOperationAfter) | `BehavioralOperations` - a selected operation is forbidden after a configured terminal operation. |
+| [`OPER`](Diagnostics/OPER) | [`Example.Arch_OPER_012.RequiredOperationBefore`](Diagnostics/OPER/Example.Arch_OPER_012.RequiredOperationBefore) | `BehavioralOperations` - a required safety check must dominate the selected oven mutation. |
+| [`RET`](Diagnostics/RET) | [`Example.Arch_RET_001.AnnotatedInvocationReturn`](Diagnostics/RET/Example.Arch_RET_001.AnnotatedInvocationReturn) | `ReturnValuePolicy` - a configured nullable-result annotation must be handled before an invocation is returned. |
+| [`RET`](Diagnostics/RET) | [`Example.Arch_RET_001.ConfiguredLiteralReturns`](Diagnostics/RET/Example.Arch_RET_001.ConfiguredLiteralReturns) | `ReturnValuePolicy` - empty-string, numeric, and enum-zero sentinel values are configurable literal matchers. |
+| [`RET`](Diagnostics/RET) | [`Example.Arch_RET_001.ExplicitNullReturn`](Diagnostics/RET/Example.Arch_RET_001.ExplicitNullReturn) | `ReturnValuePolicy` - a configured `Literal value="null"` is not an acceptable serving decision. |
+| [`RET`](Diagnostics/RET) | [`Example.Arch_RET_001.OnlyIdentifierReturn`](Diagnostics/RET/Example.Arch_RET_001.OnlyIdentifierReturn) | `ReturnValuePolicy` - `<AllowedReturn><Identifier /></AllowedReturn>` requires a named return hand-off instead of a direct call. |
+| [`TYPE`](Diagnostics/TYPE) | [`Example.Arch_TYPE_001.ForbiddenType`](Diagnostics/TYPE/Example.Arch_TYPE_001.ForbiddenType) | [`<Forbidden>`](../README.md#forbidden) |
+| [`VIS`](Diagnostics/VIS) | [`Example.Arch_VIS_001.VisibilityPolicy`](Diagnostics/VIS/Example.Arch_VIS_001.VisibilityPolicy) | [`Visibility policies`](../README.md#visibility-policies) |
 
 ### Features
 
@@ -106,11 +115,12 @@ The main [`README.md`](../README.md) explains each feature inline. The folders h
 | [`Example.GeneratedCode`](Features/Example.GeneratedCode) | [`Generated code analysis`](../README.md#generated-code-analysis) - opt in only the generated files your team intentionally owns. |
 | [`Example.DeclarationObservationMatchers`](Features/Example.DeclarationObservationMatchers) | Nested declaration matchers with code observations such as `<Throw />` and required companion interfaces. |
 | [`Example.StructuralDeclarationMatchers`](Features/Example.StructuralDeclarationMatchers) | [`Matcher types`](../README.md#matcher-types) and [`InheritancePolicy`](../README.md#inheritance-policies) working together to describe a recognizable request shape. |
-| [`Example.ExceptionPolicy`](Features/Example.ExceptionPolicy) | `ExceptionPolicy` and temporary architecture exception review warnings (`ARCH017`). |
+| [`Example.ExceptionPolicy`](Features/Example.ExceptionPolicy) | `ExceptionPolicy` and temporary architecture exception review warnings (`ARCH_EXC_009`). |
 | [`Example.WildcardTo`](Features/Example.WildcardTo) | [`<AllowedDependency>`](../README.md#alloweddependency) |
 | [`Example.Exceptions`](Features/Example.Exceptions) | [`<Exceptions>`](../README.md#exceptions) |
 | [`Example.IncludeSettings`](Features/Example.IncludeSettings) | [`<Include>`](../README.md#include) |
 | [`Example.IncludeWildcardSettings`](Features/Example.IncludeWildcardSettings) | [`<Include>`](../README.md#include) |
+| [`Example.GlobalReturnValuePolicy`](Features/Example.GlobalReturnValuePolicy) | A root `<ReturnValuePolicy>` imported from a wildcard rule folder and applied without layers. |
 | [`Example.InlineXml`](Features/Example.InlineXml) | [`Optional: inline settings with AssemblyMetadata`](../README.md#5-optional-inline-settings-with-assemblymetadata) |
 | [`Example.LayerScopedRecognizedDependencies`](Features/Example.LayerScopedRecognizedDependencies) | [`requireRecognizedDependencies`](../README.md#requirerecognizeddependencies-attribute) |
 | [`Example.NameRuleIntraProceduralTracking`](Features/Example.NameRuleIntraProceduralTracking) | [`NameRules`](../README.md#namerules) with `valueTracking="Direct|IntraProcedural"` across local aliases and a lambda body. |
@@ -118,9 +128,10 @@ The main [`README.md`](../README.md) explains each feature inline. The folders h
 | [`Example.NameRules`](Features/Example.NameRules) | [`NameRules`](../README.md#namerules) |
 | [`Example.NestedExceptions`](Features/Example.NestedExceptions) | [`Nesting`](../README.md#nesting) |
 | [`Example.NestedLayers`](Features/Example.NestedLayers) | [`Hierarchical layer boundaries`](../README.md#hierarchical-layer-boundaries) |
+| [`Example.NamespaceHierarchySites`](Features/Example.NamespaceHierarchySites) | [`Namespace hierarchy policies`](../README.md#namespace-hierarchy-policies) - every dependency site under both `allowedSites` and `blockedSites` filters. |
 | [`Example.NonClassCallers`](Features/Example.NonClassCallers) | [`Diagnostic properties`](../README.md#diagnostic-properties) |
 | [`Example.RequiredRecognizedDependencySites`](Features/Example.RequiredRecognizedDependencySites) | [`requireRecognizedDependencies`](../README.md#requirerecognizeddependencies-attribute) |
-| [`Example.SameLayerInheritance`](Features/Example.SameLayerInheritance) | [`ARCH005 - Same-layer dependency`](../README.md#arch005---same-layer-dependency) |
+| [`Example.SameLayerInheritance`](Features/Example.SameLayerInheritance) | [`ARCH_DEP_005 - Same-layer dependency`](../README.md#arch_dep_005---same-layer-dependency) |
 | [`Example.ScopedTypePolicies`](Features/Example.ScopedTypePolicies) | [`Layer-scoped type policies`](../README.md#layer-scoped-type-policies) |
 | [`Example.SourceLocations`](Features/Example.SourceLocations) | [`Source locations`](../README.md#source-locations) |
 
@@ -132,11 +143,11 @@ The main [`README.md`](../README.md) explains each feature inline. The folders h
 | [`Example.EntityFrameworkCore`](Scenarios/Example.EntityFrameworkCore) | Real Entity Framework Core projects showing DbContext ownership, creation-site restrictions, query-surface containment, folder ownership, and an optional persistence-ignorant domain policy. |
 | [`Example.AssemblyReferenceBoundaries`](Scenarios/Example.AssemblyReferenceBoundaries) | Project-level scenario showing that a raw MSBuild `<Reference>` is surfaced by workspace inspection, without introducing a compiler `ARCHxxx` diagnostic. Project: `Example.AssemblyReferenceBoundaries.Domain`. |
 | [`Example.HonestTypeEndpointNames`](Scenarios/Example.HonestTypeEndpointNames) | Strong endpoint parameter types whose convention-based binding names must still match their semantic types. |
-| [`Example.PackageReferenceBoundaries`](Scenarios/Example.PackageReferenceBoundaries) | Multi-project scenario showing that a forbidden direct NuGet package reference raises `ARCH011` even when no source file uses a type from that package yet. Projects: `Example.PackageReferenceBoundaries.Domain`, `Example.PackageReferenceBoundaries.Data`. |
-| [`Example.ProjectReferenceBoundaries`](Scenarios/Example.ProjectReferenceBoundaries) | Multi-project scenario showing that an illegal `.csproj` reference raises `ARCH010` even when no source file uses it yet. Projects: `Example.ProjectReferenceBoundaries.Application`, `Example.ProjectReferenceBoundaries.Domain`, `Example.ProjectReferenceBoundaries.Infrastructure`. |
+| [`Example.PackageReferenceBoundaries`](Scenarios/Example.PackageReferenceBoundaries) | Multi-project scenario showing that a forbidden direct NuGet package reference raises `ARCH_PKG_001` even when no source file uses a type from that package yet. Projects: `Example.PackageReferenceBoundaries.Domain`, `Example.PackageReferenceBoundaries.Data`. |
+| [`Example.ProjectReferenceBoundaries`](Scenarios/Example.ProjectReferenceBoundaries) | Multi-project scenario showing that an illegal `.csproj` reference raises `ARCH_PROJ_001` even when no source file uses it yet. Projects: `Example.ProjectReferenceBoundaries.Application`, `Example.ProjectReferenceBoundaries.Domain`, `Example.ProjectReferenceBoundaries.Infrastructure`. |
 | [`Example.ProjectReferenceRuleSelectors`](Scenarios/Example.ProjectReferenceRuleSelectors) | Multi-project scenario showing that `From` and `To` selectors narrow an `Application -> Contracts` project-group edge to one exact project pair. Projects: `Example.ProjectReferenceRuleSelectors.Orders.Application`, `Example.ProjectReferenceRuleSelectors.Orders.Contracts`, and `Example.ProjectReferenceRuleSelectors.Payments.Contracts`. |
 | [`Example.RepositoryQuerySurface`](Scenarios/Example.RepositoryQuerySurface) | Repository-owned fluent query surface that must be projected before it becomes an application dependency. |
-| [`Example.SolutionTopology`](Scenarios/Example.SolutionTopology) | Multi-project scenario showing a solution-wide logical module rule that Arse reports as `TOPO001` only when solution-topology enforcement is requested. |
+| [`Example.SolutionTopology`](Scenarios/Example.SolutionTopology) | Multi-project scenario showing a solution-wide logical module rule that Arse reports as `ARCH_SOL_001` only when solution-topology enforcement is requested. |
 
 ### Documentation
 
@@ -149,10 +160,10 @@ The main [`README.md`](../README.md) explains each feature inline. The folders h
 ## Running an example
 
 ```cmd
-dotnet build Examples\Diagnostics\Example.Arch003.ForbiddenType -c Release
+dotnet build Examples\Diagnostics\TYPE\Example.Arch_TYPE_001.ForbiddenType -c Release
 ```
 
-Expected output — one `error ARCH003` and a failed build. That's the example doing its job. Simple one-file examples keep their top-level rule set in `AssemblyMetadata("AnaalIJzerSettings", ...)`; broader examples use `Architecture.anl`.
+Expected output — one `error ARCH_TYPE_001` and a failed build. That's the example doing its job. Simple one-file examples keep their top-level rule set in `AssemblyMetadata("AnaalIJzerSettings", ...)`; broader examples use `Architecture.anl`.
 
 To regenerate the committed example report and documentation:
 

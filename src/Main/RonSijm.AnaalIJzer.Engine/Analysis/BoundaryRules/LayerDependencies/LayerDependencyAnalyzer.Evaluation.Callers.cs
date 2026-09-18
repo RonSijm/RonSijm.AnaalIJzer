@@ -12,18 +12,10 @@ namespace RonSijm.AnaalIJzer.Engine.Analysis.BoundaryRules.LayerDependencies;
 
 public static partial class LayerDependencyAnalyzer
 {
-	private static void AnalyzeParameters(SyntaxNodeAnalysisContext context, AnalyzerConfig config, ConcurrentBag<ViolationRecord> violations, ObservedDependencyCollector? observedDependencies, string callerTypeName, string callerNamespace, SeparatedSyntaxList<ParameterSyntax> parameters, string site)
+	private static void AnalyzeParameters(SyntaxNodeAnalysisContext context, AnalyzerConfig config, ConcurrentBag<ViolationRecord> violations, ObservedDependencyCollector? observedDependencies, TypeDeclarationSyntax typeDeclaration, SeparatedSyntaxList<ParameterSyntax> parameters, string site)
 	{
-		var typeDeclaration = parameters.Count > 0 ? parameters[0].FirstAncestorOrSelf<TypeDeclarationSyntax>() : null;
-		var callerSymbol = typeDeclaration is null ? null : context.SemanticModel.GetDeclaredSymbol(typeDeclaration, context.CancellationToken) as ITypeSymbol;
-
-		var callerMatch = config.Engine.FindLayer(callerTypeName, callerNamespace, callerSymbol);
-		if (callerMatch is null)
-		{
-			return;
-		}
-
-		if (callerMatch.Value.Layer.IsForbidden)
+		var caller = TryGetCallerContext(context, config, typeDeclaration);
+		if (caller is null)
 		{
 			return;
 		}
@@ -36,11 +28,11 @@ public static partial class LayerDependencyAnalyzer
 				continue;
 			}
 
-			AnalyzeTypeReference(context, config, violations, observedDependencies, callerTypeName, callerMatch.Value, param.GetLocation(), paramSymbol.Type, site);
+			AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value, param.GetLocation(), paramSymbol.Type, site);
 		}
 	}
 
-    public static (string TypeName, LayerMatch Match)? TryGetCallerLayer(SyntaxNodeAnalysisContext context, AnalyzerConfig config, SyntaxNode node)
+	private static CallerDependencyContext? TryGetCallerContext(SyntaxNodeAnalysisContext context, AnalyzerConfig config, SyntaxNode node)
 	{
 		var typeDeclaration = node.FirstAncestorOrSelf<TypeDeclarationSyntax>();
 		if (typeDeclaration is null)
@@ -48,16 +40,38 @@ public static partial class LayerDependencyAnalyzer
 			return null;
 		}
 
-		var callerName = typeDeclaration.Identifier.ValueText;
-		var callerNs = GetContainingNamespace(typeDeclaration);
-		var callerSymbol = context.SemanticModel.GetDeclaredSymbol(typeDeclaration, context.CancellationToken) as ITypeSymbol;
-		var match = config.Engine.FindLayer(callerName, callerNs, callerSymbol);
-		if (match is null || match.Value.Layer.IsForbidden)
+		if (context.SemanticModel.GetDeclaredSymbol(typeDeclaration, context.CancellationToken) is not ITypeSymbol callerSymbol)
 		{
 			return null;
 		}
 
-		var result = (callerName, match.Value);
+		var callerName = callerSymbol.Name;
+		var callerNamespace = callerSymbol.ContainingNamespace?.ToDisplayString() ?? GetContainingNamespace(typeDeclaration);
+		var layerMatch = config.Engine.FindLayer(callerName, callerNamespace, callerSymbol);
+		if (layerMatch is { } match && match.Layer.IsForbidden)
+		{
+			return null;
+		}
+
+		if (layerMatch is null && !config.HasNamespaceHierarchyPolicies)
+		{
+			return null;
+		}
+
+		var result = new CallerDependencyContext(callerName, callerNamespace, callerSymbol, layerMatch);
+
+		return result;
+	}
+
+	public static (string TypeName, LayerMatch Match)? TryGetCallerLayer(SyntaxNodeAnalysisContext context, AnalyzerConfig config, SyntaxNode node)
+	{
+		var caller = TryGetCallerContext(context, config, node);
+		if (caller?.LayerMatch is not { } match)
+		{
+			return null;
+		}
+
+		var result = (caller.Value.TypeName, match);
 
 		return result;
 	}

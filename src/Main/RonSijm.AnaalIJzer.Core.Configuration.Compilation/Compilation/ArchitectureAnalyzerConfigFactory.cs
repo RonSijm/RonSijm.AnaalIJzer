@@ -39,7 +39,9 @@ internal static class ArchitectureAnalyzerConfigFactory
 			materialization.SolutionTopology,
 			rootSettings.GeneratedCodeScope,
 			materialization.OperationContracts,
-			materialization.AssemblyAttributePolicies);
+			materialization.AssemblyAttributePolicies,
+			materialization.GlobalReturnValuePolicies,
+			materialization.NamespaceHierarchyPolicies);
 		var result = new AnalyzerConfig(compiledConfig);
 
 		return result;

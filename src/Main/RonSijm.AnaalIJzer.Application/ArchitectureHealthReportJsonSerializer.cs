@@ -18,11 +18,15 @@ internal static class ArchitectureHealthReportJsonSerializer
 			warnings = report.Findings.Count(finding => finding.Severity != ArchitectureFindingSeverity.Error),
 			findings = report.Findings
 				.OrderByDescending(finding => finding.Severity == ArchitectureFindingSeverity.Error)
+				.ThenBy(finding => finding.Concern?.ToString() ?? "Other", StringComparer.Ordinal)
+				.ThenBy(finding => finding.Reason?.ToString() ?? "Other", StringComparer.Ordinal)
 				.ThenBy(finding => finding.Code, StringComparer.Ordinal)
 				.ThenBy(finding => finding.Message, StringComparer.Ordinal)
 				.Select(finding => new
 				{
 					severity = finding.SeverityText,
+					concern = finding.Concern?.ToString(),
+					reason = finding.Reason?.ToString(),
 					code = finding.Code,
 					message = finding.Message,
 					context = finding.Context,

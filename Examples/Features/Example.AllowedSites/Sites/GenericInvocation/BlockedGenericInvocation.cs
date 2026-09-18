@@ -11,7 +11,7 @@ public sealed class BlockedGenericInvocationSiteExample
         _ = allowed;
     }
 
-    // ARCH001: blockedSites="GenericInvocation" blocks this generic invocation.
+    // ARCH_DEP_001: blockedSites="GenericInvocation" blocks this generic invocation.
     public void Run()
     {
         _ = Resolve<BlockedGenericInvocationType>();

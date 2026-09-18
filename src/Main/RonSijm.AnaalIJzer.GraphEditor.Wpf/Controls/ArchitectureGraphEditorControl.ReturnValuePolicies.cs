@@ -11,7 +11,7 @@ public sealed partial class ArchitectureGraphEditorControl
 	private void AddReturnValuePolicyEditors(StackPanel panel, ImmutableArray<ArchitectureConfigurationElementDetails> policies, ArchitectureLayerEditHandle handle)
 	{
 		panel.Children.Add(CreateSectionTitle("Return-value policies"));
-		panel.Children.Add(CreateHintTextBlock("Forbid direct returned expressions. Use Literal value=\"null\", Literal value=\"\", Literal value=\"42\", or an Invocation matcher such as withAttribute=\"JetBrains.Annotations.CanBeNullAttribute\". Attributes on one matcher are combined.", new Thickness(0, 0, 0, 4)));
+		panel.Children.Add(CreateHintTextBlock("Forbid direct returned expressions, or use <AllowedReturn><Identifier /></AllowedReturn> to require a bare named return such as return result;. Use Literal value=\"null\", Literal value=\"\", Literal value=\"42\", or an Invocation matcher such as withAttribute=\"JetBrains.Annotations.CanBeNullAttribute\". Attributes on one matcher are combined.", new Thickness(0, 0, 0, 4)));
 		if (policies.Length == 0)
 		{
 			panel.Children.Add(CreateHintTextBlock("None configured.", new Thickness(0, 0, 0, 4)));
@@ -42,7 +42,7 @@ public sealed partial class ArchitectureGraphEditorControl
 		{
 			if (string.IsNullOrWhiteSpace(matcherXml.Text))
 			{
-				return ArchitectureConfigurationEditResult.Failure("ReturnValuePolicy requires at least one forbidden return matcher.");
+				return ArchitectureConfigurationEditResult.Failure("ReturnValuePolicy requires at least one forbidden return matcher or one AllowedReturn block.");
 			}
 
 			var attributesResult = _editService.SetConfigurationElementAttributes(policy.Handle, CreateReturnValuePolicyAttributes(description.Text));
@@ -58,8 +58,8 @@ public sealed partial class ArchitectureGraphEditorControl
 
 		panel.Children.Add(new TextBlock { Text = "Description", FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 8, 0, 2) });
 		panel.Children.Add(description);
-		panel.Children.Add(new TextBlock { Text = "Forbidden returned expressions", FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 8, 0, 2) });
-		panel.Children.Add(CreateHintTextBlock("One XML matcher element per forbidden direct return. Supported elements: Literal, Invocation, New, Identifier, and MemberAccess.", new Thickness(0, 0, 0, 2)));
+		panel.Children.Add(new TextBlock { Text = "Return expression rules", FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 8, 0, 2) });
+		panel.Children.Add(CreateHintTextBlock("Direct matcher elements forbid matching returns. One <AllowedReturn> block makes its Literal, Invocation, New, Identifier, or MemberAccess children an allow-list.", new Thickness(0, 0, 0, 2)));
 		panel.Children.Add(matcherXml);
 
 		AutoSaveOnLostFocus(description, Save, canEdit);
@@ -92,9 +92,9 @@ public sealed partial class ArchitectureGraphEditorControl
 		var matcherXml = CreateReturnValueMatcherXmlBox("<Literal value=\"null\" />", handle.CanEdit);
 		var description = CreateDescriptionBox(null, handle.CanEdit);
 
-		panel.Children.Add(new TextBlock { Text = "Forbidden returned expressions", FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 8, 0, 2) });
+		panel.Children.Add(new TextBlock { Text = "Return expression rules", FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 8, 0, 2) });
 		panel.Children.Add(matcherXml);
-		panel.Children.Add(CreateHintTextBlock("Start with the null literal, or replace it with one or more matchers such as <Literal value=\"\" /> or <Invocation withAttribute=\"JetBrains.Annotations.CanBeNullAttribute\" />.", new Thickness(0, 2, 0, 0)));
+		panel.Children.Add(CreateHintTextBlock("Start with the null literal, replace it with forbidden matchers, or use <AllowedReturn><Identifier /></AllowedReturn> to require a bare named return.", new Thickness(0, 2, 0, 0)));
 		panel.Children.Add(new TextBlock { Text = "Policy description", FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 8, 0, 2) });
 		panel.Children.Add(description);
 

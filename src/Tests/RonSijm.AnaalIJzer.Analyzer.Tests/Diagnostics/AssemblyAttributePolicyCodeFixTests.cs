@@ -11,7 +11,7 @@ public sealed class AssemblyAttributePolicyCodeFixTests
 		new ArchitecturalLevelCodeFixProvider()
 			.FixableDiagnosticIds
 			.Should()
-			.NotContain(ArchitecturalDiagnosticIds.AssemblyAttributePolicyViolation);
+			.NotContain(ArchitecturalDiagnosticIds.AssemblyAttributeNotAllowed);
 	}
 
 	[Fact]
@@ -33,7 +33,7 @@ public sealed class AssemblyAttributePolicyCodeFixTests
 			</ArchitecturalLevels>
 			""";
 
-		var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(source, config, ArchitecturalDiagnosticIds.AssemblyAttributePolicyViolation);
+		var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(source, config, ArchitecturalDiagnosticIds.AssemblyAttributeNotAllowed);
 
 		titles.Should().BeEmpty();
 	}

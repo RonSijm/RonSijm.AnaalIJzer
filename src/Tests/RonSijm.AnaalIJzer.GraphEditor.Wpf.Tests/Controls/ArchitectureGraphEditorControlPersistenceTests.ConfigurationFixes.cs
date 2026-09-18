@@ -42,7 +42,7 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 								"Add allowed dependency 'Customer' -> 'Waiter'",
 								"Adds the missing dependency rule.",
 								"Guided",
-								"ARCH001",
+								"ARCH_DEP_001",
 								path,
 								"+ <AllowedDependency from=\"Customer\" to=\"Waiter\" />")
 						])),

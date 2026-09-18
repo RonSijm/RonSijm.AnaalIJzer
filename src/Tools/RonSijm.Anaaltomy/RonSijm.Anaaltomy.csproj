@@ -23,6 +23,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="RonSijm.EF.Csv" Version="0.1.0" />
+    <PackageReference Include="RonSijm.EF.Json" Version="0.1.0" />
+    <PackageReference Include="RonSijm.EF.Markdown" Version="0.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\Main\RonSijm.Anaaltomy.Charting\RonSijm.Anaaltomy.Charting.csproj" />
     <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Core.Statistics\RonSijm.AnaalIJzer.Core.Statistics.csproj" />
     <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Statistics.GitHistory\RonSijm.AnaalIJzer.Statistics.GitHistory.csproj" />

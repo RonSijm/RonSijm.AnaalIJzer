@@ -33,7 +33,7 @@ public sealed class NameMatcherTests
 	}
 
 	[Fact]
-	public async Task Contains_MatchesLayerCorrectly_ReportsARCH005()
+	public async Task Contains_MatchesLayerCorrectly_ReportsARCH_DEP_005()
 	{
 		const string config = """
 		                      <ArchitecturalLevels>
@@ -47,7 +47,7 @@ public sealed class NameMatcherTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		// OtherManager contains "Manager" -> same layer as PatientManager -> ARCH005
+		// OtherManager contains "Manager" -> same layer as PatientManager -> ARCH_DEP_005
 		const string source = """
 		                      public class OtherManagerImpl { }
 		                      public class PatientManagerImpl(OtherManagerImpl other) { }
@@ -56,7 +56,7 @@ public sealed class NameMatcherTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.SameLayerDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyPeerScope)
 			.Should().NotBeEmpty();
 	}
 
@@ -115,7 +115,7 @@ public sealed class NameMatcherTests
 	}
 
 	[Fact]
-	public async Task NamespaceContains_WrongDirection_ReportsARCH004()
+	public async Task NamespaceContains_WrongDirection_ReportsARCH_DEP_004()
 	{
 		const string config = """
 		                      <ArchitecturalLevels>
@@ -138,7 +138,7 @@ public sealed class NameMatcherTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.WrongDirectionDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyReverseDirection)
 			.Should().NotBeEmpty();
 	}
 
@@ -170,7 +170,7 @@ public sealed class NameMatcherTests
 	}
 
 	[Fact]
-	public async Task ExactTypeName_Forbidden_ReportsARCH003WithComment()
+	public async Task ExactTypeName_Forbidden_ReportsARCH_TYPE_001WithComment()
 	{
 		const string config = """
 		                      <ArchitecturalLevels>
@@ -191,7 +191,7 @@ public sealed class NameMatcherTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var arch003 = diagnostics.Where(d => d.Id == ArchitecturalDiagnosticIds.ForbiddenDependency).ToList();
+		var arch003 = diagnostics.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed).ToList();
 		arch003.Count.Should().Be(1);
 		arch003[0].GetMessage(CultureInfo.InvariantCulture)
 			.Should().Contain("Controllers should unwrap IIdentityContext to a DTO.");
@@ -224,7 +224,7 @@ public sealed class NameMatcherTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.ForbiddenDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
 			.Should().NotBeEmpty();
 	}
 
@@ -253,7 +253,7 @@ public sealed class NameMatcherTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.ForbiddenDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
 			.Should().ContainSingle();
 	}
 
@@ -281,7 +281,7 @@ public sealed class NameMatcherTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.ForbiddenDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
 			.Should().BeEmpty();
 	}
 
@@ -314,7 +314,7 @@ public sealed class NameMatcherTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		var forbidden = diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.ForbiddenDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
 			.ToList();
 
 		forbidden.Should().ContainSingle();
@@ -343,7 +343,7 @@ public sealed class NameMatcherTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().NotContain(d => d.Id == ArchitecturalDiagnosticIds.ForbiddenDependency);
+		diagnostics.Should().NotContain(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed);
 	}
 
 	[Fact]
@@ -370,7 +370,7 @@ public sealed class NameMatcherTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.ForbiddenDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
 			.Should().BeEmpty();
 	}
 }

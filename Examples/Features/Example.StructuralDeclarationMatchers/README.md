@@ -9,4 +9,4 @@ The drop-in rule pack under `RulePlugins/` says:
 - it must also own a `_tenantId` field of type `TenantId`;
 - if that shape matches, the type must implement `IPizzaProvider`.
 
-So `CreatePizzaRequest` triggers `ARCH019`, while `GetDrinkRequest` and `PublicPizzaRequest` do not match the full shape and therefore stay outside the rule.
+So `CreatePizzaRequest` triggers `ARCH_INH_001`, while `GetDrinkRequest` and `PublicPizzaRequest` do not match the full shape and therefore stay outside the rule.

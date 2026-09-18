@@ -83,10 +83,31 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 		ArchitectureConfigurationEditService.GetLayerDetails(handle).ReturnValuePolicies.Should().ContainSingle();
 	}
 
+	[Fact]
+	public void AddReturnValuePolicy_AcceptsAllowedReturnMatchers()
+	{
+		using var directory = new TemporaryDirectory();
+		var path = directory.WriteFile("Architecture.anl", "<ArchitecturalLevels><Layer name=\"Kitchen\"><Class endsWith=\"Kitchen\" /></Layer></ArchitecturalLevels>");
+		var handle = new ArchitectureLayerEditHandle(ArchitectureConfigurationSourceKind.XmlFile, path, 0, "Kitchen", "Kitchen", string.Empty, null);
+
+		var result = ArchitectureConfigurationEditService.AddReturnValuePolicy(
+			handle,
+			Attributes(("description", "Return a named value.")),
+			"""
+			<AllowedReturn>
+			  <Identifier />
+			</AllowedReturn>
+			""");
+
+		result.Succeeded.Should().BeTrue(result.Message);
+		File.ReadAllText(path).Should().Contain("<AllowedReturn>");
+	}
+
 	[Theory]
 	[InlineData("")]
 	[InlineData("""<Throw />""")]
 	[InlineData("""<Literal invalid="pizza" />""")]
+	[InlineData("""<AllowedReturn><Identifier /></AllowedReturn><AllowedReturn><MemberAccess /></AllowedReturn>""")]
 	public void AddReturnValuePolicy_RejectsInvalidMatchers(string childXml)
 	{
 		using var directory = new TemporaryDirectory();

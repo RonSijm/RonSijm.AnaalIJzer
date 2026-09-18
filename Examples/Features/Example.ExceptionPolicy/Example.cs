@@ -18,5 +18,5 @@ using System.Reflection;
 
 namespace Example.ExceptionPolicy;
 
-// ARCH017: the exception is missing required owner metadata.
+// ARCH_EXC_009: the exception is missing required owner metadata.
 public class LegacyManager { }

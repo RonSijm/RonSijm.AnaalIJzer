@@ -9,7 +9,7 @@ public sealed class LayerViolationTests
 	// ---- Same-layer violations ----
 
 	[Fact]
-	public async Task SameLayerDependency_ControllerToController_ReportsARCH005()
+	public async Task SameLayerDependency_ControllerToController_ReportsARCH_DEP_005()
 	{
 		const string source = """
 		                      public class OtherController { }
@@ -19,12 +19,12 @@ public sealed class LayerViolationTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.SameLayerDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyPeerScope)
 			.Should().NotBeEmpty();
 	}
 
 	[Fact]
-	public async Task SameLayerDependency_ManagerToManager_ReportsARCH005()
+	public async Task SameLayerDependency_ManagerToManager_ReportsARCH_DEP_005()
 	{
 		const string source = """
 		                      public class OtherManager { }
@@ -37,14 +37,14 @@ public sealed class LayerViolationTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.SameLayerDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyPeerScope)
 			.Should().NotBeEmpty();
 	}
 
 	// ---- Wrong-direction violations ----
 
 	[Fact]
-	public async Task WrongDirection_ManagerToController_ReportsARCH004()
+	public async Task WrongDirection_ManagerToController_ReportsARCH_DEP_004()
 	{
 		const string source = """
 		                      public class PatientController { }
@@ -57,12 +57,12 @@ public sealed class LayerViolationTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.WrongDirectionDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyReverseDirection)
 			.Should().NotBeEmpty();
 	}
 
 	[Fact]
-	public async Task WrongDirection_RepositoryToManager_ReportsARCH004()
+	public async Task WrongDirection_RepositoryToManager_ReportsARCH_DEP_004()
 	{
 		const string source = """
 		                      public class PatientManager { }
@@ -75,14 +75,14 @@ public sealed class LayerViolationTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.WrongDirectionDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyReverseDirection)
 			.Should().NotBeEmpty();
 	}
 
 	// ---- Missing edge ----
 
 	[Fact]
-	public async Task MissingEdge_ControllerToRepository_ReportsARCH001()
+	public async Task MissingEdge_ControllerToRepository_ReportsARCH_DEP_001()
 	{
 		const string source = """
 		                      public class PatientRepository { }
@@ -92,14 +92,14 @@ public sealed class LayerViolationTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
 			.Should().NotBeEmpty();
 	}
 
-	// ---- Reason classification (ARCH001 vs ARCH004 vs ARCH005) ----
+	// ---- Reason classification (ARCH_DEP_001 vs ARCH_DEP_004 vs ARCH_DEP_005) ----
 
 	[Fact]
-	public async Task NoEdge_ReportsOnlyARCH001_NotARCH004OrARCH005()
+	public async Task NoEdge_ReportsOnlyARCH_DEP_001_NotARCH_DEP_004OrARCH_DEP_005()
 	{
 		const string source = """
 		                      public class PatientRepository { }
@@ -108,13 +108,13 @@ public sealed class LayerViolationTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
-		diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency);
-		diagnostics.Should().NotContain(d => d.Id == ArchitecturalDiagnosticIds.WrongDirectionDependency);
-		diagnostics.Should().NotContain(d => d.Id == ArchitecturalDiagnosticIds.SameLayerDependency);
+		diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed);
+		diagnostics.Should().NotContain(d => d.Id == ArchitecturalDiagnosticIds.DependencyReverseDirection);
+		diagnostics.Should().NotContain(d => d.Id == ArchitecturalDiagnosticIds.DependencyPeerScope);
 	}
 
 	[Fact]
-	public async Task WrongDirection_ReportsOnlyARCH004_NotARCH001OrARCH005()
+	public async Task WrongDirection_ReportsOnlyARCH_DEP_004_NotARCH_DEP_001OrARCH_DEP_005()
 	{
 		const string source = """
 		                      public class PatientController { }
@@ -123,13 +123,13 @@ public sealed class LayerViolationTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
-		diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.WrongDirectionDependency);
-		diagnostics.Should().NotContain(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency);
-		diagnostics.Should().NotContain(d => d.Id == ArchitecturalDiagnosticIds.SameLayerDependency);
+		diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyReverseDirection);
+		diagnostics.Should().NotContain(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed);
+		diagnostics.Should().NotContain(d => d.Id == ArchitecturalDiagnosticIds.DependencyPeerScope);
 	}
 
 	[Fact]
-	public async Task SameLayer_ReportsOnlyARCH005_NotARCH001OrARCH004()
+	public async Task SameLayer_ReportsOnlyARCH_DEP_005_NotARCH_DEP_001OrARCH_DEP_004()
 	{
 		const string source = """
 		                      public class OtherManager { }
@@ -138,17 +138,17 @@ public sealed class LayerViolationTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
-		diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.SameLayerDependency);
-		diagnostics.Should().NotContain(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency);
-		diagnostics.Should().NotContain(d => d.Id == ArchitecturalDiagnosticIds.WrongDirectionDependency);
+		diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyPeerScope);
+		diagnostics.Should().NotContain(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed);
+		diagnostics.Should().NotContain(d => d.Id == ArchitecturalDiagnosticIds.DependencyReverseDirection);
 	}
 
 	// ---- Explicit self-edge opts in to same-layer dependencies ----
 
 	[Fact]
-	public async Task SameLayer_WithExplicitSelfEdge_DoesNotReportARCH005()
+	public async Task SameLayer_WithExplicitSelfEdge_DoesNotReportARCH_DEP_005()
 	{
-		// Same Application -> Application dependency that would normally trip ARCH005,
+		// Same Application -> Application dependency that would normally trip ARCH_DEP_005,
 		// but the explicit self-edge opts in.
 		const string config = """
 		                      <ArchitecturalLevels>
@@ -193,7 +193,7 @@ public sealed class LayerViolationTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.SameLayerDependency).Which;
+		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyPeerScope).Which;
 		diagnostic.Properties[ArchitecturalDiagnostics.PropertySite].Should().Be(DependencySites.Constructor);
 		diagnostic.GetMessage(CultureInfo.InvariantCulture).Should().Contain("ReportingRepository");
 	}
@@ -201,7 +201,7 @@ public sealed class LayerViolationTests
 	[Fact]
 	public async Task SameLayer_SelfEdgeForOneLayer_DoesNotAffectOtherLayers()
 	{
-		// Application has a self-edge; Controller does not. Controller -> Controller still trips ARCH005.
+		// Application has a self-edge; Controller does not. Controller -> Controller still trips ARCH_DEP_005.
 		const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Controller">
@@ -225,7 +225,7 @@ public sealed class LayerViolationTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		var sameLayer = diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.SameLayerDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyPeerScope)
 			.ToList();
 
 		sameLayer.Should().ContainSingle();

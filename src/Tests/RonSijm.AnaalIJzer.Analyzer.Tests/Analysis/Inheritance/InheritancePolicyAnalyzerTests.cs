@@ -34,7 +34,7 @@ public sealed class InheritancePolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InheritancePolicyViolation).Subject;
+		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InheritanceNotAllowed).Subject;
 		violation.Properties[ArchitecturalDiagnostics.PropertyDeclaredSymbolName].Should().Be("SyrupEntity");
 		violation.Properties[ArchitecturalDiagnostics.PropertyInheritanceViolationKind].Should().Be("MissingRequiredBaseType");
 		violation.GetMessage().Should().Contain("requires a base type matching Entity");
@@ -75,7 +75,7 @@ public sealed class InheritancePolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InheritancePolicyViolation).Subject;
+		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InheritanceNotAllowed).Subject;
 		violation.Properties[ArchitecturalDiagnostics.PropertyCallerLayerName].Should().Be("Persistence/Specialized");
 		violation.GetMessage().Should().Contain("layer 'Persistence'");
 		violation.GetMessage().Should().Contain("requires a base type matching Entity");
@@ -98,8 +98,8 @@ public sealed class InheritancePolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("namespace Demo.Persistence; public class CandyEntity { }", config);
 
-		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.InvalidConfiguration);
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.InheritancePolicyViolation);
+		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
+		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.InheritanceNotAllowed);
 	}
 
 	[Fact]
@@ -119,6 +119,6 @@ public sealed class InheritancePolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.InheritancePolicyViolation);
+		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.InheritanceNotAllowed);
 	}
 }

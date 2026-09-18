@@ -21,6 +21,7 @@ public sealed class ApplicationRunner
 			ApplicationOperationKind.SplitConfig => await ApplicationConfigurationFileOperations.SplitConfigAsync(request, cancellationToken),
 			ApplicationOperationKind.FormatConfig => await ApplicationConfigurationFileOperations.FormatConfigAsync(request, cancellationToken),
 			ApplicationOperationKind.ExplainConfig => await ApplicationConfigurationFileOperations.ExplainConfigAsync(request, cancellationToken),
+			ApplicationOperationKind.MigrateDiagnosticIds => await DiagnosticIdMigrationOperations.GenerateReportAsync(request, cancellationToken),
 			_ => throw new ApplicationOperationException($"Unsupported operation: {request.Operation}")
 		};
 

@@ -23,7 +23,7 @@ public sealed class ObservedDependencyCycleAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(GetObservedCycleSource(), config);
 
-		diagnostics.Should().NotContain(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.ObservedDependencyCycle);
+		diagnostics.Should().NotContain(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.DependencyCycle);
 	}
 
 	[Fact]
@@ -44,7 +44,7 @@ public sealed class ObservedDependencyCycleAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(GetObservedCycleSource(), config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ObservedDependencyCycle).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyCycle).Subject;
 		diagnostic.GetMessage().Should().Contain("Notifications -> Ordering -> Notifications");
 		diagnostic.Properties[ArchitecturalDiagnostics.PropertyCycleLayers].Should().Be("Notifications|Ordering");
 		diagnostic.Properties[ArchitecturalDiagnostics.PropertyCycleLength].Should().Be("2");
@@ -70,8 +70,8 @@ public sealed class ObservedDependencyCycleAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(GetObservedCycleSource(), config);
 
-		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.InvalidConfiguration && item.GetMessage().Contains("enforceObservedAcyclic", StringComparison.Ordinal));
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ObservedDependencyCycle);
+		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid && item.GetMessage().Contains("enforceObservedAcyclic", StringComparison.Ordinal));
+		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.DependencyCycle);
 	}
 
 	private static string GetObservedCycleSource()

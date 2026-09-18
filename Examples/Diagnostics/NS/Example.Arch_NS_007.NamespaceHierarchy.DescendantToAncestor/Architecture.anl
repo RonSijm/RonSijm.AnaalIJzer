@@ -1,0 +1,7 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd">
+  <NamespaceHierarchyPolicy rootNamespace="Restaurant"
+                            description="A feature namespace owns its implementation details and does not reach back into the restaurant root.">
+    <BlockedRelation relation="DescendantToAncestor" />
+  </NamespaceHierarchyPolicy>
+</ArchitecturalLevels>

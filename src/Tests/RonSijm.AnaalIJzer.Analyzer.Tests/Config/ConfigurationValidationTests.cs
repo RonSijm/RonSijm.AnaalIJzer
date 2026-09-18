@@ -6,15 +6,15 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Config;
 public sealed class ConfigurationValidationTests
 {
 	[Fact]
-	public async Task MalformedXml_ReportsARCH006()
+	public async Task MalformedXml_ReportsARCH_CONF_003()
 	{
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class CallerType { }", "<ArchitecturalLevels><Layer>");
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InvalidConfiguration);
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
 	}
 
 	[Fact]
-	public async Task UnknownAllowedDependencyLayer_ReportsARCH006()
+	public async Task UnknownAllowedDependencyLayer_ReportsARCH_CONF_003()
 	{
 		const string config = """
 		                      <ArchitecturalLevels>
@@ -25,11 +25,11 @@ public sealed class ConfigurationValidationTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class CallerType { }", config);
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InvalidConfiguration);
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
 	}
 
 	[Fact]
-	public async Task DuplicateLayer_ReportsARCH006()
+	public async Task DuplicateLayer_ReportsARCH_CONF_003()
 	{
 		const string config = """
 		                      <ArchitecturalLevels>
@@ -40,11 +40,11 @@ public sealed class ConfigurationValidationTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class CallerType { }", config);
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InvalidConfiguration);
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
 	}
 
 	[Fact]
-	public async Task InvalidRegex_ReportsARCH006()
+	public async Task InvalidRegex_ReportsARCH_CONF_003()
 	{
 		const string config = """
 		                      <ArchitecturalLevels>
@@ -54,7 +54,7 @@ public sealed class ConfigurationValidationTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class CallerType { }", config);
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InvalidConfiguration);
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
 	}
 
 	[Fact]
@@ -72,7 +72,7 @@ public sealed class ConfigurationValidationTests
 	}
 
 	[Fact]
-	public async Task MissingInclude_ReportsARCH006()
+	public async Task MissingInclude_ReportsARCH_CONF_003()
 	{
 		const string config = """
 		                      <ArchitecturalLevels>
@@ -83,11 +83,11 @@ public sealed class ConfigurationValidationTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class CallerType { }", config);
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InvalidConfiguration);
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
 	}
 
 	[Fact]
-	public async Task MissingWildcardInclude_ReportsARCH006()
+	public async Task MissingWildcardInclude_ReportsARCH_CONF_003()
 	{
 		const string config = """
 		                      <ArchitecturalLevels>
@@ -98,11 +98,11 @@ public sealed class ConfigurationValidationTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class CallerType { }", ("Architecture.anl", config));
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InvalidConfiguration);
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
 	}
 
 	[Fact]
-	public async Task AcyclicEnforcement_ReportsARCH007()
+	public async Task AcyclicEnforcement_ReportsARCH_CONF_006()
 	{
 		const string config = """
 		                      <ArchitecturalLevels enforceAcyclic="true">
@@ -117,7 +117,7 @@ public sealed class ConfigurationValidationTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class AType { } public class BType { } public class CType { }", config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.CyclicDependencyGraph).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationCycle).Subject;
 		diagnostic.GetMessage().Should().Contain("A -> B -> C -> A");
 	}
 

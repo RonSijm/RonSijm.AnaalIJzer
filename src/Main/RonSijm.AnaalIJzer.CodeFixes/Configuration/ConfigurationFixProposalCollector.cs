@@ -364,12 +364,12 @@ internal static class ConfigurationFixProposalCollector
 	{
 		var result = diagnosticId switch
 		{
-			ArchitecturalDiagnosticIds.ApiSurfaceLeakage => ConfigurationFixRiskLevel.HighRisk,
-			ArchitecturalDiagnosticIds.ForbiddenTransitiveExposure => ConfigurationFixRiskLevel.HighRisk,
-			ArchitecturalDiagnosticIds.ProjectReferenceViolation => ConfigurationFixRiskLevel.HighRisk,
-			ArchitecturalDiagnosticIds.PackageReferenceViolation => ConfigurationFixRiskLevel.HighRisk,
-			ArchitecturalDiagnosticIds.VisibilityPolicyViolation => ConfigurationFixRiskLevel.HighRisk,
-			ArchitecturalDiagnosticIds.CyclicDependencyGraph => ConfigurationFixRiskLevel.HighRisk,
+			ArchitecturalDiagnosticIds.ApiExposureNotAllowed => ConfigurationFixRiskLevel.HighRisk,
+			ArchitecturalDiagnosticIds.ApiTransitiveExposure => ConfigurationFixRiskLevel.HighRisk,
+			ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed => ConfigurationFixRiskLevel.HighRisk,
+			ArchitecturalDiagnosticIds.PackageReferenceNotAllowed => ConfigurationFixRiskLevel.HighRisk,
+			ArchitecturalDiagnosticIds.VisibilityNotAllowed => ConfigurationFixRiskLevel.HighRisk,
+			ArchitecturalDiagnosticIds.ConfigurationCycle => ConfigurationFixRiskLevel.HighRisk,
 			_ => ConfigurationFixRiskLevel.Guided
 		};
 

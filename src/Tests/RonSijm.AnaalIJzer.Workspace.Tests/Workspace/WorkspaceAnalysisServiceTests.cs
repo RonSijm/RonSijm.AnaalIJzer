@@ -224,7 +224,7 @@ public sealed class WorkspaceAnalysisServiceTests
 
 			project.ConfigInputPath.Should().Be(configPath);
 			project.ConfigInputXml.Should().Contain("<Layer name=\"Tooling\">");
-			project.AnalyzerDiagnostics.Should().NotContain(diagnostic => diagnostic.Id == "ARCH006");
+			project.AnalyzerDiagnostics.Should().NotContain(diagnostic => diagnostic.Id == "ARCH_CONF_003");
 		}
 		finally
 		{
@@ -297,9 +297,9 @@ public sealed class WorkspaceAnalysisServiceTests
 			using var host = new ProjectAnalysisHost("Release");
 			var result = await host.AnalyzeSolutionAsync(solutionPath, cancellationToken);
 
-			result.AnalyzerDiagnostics.Should().ContainSingle(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.ProjectReferenceViolation)
+			result.AnalyzerDiagnostics.Should().ContainSingle(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed)
 				.Which.GetMessage().Should().Contain("Shop.Web");
-			result.AnalyzerDiagnostics.Should().ContainSingle(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.ProjectReferenceViolation)
+			result.AnalyzerDiagnostics.Should().ContainSingle(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed)
 				.Which.GetMessage().Should().Contain("Shop.Domain");
 		}
 		finally
@@ -397,31 +397,37 @@ public sealed class WorkspaceAnalysisServiceTests
 
 		try
 		{
-			var repositoryRoot = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(FindSchemaPath())!, "..", "..", "..", ".."));
-			var analyzerProjectPath = Path.Combine(repositoryRoot, "src", "Main", "RonSijm.AnaalIJzer", "RonSijm.AnaalIJzer.csproj");
-			var propsPath = Path.Combine(repositoryRoot, "build", "Settings", "RonSijm.AnaalIJzer.props");
-			var targetsPath = Path.Combine(repositoryRoot, "build", "Settings", "RonSijm.AnaalIJzer.targets");
-
 			var domainProjectPath = Path.Combine(tempDirectory, "Shop.Domain", "Shop.Domain.csproj");
 			Directory.CreateDirectory(Path.GetDirectoryName(domainProjectPath)!);
 
-			await File.WriteAllTextAsync(domainProjectPath, $$"""
+			await File.WriteAllTextAsync(domainProjectPath, """
 			                                           <Project Sdk="Microsoft.NET.Sdk">
-			                                             <Import Project="{{propsPath}}" />
 			                                             <PropertyGroup>
 			                                               <TargetFramework>net10.0</TargetFramework>
 			                                               <Nullable>enable</Nullable>
-			                                               <EnableArchitecturalLevelAnalyzer>true</EnableArchitecturalLevelAnalyzer>
-			                                               <EnableSourceLink>false</EnableSourceLink>
 			                                             </PropertyGroup>
 			                                             <ItemGroup>
 			                                               <AdditionalFiles Include="Architecture.anl" />
-			                                               <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" />
-			                                               <ProjectReference Include="{{analyzerProjectPath}}" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+			                                               <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" Condition="'$(IncludeFixturePackage)' == 'true'" />
 			                                             </ItemGroup>
-			                                             <Import Project="{{targetsPath}}" />
 			                                           </Project>
 			                                           """, cancellationToken);
+			var assetsDirectory = Path.Combine(Path.GetDirectoryName(domainProjectPath)!, "obj");
+			Directory.CreateDirectory(assetsDirectory);
+			await File.WriteAllTextAsync(Path.Combine(assetsDirectory, "project.assets.json"), """
+			                                                                                 {
+			                                                                                   "targets": {
+			                                                                                     "net10.0": {
+			                                                                                       "Microsoft.Extensions.Logging/9.0.0": {
+			                                                                                         "type": "package",
+			                                                                                         "compile": {
+			                                                                                           "lib/net8.0/_._": {}
+			                                                                                         }
+			                                                                                       }
+			                                                                                     }
+			                                                                                   }
+			                                                                                 }
+			                                                                                 """, cancellationToken);
 			await File.WriteAllTextAsync(Path.Combine(Path.GetDirectoryName(domainProjectPath)!, "Example.cs"), """
 			                                                                                                   namespace Shop.Domain;
 			                                                                                                   public sealed class AggregateRoot { }
@@ -444,7 +450,7 @@ public sealed class WorkspaceAnalysisServiceTests
 			using var host = new ProjectAnalysisHost("Release");
 			var result = await host.AnalyzeAsync(domainProjectPath, cancellationToken);
 
-			result.AnalyzerDiagnostics.Should().ContainSingle(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.PackageReferenceViolation)
+			result.AnalyzerDiagnostics.Should().ContainSingle(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.PackageReferenceNotAllowed)
 				.Which.GetMessage().Should().Contain("Microsoft.Extensions.Logging");
 		}
 		finally

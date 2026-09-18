@@ -23,7 +23,7 @@ public sealed class TransitiveExposureAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig());
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenTransitiveExposure).Subject;
+		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure).Subject;
 		violation.Properties[ArchitecturalDiagnostics.PropertyExposureDepth].Should().Be("1");
 		violation.Properties[ArchitecturalDiagnostics.PropertyExposurePath].Should().Contain("CandyService.Order");
 		violation.Properties[ArchitecturalDiagnostics.PropertyExposurePath].Should().Contain("CandyReceipt.RawQuery");
@@ -45,8 +45,8 @@ public sealed class TransitiveExposureAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig());
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiSurfaceLeakage);
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenTransitiveExposure);
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed);
+		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure);
 	}
 
 	[Fact]
@@ -71,8 +71,8 @@ public sealed class TransitiveExposureAnalyzerTests
 		var shallowDiagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig(1));
 		var deepDiagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig(2));
 
-		shallowDiagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenTransitiveExposure);
-		var violation = deepDiagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenTransitiveExposure).Subject;
+		shallowDiagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure);
+		var violation = deepDiagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure).Subject;
 		violation.Properties[ArchitecturalDiagnostics.PropertyExposureDepth].Should().Be("2");
 	}
 
@@ -94,7 +94,7 @@ public sealed class TransitiveExposureAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig(10));
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenTransitiveExposure);
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure);
 	}
 
 	[Fact]
@@ -114,7 +114,7 @@ public sealed class TransitiveExposureAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig());
 
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenTransitiveExposure);
+		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure);
 	}
 
 	[Fact]
@@ -134,7 +134,7 @@ public sealed class TransitiveExposureAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig(includeTransitive: false));
 
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenTransitiveExposure);
+		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure);
 	}
 
 	[Fact]
@@ -155,8 +155,8 @@ public sealed class TransitiveExposureAnalyzerTests
 		var methodOnlyDiagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig(blockedRuleAttributes: "allowedSites=\"Method\"", includeAllowedLayer: false));
 		var propertyDiagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig(blockedRuleAttributes: "allowedSites=\"Property\"", includeAllowedLayer: false));
 
-		methodOnlyDiagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenTransitiveExposure);
-		propertyDiagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenTransitiveExposure);
+		methodOnlyDiagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure);
+		propertyDiagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure);
 	}
 
 	[Fact]
@@ -176,7 +176,7 @@ public sealed class TransitiveExposureAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig(requireRecognizedTypes: true));
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenTransitiveExposure).Subject;
+		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure).Subject;
 		violation.Properties[ArchitecturalDiagnostics.PropertyDepLayerName].Should().Be("unrecognized");
 	}
 
@@ -199,7 +199,7 @@ public sealed class TransitiveExposureAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig());
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenTransitiveExposure).Subject;
+		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure).Subject;
 		violation.Properties[ArchitecturalDiagnostics.PropertyExposurePath].Should().Contain("CandyReceipt.Queries");
 		violation.Properties[ArchitecturalDiagnostics.PropertyExposurePath].Should().EndWith("LollyQueryable");
 	}
@@ -226,7 +226,7 @@ public sealed class TransitiveExposureAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig(10));
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenTransitiveExposure).Subject;
+		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure).Subject;
 		violation.Properties[ArchitecturalDiagnostics.PropertyExposureDepth].Should().Be("2");
 		violation.Properties[ArchitecturalDiagnostics.PropertyExposurePath].Should().Contain("ReceiptDetails.RawQuery");
 	}
@@ -249,7 +249,7 @@ public sealed class TransitiveExposureAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig());
 
-		diagnostics.Count(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenTransitiveExposure).Should().Be(2);
+		diagnostics.Count(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure).Should().Be(2);
 	}
 
 	[Theory]
@@ -262,7 +262,7 @@ public sealed class TransitiveExposureAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class CandyService { }", config);
 
-		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.InvalidConfiguration);
+		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
 	}
 
 	private static string CreateConfig(

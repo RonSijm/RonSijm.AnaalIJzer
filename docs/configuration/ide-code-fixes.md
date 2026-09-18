@@ -22,33 +22,34 @@ For the broader mental model, ownership rules, and risk labels, see [Configurati
 
 | Diagnostic | IDE fix support | Covered by tests |
 |---|---|---|
-| `ARCH001` | add missing `<AllowedDependency>`; extend `allowedSites`; relax `blockedSites`; add exception | `DependencyRuleCodeFixTests.cs`, `AddToExceptionsCodeFixTests.cs` |
-| `ARCH002` | classify the unknown dependency into an existing layer; remove the current site from `requireRecognizedDependencies` globally or for the current caller layer | `RecognizedDependencyCodeFixTests.cs` |
-| `ARCH003` | forbidden rule match: rename via `<Fix Rename="...">` or add exception; allow-list failure: add exact `<Class typeName="..."/>` to every applicable `<Allowed>` list | `RenameCodeFixTests.cs`, `AllowedTypePolicyCodeFixTests.cs`, `AddToExceptionsCodeFixTests.cs` |
-| `ARCH004` | add the forward `<AllowedDependency>`; flip the exact configured reverse `<AllowedDependency>` when one concrete reverse rule exists; repair site filters; add exception | `DependencyRuleCodeFixTests.cs`, `AddToExceptionsCodeFixTests.cs` |
-| `ARCH005` | add a same-layer self-edge, optionally site-scoped; add exception | `DependencyRuleCodeFixTests.cs`, `AddToExceptionsCodeFixTests.cs` |
-| `ARCH007` | for each concrete allowed edge in a configured cycle: add a matching blocking edge, or remove that allowed edge; the user chooses the edge | `CycleDependencyCodeFixTests.cs` |
-| `ARCH008` | rename the declaration when the rule compares declaration name to semantic type; add `<Allow from="..." to="..."/>` mappings, including a site-scoped variant for `RequireMatchingNames` | `DeclarationNameCodeFixTests.cs`, `NameRuleAllowMappingCodeFixTests.cs` |
-| `ARCH009` | add or widen `<ApiSurface><AllowedLayer ... /></ApiSurface>`; relax `blockedSites`; disable `requireRecognizedTypes` when that is the denial | `ApiSurfacePolicyCodeFixTests.cs` |
-| `ARCH010` | add a missing group-level `<AllowedProjectReference>`; add a narrow exact-project rule with `<From>` and `<To>` selectors; add an explicit same-group self-edge; remove the matching blocking `<BlockedProjectReference>` rule | `ProjectArchitectureCodeFixTests.cs` |
-| `ARCH011` | append an exact `<Package exactName="..."/>` matcher to the matched allowed package list | `PackagePolicyCodeFixTests.cs` |
-| `ARCH012` | add the reported visibility to `allowedAccessibilities`; remove it from `blockedAccessibilities`; remove a single-value blocking policy entirely | `VisibilityPolicyCodeFixTests.cs` |
-| `ARCH013` | remove a disallowed property setter when the violation is exactly that accessor | `ContractPurityCodeFixTests.cs` |
-| `ARCH014` | the same `ApiSurface` configuration fixes as `ARCH009` | `ApiSurfacePolicyCodeFixTests.cs` |
-| `ARCH015` | add an exact `<Source exactName="..."/>` rule to the owning layer | `SourceLocationCodeFixTests.cs` |
-| `ARCH016` | add a boundary `<EntryPoint>`; add a required site to `allowedSites`; remove the current site from `blockedSites` | `BoundaryEntryPointCodeFixTests.cs` |
-| `ARCH018` | no configuration fix: this reports an observed source-code cycle, which configuration editing cannot honestly repair | `ExampleConfigurationFixIntegrationTests.cs` |
-| `ARCH019` | add a single required base type or a single required interface when the change is unambiguous | `InheritancePolicyCodeFixTests.cs` |
-| `ARCH020` | no automatic fix: a forbidden return expression does not tell the analyzer which domain result should replace it | `ReturnValuePolicyAnalyzerTests.cs` |
-| `ARCH021` | no automatic fix: a forbidden selected operation does not identify the intended adapter, async flow, or composition-boundary change | `ForbiddenOperationPolicyAnalyzerTests.cs` |
-| `ARCH022` | no automatic fix: adding, moving, or removing an operation requires an explicit workflow decision | `BehavioralOperationPolicyAnalyzerTests.cs` |
-| `ARCH023` | no automatic fix: choosing an operation owner, entry-point delegation, or contract shape requires an explicit workflow decision | `OperationContractAnalyzerTests.cs` |
-| `ARCH024` | no automatic fix: changing emitted assembly metadata or widening its allow/deny policy requires an explicit ownership decision | `AssemblyAttributePolicyCodeFixTests.cs` |
+| `ARCH_DEP_001` | add missing `<AllowedDependency>`; extend `allowedSites`; relax `blockedSites`; add exception | `DependencyRuleCodeFixTests.cs`, `AddToExceptionsCodeFixTests.cs` |
+| `ARCH_DEP_002` | classify the unknown dependency into an existing layer; remove the current site from `requireRecognizedDependencies` globally or for the current caller layer | `RecognizedDependencyCodeFixTests.cs` |
+| `ARCH_TYPE_001` | forbidden rule match: rename via `<Fix Rename="...">` or add exception; allow-list failure: add exact `<Class typeName="..."/>` to every applicable `<Allowed>` list | `RenameCodeFixTests.cs`, `AllowedTypePolicyCodeFixTests.cs`, `AddToExceptionsCodeFixTests.cs` |
+| `ARCH_DEP_004` | add the forward `<AllowedDependency>`; flip the exact configured reverse `<AllowedDependency>` when one concrete reverse rule exists; repair site filters; add exception | `DependencyRuleCodeFixTests.cs`, `AddToExceptionsCodeFixTests.cs` |
+| `ARCH_DEP_005` | add a same-layer self-edge, optionally site-scoped; add exception | `DependencyRuleCodeFixTests.cs`, `AddToExceptionsCodeFixTests.cs` |
+| `ARCH_CONF_006` | for each concrete allowed edge in a configured cycle: add a matching blocking edge, or remove that allowed edge; the user chooses the edge | `CycleDependencyCodeFixTests.cs` |
+| `ARCH_NAME_008` | rename the declaration when the rule compares declaration name to semantic type; add `<Allow from="..." to="..."/>` mappings, including a site-scoped variant for `RequireMatchingNames` | `DeclarationNameCodeFixTests.cs`, `NameRuleAllowMappingCodeFixTests.cs` |
+| `ARCH_API_001` | add or widen `<ApiSurface><AllowedLayer ... /></ApiSurface>`; relax `blockedSites`; disable `requireRecognizedTypes` when that is the denial | `ApiSurfacePolicyCodeFixTests.cs` |
+| `ARCH_PROJ_001` | add a missing group-level `<AllowedProjectReference>`; add a narrow exact-project rule with `<From>` and `<To>` selectors; add an explicit same-group self-edge; remove the matching blocking `<BlockedProjectReference>` rule | `ProjectArchitectureCodeFixTests.cs` |
+| `ARCH_PKG_001` | append an exact `<Package exactName="..."/>` matcher to the matched allowed package list | `PackagePolicyCodeFixTests.cs` |
+| `ARCH_VIS_001` | add the reported visibility to `allowedAccessibilities`; remove it from `blockedAccessibilities`; remove a single-value blocking policy entirely | `VisibilityPolicyCodeFixTests.cs` |
+| `ARCH_CONT_008` | remove a disallowed property setter when the violation is exactly that accessor | `ContractPurityCodeFixTests.cs` |
+| `ARCH_API_010` | the same `ApiSurface` configuration fixes as `ARCH_API_001` | `ApiSurfacePolicyCodeFixTests.cs` |
+| `ARCH_SRC_007` | add an exact `<Source exactName="..."/>` rule to the owning layer | `SourceLocationCodeFixTests.cs` |
+| `ARCH_BOUND_007` | add a boundary `<EntryPoint>`; add a required site to `allowedSites`; remove the current site from `blockedSites` | `BoundaryEntryPointCodeFixTests.cs` |
+| `ARCH_DEP_006` | no configuration fix: this reports an observed source-code cycle, which configuration editing cannot honestly repair | `ExampleConfigurationFixIntegrationTests.cs` |
+| `ARCH_INH_001` | add a single required base type or a single required interface when the change is unambiguous | `InheritancePolicyCodeFixTests.cs` |
+| `ARCH_RET_001` | no automatic fix: a rejected return expression does not tell the analyzer which domain result, named hand-off, or fallback should replace it | `ReturnValuePolicyAnalyzerTests.cs` |
+| `ARCH_OPER_001` | no automatic fix: a forbidden selected operation does not identify the intended adapter, async flow, or composition-boundary change | `ForbiddenOperationPolicyAnalyzerTests.cs` |
+| `ARCH_OPER_002`, `ARCH_OPER_011`, `ARCH_OPER_012` | no automatic fix: adding, moving, or removing an operation requires an explicit workflow decision | `BehavioralOperationPolicyAnalyzerTests.cs` |
+| `ARCH_OPCT_001`, `ARCH_OPCT_002`, `ARCH_OPCT_008` | no automatic fix: choosing an operation owner, entry-point delegation, or contract shape requires an explicit workflow decision | `OperationContractAnalyzerTests.cs` |
+| `ARCH_ASSM_001` | no automatic fix: changing emitted assembly metadata or widening its allow/deny policy requires an explicit ownership decision | `AssemblyAttributePolicyCodeFixTests.cs` |
+| `ARCH_NS_007` | no automatic fix: moving namespace ownership, introducing a contract, or changing a namespace relationship requires an explicit architectural decision | `NamespaceHierarchyPolicyAnalyzerTests.cs` |
 
 ### Deliberate limits
 
-- `ARCH010` and `ARCH011` are compilation-end diagnostics. The config edits exist and are covered by analyzer tests, but whether an IDE host shows them as ordinary editor light bulbs depends on how that host surfaces `Location.None` diagnostics.
-- `ARCH013`, `ARCH019`, `ARCH020`, `ARCH021`, `ARCH022`, `ARCH023`, and `ARCH024` stay intentionally narrow. If the analyzer cannot tell which one deterministic edit is the right one, it does not guess. A confidently wrong automatic fix is harder to spot in review than no fix at all.
+- `ARCH_PROJ_001` and `ARCH_PKG_001` are compilation-end diagnostics. The config edits exist and are covered by analyzer tests, but whether an IDE host shows them as ordinary editor light bulbs depends on how that host surfaces `Location.None` diagnostics.
+- `ARCH_CONT_008`, `ARCH_INH_001`, `ARCH_RET_001`, `ARCH_OPER_*`, `ARCH_OPCT_*`, `ARCH_ASSM_001`, and `ARCH_NS_007` stay intentionally narrow. If the analyzer cannot tell which one deterministic edit is the right one, it does not guess. A confidently wrong automatic fix is harder to spot in review than no fix at all.
 - Configuration fixers preserve the owning source where possible:
   - if a rule came from an included `.anl`, that included file is edited;
   - if the config came from inline `AssemblyMetadata`, the source file containing the assembly attribute is rewritten.

@@ -41,9 +41,9 @@ internal sealed class ApplicationWorkspaceAnalysisService(string configuration)
 		Execute(() => _workspace.EnsureConfigHasRules(config));
 	}
 
-	public ProjectAnalysisResult EnsureSolutionHasLayers(SolutionAnalysisResult result)
+	public ProjectAnalysisResult EnsureSolutionHasRules(SolutionAnalysisResult result)
 	{
-		var representativeProject = Execute(() => _workspace.EnsureSolutionHasLayers(result));
+		var representativeProject = Execute(() => _workspace.EnsureSolutionHasRules(result));
 
 		return representativeProject;
 	}

@@ -21,7 +21,7 @@ Use [`Example.VisualStudioSiteDiagnostics`](../../Documentation/Example.VisualSt
 | File | Capture |
 |---|---|
 | `site-layer-information-all-sites.png` | `Show all layer information` enabled, with every site visible in the one-file Visual Studio demonstration. |
-| `site-diagnostics-constructor.png` | Constructor Site Diagnostics on an `ARCH001` example. |
+| `site-diagnostics-constructor.png` | Constructor Site Diagnostics on an `ARCH_DEP_001` example. |
 
 ## Dependency graphs
 

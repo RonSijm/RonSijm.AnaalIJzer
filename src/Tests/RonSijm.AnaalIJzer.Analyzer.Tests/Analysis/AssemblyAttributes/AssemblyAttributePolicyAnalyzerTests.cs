@@ -29,7 +29,7 @@ public sealed class AssemblyAttributePolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.AssemblyAttributePolicyViolation).Subject;
+		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.AssemblyAttributeNotAllowed).Subject;
 		violation.Properties[ArchitecturalDiagnostics.PropertyAssemblyAttributeTypeName].Should().Be("System.Runtime.CompilerServices.InternalsVisibleToAttribute");
 		violation.Properties[ArchitecturalDiagnostics.PropertyAssemblyAttributePolicyRule].Should().Contain("NotAllowedExample");
 	}
@@ -56,7 +56,7 @@ public sealed class AssemblyAttributePolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.AssemblyAttributePolicyViolation);
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.AssemblyAttributeNotAllowed);
 	}
 
 	[Fact]
@@ -80,7 +80,7 @@ public sealed class AssemblyAttributePolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.AssemblyAttributePolicyViolation);
+		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.AssemblyAttributeNotAllowed);
 	}
 
 	[Fact]
@@ -106,6 +106,6 @@ public sealed class AssemblyAttributePolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source);
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.AssemblyAttributePolicyViolation);
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.AssemblyAttributeNotAllowed);
 	}
 }

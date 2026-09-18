@@ -40,7 +40,7 @@ public sealed class NameRuleTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var nameRuleDiagnostics = diagnostics.Where(d => d.Id == ArchitecturalDiagnosticIds.NameRuleViolation).ToArray();
+		var nameRuleDiagnostics = diagnostics.Where(d => d.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).ToArray();
 		nameRuleDiagnostics.Should().HaveCount(2);
 		nameRuleDiagnostics.Should().OnlyContain(d => d.Properties["Site"] == "Method");
 		nameRuleDiagnostics.Select(d => d.Properties["SourceName"]).Should().BeEquivalentTo("animalId", "fruitId");
@@ -80,7 +80,7 @@ public sealed class NameRuleTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Where(d => d.Id == ArchitecturalDiagnosticIds.NameRuleViolation).Should().BeEmpty();
+		diagnostics.Where(d => d.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Should().BeEmpty();
 	}
 
 	[Fact]
@@ -116,7 +116,7 @@ public sealed class NameRuleTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.NameRuleViolation).Which;
+		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Which;
 		diagnostic.Properties["Site"].Should().Be("Property");
 		diagnostic.Properties["SourceName"].Should().Be("animalId");
 		diagnostic.Properties["TargetName"].Should().Be("Customer.Id");
@@ -155,7 +155,7 @@ public sealed class NameRuleTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Where(d => d.Id == ArchitecturalDiagnosticIds.NameRuleViolation).Should().BeEmpty();
+		diagnostics.Where(d => d.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Should().BeEmpty();
 	}
 
 	[Fact]
@@ -199,7 +199,7 @@ public sealed class NameRuleTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.NameRuleViolation).Which;
+		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Which;
 		diagnostic.Properties["Site"].Should().Be("Method");
 		diagnostic.GetMessage().Should().Contain("allowedSites does not include Method");
 	}
@@ -237,7 +237,7 @@ public sealed class NameRuleTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.NameRuleViolation).Which;
+		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Which;
 		diagnostic.Properties["Site"].Should().Be("Local");
 	}
 
@@ -280,7 +280,7 @@ public sealed class NameRuleTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.NameRuleViolation).Which;
+		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Which;
 		diagnostic.GetMessage().Should().Contain("OrderService");
 	}
 
@@ -313,7 +313,7 @@ public sealed class NameRuleTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.NameRuleViolation).Which;
+		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Which;
 		diagnostic.Properties["SourceName"].Should().Be("customerId");
 		diagnostic.Properties["TargetName"].Should().Be("orderId");
 	}

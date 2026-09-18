@@ -1,6 +1,6 @@
 // ReSharper disable All - Justification: Example File
 // requireRecognizedDependencies accepts the same site names as allowedSites and blockedSites.
-// This project intentionally produces one ARCH002 diagnostic for every configured site.
+// This project intentionally produces one ARCH_DEP_002 diagnostic for every configured site.
 
 namespace Example.RequiredRecognizedDependencySites;
 

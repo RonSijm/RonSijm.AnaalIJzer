@@ -35,7 +35,7 @@ Use it when the architecture rule is about the shape of an entire loaded solutio
 
 The restaurant names are only a readable domain metaphor. The arrows mean “may reference,” never runtime request or data flow.
 
-With this configuration, `Shop.Web -> Shop.Application` is allowed and `Shop.Application -> Shop.Infrastructure` produces `TOPO001` during an explicitly enforced solution inspection.
+With this configuration, `Shop.Web -> Shop.Application` is allowed and `Shop.Application -> Shop.Infrastructure` produces `ARCH_SOL_001` during an explicitly enforced solution inspection.
 
 ### Modules and matchers
 
@@ -63,7 +63,7 @@ Attributes on one `Project` matcher are combined with AND semantics. Multiple `P
 
 Blocked rules win. Like `ProjectArchitecture`, a source module enters allowlist mode only when it has a matching allowed rule. A module with only blocked rules remains blocklist-only, which makes it possible to introduce topology checks gradually.
 
-`requireRecognizedProjects` defaults to `false`. When enabled, each endpoint of an observed direct project reference must match a module. `enforceAcyclic` defaults to `false`; when enabled, a configured cycle among explicit allowed module rules produces `TOPO002`.
+`requireRecognizedProjects` defaults to `false`. When enabled, each endpoint of an observed direct project reference must match a module. `enforceAcyclic` defaults to `false`; when enabled, a configured cycle among explicit allowed module rules produces `ARCH_SOL_006`.
 
 ### Run it deliberately
 
@@ -76,12 +76,12 @@ The Markdown report is intended for review. Choosing a `.json` output path write
 
 The repository includes a reusable [Solution topology GitHub workflow](../../.github/workflows/solution-topology.yml). Call it from a product workflow or dispatch it with a solution path; it restores and builds Arse, uploads both evidence files, and fails only after those artifacts are available.
 
-`TOPO001` and `TOPO002` are report finding codes, not compiler `ARCH` diagnostics. This distinction is intentional: opening an entire solution is a tooling operation, while an analyzer must stay fast and safe inside a normal project compilation.
+`ARCH_SOL_001` and `ARCH_SOL_006` are report finding codes, not compiler `ARCH` diagnostics. This distinction is intentional: opening an entire solution is a tooling operation, while an analyzer must stay fast and safe inside a normal project compilation.
 
 ### Viewing the topology
 
-Open a configured solution in the standalone WPF graph editor or use `Extensions > IJzer > Show Dependency Graphs` in Visual Studio. The graph renders `SolutionTopology` as a separate, read-only group: each configured module is a node, configured module rules are connections, and loaded direct project references appear as evidence connections. A permitted observed reference is muted; a `TOPO001` violation is highlighted for investigation.
+Open a configured solution in the standalone WPF graph editor or use `Extensions > IJzer > Show Dependency Graphs` in Visual Studio. The graph renders `SolutionTopology` as a separate, read-only group: each configured module is a node, configured module rules are connections, and loaded direct project references appear as evidence connections. A permitted observed reference is muted; a `ARCH_SOL_001` violation is highlighted for investigation.
 
 That view deliberately does not expose drag-to-edit controls for modules or module rules. `SolutionTopology` is currently authored in `Architecture.anl`, and keeping the diagram read-only prevents a user from assuming that moving a module changes the solution policy. The normal layer graph remains editable when the same configuration also contains `<Layer>` rules.
 
-See [`Example.SolutionTopology`](../../Examples/Scenarios/Example.SolutionTopology) for a compact multi-project example whose normal build succeeds and whose explicit solution inspection fails with one intentional `TOPO001`.
+See [`Example.SolutionTopology`](../../Examples/Scenarios/Example.SolutionTopology) for a compact multi-project example whose normal build succeeds and whose explicit solution inspection fails with one intentional `ARCH_SOL_001`.

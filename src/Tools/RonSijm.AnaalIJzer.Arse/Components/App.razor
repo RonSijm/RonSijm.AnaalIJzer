@@ -50,7 +50,7 @@
 
 		@if (HasInspectionExceptionFindings)
 		{
-			<Panel Title="ARCH017 filters" Border="@BoxBorder.Rounded" BorderColor="@Color.DarkOrange" Expand="true">
+			<Panel Title="ARCH_EXC_009 filters" Border="@BoxBorder.Rounded" BorderColor="@Color.DarkOrange" Expand="true">
 				<Columns>
 					<ArseButton Content="@GetInspectionExceptionFilterLabel("Invalid")"
 					              OnClick="@(() => ToggleInspectionExceptionFilter("Invalid"))"
@@ -76,7 +76,7 @@
 				<Newline />
 				@if (FilteredInspectionExceptionFindings.Length == 0)
 				{
-					<Markup Content="No ARCH017 findings match the current filter." Foreground="@Color.Grey70" />
+					<Markup Content="No ARCH_EXC_009 findings match the current filter." Foreground="@Color.Grey70" />
 				}
 				else
 				{

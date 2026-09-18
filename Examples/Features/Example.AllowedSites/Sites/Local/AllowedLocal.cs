@@ -5,7 +5,7 @@ namespace Example.AllowedSites.Sites.Local;
 
 public sealed class AllowedLocalSiteExample
 {
-    // ARCH001: allowedSites="Local" does not allow the constructor parameter above.
+    // ARCH_DEP_001: allowedSites="Local" does not allow the constructor parameter above.
     public AllowedLocalSiteExample(AllowedLocalType wrongSite) => _ = wrongSite;
 
     public void Run()

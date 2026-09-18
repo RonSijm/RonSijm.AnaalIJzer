@@ -31,7 +31,7 @@ public sealed class ContractPurityAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ContractPurityViolation).Subject;
+		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ContractShapeMismatch).Subject;
 		violation.Properties[ArchitecturalDiagnostics.PropertyDeclaredSymbolName].Should().Be("Run");
 		violation.Properties[ArchitecturalDiagnostics.PropertyContractViolationKind].Should().Be("MethodBodyForbidden");
 		violation.GetMessage().Should().Contain("allowMethodBodies='false'");
@@ -61,7 +61,7 @@ public sealed class ContractPurityAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ContractPurityViolation).Subject;
+		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ContractShapeMismatch).Subject;
 		violation.Properties[ArchitecturalDiagnostics.PropertyDeclaredSymbolName].Should().Be("Name");
 		violation.Properties[ArchitecturalDiagnostics.PropertyContractViolationKind].Should().Be("DisallowedPropertyAccessor");
 		violation.GetMessage().Should().Contain("allows only property accessors Get");
@@ -99,7 +99,7 @@ public sealed class ContractPurityAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ContractPurityViolation).Subject;
+		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ContractShapeMismatch).Subject;
 		violation.Properties[ArchitecturalDiagnostics.PropertyCallerLayerName].Should().Be("Application/Contracts");
 		violation.GetMessage().Should().Contain("layer 'Application'");
 		violation.GetMessage().Should().Contain("allows only member kinds Method");
@@ -125,8 +125,8 @@ public sealed class ContractPurityAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public interface IOrderContract { void Run(); }", config);
 
-		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.InvalidConfiguration);
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ContractPurityViolation);
+		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
+		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ContractShapeMismatch);
 	}
 
 	[Fact]
@@ -150,6 +150,6 @@ public sealed class ContractPurityAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ContractPurityViolation);
+		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ContractShapeMismatch);
 	}
 }

@@ -11,7 +11,7 @@ public sealed class BlockedNewSiteExample
         _ = allowed;
     }
 
-    // ARCH001: blockedSites="New" blocks this new-expression.
+    // ARCH_DEP_001: blockedSites="New" blocks this new-expression.
     public void Run()
     {
         _ = new BlockedNewType();

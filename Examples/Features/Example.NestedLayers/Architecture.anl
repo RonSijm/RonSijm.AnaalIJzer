@@ -34,12 +34,12 @@
     <Layer name="Contracts"><Namespace startsWith="ExampleCompany.Shipping.Contracts" /></Layer>
     <AllowedDependency from="/Catalog/Application" to="Contracts" />
   </Layer>
-  <!-- No Catalog -> Shipping root gate: CatalogService reports ARCH001. -->
+  <!-- No Catalog -> Shipping root gate: CatalogService reports ARCH_DEP_001. -->
 
   <Layer name="Fulfillment">
     <Namespace startsWith="ExampleCompany.Fulfillment" />
     <Layer name="Application"><Namespace startsWith="ExampleCompany.Fulfillment.Application" /></Layer>
-    <!-- No Application egress gate: FulfillmentService reports ARCH001. -->
+    <!-- No Application egress gate: FulfillmentService reports ARCH_DEP_001. -->
   </Layer>
   <Layer name="Support">
     <Namespace startsWith="ExampleCompany.Support" />
@@ -56,7 +56,7 @@
   <Layer name="Payments">
     <Namespace startsWith="ExampleCompany.Payments" />
     <Layer name="Contracts"><Namespace startsWith="ExampleCompany.Payments.Contracts" /></Layer>
-    <!-- No Contracts ingress gate: InventoryService reports ARCH001. -->
+    <!-- No Contracts ingress gate: InventoryService reports ARCH_DEP_001. -->
   </Layer>
   <AllowedDependency from="Inventory" to="Payments" />
 

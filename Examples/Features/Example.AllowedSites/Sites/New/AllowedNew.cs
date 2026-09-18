@@ -5,7 +5,7 @@ namespace Example.AllowedSites.Sites.New;
 
 public sealed class AllowedNewSiteExample
 {
-    // ARCH001: allowedSites="New" does not allow the constructor parameter above.
+    // ARCH_DEP_001: allowedSites="New" does not allow the constructor parameter above.
     public AllowedNewSiteExample(AllowedNewType wrongSite)
     {
         _ = wrongSite;

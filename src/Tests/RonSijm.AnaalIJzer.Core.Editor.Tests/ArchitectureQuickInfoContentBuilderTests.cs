@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using Microsoft.CodeAnalysis.Text;
 using RonSijm.AnaalIJzer.Core.Editor.QuickInfo;
 using RonSijm.AnaalIJzer.Core.Editor.Snapshots;
+using RonSijm.AnaalIJzer.Core.Findings;
 using RonSijm.AnaalIJzer.Core.Indicators;
 
 namespace RonSijm.AnaalIJzer.Core.Editor.Tests;
@@ -68,14 +69,14 @@ public sealed class ArchitectureQuickInfoContentBuilderTests
 			null,
 			0,
 			ArchitectureDependencySiteStatus.MissingAllowedDependency,
-			"ARCH001",
+			"ARCH_DEP_001",
 			"Raw ingredients cannot be returned to the waiter.");
 
 		var content = ArchitectureQuickInfoContentBuilder.CreateSiteContent(indicator);
 
 		content.Title.Should().Be("AnaalIJzer dependency site");
 		content.Lines.Should().Contain("Dependency: RawIngredient (unclassified)");
-		content.Lines.Should().Contain("Diagnostic: ARCH001");
+		content.Lines.Should().Contain("Diagnostic: ARCH_DEP_001");
 	}
 
 	[Fact]
@@ -90,7 +91,7 @@ public sealed class ArchitectureQuickInfoContentBuilderTests
 			null,
 			0,
 			ArchitectureDependencySiteStatus.TypePolicyViolation,
-			"ARCH021",
+			"ARCH_OPER_001",
 			"The kitchen may not read the system clock.",
 			"the ForbiddenOperations policy in layer 'Kitchen' blocks System.DateTime.UtcNow at StaticMember");
 
@@ -98,7 +99,7 @@ public sealed class ArchitectureQuickInfoContentBuilderTests
 
 		content.Title.Should().Be("AnaalIJzer forbidden operation");
 		content.Lines.Should().Contain("Operation: System.DateTime.UtcNow");
-		content.Lines.Should().Contain("Diagnostic: ARCH021");
+		content.Lines.Should().Contain("Diagnostic: ARCH_OPER_001");
 		content.Lines.Should().Contain("Reason: the ForbiddenOperations policy in layer 'Kitchen' blocks System.DateTime.UtcNow at StaticMember");
 	}
 
@@ -114,7 +115,7 @@ public sealed class ArchitectureQuickInfoContentBuilderTests
 			null,
 			0,
 			ArchitectureDependencySiteStatus.TypePolicyViolation,
-			"ARCH022",
+			ArchitecturalDiagnosticIds.OperationOrdering,
 			"The kitchen must validate before saving a pizza.",
 			"the BehavioralOperations policy in layer 'Kitchen' requires PizzaValidator.Validate before PizzaRepository.Save in declaration 'PizzaKitchen.Submit()'");
 
@@ -122,7 +123,7 @@ public sealed class ArchitectureQuickInfoContentBuilderTests
 
 		content.Title.Should().Be("AnaalIJzer behavioral operation");
 		content.Lines.Should().Contain("Behavioral policy: RequiredOperationBefore");
-		content.Lines.Should().Contain("Diagnostic: ARCH022");
+		content.Lines.Should().Contain($"Diagnostic: {ArchitecturalDiagnosticIds.OperationOrdering}");
 		content.Lines.Should().Contain("Reason: the BehavioralOperations policy in layer 'Kitchen' requires PizzaValidator.Validate before PizzaRepository.Save in declaration 'PizzaKitchen.Submit()'");
 	}
 
@@ -138,14 +139,14 @@ public sealed class ArchitectureQuickInfoContentBuilderTests
 			null,
 			0,
 			ArchitectureDependencySiteStatus.TypePolicyViolation,
-			"ARCH023",
+			ArchitecturalDiagnosticIds.OperationContractRequiredMissing,
 			"The entry-point declaration does not directly invoke the configured owner.");
 
 		var content = ArchitectureQuickInfoContentBuilder.CreateSiteContent(indicator);
 
 		content.Title.Should().Be("AnaalIJzer operation contract");
 		content.Lines.Should().Contain("Operation contract: PlacePizzaOrder");
-		content.Lines.Should().Contain("Diagnostic: ARCH023");
+		content.Lines.Should().Contain($"Diagnostic: {ArchitecturalDiagnosticIds.OperationContractRequiredMissing}");
 	}
 
 	[Fact]

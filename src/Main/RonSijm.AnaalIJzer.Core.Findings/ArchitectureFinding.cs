@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using RonSijm.AnaalIJzer.Core.Findings.Diagnostics;
 
 namespace RonSijm.AnaalIJzer.Core.Findings;
 
@@ -11,6 +12,8 @@ public sealed class ArchitectureFinding(
 	string? reasonCode = null,
 	ImmutableDictionary<string, string?>? properties = null)
 {
+	private readonly ArchitectureDiagnosticDefinition? definition = ResolveDefinition(code);
+
 	public ArchitectureFindingSeverity Severity { get; } = severity;
 
 	public string Code { get; } = code;
@@ -19,7 +22,7 @@ public sealed class ArchitectureFinding(
 	{
 		get
 		{
-			var result = Code;
+			var result = definition?.Category ?? Code;
 
 			return result;
 		}
@@ -33,7 +36,11 @@ public sealed class ArchitectureFinding(
 
 	public string? ReasonCode { get; } = reasonCode;
 
-	public ImmutableDictionary<string, string?> Properties { get; } = properties ?? ImmutableDictionary<string, string?>.Empty;
+	public ImmutableDictionary<string, string?> Properties { get; } = AddIdentity(properties ?? ImmutableDictionary<string, string?>.Empty, ResolveDefinition(code));
+
+	public ArchitectureDiagnosticConcern? Concern => definition?.Concern;
+
+	public ArchitectureDiagnosticReason? Reason => definition?.Reason;
 
 	public string SeverityText
 	{
@@ -58,6 +65,27 @@ public sealed class ArchitectureFinding(
 			? prefix
 			: $"{prefix} - {Context}";
 		var result = WithContext(context);
+
+		return result;
+	}
+
+	private static ImmutableDictionary<string, string?> AddIdentity(ImmutableDictionary<string, string?> properties, ArchitectureDiagnosticDefinition? definition)
+	{
+		if (definition is null)
+		{
+			return properties;
+		}
+
+		var result = properties
+			.SetItem(ArchitectureDiagnosticProperties.PropertyDiagnosticConcern, definition.Concern.ToString())
+			.SetItem(ArchitectureDiagnosticProperties.PropertyDiagnosticReason, definition.Reason.ToString());
+
+		return result;
+	}
+
+	private static ArchitectureDiagnosticDefinition? ResolveDefinition(string code)
+	{
+		ArchitectureDiagnosticCatalog.TryGet(code, out var result);
 
 		return result;
 	}

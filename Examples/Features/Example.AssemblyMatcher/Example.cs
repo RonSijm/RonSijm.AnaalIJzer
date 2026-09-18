@@ -18,5 +18,5 @@ namespace Example.AssemblyMatcher;
 // Allowed: the assembly-owned service may depend on its repository.
 public sealed class OrderService(OrderRepository repository);
 
-// ARCH004: the repository reverses the configured AssemblyCode -> Repository direction.
+// ARCH_DEP_004: the repository reverses the configured AssemblyCode -> Repository direction.
 public sealed class OrderRepository(OrderService service);

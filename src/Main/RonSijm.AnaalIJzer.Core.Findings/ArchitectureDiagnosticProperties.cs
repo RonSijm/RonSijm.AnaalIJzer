@@ -2,6 +2,8 @@ namespace RonSijm.AnaalIJzer.Core.Findings;
 
 public static class ArchitectureDiagnosticProperties
 {
+	public const string PropertyDiagnosticConcern = "DiagnosticConcern";
+	public const string PropertyDiagnosticReason = "DiagnosticReason";
 	public const string PropertyMatchedSuffix = "MatchedSuffix";
 	public const string PropertyFixSuffix = "FixSuffix";
 	public const string PropertySite = "Site";
@@ -67,6 +69,7 @@ public static class ArchitectureDiagnosticProperties
 	public const string PropertyInheritanceViolationKind = "InheritanceViolationKind";
 	public const string PropertyReturnValueRuleTarget = "ReturnValueRuleTarget";
 	public const string PropertyReturnValueRule = "ReturnValueRule";
+	public const string PropertyReturnValueRuleMode = "ReturnValueRuleMode";
 	public const string PropertyOperationKind = "OperationKind";
 	public const string PropertyOperationDisplayName = "OperationDisplayName";
 	public const string PropertyOperationPolicyRule = "OperationPolicyRule";
@@ -92,4 +95,11 @@ public static class ArchitectureDiagnosticProperties
 	public const string PropertyExceptionOwner = "ExceptionOwner";
 	public const string PropertyExceptionExpiresOn = "ExceptionExpiresOn";
 	public const string PropertyExceptionStatus = "ExceptionStatus";
+	public const string PropertyCallerNamespace = "CallerNamespace";
+	public const string PropertyDependencyNamespace = "DependencyNamespace";
+	public const string PropertyNamespaceHierarchyRoot = "NamespaceHierarchyRoot";
+	public const string PropertyNamespaceHierarchyRelation = "NamespaceHierarchyRelation";
+	public const string PropertyNamespaceHierarchyRuleXmlPath = "NamespaceHierarchyRuleXmlPath";
+	public const string PropertyNamespaceHierarchyRuleXmlLine = "NamespaceHierarchyRuleXmlLine";
+	public const string PropertyNamespaceHierarchyRuleXmlCol = "NamespaceHierarchyRuleXmlCol";
 }

@@ -91,7 +91,7 @@ public partial class App
 	{
 		get
 		{
-			var result = _inspectionFindings.Any(finding => string.Equals(finding.Category, "ARCH017", StringComparison.Ordinal));
+			var result = _inspectionFindings.Any(finding => string.Equals(finding.Code, ArchitecturalDiagnosticIds.ExceptionReviewLifecycle, StringComparison.Ordinal));
 
 			return result;
 		}
@@ -102,7 +102,7 @@ public partial class App
 		get
 		{
 			var result = _inspectionFindings
-				.Where(finding => string.Equals(finding.Category, "ARCH017", StringComparison.Ordinal))
+				.Where(finding => string.Equals(finding.Code, ArchitecturalDiagnosticIds.ExceptionReviewLifecycle, StringComparison.Ordinal))
 				.Where(MatchesInspectionExceptionFilter)
 				.ToImmutableArray();
 

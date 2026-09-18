@@ -15,6 +15,8 @@
         <xs:element name="SolutionTopology" type="SolutionTopologyType" />
         <xs:element name="Operations" type="OperationContractsType" />
         <xs:element name="AssemblyAttributePolicy" type="AssemblyAttributePolicyType" />
+        <xs:element name="ReturnValuePolicy" type="ReturnValuePolicyType" />
+		<xs:element name="NamespaceHierarchyPolicy" type="NamespaceHierarchyPolicyType" />
         <xs:element name="GeneratedCode" type="GeneratedCodeType" />
       </xs:choice>
       <xs:attributeGroup ref="DocumentationAttributes" />
@@ -22,10 +24,10 @@
         <xs:annotation>
           <xs:documentation>
             Comma-separated dependency sites where referenced types must be assigned to a layer.
-            Unrecognized dependencies raise ARCH002. Supported values: Constructor, Method,
+            Unrecognized dependencies raise ARCH_DEP_002. Supported values: Constructor, Method,
             MethodReturn, Field, Property, Local, New, GenericInvocation, GenericArgument,
             Inheritance, InterfaceImplementation, Attribute, StaticMember. When omitted,
-            unknown types do not raise ARCH002.
+            unknown types do not raise ARCH_DEP_002.
           </xs:documentation>
         </xs:annotation>
       </xs:attribute>
@@ -278,13 +280,36 @@
   <xs:complexType name="ReturnValuePolicyType">
     <xs:annotation>
       <xs:documentation>
-        Rejects configured direct expressions returned from methods owned by this layer or a
-        descendant. Each child is a forbidden returned expression matcher; sibling children are
-        alternatives, while attributes on one child are combined. Literal value="null" blocks a
-        direct null return, Literal value="" blocks a direct empty-string return, and Invocation
-        withAttribute="..." blocks a returned method whose target carries that attribute. An
-        expression made safe by a conversion such as ?? a fallback is not a direct returned
-        expression for this policy.
+        Inside Layer, rejects configured direct expressions returned from methods owned by that
+        layer or a descendant. Directly inside ArchitecturalLevels, it is a global policy that
+        applies to every analyzed method, including methods whose containing type is not assigned
+        to a layer. Global policies are evaluated before layer policies, so a layer can add a
+        restriction but cannot relax a global rule. Direct matcher children are forbidden returned
+        expression matchers; sibling children are alternatives, while attributes on one child are
+        combined. An optional AllowedReturn block instead requires a returned expression to match
+        one of its children. Literal value="null" blocks a direct null return, while AllowedReturn
+        with Identifier permits only direct identifier returns. An expression made safe by a
+        conversion such as ?? a fallback is not a direct returned expression for this policy.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="1" maxOccurs="unbounded">
+      <xs:element name="Literal" type="ReturnValueMatcherType" />
+      <xs:element name="Invocation" type="ReturnValueMatcherType" />
+      <xs:element name="New" type="ReturnValueMatcherType" />
+      <xs:element name="Identifier" type="ReturnValueMatcherType" />
+      <xs:element name="MemberAccess" type="ReturnValueMatcherType" />
+      <xs:element name="AllowedReturn" type="AllowedReturnValueType" />
+    </xs:choice>
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="AllowedReturnValueType">
+    <xs:annotation>
+      <xs:documentation>
+        Requires the direct returned expression to match one of the child matchers. Use one
+        AllowedReturn block per ReturnValuePolicy. For example, Identifier requires a bare named
+        expression such as return result; rather than return CreateResult();. Sibling children are
+        alternatives, so Identifier and MemberAccess permit either shape.
       </xs:documentation>
     </xs:annotation>
     <xs:choice minOccurs="1" maxOccurs="unbounded">
@@ -309,6 +334,48 @@
     </xs:annotation>
     <xs:attributeGroup ref="MatchAttributes" />
     <xs:attribute name="value" type="xs:string" />
+  </xs:complexType>
+
+  <xs:complexType name="NamespaceHierarchyPolicyType">
+    <xs:annotation>
+      <xs:documentation>
+        A global source-namespace ownership policy. It applies to resolved type dependencies whose
+        caller and dependency namespaces are both inside rootNamespace, whether or not either type
+        belongs to a configured Layer. A namespace path is compared as dot-separated segments, so
+        Shop.Requests does not match Shop.RequestsArchive. Each BlockedRelation rejects one relative
+        namespace relationship. This policy is evaluated before layer dependency rules, preventing a
+        duplicate layer diagnostic for the same reference.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="1" maxOccurs="unbounded">
+      <xs:element name="BlockedRelation" type="NamespaceHierarchyBlockedRelationType" />
+    </xs:choice>
+    <xs:attribute name="rootNamespace" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>
+          Non-empty dot-separated namespace that defines the ownership tree, for example Shop.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attributeGroup ref="DocumentationAttributes" />
+  </xs:complexType>
+
+  <xs:complexType name="NamespaceHierarchyBlockedRelationType">
+    <xs:annotation>
+      <xs:documentation>
+        Rejects one relationship between caller and dependency namespaces under the containing
+        NamespaceHierarchyPolicy root. relation must be DescendantToAncestor,
+        AncestorToDescendant, SiblingToSibling, or SameNamespace. Optional allowedSites scopes the
+        block to listed dependency sites; blockedSites applies the block everywhere except listed
+        sites. Supported sites are Constructor, Method, MethodReturn, Field, Property, Local, New,
+        GenericInvocation, GenericArgument, Inheritance, InterfaceImplementation, Attribute, and
+        StaticMember. allowedSites and blockedSites are mutually exclusive.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="relation" type="xs:string" use="required" />
+    <xs:attribute name="allowedSites" type="xs:string" />
+    <xs:attribute name="blockedSites" type="xs:string" />
+    <xs:attributeGroup ref="DocumentationAttributes" />
   </xs:complexType>
 
   <xs:complexType name="ForbiddenOperationsType">
@@ -842,7 +909,7 @@
       <xs:documentation>
         Groups one or more explicitly forbidden type patterns. At the root the policy applies
         globally. Inside a Layer it applies only to dependencies classified into that layer or
-        one of its descendants. Depending on a matching type raises ARCH003.
+        one of its descendants. Depending on a matching type raises ARCH_TYPE_001.
       </xs:documentation>
     </xs:annotation>
     <xs:choice minOccurs="0" maxOccurs="unbounded">
@@ -1227,7 +1294,7 @@
   <xs:complexType name="ForbiddenClassType">
     <xs:annotation>
       <xs:documentation>
-        A forbidden type pattern. Any type matching the rule will trigger ARCH003.
+        A forbidden type pattern. Any type matching the rule will trigger ARCH_TYPE_001.
         Add a Fix child element to offer an automatic rename quick-fix in Visual Studio.
         Declaration matcher children work the same way as on a normal Class matcher.
       </xs:documentation>
@@ -1290,7 +1357,7 @@
   <xs:complexType name="ForbiddenNamespaceType">
     <xs:annotation>
       <xs:documentation>
-        A forbidden namespace pattern. Any type whose namespace matches will trigger ARCH003.
+        A forbidden namespace pattern. Any type whose namespace matches will trigger ARCH_TYPE_001.
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>
@@ -1395,7 +1462,7 @@
         InterfaceImplementation, Attribute, StaticMember. The attributes are mutually
         exclusive; if both are present or an unknown value is used, the analyzer ignores the edge.
 
-        Only listed edges are allowed; omitting an edge makes the dependency illegal (ARCH001).
+        Only listed edges are allowed; omitting an edge makes the dependency illegal (ARCH_DEP_001).
       </xs:documentation>
     </xs:annotation>
     <xs:attribute name="from" type="xs:string" use="required">

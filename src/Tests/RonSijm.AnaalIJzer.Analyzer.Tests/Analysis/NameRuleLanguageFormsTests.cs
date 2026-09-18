@@ -34,7 +34,7 @@ public sealed class NameRuleLanguageFormsTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, Config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.NameRuleViolation).Which;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Which;
 		diagnostic.Properties["Site"].Should().Be("Local");
 		diagnostic.Properties["SourceName"].Should().Be("animalId");
 		diagnostic.Properties["TargetName"].Should().Be("fruitId");
@@ -57,7 +57,7 @@ public sealed class NameRuleLanguageFormsTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, Config);
 
-		var nameDiagnostics = diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.NameRuleViolation).ToArray();
+		var nameDiagnostics = diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).ToArray();
 		nameDiagnostics.Should().HaveCount(2);
 		nameDiagnostics.Select(item => item.Properties["SourceName"]).Should().BeEquivalentTo("animalId", "fruitId");
 		nameDiagnostics.Select(item => item.Properties["TargetName"]).Should().BeEquivalentTo("fruitId", "animalId");
@@ -81,7 +81,7 @@ public sealed class NameRuleLanguageFormsTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, Config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.NameRuleViolation).Which;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Which;
 		diagnostic.Properties["SourceName"].Should().Be("animalId");
 		diagnostic.Properties["TargetName"].Should().Be("fruitId");
 	}
@@ -113,7 +113,7 @@ public sealed class NameRuleLanguageFormsTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, Config);
 
-		var nameDiagnostics = diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.NameRuleViolation).ToArray();
+		var nameDiagnostics = diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).ToArray();
 		nameDiagnostics.Should().HaveCount(3);
 		nameDiagnostics.Select(item => item.Properties["Site"]).Should().BeEquivalentTo("Property", "MethodReturn", "MethodReturn");
 		nameDiagnostics.Select(item => item.Properties["TargetName"]).Should().BeEquivalentTo("FruitId", "GetFruitId", "GetOrderId");
@@ -143,7 +143,7 @@ public sealed class NameRuleLanguageFormsTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, Config);
 
-		var nameDiagnostics = diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.NameRuleViolation).ToArray();
+		var nameDiagnostics = diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).ToArray();
 		nameDiagnostics.Should().HaveCount(4);
 		nameDiagnostics.Should().OnlyContain(item => item.Properties["Site"] == "Method");
 		nameDiagnostics.Select(item => item.Properties["SourceName"]).Should().Contain("fruitId", "animalId");

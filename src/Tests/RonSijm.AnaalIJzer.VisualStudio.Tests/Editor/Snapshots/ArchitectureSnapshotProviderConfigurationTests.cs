@@ -17,8 +17,8 @@ public sealed class ArchitectureSnapshotProviderConfigurationTests
 	{
 		var rootDirectory = CreateTemporaryDirectory();
 		var rootConfigPath = Path.Combine(rootDirectory, "Architecture.anl");
-		var projectDirectory = Path.Combine(rootDirectory, "Examples", "Diagnostics", "Example.Arch001.NoEdge");
-		var projectPath = Path.Combine(projectDirectory, "Example.Arch001.NoEdge.csproj");
+		var projectDirectory = Path.Combine(rootDirectory, "Examples", "Diagnostics", "Example.Arch_DEP_001.NoEdge");
+		var projectPath = Path.Combine(projectDirectory, "Example.Arch_DEP_001.NoEdge.csproj");
 		var documentPath = Path.Combine(projectDirectory, "Example.cs");
 		Directory.CreateDirectory(projectDirectory);
 		File.WriteAllText(rootConfigPath, "<ArchitecturalLevels><Layer name=\"Root\"><Class typeName=\"RootType\" /></Layer></ArchitecturalLevels>");
@@ -50,8 +50,8 @@ public sealed class ArchitectureSnapshotProviderConfigurationTests
 	{
 		var rootDirectory = CreateTemporaryDirectory();
 		var rootConfigPath = Path.Combine(rootDirectory, "Architecture.anl");
-		var projectDirectory = Path.Combine(rootDirectory, "Examples", "Diagnostics", "Example.Arch001.NoEdge");
-		var projectPath = Path.Combine(projectDirectory, "Example.Arch001.NoEdge.csproj");
+		var projectDirectory = Path.Combine(rootDirectory, "Examples", "Diagnostics", "Example.Arch_DEP_001.NoEdge");
+		var projectPath = Path.Combine(projectDirectory, "Example.Arch_DEP_001.NoEdge.csproj");
 		var documentPath = Path.Combine(projectDirectory, "Example.cs");
 		Directory.CreateDirectory(projectDirectory);
 		File.WriteAllText(rootConfigPath, "<ArchitecturalLevels><Layer name=\"Root\"><Class typeName=\"RootType\" /></Layer></ArchitecturalLevels>");

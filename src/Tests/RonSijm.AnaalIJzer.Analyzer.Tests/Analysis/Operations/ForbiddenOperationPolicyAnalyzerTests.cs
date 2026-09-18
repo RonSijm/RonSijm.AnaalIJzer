@@ -42,7 +42,7 @@ public sealed class ForbiddenOperationPolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violations = diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenOperationPolicyViolation).ToArray();
+		var violations = diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.OperationNotAllowed).ToArray();
 		violations.Should().HaveCount(2);
 		violations.Should().OnlyContain(item => item.Properties[ArchitecturalDiagnostics.PropertyOperationKind] == "PropertyRead");
 		violations.Should().OnlyContain(item => item.Properties[ArchitecturalDiagnostics.PropertyOperationDisplayName]!.Contains("UtcNow", StringComparison.Ordinal));
@@ -88,7 +88,7 @@ public sealed class ForbiddenOperationPolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violations = diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenOperationPolicyViolation).ToArray();
+		var violations = diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.OperationNotAllowed).ToArray();
 		violations.Should().HaveCount(2);
 		violations.Should().Contain(item => item.Properties[ArchitecturalDiagnostics.PropertyOperationDisplayName]!.Contains("Wait", StringComparison.Ordinal)
 			&& item.Properties[ArchitecturalDiagnostics.PropertySite] == "Method");
@@ -127,7 +127,7 @@ public sealed class ForbiddenOperationPolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenOperationPolicyViolation);
+		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.OperationNotAllowed);
 	}
 
 	[Fact]
@@ -164,7 +164,7 @@ public sealed class ForbiddenOperationPolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenOperationPolicyViolation).Subject;
+		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.OperationNotAllowed).Subject;
 		violation.GetMessage().Should().Contain("layer Application/Kitchen");
 		violation.Properties[ArchitecturalDiagnostics.PropertyViolationReason].Should().Contain("layer 'Application'");
 	}
@@ -208,7 +208,7 @@ public sealed class ForbiddenOperationPolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violations = diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenOperationPolicyViolation).ToArray();
+		var violations = diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.OperationNotAllowed).ToArray();
 		violations.Should().ContainSingle();
 		violations[0].Properties[ArchitecturalDiagnostics.PropertyCallerTypeName].Should().Be("PizzaKitchen");
 	}
@@ -248,7 +248,7 @@ public sealed class ForbiddenOperationPolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violations = diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenOperationPolicyViolation).ToArray();
+		var violations = diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.OperationNotAllowed).ToArray();
 		violations.Should().ContainSingle();
 		violations[0].Properties[ArchitecturalDiagnostics.PropertyOperationDisplayName].Should().Contain("MachineName");
 	}
@@ -273,7 +273,7 @@ public sealed class ForbiddenOperationPolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public sealed class PizzaKitchen { public void Prepare() { } }", config);
 
-		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.InvalidConfiguration);
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenOperationPolicyViolation);
+		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
+		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.OperationNotAllowed);
 	}
 }

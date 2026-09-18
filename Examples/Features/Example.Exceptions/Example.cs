@@ -47,7 +47,7 @@ namespace Example.Exceptions;
 public class LegacyOrderStore { }
 public class OrderHistoryManager(LegacyOrderStore store) { }
 
-// ARCH003: OrderStore matches the forbidden rule and is not exempted.
+// ARCH_TYPE_001: OrderStore matches the forbidden rule and is not exempted.
 // The Legacy exception scopes the carve-out narrowly.
 public class OrderStore { }
 public class OrderManager(OrderStore store) { }

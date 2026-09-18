@@ -10,10 +10,10 @@ public sealed class SiteFilteredDependencyTests
 		foreach (var site in AllSites())
 		foreach (var diagnosticId in new[]
 		         {
-			         ArchitecturalDiagnosticIds.IllegalLevelDependency,
-			         ArchitecturalDiagnosticIds.ForbiddenDependency,
-			         ArchitecturalDiagnosticIds.WrongDirectionDependency,
-			         ArchitecturalDiagnosticIds.SameLayerDependency
+			         ArchitecturalDiagnosticIds.DependencyNotAllowed,
+			         ArchitecturalDiagnosticIds.TypeNotAllowed,
+			         ArchitecturalDiagnosticIds.DependencyReverseDirection,
+			         ArchitecturalDiagnosticIds.DependencyPeerScope
 		         })
 		{
 			yield return [site, diagnosticId];
@@ -45,7 +45,7 @@ public sealed class SiteFilteredDependencyTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency).Which;
+		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Which;
 		diagnostic.Properties["Site"].Should().Be("Constructor");
 		diagnostic.GetMessage().Should().Contain("<AllowedDependency from=\"Controller\" to=\"Repository\"/> is configured, but allowedSites does not include Constructor");
 	}
@@ -75,7 +75,7 @@ public sealed class SiteFilteredDependencyTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency).Which;
+		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Which;
 		diagnostic.Properties["Site"].Should().Be("Local");
 		diagnostic.GetMessage().Should().Contain("<AllowedDependency from=\"Controller\" to=\"Repository\"/> is configured, but blockedSites blocks Local");
 	}
@@ -107,7 +107,7 @@ public sealed class SiteFilteredDependencyTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency).Which;
+		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Which;
 		diagnostic.Properties["Site"].Should().Be("Field");
 	}
 
@@ -129,7 +129,7 @@ public sealed class SiteFilteredDependencyTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency);
+		diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed);
 	}
 
 	[Fact]
@@ -150,7 +150,7 @@ public sealed class SiteFilteredDependencyTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency);
+		diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed);
 	}
 
 	[Fact]
@@ -178,7 +178,7 @@ public sealed class SiteFilteredDependencyTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency).Which;
+		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Which;
 		diagnostic.Properties["Site"].Should().Be("Constructor");
 		diagnostic.GetMessage().Should().Contain("<AllowedDependency from=\"*\" to=\"Repository\"/> is configured, but allowedSites does not include Constructor");
 	}
@@ -208,7 +208,7 @@ public sealed class SiteFilteredDependencyTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency).Which;
+		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Which;
 		diagnostic.Properties["Site"].Should().Be("Local");
 		diagnostic.GetMessage().Should().Contain("<AllowedDependency from=\"Controller\" to=\"*\"/> is configured, but blockedSites blocks Local");
 	}
@@ -231,7 +231,7 @@ public sealed class SiteFilteredDependencyTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.WrongDirectionDependency).Which;
+		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyReverseDirection).Which;
 		diagnostic.Properties["Site"].Should().Be("Constructor");
 	}
 
@@ -259,7 +259,7 @@ public sealed class SiteFilteredDependencyTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency).Which;
+		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Which;
 		diagnostic.Properties["Site"].Should().Be("Local");
 	}
 
@@ -289,7 +289,7 @@ public sealed class SiteFilteredDependencyTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency && d.Properties["Site"] == "Local")
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed && d.Properties["Site"] == "Local")
 			.Should().HaveCount(2);
 	}
 
@@ -324,10 +324,10 @@ public sealed class SiteFilteredDependencyTests
     {
         var result = diagnosticId switch
         {
-            ArchitecturalDiagnosticIds.IllegalLevelDependency => "DependencyRepository",
-            ArchitecturalDiagnosticIds.ForbiddenDependency => "ForbiddenDependency",
-            ArchitecturalDiagnosticIds.WrongDirectionDependency => "DependencyApplication",
-            ArchitecturalDiagnosticIds.SameLayerDependency => "OtherController",
+            ArchitecturalDiagnosticIds.DependencyNotAllowed => "DependencyRepository",
+            ArchitecturalDiagnosticIds.TypeNotAllowed => "ForbiddenDependency",
+            ArchitecturalDiagnosticIds.DependencyReverseDirection => "DependencyApplication",
+            ArchitecturalDiagnosticIds.DependencyPeerScope => "OtherController",
             _ => throw new ArgumentOutOfRangeException(nameof(diagnosticId), diagnosticId, null)
         };
 
@@ -338,26 +338,26 @@ public sealed class SiteFilteredDependencyTests
     {
         var result = diagnosticId switch
         {
-            ArchitecturalDiagnosticIds.IllegalLevelDependency => """
+            ArchitecturalDiagnosticIds.DependencyNotAllowed => """
                                                                  <ArchitecturalLevels>
                                                                      <Layer name="Controller"><Class typeName="CallerController" /></Layer>
                                                                      <Layer name="Repository"><Class typeName="DependencyRepository" /></Layer>
                                                                  </ArchitecturalLevels>
                                                                  """,
-            ArchitecturalDiagnosticIds.ForbiddenDependency => """
+            ArchitecturalDiagnosticIds.TypeNotAllowed => """
                                                               <ArchitecturalLevels>
                                                                   <Layer name="Controller"><Class typeName="CallerController" /></Layer>
                                                                   <Forbidden><Class typeName="ForbiddenDependency" /></Forbidden>
                                                               </ArchitecturalLevels>
                                                               """,
-            ArchitecturalDiagnosticIds.WrongDirectionDependency => """
+            ArchitecturalDiagnosticIds.DependencyReverseDirection => """
                                                                    <ArchitecturalLevels>
                                                                        <Layer name="Controller"><Class typeName="CallerController" /></Layer>
                                                                        <Layer name="Application"><Class typeName="DependencyApplication" /></Layer>
                                                                        <AllowedDependency from="Application" to="Controller" />
                                                                    </ArchitecturalLevels>
                                                                    """,
-            ArchitecturalDiagnosticIds.SameLayerDependency => """
+            ArchitecturalDiagnosticIds.DependencyPeerScope => """
                                                               <ArchitecturalLevels>
                                                                   <Layer name="Controller">
                                                                       <Class typeName="CallerController" />

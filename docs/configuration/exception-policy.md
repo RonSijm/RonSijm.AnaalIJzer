@@ -37,18 +37,18 @@ Supported attributes:
 | `requireReason` | `false` | Require a non-empty `reason` attribute on exception matchers |
 | `requireOwner` | `false` | Require a non-empty `owner` attribute on exception matchers |
 | `requireExpiresOn` | `false` | Require an `expiresOn="yyyy-MM-dd"` attribute on exception matchers |
-| `warnBeforeDays` | `14` | Emit `ARCH017` when an exception expires within this many days |
+| `warnBeforeDays` | `14` | Emit `ARCH_EXC_009` when an exception expires within this many days |
 
 Behavior:
 
-- Missing required metadata reports `ARCH017`.
-- Invalid `expiresOn` reports `ARCH017`.
-- Expired exceptions report `ARCH017` and fail closed.
-- Expiring-soon exceptions report `ARCH017` but remain active.
+- Missing required metadata reports `ARCH_EXC_009`.
+- Invalid `expiresOn` reports `ARCH_EXC_009`.
+- Expired exceptions report `ARCH_EXC_009` and fail closed.
+- Expiring-soon exceptions report `ARCH_EXC_009` but remain active.
 - Stale exceptions are reported by Arse health inspection, not by normal project compilation.
 
 See also:
 
 - [`exceptions.md`](exceptions.md)
-- [`../diagnostics/arch017-exception-review.md`](../diagnostics/arch017-exception-review.md)
+- [`../diagnostics/arch_exc_009-exception-review.md`](../diagnostics/arch_exc_009-exception-review.md)
 - [`../../Examples/Features/Example.ExceptionPolicy/Example.cs`](../../Examples/Features/Example.ExceptionPolicy/Example.cs)

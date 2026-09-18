@@ -25,7 +25,7 @@ public sealed class CycleDependencyCodeFixTests
 	[Fact]
 	public async Task ConfiguredCycle_OffersAUserSelectedBlockOrRemovalForEveryCycleEdge()
 	{
-		var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(Source, Configuration, ArchitecturalDiagnosticIds.CyclicDependencyGraph);
+		var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(Source, Configuration, ArchitecturalDiagnosticIds.ConfigurationCycle);
 
 		titles.Should().Contain("Break configured cycle by blocking 'Ordering' -> 'Inventory'");
 		titles.Should().Contain("Break configured cycle by removing allowed dependency 'Ordering' -> 'Inventory'");
@@ -41,7 +41,7 @@ public sealed class CycleDependencyCodeFixTests
 		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
 			Source,
 			Configuration,
-			ArchitecturalDiagnosticIds.CyclicDependencyGraph,
+			ArchitecturalDiagnosticIds.ConfigurationCycle,
 			"Break configured cycle by blocking 'Ordering' -> 'Inventory'");
 
 		updatedConfig.Should().Contain("<BlockedDependency from=\"Ordering\" to=\"Inventory\" />");
@@ -53,7 +53,7 @@ public sealed class CycleDependencyCodeFixTests
 		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
 			Source,
 			Configuration,
-			ArchitecturalDiagnosticIds.CyclicDependencyGraph,
+			ArchitecturalDiagnosticIds.ConfigurationCycle,
 			"Break configured cycle by removing allowed dependency 'Ordering' -> 'Inventory'");
 
 		updatedConfig.Should().NotContain("<AllowedDependency from=\"Ordering\" to=\"Inventory\" />");
@@ -82,7 +82,7 @@ public sealed class CycleDependencyCodeFixTests
 		var updatedConfiguration = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
 			Source,
 			[("Architecture.anl", rootConfiguration), ("cycle-rules.anl", includedConfiguration)],
-			ArchitecturalDiagnosticIds.CyclicDependencyGraph,
+			ArchitecturalDiagnosticIds.ConfigurationCycle,
 			"Break configured cycle by blocking 'Ordering' -> 'Inventory'",
 			"cycle-rules.anl");
 
@@ -113,7 +113,7 @@ public sealed class CycleDependencyCodeFixTests
 
 		var updatedSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
 			source,
-			ArchitecturalDiagnosticIds.CyclicDependencyGraph,
+			ArchitecturalDiagnosticIds.ConfigurationCycle,
 			"Break configured cycle by blocking 'Ordering' -> 'Inventory'");
 
 		updatedSource.Should().Contain("<BlockedDependency from=\"Ordering\" to=\"Inventory\" />");

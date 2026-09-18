@@ -1,4 +1,5 @@
 using Microsoft.CodeAnalysis.Text;
+using RonSijm.AnaalIJzer.Core.Findings;
 
 namespace RonSijm.AnaalIJzer.Core.Indicators;
 
@@ -24,5 +25,5 @@ public sealed class ArchitectureVisibilityPolicyIndicator(
 	public string? Description { get; } = description;
 	public string ConfigurationPath { get; } = configurationPath;
 	public int ConfigurationLine { get; } = configurationLine;
-	public string DiagnosticId => "ARCH012";
+	public string DiagnosticId => ArchitecturalDiagnosticIds.VisibilityNotAllowed;
 }

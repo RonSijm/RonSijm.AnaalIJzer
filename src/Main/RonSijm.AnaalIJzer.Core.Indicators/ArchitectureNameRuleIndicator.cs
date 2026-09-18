@@ -1,4 +1,5 @@
 using Microsoft.CodeAnalysis.Text;
+using RonSijm.AnaalIJzer.Core.Findings;
 
 namespace RonSijm.AnaalIJzer.Core.Indicators;
 
@@ -24,5 +25,5 @@ public sealed class ArchitectureNameRuleIndicator(
 	public string NormalizedSourceName { get; } = normalizedSourceName;
 	public string NormalizedTargetName { get; } = normalizedTargetName;
 	public string Reason { get; } = reason;
-	public string DiagnosticId => "ARCH008";
+	public string DiagnosticId => ArchitecturalDiagnosticIds.NameShapeMismatch;
 }

@@ -6,12 +6,12 @@ The runnable [`Example.EntityFrameworkCore`](../../Examples/Scenarios/Example.En
 
 | Project | Rule demonstrated | Intended finding |
 | --- | --- | --- |
-| [`ContextBoundary`](../../Examples/Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.ContextBoundary) | A repository owns `DbContext` injection; an Application service only knows the repository. | `ARCH001` for direct Application-to-`DbContext` injection. |
-| [`ContextCreation`](../../Examples/Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.ContextCreation) | A dedicated factory may create and return `DbContext`; Application code may not construct one. | `ARCH001` at `Site=New`. |
-| [`QuerySurface`](../../Examples/Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.QuerySurface) | Application code may immediately project a repository-owned `IQueryable<T>`, but may not retain it in a local. | `ARCH001` at `Site=Local`. |
-| [`ModelConfigurationPlacement`](../../Examples/Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.ModelConfigurationPlacement) | `IEntityTypeConfiguration<T>` implementations belong under `Persistence/Mapping`. | `ARCH015` for a misplaced configuration. |
-| [`MigrationPlacement`](../../Examples/Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.MigrationPlacement) | `Migration` subclasses belong under `Persistence/Migrations`. | `ARCH015` for a misplaced migration. |
-| [`DomainPurity`](../../Examples/Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.DomainPurity) | An optional team policy permits EF mapping annotations in Persistence but blocks them in Domain. | `ARCH001` at `Site=Attribute`. |
+| [`ContextBoundary`](../../Examples/Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.ContextBoundary) | A repository owns `DbContext` injection; an Application service only knows the repository. | `ARCH_DEP_001` for direct Application-to-`DbContext` injection. |
+| [`ContextCreation`](../../Examples/Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.ContextCreation) | A dedicated factory may create and return `DbContext`; Application code may not construct one. | `ARCH_DEP_001` at `Site=New`. |
+| [`QuerySurface`](../../Examples/Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.QuerySurface) | Application code may immediately project a repository-owned `IQueryable<T>`, but may not retain it in a local. | `ARCH_DEP_001` at `Site=Local`. |
+| [`ModelConfigurationPlacement`](../../Examples/Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.ModelConfigurationPlacement) | `IEntityTypeConfiguration<T>` implementations belong under `Persistence/Mapping`. | `ARCH_SRC_007` for a misplaced configuration. |
+| [`MigrationPlacement`](../../Examples/Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.MigrationPlacement) | `Migration` subclasses belong under `Persistence/Migrations`. | `ARCH_SRC_007` for a misplaced migration. |
+| [`DomainPurity`](../../Examples/Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.DomainPurity) | An optional team policy permits EF mapping annotations in Persistence but blocks them in Domain. | `ARCH_DEP_001` at `Site=Attribute`. |
 
 For example, a generic `DbContext` boundary needs no EF-specific analyzer feature:
 

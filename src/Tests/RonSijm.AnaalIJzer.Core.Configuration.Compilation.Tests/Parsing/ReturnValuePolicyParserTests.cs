@@ -37,11 +37,63 @@ public sealed class ReturnValuePolicyParserTests
 		policy.Rules[2].Matcher.Conditions.Should().ContainSingle().Which.Value.Should().Be("CanBeNull");
 	}
 
+	[Fact]
+	public void Parser_ReadsAllowedReturnMatchers()
+	{
+		const string configText = """
+			<ArchitecturalLevels>
+			  <Layer name="Application">
+			    <Namespace startsWith="Shop.Application" />
+			    <ReturnValuePolicy description="Application methods make their decision before returning.">
+			      <AllowedReturn description="Return a named value, not an unfinished expression.">
+			        <Identifier />
+			        <MemberAccess exactName="Value" />
+			      </AllowedReturn>
+			    </ReturnValuePolicy>
+			  </Layer>
+			</ArchitecturalLevels>
+			""";
+
+		var config = ParseConfig(configText);
+
+		var policy = config.Layers.Should().ContainSingle().Which.ReturnValuePolicies.Should().ContainSingle().Subject;
+		policy.Rules.Should().BeEmpty();
+		policy.AllowedRules.Should().HaveCount(2);
+		policy.AllowedRules[0].Matcher.Target.Should().Be(CodeObservationMatchTarget.Identifier);
+		policy.AllowedRules[1].Matcher.Target.Should().Be(CodeObservationMatchTarget.MemberAccess);
+	}
+
+	[Fact]
+	public void Parser_ReadsGlobalReturnValuePolicyWithoutLayers()
+	{
+		const string configText = """
+			<ArchitecturalLevels>
+			  <ReturnValuePolicy description="Every kitchen names its hand-off.">
+			    <AllowedReturn>
+			      <Identifier />
+			    </AllowedReturn>
+			  </ReturnValuePolicy>
+			</ArchitecturalLevels>
+			""";
+
+		var config = ParseConfig(configText);
+
+		config.Layers.Should().BeEmpty();
+		config.HasReturnValuePolicies.Should().BeTrue();
+		var policy = config.GlobalReturnValuePolicies.Should().ContainSingle().Subject;
+		policy.IsGlobal.Should().BeTrue();
+		policy.Description.Should().Be("Every kitchen names its hand-off.");
+		policy.AllowedRules.Should().ContainSingle().Which.Matcher.Target.Should().Be(CodeObservationMatchTarget.Identifier);
+	}
+
 	[Theory]
 	[InlineData("""<ReturnValuePolicy />""")]
 	[InlineData("""<ReturnValuePolicy disallowExplicitNull="true"><Literal value="null" /></ReturnValuePolicy>""")]
 	[InlineData("""<ReturnValuePolicy><Throw /></ReturnValuePolicy>""")]
 	[InlineData("""<ReturnValuePolicy><Literal value="null" unexpected="pizza" /></ReturnValuePolicy>""")]
+	[InlineData("""<ReturnValuePolicy><AllowedReturn /></ReturnValuePolicy>""")]
+	[InlineData("""<ReturnValuePolicy><AllowedReturn><Throw /></AllowedReturn></ReturnValuePolicy>""")]
+	[InlineData("""<ReturnValuePolicy><AllowedReturn><Identifier /></AllowedReturn><AllowedReturn><MemberAccess /></AllowedReturn></ReturnValuePolicy>""")]
 	public void Parser_RejectsInvalidReturnValuePolicy(string policyXml)
 	{
 		var configText = $"""

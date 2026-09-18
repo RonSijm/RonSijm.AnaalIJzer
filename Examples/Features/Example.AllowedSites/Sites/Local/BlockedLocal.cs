@@ -10,7 +10,7 @@ public sealed class BlockedLocalSiteExample
 
     public void Run()
     {
-        // ARCH001: blockedSites="Local" blocks this local variable.
+        // ARCH_DEP_001: blockedSites="Local" blocks this local variable.
         BlockedLocalType blocked = null!;
         _ = blocked;
     }

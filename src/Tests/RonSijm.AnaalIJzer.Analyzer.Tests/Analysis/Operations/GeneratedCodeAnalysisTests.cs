@@ -12,7 +12,7 @@ public sealed class GeneratedCodeAnalysisTests
 	{
 		var diagnostics = await GetDiagnosticsAsync("Generated_Clock_Kitchen.g.cs", CreateConfig());
 
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenOperationPolicyViolation);
+		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.OperationNotAllowed);
 	}
 
 	[Fact]
@@ -25,7 +25,7 @@ public sealed class GeneratedCodeAnalysisTests
 			""";
 		var diagnostics = await GetDiagnosticsAsync("Generated_Clock_Kitchen.g.cs", CreateConfig(generatedCode));
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenOperationPolicyViolation);
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.OperationNotAllowed);
 	}
 
 	[Fact]
@@ -38,7 +38,7 @@ public sealed class GeneratedCodeAnalysisTests
 			""";
 		var diagnostics = await GetDiagnosticsAsync("Generated_Clock_Kitchen.g.cs", CreateConfig(generatedCode));
 
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenOperationPolicyViolation);
+		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.OperationNotAllowed);
 	}
 
 	[Fact]
@@ -46,7 +46,7 @@ public sealed class GeneratedCodeAnalysisTests
 	{
 		var diagnostics = await GetDiagnosticsAsync("PizzaKitchen.cs", CreateConfig());
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenOperationPolicyViolation);
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.OperationNotAllowed);
 	}
 
 	private static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(string sourcePath, string config)

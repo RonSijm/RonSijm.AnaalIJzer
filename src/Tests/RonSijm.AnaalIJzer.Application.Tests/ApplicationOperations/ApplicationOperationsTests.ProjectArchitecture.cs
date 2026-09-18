@@ -93,7 +93,7 @@ public sealed partial class ApplicationOperationsTests
 
 			project.AnalyzerOptions.AdditionalFiles.Should().ContainSingle(file => Path.GetFileName(file.Path) == "AnaalIJzerReferenceManifest.txt")
 				.Which.Path.Should().Contain(Path.Combine("obj", "Release", "net10.0", "AnaalIJzer", "AnaalIJzerReferenceManifest.txt"));
-			analyzerDiagnostics.Should().ContainSingle(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.ProjectReferenceViolation)
+			analyzerDiagnostics.Should().ContainSingle(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed)
 				.Which.GetMessage().Should().Contain("Shop.Infrastructure");
 		}
 		finally

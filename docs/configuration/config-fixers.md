@@ -2,7 +2,7 @@
 
 Configuration fixers are the part of AnaalIJzer that edit the architecture settings instead of editing your C# code.
 
-For a configured cycle (`ARCH007`), the fixer presents the exact allowed edges in the cycle and lets you choose one to block or remove. It does not choose an architectural direction on your behalf. An observed source-code cycle (`ARCH018`) has no configuration fixer: changing a rule would not remove the code dependency that created it.
+For a configured cycle (`ARCH_CONF_006`), the fixer presents the exact allowed edges in the cycle and lets you choose one to block or remove. It does not choose an architectural direction on your behalf. An observed source-code cycle (`ARCH_DEP_006`) has no configuration fixer: changing a rule would not remove the code dependency that created it.
 
 That distinction matters:
 
@@ -60,7 +60,7 @@ In practice:
 
 - adding a single missing site token is `Safe`;
 - adding a new `<AllowedDependency>` is usually `Guided`;
-- flipping one exact reverse `<AllowedDependency>` for `ARCH004` is `Guided`;
+- flipping one exact reverse `<AllowedDependency>` for `ARCH_DEP_004` is `Guided`;
 - widening API-surface policy is `High risk`.
 
 ### Typical flow

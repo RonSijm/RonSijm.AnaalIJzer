@@ -37,6 +37,6 @@ public sealed partial class EditorSnapshotTests
 		indicator.RuleKind.Should().Be("RequireDeclarationNameMatchesType");
 		indicator.SourceName.Should().Be("DoctorId");
 		indicator.TargetName.Should().Be("patientId");
-		content.ToString().Should().Contain("Diagnostic: ARCH008");
+		content.ToString().Should().Contain("Diagnostic: ARCH_NAME_008");
 	}
 }

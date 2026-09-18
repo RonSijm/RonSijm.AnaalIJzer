@@ -90,7 +90,7 @@ public static class ArchitectureQuickInfoContentBuilder
 		var lines = ImmutableArray.CreateBuilder<string>();
 		lines.Add("Site: " + indicator.Site);
 		lines.Add("Caller: " + indicator.CallerTypeName + " (" + indicator.CallerLayerPath + ")");
-		if (indicator.DiagnosticId == ArchitecturalDiagnosticIds.ForbiddenOperationPolicyViolation)
+		if (indicator.DiagnosticId == ArchitecturalDiagnosticIds.OperationNotAllowed)
 		{
 			lines.Add("Operation: " + indicator.DependencyTypeName);
 			lines.Add("Diagnostic: " + indicator.DiagnosticId);
@@ -101,7 +101,7 @@ public static class ArchitectureQuickInfoContentBuilder
 			return forbiddenOperationResult;
 		}
 
-		if (indicator.DiagnosticId == ArchitecturalDiagnosticIds.BehavioralOperationPolicyViolation)
+		if (ArchitecturalDiagnosticIds.IsBehavioralOperationPolicy(indicator.DiagnosticId))
 		{
 			lines.Add("Behavioral policy: " + indicator.DependencyTypeName);
 			lines.Add("Diagnostic: " + indicator.DiagnosticId);
@@ -112,7 +112,7 @@ public static class ArchitectureQuickInfoContentBuilder
 			return behavioralOperationResult;
 		}
 
-		if (indicator.DiagnosticId == ArchitecturalDiagnosticIds.OperationContractViolation)
+		if (ArchitecturalDiagnosticIds.IsOperationContract(indicator.DiagnosticId))
 		{
 			lines.Add("Operation contract: " + indicator.DependencyTypeName);
 			lines.Add("Diagnostic: " + indicator.DiagnosticId);

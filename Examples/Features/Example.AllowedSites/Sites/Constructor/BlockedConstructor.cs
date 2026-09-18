@@ -5,7 +5,7 @@ namespace Example.AllowedSites.Sites.Constructor;
 
 public sealed class BlockedConstructorSiteExample
 {
-    // ARCH001: blockedSites="Constructor" blocks the constructor parameter above.
+    // ARCH_DEP_001: blockedSites="Constructor" blocks the constructor parameter above.
     public BlockedConstructorSiteExample(BlockedConstructorType blocked)
     {
         _ = blocked;

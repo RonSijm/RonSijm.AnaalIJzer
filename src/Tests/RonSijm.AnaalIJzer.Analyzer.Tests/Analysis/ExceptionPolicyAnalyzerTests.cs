@@ -29,7 +29,7 @@ public sealed class ExceptionPolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ExceptionReview).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ExceptionReviewLifecycle).Subject;
 		diagnostic.GetMessage().Should().Contain("missing required owner metadata");
 		diagnostic.Properties[ArchitecturalDiagnostics.PropertyExceptionStatus].Should().Be(nameof(ArchitectureExceptionStatus.Invalid));
 	}
@@ -63,8 +63,8 @@ public sealed class ExceptionPolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.ExceptionReview && item.GetMessage().Contains("has expired on 2026-06-30", StringComparison.Ordinal));
-		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency);
+		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.ExceptionReviewLifecycle && item.GetMessage().Contains("has expired on 2026-06-30", StringComparison.Ordinal));
+		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed);
 	}
 
 	[Fact]
@@ -97,8 +97,8 @@ public sealed class ExceptionPolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.ExceptionReview && item.GetMessage().Contains("expires in 6 days on 2026-08-01", StringComparison.Ordinal));
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency);
+		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.ExceptionReviewLifecycle && item.GetMessage().Contains("expires in 6 days on 2026-08-01", StringComparison.Ordinal));
+		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed);
 	}
 
 	[Fact]
@@ -126,7 +126,7 @@ public sealed class ExceptionPolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ExceptionReview);
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency);
+		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ExceptionReviewLifecycle);
+		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed);
 	}
 }

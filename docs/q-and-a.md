@@ -1,4 +1,4 @@
-﻿## Q/A
+## Q/A
 
 ### Why are `Task` or `Nullable` blocked?
 
@@ -62,6 +62,6 @@ Use a site filter if the framework type should only appear in API shapes:
                    allowedSites="MethodReturn, Property" />
 ```
 
-If the diagnostic is ARCH001, the problem is a missing layer relationship. If the diagnostic is ARCH003, the type matched `<Forbidden>` or failed `<Allowed>`; fix the type policy instead.
+If the diagnostic is ARCH_DEP_001, the problem is a missing layer relationship. If the diagnostic is ARCH_TYPE_001, the type matched `<Forbidden>` or failed `<Allowed>`; fix the type policy instead.
 
 ---

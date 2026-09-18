@@ -60,7 +60,7 @@ public sealed class StructuralDeclarationMatcherTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InheritancePolicyViolation).Subject;
+		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InheritanceNotAllowed).Subject;
 		violation.Properties[ArchitecturalDiagnostics.PropertyDeclaredSymbolName].Should().Be("CreatePizzaRequest");
 		violation.GetMessage().Should().Contain("requires implemented interface IPizzaProvider");
 	}
@@ -139,7 +139,7 @@ public sealed class StructuralDeclarationMatcherTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InheritancePolicyViolation).Subject;
+		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InheritanceNotAllowed).Subject;
 		violation.Properties[ArchitecturalDiagnostics.PropertyDeclaredSymbolName].Should().Be("CrashingPizzaDeliveryService");
 	}
 
@@ -183,7 +183,7 @@ public sealed class StructuralDeclarationMatcherTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InheritancePolicyViolation).Subject;
+		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InheritanceNotAllowed).Subject;
 		violation.Properties[ArchitecturalDiagnostics.PropertyDeclaredSymbolName].Should().Be("ExplosivePizzaCatalog");
 	}
 }

@@ -19,7 +19,8 @@ public enum ApplicationOperationKind
 	MergeConfig,
 	SplitConfig,
 	FormatConfig,
-	ExplainConfig
+	ExplainConfig,
+	MigrateDiagnosticIds
 }
 
 public enum ApplicationOutputKind

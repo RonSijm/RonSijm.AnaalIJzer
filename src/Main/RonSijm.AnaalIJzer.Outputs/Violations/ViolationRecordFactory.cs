@@ -9,27 +9,32 @@ internal static class ViolationRecordFactory
 {
 	internal static ViolationRecord? TryCreate(Diagnostic diagnostic)
 	{
-		if (diagnostic.Id is not (ArchitecturalDiagnosticIds.IllegalLevelDependency
-		    or ArchitecturalDiagnosticIds.UnrecognizedDependency
-		    or ArchitecturalDiagnosticIds.ForbiddenDependency
-		    or ArchitecturalDiagnosticIds.WrongDirectionDependency
-		    or ArchitecturalDiagnosticIds.SameLayerDependency
-		    or ArchitecturalDiagnosticIds.NameRuleViolation
-		    or ArchitecturalDiagnosticIds.ApiSurfaceLeakage
-		    or ArchitecturalDiagnosticIds.ProjectReferenceViolation
-		    or ArchitecturalDiagnosticIds.PackageReferenceViolation
-		    or ArchitecturalDiagnosticIds.VisibilityPolicyViolation
-		    or ArchitecturalDiagnosticIds.ContractPurityViolation
-		    or ArchitecturalDiagnosticIds.InheritancePolicyViolation
-		    or ArchitecturalDiagnosticIds.ReturnValuePolicyViolation
-		    or ArchitecturalDiagnosticIds.ForbiddenOperationPolicyViolation
-		    or ArchitecturalDiagnosticIds.BehavioralOperationPolicyViolation
-		    or ArchitecturalDiagnosticIds.OperationContractViolation
-		    or ArchitecturalDiagnosticIds.AssemblyAttributePolicyViolation
-		    or ArchitecturalDiagnosticIds.ForbiddenTransitiveExposure
-		    or ArchitecturalDiagnosticIds.SourceLocationViolation
-		    or ArchitecturalDiagnosticIds.BoundaryEntryPointViolation
-		    or ArchitecturalDiagnosticIds.ObservedDependencyCycle))
+		if (diagnostic.Id is not (ArchitecturalDiagnosticIds.DependencyNotAllowed
+		    or ArchitecturalDiagnosticIds.DependencyRequiredMissing
+		    or ArchitecturalDiagnosticIds.TypeNotAllowed
+		    or ArchitecturalDiagnosticIds.DependencyReverseDirection
+		    or ArchitecturalDiagnosticIds.DependencyPeerScope
+		    or ArchitecturalDiagnosticIds.NameShapeMismatch
+		    or ArchitecturalDiagnosticIds.ApiExposureNotAllowed
+		    or ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed
+		    or ArchitecturalDiagnosticIds.PackageReferenceNotAllowed
+		    or ArchitecturalDiagnosticIds.VisibilityNotAllowed
+		    or ArchitecturalDiagnosticIds.ContractShapeMismatch
+		    or ArchitecturalDiagnosticIds.InheritanceNotAllowed
+		    or ArchitecturalDiagnosticIds.ReturnNotAllowed
+		    or ArchitecturalDiagnosticIds.OperationNotAllowed
+		    or ArchitecturalDiagnosticIds.OperationRequiredMissing
+		    or ArchitecturalDiagnosticIds.OperationCardinality
+		    or ArchitecturalDiagnosticIds.OperationOrdering
+		    or ArchitecturalDiagnosticIds.OperationContractNotAllowed
+		    or ArchitecturalDiagnosticIds.OperationContractRequiredMissing
+		    or ArchitecturalDiagnosticIds.OperationContractShapeMismatch
+		    or ArchitecturalDiagnosticIds.AssemblyAttributeNotAllowed
+		    or ArchitecturalDiagnosticIds.NamespaceBoundaryPlacement
+		    or ArchitecturalDiagnosticIds.ApiTransitiveExposure
+		    or ArchitecturalDiagnosticIds.SourceBoundaryPlacement
+		    or ArchitecturalDiagnosticIds.BoundaryEntryPlacement
+		    or ArchitecturalDiagnosticIds.DependencyCycle))
 		{
 			return null;
 		}
@@ -39,43 +44,50 @@ internal static class ViolationRecordFactory
 		var callerLayerName = Get(ArchitecturalDiagnostics.PropertyCallerLayerName) ?? "UnknownLayer";
 		var dependencyTypeName = diagnostic.Id switch
 		{
-			ArchitecturalDiagnosticIds.NameRuleViolation => Get(ArchitecturalDiagnostics.PropertySourceName) ?? "UnknownSource",
-			ArchitecturalDiagnosticIds.VisibilityPolicyViolation => Get(ArchitecturalDiagnostics.PropertyDeclaredSymbolName) ?? "UnknownDeclaration",
-			ArchitecturalDiagnosticIds.ContractPurityViolation => Get(ArchitecturalDiagnostics.PropertyDeclaredSymbolName) ?? "UnknownDeclaration",
-			ArchitecturalDiagnosticIds.InheritancePolicyViolation => Get(ArchitecturalDiagnostics.PropertyDeclaredSymbolName) ?? "UnknownDeclaration",
-			ArchitecturalDiagnosticIds.ReturnValuePolicyViolation => Get(ArchitecturalDiagnostics.PropertyDeclaredSymbolName) ?? "UnknownMethod",
-			ArchitecturalDiagnosticIds.ForbiddenOperationPolicyViolation => Get(ArchitecturalDiagnostics.PropertyOperationDisplayName) ?? "UnknownOperation",
-			ArchitecturalDiagnosticIds.BehavioralOperationPolicyViolation => Get(ArchitecturalDiagnostics.PropertyOperationDisplayName) ?? Get(ArchitecturalDiagnostics.PropertyOperationPolicyRule) ?? "UnknownOperationPolicy",
-			ArchitecturalDiagnosticIds.OperationContractViolation => Get(ArchitecturalDiagnostics.PropertyOperationContractName) ?? "UnknownOperationContract",
-			ArchitecturalDiagnosticIds.AssemblyAttributePolicyViolation => Get(ArchitecturalDiagnostics.PropertyAssemblyAttributeTypeName) ?? "UnknownAssemblyAttribute",
-			ArchitecturalDiagnosticIds.ProjectReferenceViolation => Get(ArchitecturalDiagnostics.PropertyTargetProjectName) ?? "UnknownTargetProject",
-			ArchitecturalDiagnosticIds.PackageReferenceViolation => Get(ArchitecturalDiagnostics.PropertyPackageId) ?? "UnknownPackage",
-			ArchitecturalDiagnosticIds.ObservedDependencyCycle => Get(ArchitecturalDiagnostics.PropertyCycleLayers) ?? "UnknownCycle",
+			ArchitecturalDiagnosticIds.NameShapeMismatch => Get(ArchitecturalDiagnostics.PropertySourceName) ?? "UnknownSource",
+			ArchitecturalDiagnosticIds.VisibilityNotAllowed => Get(ArchitecturalDiagnostics.PropertyDeclaredSymbolName) ?? "UnknownDeclaration",
+			ArchitecturalDiagnosticIds.ContractShapeMismatch => Get(ArchitecturalDiagnostics.PropertyDeclaredSymbolName) ?? "UnknownDeclaration",
+			ArchitecturalDiagnosticIds.InheritanceNotAllowed => Get(ArchitecturalDiagnostics.PropertyDeclaredSymbolName) ?? "UnknownDeclaration",
+			ArchitecturalDiagnosticIds.ReturnNotAllowed => Get(ArchitecturalDiagnostics.PropertyDeclaredSymbolName) ?? "UnknownMethod",
+			ArchitecturalDiagnosticIds.OperationNotAllowed => Get(ArchitecturalDiagnostics.PropertyOperationDisplayName) ?? "UnknownOperation",
+			ArchitecturalDiagnosticIds.OperationRequiredMissing or ArchitecturalDiagnosticIds.OperationCardinality or ArchitecturalDiagnosticIds.OperationOrdering => Get(ArchitecturalDiagnostics.PropertyOperationDisplayName) ?? Get(ArchitecturalDiagnostics.PropertyOperationPolicyRule) ?? "UnknownOperationPolicy",
+			ArchitecturalDiagnosticIds.OperationContractNotAllowed or ArchitecturalDiagnosticIds.OperationContractRequiredMissing or ArchitecturalDiagnosticIds.OperationContractShapeMismatch => Get(ArchitecturalDiagnostics.PropertyOperationContractName) ?? "UnknownOperationContract",
+			ArchitecturalDiagnosticIds.AssemblyAttributeNotAllowed => Get(ArchitecturalDiagnostics.PropertyAssemblyAttributeTypeName) ?? "UnknownAssemblyAttribute",
+			ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed => Get(ArchitecturalDiagnostics.PropertyTargetProjectName) ?? "UnknownTargetProject",
+			ArchitecturalDiagnosticIds.PackageReferenceNotAllowed => Get(ArchitecturalDiagnostics.PropertyPackageId) ?? "UnknownPackage",
+			ArchitecturalDiagnosticIds.DependencyCycle => Get(ArchitecturalDiagnostics.PropertyCycleLayers) ?? "UnknownCycle",
 			_ => Get(ArchitecturalDiagnostics.PropertyDepTypeName) ?? "UnknownDependency"
 		};
-		var dependencyLayerName = diagnostic.Id == ArchitecturalDiagnosticIds.NameRuleViolation
+		var dependencyLayerName = diagnostic.Id == ArchitecturalDiagnosticIds.NameShapeMismatch
 			? Get(ArchitecturalDiagnostics.PropertyTargetName) ?? "UnknownTarget"
-			: diagnostic.Id == ArchitecturalDiagnosticIds.ProjectReferenceViolation
+			: diagnostic.Id == ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed
 				? Get(ArchitecturalDiagnostics.PropertyTargetProjectGroup) ?? string.Empty
-			: diagnostic.Id == ArchitecturalDiagnosticIds.PackageReferenceViolation
+			: diagnostic.Id == ArchitecturalDiagnosticIds.PackageReferenceNotAllowed
 				? Get(ArchitecturalDiagnostics.PropertyPackageVersion) ?? string.Empty
-			: diagnostic.Id == ArchitecturalDiagnosticIds.AssemblyAttributePolicyViolation
+			: diagnostic.Id == ArchitecturalDiagnosticIds.AssemblyAttributeNotAllowed
 				? Get(ArchitecturalDiagnostics.PropertyAssemblyAttributePolicyRule) ?? string.Empty
+			: diagnostic.Id == ArchitecturalDiagnosticIds.NamespaceBoundaryPlacement
+				? Get(ArchitecturalDiagnostics.PropertyDependencyNamespace) ?? string.Empty
 			: Get(ArchitecturalDiagnostics.PropertyDepLayerName) ?? string.Empty;
-		var violationReason = diagnostic.Id == ArchitecturalDiagnosticIds.ObservedDependencyCycle
+		var violationReason = diagnostic.Id == ArchitecturalDiagnosticIds.DependencyCycle
 			? diagnostic.GetMessage().Replace("Observed architectural dependency cycle: ", string.Empty)
 			: Get(ArchitecturalDiagnostics.PropertyViolationReason) ?? diagnostic.GetMessage();
 		var comment = Get(ArchitecturalDiagnostics.PropertyComment);
-		if (diagnostic.Id == ArchitecturalDiagnosticIds.ProjectReferenceViolation)
+		if (diagnostic.Id == ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed)
 		{
 			callerTypeName = Get(ArchitecturalDiagnostics.PropertySourceProjectName) ?? "UnknownSourceProject";
 			callerLayerName = Get(ArchitecturalDiagnostics.PropertySourceProjectGroup) ?? "UnknownProjectGroup";
 		}
 
-		if (diagnostic.Id == ArchitecturalDiagnosticIds.PackageReferenceViolation)
+		if (diagnostic.Id == ArchitecturalDiagnosticIds.PackageReferenceNotAllowed)
 		{
 			callerTypeName = Get(ArchitecturalDiagnostics.PropertySourceProjectName) ?? "UnknownSourceProject";
 			callerLayerName = Get(ArchitecturalDiagnostics.PropertySourceProjectGroup) ?? "UnknownProjectGroup";
+		}
+
+		if (diagnostic.Id == ArchitecturalDiagnosticIds.NamespaceBoundaryPlacement)
+		{
+			callerLayerName = Get(ArchitecturalDiagnostics.PropertyCallerNamespace) ?? "UnknownNamespace";
 		}
 
 		var result = new ViolationRecord(
@@ -86,15 +98,17 @@ internal static class ViolationRecordFactory
 			dependencyLayerName,
 			violationReason,
 			string.IsNullOrWhiteSpace(comment) ? null : comment,
-			diagnostic.Id is ArchitecturalDiagnosticIds.ApiSurfaceLeakage or ArchitecturalDiagnosticIds.ForbiddenTransitiveExposure
+			diagnostic.Id is ArchitecturalDiagnosticIds.ApiExposureNotAllowed or ArchitecturalDiagnosticIds.ApiTransitiveExposure
 				? Get(ArchitecturalDiagnostics.PropertySite)
-			: diagnostic.Id == ArchitecturalDiagnosticIds.ContractPurityViolation
+			: diagnostic.Id == ArchitecturalDiagnosticIds.NamespaceBoundaryPlacement
+				? Get(ArchitecturalDiagnostics.PropertySite)
+			: diagnostic.Id == ArchitecturalDiagnosticIds.ContractShapeMismatch
 					? Get(ArchitecturalDiagnostics.PropertyContractViolationKind)
-					: diagnostic.Id == ArchitecturalDiagnosticIds.ReturnValuePolicyViolation
+					: diagnostic.Id == ArchitecturalDiagnosticIds.ReturnNotAllowed
 						? Get(ArchitecturalDiagnostics.PropertyReturnValueRuleTarget)
-					: diagnostic.Id is ArchitecturalDiagnosticIds.ForbiddenOperationPolicyViolation or ArchitecturalDiagnosticIds.BehavioralOperationPolicyViolation
+					: diagnostic.Id == ArchitecturalDiagnosticIds.OperationNotAllowed || ArchitecturalDiagnosticIds.IsBehavioralOperationPolicy(diagnostic.Id)
 						? Get(ArchitecturalDiagnostics.PropertyOperationKind)
-						: diagnostic.Id == ArchitecturalDiagnosticIds.OperationContractViolation
+						: ArchitecturalDiagnosticIds.IsOperationContract(diagnostic.Id)
 							? Get(ArchitecturalDiagnostics.PropertyOperationContractViolationKind)
 						: Get(ArchitecturalDiagnostics.PropertyDeclarationTarget),
 			Get(ArchitecturalDiagnostics.PropertyDeclaredAccessibility),

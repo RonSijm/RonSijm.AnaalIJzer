@@ -134,6 +134,70 @@ public sealed class AnaaltomyCommandLineTests
 	}
 
 	[Fact]
+	public async Task RunAsync_ExportWritesMarkdownSummary()
+	{
+		var directoryPath = Path.Combine(Path.GetTempPath(), "Anaaltomy", Guid.NewGuid().ToString("N"));
+		Directory.CreateDirectory(directoryPath);
+		try
+		{
+			var databasePath = Path.Combine(directoryPath, "statistics.db");
+			var outputPath = Path.Combine(directoryPath, "statistics.md");
+			await PersistGroupedScanAsync(databasePath);
+			using var output = new StringWriter();
+			using var error = new StringWriter();
+
+			var exitCode = await AnaaltomyCommandLine.RunAsync(["export", "--database", databasePath, "--format", "markdown", "--output", outputPath], output, error, TestContext.Current.CancellationToken);
+
+			exitCode.Should().Be((int)AnaaltomyExitCode.Success);
+			File.Exists(outputPath).Should().BeTrue();
+			File.ReadAllText(outputPath).Should().Contain("Grouped Measurements");
+			output.ToString().Should().Contain("Exported statistics");
+			error.ToString().Should().BeEmpty();
+		}
+		finally
+		{
+			if (Directory.Exists(directoryPath))
+			{
+				Directory.Delete(directoryPath, true);
+			}
+		}
+	}
+
+	[Theory]
+	[InlineData("csv", "Measurement.csv")]
+	[InlineData("markdown", "Measurement.md")]
+	[InlineData("json", "Measurement.json")]
+	public async Task RunAsync_ExportDatabaseWritesDatabaseTables(string format, string expectedFileName)
+	{
+		var directoryPath = Path.Combine(Path.GetTempPath(), "Anaaltomy", Guid.NewGuid().ToString("N"));
+		Directory.CreateDirectory(directoryPath);
+		try
+		{
+			var databasePath = Path.Combine(directoryPath, "statistics.db");
+			var outputDirectoryPath = Path.Combine(directoryPath, format);
+			await PersistGroupedScanAsync(databasePath);
+			using var output = new StringWriter();
+			using var error = new StringWriter();
+
+			var exitCode = await AnaaltomyCommandLine.RunAsync(["export-database", "--database", databasePath, "--format", format, "--output-directory", outputDirectoryPath], output, error, TestContext.Current.CancellationToken);
+
+			exitCode.Should().Be((int)AnaaltomyExitCode.Success, error.ToString());
+			File.Exists(Path.Combine(outputDirectoryPath, expectedFileName)).Should().BeTrue();
+			File.Exists(Path.Combine(outputDirectoryPath, expectedFileName.Replace("Measurement", "GroupedMeasurement", StringComparison.Ordinal))).Should().BeTrue();
+			File.ReadAllText(Path.Combine(outputDirectoryPath, expectedFileName)).Should().Contain("Public");
+			output.ToString().Should().Contain("Exported database");
+			error.ToString().Should().BeEmpty();
+		}
+		finally
+		{
+			if (Directory.Exists(directoryPath))
+			{
+				Directory.Delete(directoryPath, true);
+			}
+		}
+	}
+
+	[Fact]
 	public async Task RunAsync_ChartTrendRequiresDimensionAndBucket()
 	{
 		using var output = new StringWriter();
@@ -200,6 +264,24 @@ public sealed class AnaaltomyCommandLineTests
 		var secondCommit = new StatisticsGitCommit("bbb22222", "tree-b", DateTimeOffset.Parse("2026-01-02T00:00:00Z"), DateTimeOffset.Parse("2026-01-02T00:00:00Z"), [firstCommit.Sha]);
 		await database.PersistScanAsync(new StatisticsPersistRequest(definition, CreateHistorySnapshot(2), repository, firstCommit), TestContext.Current.CancellationToken);
 		await database.PersistScanAsync(new StatisticsPersistRequest(definition, CreateHistorySnapshot(3), repository, secondCommit), TestContext.Current.CancellationToken);
+	}
+
+	private static async Task PersistGroupedScanAsync(string databasePath)
+	{
+		var database = new StatisticsSqliteDatabase(databasePath);
+		var definition = new StatisticsScanDefinition("Release", "net10.0", false, "1");
+		var identity = new StatisticsProjectIdentity("Pizza.csproj", "Pizza", "Pizza", "net10.0");
+		var project = new StatisticsProjectSnapshot(
+			identity,
+			[new StatisticsMeasurement(StatisticsDimension.MemberAccessibility, "Public", 3)],
+			1,
+			1,
+			3,
+			0,
+			0,
+			[new StatisticsGroupedMeasurement(StatisticsDimension.MemberAccessibility, "Public", StatisticsDimension.MemberKind, "Method", 3)]);
+		var snapshot = new StatisticsScanSnapshot("D:\\repo\\Pizza", StatisticsScanStatus.Complete, [project], []);
+		await database.PersistScanAsync(new StatisticsPersistRequest(definition, snapshot), TestContext.Current.CancellationToken);
 	}
 
 	private static StatisticsScanSnapshot CreateHistorySnapshot(long classCount)

@@ -59,6 +59,12 @@ public static partial class ArchitectureEditorSnapshotService
 	private static ArchitectureDependencySiteIndicator CreateOperationContractIndicator(IMethodSymbol method, MethodDeclarationSyntax declaration, string layerPath, OperationContractEvaluation evaluation)
 	{
 		var definition = evaluation.Definition;
+		var diagnosticId = evaluation.ViolationKind switch
+		{
+			OperationContractViolationKind.OwnerOutsideAllowedLayer or OperationContractViolationKind.EntryPointOutsideAllowedLayer => ArchitecturalDiagnosticIds.OperationContractNotAllowed,
+			OperationContractViolationKind.OwnerInvalidResponse or OperationContractViolationKind.EntryPointInvalidResponse => ArchitecturalDiagnosticIds.OperationContractShapeMismatch,
+			_ => ArchitecturalDiagnosticIds.OperationContractRequiredMissing
+		};
 		var tooltip = DependencySites.Method
 			+ ": "
 			+ method.ContainingType.Name
@@ -77,7 +83,7 @@ public static partial class ArchitectureEditorSnapshotService
 			null,
 			0,
 			ArchitectureDependencySiteStatus.TypePolicyViolation,
-			ArchitecturalDiagnosticIds.OperationContractViolation,
+			diagnosticId,
 			tooltip,
 			evaluation.Reason);
 

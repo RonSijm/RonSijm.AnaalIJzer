@@ -44,6 +44,12 @@ public sealed class ExamplesIntegrationTests
 			.Select(element => element.Attribute("Projects")?.Value)
 			.Where(value => !string.IsNullOrWhiteSpace(value))
 			.ToArray();
+		var analyzerIncludes = document
+			.Descendants()
+			.Where(element => string.Equals(element.Name.LocalName, "Analyzer", StringComparison.Ordinal))
+			.Select(element => element.Attribute("Include")?.Value)
+			.Where(value => !string.IsNullOrWhiteSpace(value))
+			.ToArray();
 		var enableAnalyzerOnDebug = document
 			.Descendants()
 			.FirstOrDefault(element => string.Equals(element.Name.LocalName, "EnableAnalyzerOnDebug", StringComparison.Ordinal))
@@ -60,6 +66,8 @@ public sealed class ExamplesIntegrationTests
 		projectReferences.Should().BeEmpty("example projects should not inherit analyzer implementation projects as visible project dependencies");
 		analyzerBuildTargets.Should().Contain("$(AnaalIJzerEngineProjectPath)",
 			"the shared example props should build the Engine analyzer entry point via the centralized path property before attaching its analyzer DLLs");
+		analyzerIncludes.Should().Contain("$([System.IO.Path]::GetDirectoryName('$(AnaalIJzerEngineProjectPath)'))\\bin\\$(Configuration)\\netstandard2.0\\RonSijm.AnaalIJzer*.dll",
+			"the analyzer closure must be attached after MSBuild has selected the project Configuration, so C# can load the Engine and its sibling runtime assemblies");
 		additionalFiles.Should().Contain("$(MSBuildProjectDirectory)\\**\\*.anl",
 			"example projects should be able to keep drop-in rule packs in project-local subfolders");
 	}
@@ -136,7 +144,7 @@ public sealed class ExamplesIntegrationTests
 	public async Task InlineExampleProjects_ProvideEditorLayerSnapshots()
 	{
 		var context = ExampleRepositoryContext.Discover();
-		var projectPath = context.GetExampleProjectPath("Diagnostics/Example.Arch001.NoEdge");
+		var projectPath = context.GetExampleProjectPath("Diagnostics/DEP/Example.Arch_DEP_001.NoEdge");
 
 		using var host = new ExampleProjectAnalysisHost();
 		var snapshot = await host.CreateEditorSnapshotAsync(projectPath, "Example.cs", TestContext.Current.CancellationToken);
@@ -145,7 +153,7 @@ public sealed class ExamplesIntegrationTests
 		snapshot.HasConfigurationIssues.Should().BeFalse();
 		snapshot.UnclassifiedTypeIndicators.Should().BeEmpty();
 		snapshot.GraphSnapshot.ConfigurationSource.Kind.Should().Be(ArchitectureConfigurationSourceKind.InlineAssemblyMetadata);
-		snapshot.GraphSnapshot.ConfigurationSource.Path.Should().EndWith(Path.Combine("Diagnostics", "Example.Arch001.NoEdge", "Example.cs"));
+		snapshot.GraphSnapshot.ConfigurationSource.Path.Should().EndWith(Path.Combine("Diagnostics", "DEP", "Example.Arch_DEP_001.NoEdge", "Example.cs"));
 		snapshot.LayerIndicators.Should().Contain(indicator => indicator.TypeName == "HungryCustomer" && indicator.LayerPath == "Customer");
 		snapshot.LayerIndicators.Should().Contain(indicator => indicator.TypeName == "TableWaiter" && indicator.LayerPath == "Waiter");
 		snapshot.LayerIndicators.Should().Contain(indicator => indicator.TypeName == "IIngredientPantry" && indicator.LayerPath == "Pantry");
@@ -210,6 +218,29 @@ public sealed class ExamplesIntegrationTests
 			.ToArray();
 
 		undocumented.Should().BeEmpty("every build-verified example should be discoverable from docs or the examples index");
+	}
+
+	[Fact]
+	public void DiagnosticExampleProjects_AreGroupedByDiagnosticConcern()
+	{
+		var context = ExampleRepositoryContext.Discover();
+		var invalidPaths = context.FindAllExampleProjectPaths()
+			.Select(projectPath => Path.GetRelativePath(context.ExamplesRoot, Path.GetDirectoryName(projectPath)!).Replace('\\', '/'))
+			.Where(relativePath => relativePath.StartsWith("Diagnostics/", StringComparison.Ordinal))
+			.Where(relativePath => !IsGroupedByDiagnosticConcern(relativePath))
+			.OrderBy(relativePath => relativePath, StringComparer.Ordinal)
+			.ToArray();
+
+		invalidPaths.Should().BeEmpty("diagnostic examples should use Diagnostics/<CONCERN>/Example.Arch_<CONCERN>_<REASON>.<CaseName>");
+	}
+
+	private static bool IsGroupedByDiagnosticConcern(string relativePath)
+	{
+		var segments = relativePath.Split('/');
+		var result = segments.Length == 3
+			&& segments[2].StartsWith($"Example.Arch_{segments[1]}_", StringComparison.Ordinal);
+
+		return result;
 	}
 
 	private static string GetDocumentationSubject(string relativeProjectPath)

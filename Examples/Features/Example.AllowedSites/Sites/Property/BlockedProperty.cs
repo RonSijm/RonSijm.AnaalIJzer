@@ -11,6 +11,6 @@ public sealed class BlockedPropertySiteExample
         _ = allowed;
     }
 
-    // ARCH001: blockedSites="Property" blocks this property.
+    // ARCH_DEP_001: blockedSites="Property" blocks this property.
     public BlockedPropertyType Blocked { get; set; } = null!;
 }

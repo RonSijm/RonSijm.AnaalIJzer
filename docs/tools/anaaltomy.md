@@ -17,6 +17,14 @@ anaaltomy --help
 
 The global command is `anaaltomy`.
 
+To build the tool and its NuGet package locally from this repository, run:
+
+```cmd
+build\Scripts\Anaaltomy\build-anaaltomy.bat
+```
+
+The compiled tool is written to `build\Artifacts\Anaaltomy`. The global-tool packages are written to `build\Artifacts\Anaaltomy\Packages`, ready for local installation or manual upload to NuGet.org.
+
 ## Scan The Current Tree
 
 Choose exactly one input shape and an explicit SQLite database path. A sensible database location is under `build\Artifacts`, rather than beside source files.
@@ -68,6 +76,10 @@ anaaltomy compare --database .\build\Artifacts\statistics.db --from v0.2.0 --to 
 anaaltomy commits --database .\build\Artifacts\statistics.db --dimension TypeKind --bucket Record
 anaaltomy export --database .\build\Artifacts\statistics.db --format json --output .\build\Artifacts\statistics.json
 anaaltomy export --database .\build\Artifacts\statistics.db --format csv --output .\build\Artifacts\statistics.csv
+anaaltomy export --database .\build\Artifacts\statistics.db --format markdown --output .\build\Artifacts\statistics.md
+anaaltomy export-database --database .\build\Artifacts\statistics.db --format json --output-directory .\build\Artifacts\statistics-json
+anaaltomy export-database --database .\build\Artifacts\statistics.db --format csv --output-directory .\build\Artifacts\statistics-csv
+anaaltomy export-database --database .\build\Artifacts\statistics.db --format markdown --output-directory .\build\Artifacts\statistics-md
 anaaltomy chart --database .\build\Artifacts\statistics.db --output-directory .\build\Artifacts\charts
 anaaltomy chart --database .\build\Artifacts\statistics.db --output-directory .\build\Artifacts\charts --dimension DependencySite
 anaaltomy chart --database .\build\Artifacts\statistics.db --output-directory .\build\Artifacts\charts --group --dimension MemberAccessibility --group-by MemberKind
@@ -75,6 +87,8 @@ anaaltomy chart --database .\build\Artifacts\statistics.db --output-directory .\
 ```
 
 `trend` lists the stored value for one dimension/bucket over commit time. `commits` filters that stream to commits where the stored count changed. `compare` prints the bucket-by-bucket delta between two stored commit scans. These history queries use the most recently completed repository/scan-definition history in the database, so measurements collected with different compiler options are never silently combined.
+
+`export` writes the latest summary as JSON, CSV, or Markdown. `export-database` materializes the full SQLite-shaped store as one file per table: `SchemaVersion`, `Repository`, `GitCommit`, `GitCommitParent`, `ScanDefinition`, `CommitScan`, `ProjectScan`, `Measurement`, `GroupedMeasurement`, and `ScanFailure`. SQLite remains the canonical source of truth; these files are portable snapshots for reporting, inspection, or downstream tooling.
 
 `chart` creates deterministic PNG reports. Without `--trend`, it creates a breakdown from the latest scan; without `--dimension`, it writes one horizontal bar chart for every populated measurement dimension: type kinds, dependency sites, type accessibility, member accessibility, and member kinds. Each breakdown title names its scanned project, solution, or folder, such as `Anaaltomy Dependency Site breakdown of 'Azure.Storage.Blobs'`. Add `--group` to render grouped breakdowns from the latest scan, such as member accessibility grouped by member kind. Use `--group-by <dimension>` to request an explicit grouping dimension. Use `--trend --dimension <dimension> --bucket <bucket>` to render a line chart across the stored Git-history points for one measurement. The SQLite database remains the source of truth; PNG files are portable report artifacts.
 

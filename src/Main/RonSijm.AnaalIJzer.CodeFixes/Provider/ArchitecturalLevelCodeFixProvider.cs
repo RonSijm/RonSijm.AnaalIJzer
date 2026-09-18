@@ -13,22 +13,22 @@ public sealed class ArchitecturalLevelCodeFixProvider : CodeFixProvider
 {
 	public override ImmutableArray<string> FixableDiagnosticIds =>
 	[
-		ArchitecturalDiagnosticIds.IllegalLevelDependency,
-		ArchitecturalDiagnosticIds.UnrecognizedDependency,
-		ArchitecturalDiagnosticIds.NameRuleViolation,
-		ArchitecturalDiagnosticIds.ForbiddenDependency,
-		ArchitecturalDiagnosticIds.WrongDirectionDependency,
-		ArchitecturalDiagnosticIds.SameLayerDependency,
-		ArchitecturalDiagnosticIds.ApiSurfaceLeakage,
-		ArchitecturalDiagnosticIds.ProjectReferenceViolation,
-		ArchitecturalDiagnosticIds.PackageReferenceViolation,
-		ArchitecturalDiagnosticIds.VisibilityPolicyViolation,
-		ArchitecturalDiagnosticIds.ContractPurityViolation,
-		ArchitecturalDiagnosticIds.ForbiddenTransitiveExposure,
-		ArchitecturalDiagnosticIds.InheritancePolicyViolation,
-		ArchitecturalDiagnosticIds.SourceLocationViolation,
-		ArchitecturalDiagnosticIds.BoundaryEntryPointViolation,
-		ArchitecturalDiagnosticIds.CyclicDependencyGraph,
+		ArchitecturalDiagnosticIds.DependencyNotAllowed,
+		ArchitecturalDiagnosticIds.DependencyRequiredMissing,
+		ArchitecturalDiagnosticIds.NameShapeMismatch,
+		ArchitecturalDiagnosticIds.TypeNotAllowed,
+		ArchitecturalDiagnosticIds.DependencyReverseDirection,
+		ArchitecturalDiagnosticIds.DependencyPeerScope,
+		ArchitecturalDiagnosticIds.ApiExposureNotAllowed,
+		ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed,
+		ArchitecturalDiagnosticIds.PackageReferenceNotAllowed,
+		ArchitecturalDiagnosticIds.VisibilityNotAllowed,
+		ArchitecturalDiagnosticIds.ContractShapeMismatch,
+		ArchitecturalDiagnosticIds.ApiTransitiveExposure,
+		ArchitecturalDiagnosticIds.InheritanceNotAllowed,
+		ArchitecturalDiagnosticIds.SourceBoundaryPlacement,
+		ArchitecturalDiagnosticIds.BoundaryEntryPlacement,
+		ArchitecturalDiagnosticIds.ConfigurationCycle,
 	];
 
 	// Rename is not batch-safe (each rename changes all references), so no FixAll.
@@ -43,77 +43,77 @@ public sealed class ArchitecturalLevelCodeFixProvider : CodeFixProvider
 	{
 		foreach (var diagnostic in context.Diagnostics)
 		{
-			if (diagnostic.Id == ArchitecturalDiagnosticIds.UnrecognizedDependency)
+			if (diagnostic.Id == ArchitecturalDiagnosticIds.DependencyRequiredMissing)
 			{
 				await RecognizedDependencyCodeFix.TryRegisterAsync(context, diagnostic).ConfigureAwait(false);
 			}
 
-			if (diagnostic.Id == ArchitecturalDiagnosticIds.NameRuleViolation)
+			if (diagnostic.Id == ArchitecturalDiagnosticIds.NameShapeMismatch)
 			{
 				await DeclarationNameCodeFix.TryRegisterAsync(context, diagnostic).ConfigureAwait(false);
 				await NameRuleAllowMappingCodeFix.TryRegisterAsync(context, diagnostic).ConfigureAwait(false);
 			}
 
-            if (diagnostic.Id == ArchitecturalDiagnosticIds.ForbiddenDependency)
+            if (diagnostic.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
             {
                 await TryRegisterRenameAsync(context, diagnostic).ConfigureAwait(false);
 				await AllowedTypePolicyCodeFix.TryRegisterAsync(context, diagnostic).ConfigureAwait(false);
             }
 
-			if (diagnostic.Id == ArchitecturalDiagnosticIds.ContractPurityViolation)
+			if (diagnostic.Id == ArchitecturalDiagnosticIds.ContractShapeMismatch)
 			{
 				await ContractPurityCodeFix.TryRegisterAsync(context, diagnostic).ConfigureAwait(false);
 			}
 
-			if (diagnostic.Id == ArchitecturalDiagnosticIds.VisibilityPolicyViolation)
+			if (diagnostic.Id == ArchitecturalDiagnosticIds.VisibilityNotAllowed)
 			{
 				await VisibilityPolicyCodeFix.TryRegisterAsync(context, diagnostic).ConfigureAwait(false);
 			}
 
-			if (diagnostic.Id is ArchitecturalDiagnosticIds.ApiSurfaceLeakage or ArchitecturalDiagnosticIds.ForbiddenTransitiveExposure)
+			if (diagnostic.Id is ArchitecturalDiagnosticIds.ApiExposureNotAllowed or ArchitecturalDiagnosticIds.ApiTransitiveExposure)
 			{
 				await ApiSurfacePolicyCodeFix.TryRegisterAsync(context, diagnostic).ConfigureAwait(false);
 			}
 
-			if (diagnostic.Id == ArchitecturalDiagnosticIds.ProjectReferenceViolation)
+			if (diagnostic.Id == ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed)
 			{
 				await ProjectArchitectureCodeFix.TryRegisterAsync(context, diagnostic).ConfigureAwait(false);
 			}
 
-			if (diagnostic.Id == ArchitecturalDiagnosticIds.PackageReferenceViolation)
+			if (diagnostic.Id == ArchitecturalDiagnosticIds.PackageReferenceNotAllowed)
 			{
 				await PackagePolicyCodeFix.TryRegisterAsync(context, diagnostic).ConfigureAwait(false);
 			}
 
-			if (diagnostic.Id == ArchitecturalDiagnosticIds.InheritancePolicyViolation)
+			if (diagnostic.Id == ArchitecturalDiagnosticIds.InheritanceNotAllowed)
 			{
 				await InheritancePolicyCodeFix.TryRegisterAsync(context, diagnostic).ConfigureAwait(false);
 			}
 
-			if (diagnostic.Id == ArchitecturalDiagnosticIds.SourceLocationViolation)
+			if (diagnostic.Id == ArchitecturalDiagnosticIds.SourceBoundaryPlacement)
 			{
 				await SourceLocationCodeFix.TryRegisterAsync(context, diagnostic).ConfigureAwait(false);
 			}
 
-			if (diagnostic.Id is ArchitecturalDiagnosticIds.IllegalLevelDependency or ArchitecturalDiagnosticIds.WrongDirectionDependency or ArchitecturalDiagnosticIds.SameLayerDependency)
+			if (diagnostic.Id is ArchitecturalDiagnosticIds.DependencyNotAllowed or ArchitecturalDiagnosticIds.DependencyReverseDirection or ArchitecturalDiagnosticIds.DependencyPeerScope)
 			{
 				await DependencyRuleCodeFix.TryRegisterAsync(context, diagnostic).ConfigureAwait(false);
 			}
 
-			if (diagnostic.Id == ArchitecturalDiagnosticIds.BoundaryEntryPointViolation)
+			if (diagnostic.Id == ArchitecturalDiagnosticIds.BoundaryEntryPlacement)
 			{
 				await BoundaryEntryPointCodeFix.TryRegisterAsync(context, diagnostic).ConfigureAwait(false);
 			}
 
-			if (diagnostic.Id == ArchitecturalDiagnosticIds.CyclicDependencyGraph)
+			if (diagnostic.Id == ArchitecturalDiagnosticIds.ConfigurationCycle)
 			{
 				await CycleDependencyCodeFix.TryRegisterAsync(context, diagnostic).ConfigureAwait(false);
 			}
 
-			if (diagnostic.Id is ArchitecturalDiagnosticIds.IllegalLevelDependency
-			    or ArchitecturalDiagnosticIds.ForbiddenDependency
-			    or ArchitecturalDiagnosticIds.WrongDirectionDependency
-			    or ArchitecturalDiagnosticIds.SameLayerDependency)
+			if (diagnostic.Id is ArchitecturalDiagnosticIds.DependencyNotAllowed
+			    or ArchitecturalDiagnosticIds.TypeNotAllowed
+			    or ArchitecturalDiagnosticIds.DependencyReverseDirection
+			    or ArchitecturalDiagnosticIds.DependencyPeerScope)
 			{
 				await AddToExceptionsCodeFix.TryRegisterAsync(context, diagnostic).ConfigureAwait(false);
 			}

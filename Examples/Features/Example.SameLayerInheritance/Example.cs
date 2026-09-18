@@ -20,5 +20,5 @@ public interface IExampleRepository { }
 // Allowed: implementing an interface is an InterfaceImplementation-site dependency.
 public class ExampleRepository : IExampleRepository { }
 
-// ARCH005: the self-edge permits InterfaceImplementation, not Constructor.
+// ARCH_DEP_005: the self-edge permits InterfaceImplementation, not Constructor.
 public class ReportingRepository(IExampleRepository repository) { }

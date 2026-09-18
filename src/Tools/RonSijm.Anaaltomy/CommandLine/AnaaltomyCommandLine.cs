@@ -35,6 +35,7 @@ internal static class AnaaltomyCommandLine
 				AnaaltomyCommand.Compare => await RunCompareAsync(options, output, cancellationToken),
 				AnaaltomyCommand.Commits => await RunCommitChangesAsync(options, output, cancellationToken),
 				AnaaltomyCommand.Export => await RunExportAsync(options, output, cancellationToken),
+				AnaaltomyCommand.ExportDatabase => await RunExportDatabaseAsync(options, output, cancellationToken),
 				AnaaltomyCommand.Chart => await RunChartAsync(options, output, cancellationToken),
 				_ => (int)AnaaltomyExitCode.InvalidInput
 			};
@@ -167,6 +168,21 @@ internal static class AnaaltomyCommandLine
 		var outputPath = RequireValue(options, "--output");
 		await AnaaltomyOutput.WriteExportAsync(RequireValue(options, "--format"), outputPath, summary, cancellationToken);
 		await output.WriteLineAsync("Exported statistics to " + Path.GetFullPath(outputPath) + ".");
+
+		return (int)AnaaltomyExitCode.Success;
+	}
+
+	private static async Task<int> RunExportDatabaseAsync(AnaaltomyOptions options, TextWriter output, CancellationToken cancellationToken)
+	{
+		var databasePath = RequireValue(options, "--database");
+		var format = RequireValue(options, "--format");
+		var outputDirectory = RequireValue(options, "--output-directory");
+		var exportedFiles = await AnaaltomyDatabaseExporter.ExportAsync(databasePath, format, outputDirectory, cancellationToken);
+		await output.WriteLineAsync("Exported database to " + Path.GetFullPath(outputDirectory) + ".");
+		foreach (var exportedFile in exportedFiles)
+		{
+			await output.WriteLineAsync("Exported " + exportedFile + ".");
+		}
 
 		return (int)AnaaltomyExitCode.Success;
 	}
@@ -338,7 +354,8 @@ internal static class AnaaltomyCommandLine
 		output.WriteLine("anaaltomy trend --database <statistics.db> --dimension DependencySite --bucket Local");
 		output.WriteLine("anaaltomy compare --database <statistics.db> --from <revision> --to <revision>");
 		output.WriteLine("anaaltomy commits --database <statistics.db> --dimension DependencySite --bucket Local");
-		output.WriteLine("anaaltomy export --database <statistics.db> --format json --output <statistics.json>");
+		output.WriteLine("anaaltomy export --database <statistics.db> --format json|csv|markdown --output <statistics.json>");
+		output.WriteLine("anaaltomy export-database --database <statistics.db> --format json|csv|markdown --output-directory <directory>");
 		output.WriteLine("anaaltomy chart --database <statistics.db> --output-directory <chart-directory> [--dimension DependencySite]");
 		output.WriteLine("anaaltomy chart --database <statistics.db> --output-directory <chart-directory> --group [--dimension MemberAccessibility] [--group-by MemberKind]");
 		output.WriteLine("anaaltomy chart --database <statistics.db> --output-directory <chart-directory> --trend --dimension DependencySite --bucket Local");

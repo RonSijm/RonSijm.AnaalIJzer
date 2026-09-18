@@ -11,7 +11,7 @@ public sealed class BlockedMethodReturnSiteExample
         _ = allowed;
     }
 
-    // ARCH001: blockedSites="MethodReturn" blocks this return type.
+    // ARCH_DEP_001: blockedSites="MethodReturn" blocks this return type.
     public BlockedMethodReturnType WrongSite()
     {
         return null!;

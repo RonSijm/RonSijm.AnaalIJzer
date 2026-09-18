@@ -19,7 +19,8 @@ public sealed partial class ApplicationOperationsTests
 			ApplicationOperationKind.MergeConfig,
 			ApplicationOperationKind.SplitConfig,
 			ApplicationOperationKind.FormatConfig,
-			ApplicationOperationKind.ExplainConfig
+			ApplicationOperationKind.ExplainConfig,
+			ApplicationOperationKind.MigrateDiagnosticIds
 		]);
 		ApplicationOperationCatalog.All.Select(operation => operation.CommandName).Should().OnlyHaveUniqueItems();
 		ApplicationInputCatalog.All.Select(input => input.OptionName).Should().OnlyHaveUniqueItems();
@@ -50,6 +51,7 @@ public sealed partial class ApplicationOperationsTests
 		ApplicationOperationCatalog.Find("inspect")!.Kind.Should().Be(ApplicationOperationKind.Inspect);
 		ApplicationOperationCatalog.Find("validate")!.Kind.Should().Be(ApplicationOperationKind.Inspect);
 		ApplicationOperationCatalog.Find("config-fixes")!.Kind.Should().Be(ApplicationOperationKind.Fixes);
+		ApplicationOperationCatalog.Find("diagnostic-id-migration")!.Kind.Should().Be(ApplicationOperationKind.MigrateDiagnosticIds);
 		ApplicationInputCatalog.Get(ApplicationInputKind.Solution).OptionName.Should().Be("--solution");
 		ApplicationInputPathParser.Parse("First.xml; Second.xml").Should().Equal("First.xml", "Second.xml");
 	}

@@ -32,11 +32,16 @@ internal static class ArchitectureHealthReportBuilder
 			return emptyResult;
 		}
 
-		sb.AppendLine("| Severity | Category | Finding | Context |");
-		sb.AppendLine("|----------|----------|---------|---------|");
-		foreach (var finding in findings.OrderByDescending(finding => finding.Severity == ArchitectureFindingSeverity.Error).ThenBy(finding => finding.Code, StringComparer.Ordinal).ThenBy(finding => finding.Message, StringComparer.Ordinal))
+		sb.AppendLine("| Severity | Concern | Reason | ID | Finding | Context |");
+		sb.AppendLine("|----------|---------|--------|----|---------|---------|");
+		foreach (var finding in findings
+			.OrderByDescending(finding => finding.Severity == ArchitectureFindingSeverity.Error)
+			.ThenBy(finding => finding.Concern?.ToString() ?? "Other", StringComparer.Ordinal)
+			.ThenBy(finding => finding.Reason?.ToString() ?? "Other", StringComparer.Ordinal)
+			.ThenBy(finding => finding.Code, StringComparer.Ordinal)
+			.ThenBy(finding => finding.Message, StringComparer.Ordinal))
 		{
-			sb.AppendLine($"| {EscapeTable(finding.SeverityText)} | {EscapeTable(finding.Code)} | {EscapeTable(finding.Message)} | {EscapeTable(finding.Context)} |");
+			sb.AppendLine($"| {EscapeTable(finding.SeverityText)} | {EscapeTable(finding.Concern?.ToString() ?? "Other")} | {EscapeTable(finding.Reason?.ToString() ?? "Other")} | {EscapeTable(finding.Code)} | {EscapeTable(finding.Message)} | {EscapeTable(finding.Context)} |");
 		}
 
 		var result = new ArchitectureHealthReport(

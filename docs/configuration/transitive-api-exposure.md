@@ -24,7 +24,7 @@ Add `<TransitiveExposure>` to an existing `<ApiSurface>` to inspect that object 
 </Layer>
 ```
 
-`maxDepth` defaults to `3` and accepts values from `1` through `10`. Traversal is opt-in: omitting `<TransitiveExposure>` preserves direct ARCH009 behavior.
+`maxDepth` defaults to `3` and accepts values from `1` through `10`. Traversal is opt-in: omitting `<TransitiveExposure>` preserves direct ARCH_API_001 behavior.
 
 The analyzer performs a breadth-first traversal and reports the shortest forbidden path. It follows externally visible fields, events, properties, indexers, method and constructor signatures, base types, interfaces, constraints, arrays, tuples, nullable values, delegates, and generic arguments. Private implementation details are ignored.
 
@@ -38,6 +38,6 @@ Traversal is:
 
 The nested member's own API site is evaluated against `allowedSites` and `blockedSites`. A property reached through a public contract therefore uses `Property`, even when the root contract was exposed at `MethodReturn`.
 
-A directly forbidden signature still reports ARCH009 only. ARCH014 is reserved for a permitted root type whose public object graph reaches a forbidden type.
+A directly forbidden signature still reports ARCH_API_001 only. ARCH_API_010 is reserved for a permitted root type whose public object graph reaches a forbidden type.
 
-**Example project:** [`Example.Arch014.TransitiveExposure`](../../Examples/Diagnostics/Example.Arch014.TransitiveExposure)
+**Example project:** [`Example.Arch_API_010.TransitiveExposure`](../../Examples/Diagnostics/API/Example.Arch_API_010.TransitiveExposure)

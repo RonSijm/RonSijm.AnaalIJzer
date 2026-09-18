@@ -66,7 +66,7 @@ internal static partial class ArchitectureGraphWorkspaceSnapshotFactory
 		if (dependencyMatch.Value.Layer.IsForbidden)
 		{
 			status = "TypePolicyViolation";
-			diagnosticId = ArchitecturalDiagnosticIds.ForbiddenDependency;
+			diagnosticId = ArchitecturalDiagnosticIds.TypeNotAllowed;
 			reason = dependencyMatch.Value.Layer.Comment is null
 				? "the type matches a global <Forbidden> rule"
 				: "the type matches a global <Forbidden> rule: " + dependencyMatch.Value.Layer.Comment;
@@ -74,7 +74,7 @@ internal static partial class ArchitectureGraphWorkspaceSnapshotFactory
 		else if (config.Engine.EvaluateTypePolicy(dependencyMatch.Value, observation.DependencyType.Name, GetNamespace(observation.DependencyType), observation.DependencyType) is { } policyViolation)
 		{
 			status = "TypePolicyViolation";
-			diagnosticId = ArchitecturalDiagnosticIds.ForbiddenDependency;
+			diagnosticId = ArchitecturalDiagnosticIds.TypeNotAllowed;
 			reason = policyViolation.Reason;
 		}
 		else
@@ -85,9 +85,9 @@ internal static partial class ArchitectureGraphWorkspaceSnapshotFactory
 				status = GetDeniedStatus(callerMatch.Value.Layer.Name, dependencyMatch.Value.Layer.Name, edgeEvaluation, config);
 				diagnosticId = status switch
 				{
-					"WrongDirection" => ArchitecturalDiagnosticIds.WrongDirectionDependency,
-					"SameLayer" => ArchitecturalDiagnosticIds.SameLayerDependency,
-					_ => ArchitecturalDiagnosticIds.IllegalLevelDependency
+					"WrongDirection" => ArchitecturalDiagnosticIds.DependencyReverseDirection,
+					"SameLayer" => ArchitecturalDiagnosticIds.DependencyPeerScope,
+					_ => ArchitecturalDiagnosticIds.DependencyNotAllowed
 				};
 				reason = status == "SameLayer" && !edgeEvaluation.IsDeniedBySiteFilter
 					? $"types in the same layer ('{callerMatch.Value.Layer.Name}') may not depend on each other"

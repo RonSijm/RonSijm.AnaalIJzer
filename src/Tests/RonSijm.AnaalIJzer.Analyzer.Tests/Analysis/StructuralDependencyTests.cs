@@ -16,17 +16,17 @@ public sealed class StructuralDependencyTests
 
     [Theory]
 	[MemberData(nameof(StructuralSites))]
-	public async Task StructuralSite_ReportsARCH001(string site)
+	public async Task StructuralSite_ReportsARCH_DEP_001(string site)
 	{
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(GetSource(site), GetConfig());
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Subject;
 		diagnostic.Properties[ArchitecturalDiagnostics.PropertySite].Should().Be(site);
 	}
 
 	[Theory]
 	[MemberData(nameof(StructuralSites))]
-	public async Task StructuralSite_ReportsARCH003(string site)
+	public async Task StructuralSite_ReportsARCH_TYPE_001(string site)
 	{
 		var config = """
 		             <ArchitecturalLevels>
@@ -37,23 +37,23 @@ public sealed class StructuralDependencyTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(GetSource(site), config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ForbiddenDependency).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.TypeNotAllowed).Subject;
 		diagnostic.Properties[ArchitecturalDiagnostics.PropertySite].Should().Be(site);
 	}
 
 	[Theory]
 	[MemberData(nameof(StructuralSites))]
-	public async Task StructuralSite_ReportsARCH004(string site)
+	public async Task StructuralSite_ReportsARCH_DEP_004(string site)
 	{
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(GetSource(site), GetConfig("<AllowedDependency from=\"Dependency\" to=\"Caller\" />"));
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.WrongDirectionDependency).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyReverseDirection).Subject;
 		diagnostic.Properties[ArchitecturalDiagnostics.PropertySite].Should().Be(site);
 	}
 
 	[Theory]
 	[MemberData(nameof(StructuralSites))]
-	public async Task StructuralSite_ReportsARCH005(string site)
+	public async Task StructuralSite_ReportsARCH_DEP_005(string site)
 	{
 		var config = """
 		             <ArchitecturalLevels>
@@ -66,7 +66,7 @@ public sealed class StructuralDependencyTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(GetSource(site), config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.SameLayerDependency).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyPeerScope).Subject;
 		diagnostic.Properties[ArchitecturalDiagnostics.PropertySite].Should().Be(site);
 	}
 
@@ -85,7 +85,7 @@ public sealed class StructuralDependencyTests
 	{
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(GetSource(site), GetConfig($"<AllowedDependency from=\"Caller\" to=\"Dependency\" blockedSites=\"{site}\" />"));
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency);
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed);
 	}
 
 	[Theory]
@@ -104,7 +104,7 @@ public sealed class StructuralDependencyTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, GetConfig());
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency);
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed);
 	}
 
 	[Fact]
@@ -117,7 +117,7 @@ public sealed class StructuralDependencyTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, GetConfig());
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Subject;
 		diagnostic.Properties[ArchitecturalDiagnostics.PropertySite].Should().Be(DependencySites.Constructor);
 	}
 
@@ -131,7 +131,7 @@ public sealed class StructuralDependencyTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, GetConfig());
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Subject;
 		diagnostic.Properties[ArchitecturalDiagnostics.PropertySite].Should().Be(DependencySites.Inheritance);
 	}
 

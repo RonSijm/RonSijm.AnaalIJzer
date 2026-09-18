@@ -68,6 +68,12 @@ public static partial class ArchitectureEditorSnapshotService
 
 	private static ArchitectureDependencySiteIndicator CreateBehavioralOperationPolicyIndicator(CallerInfo caller, BehavioralOperationBodyAnalysis body, BehavioralOperationPolicyEvaluation evaluation)
 	{
+		var diagnosticId = evaluation.ViolationKind switch
+		{
+			BehavioralOperationViolationKind.MissingRequiredOperation or BehavioralOperationViolationKind.RequiredOperationDoesNotDominateExit => ArchitecturalDiagnosticIds.OperationRequiredMissing,
+			BehavioralOperationViolationKind.MaximumOperationCountExceeded => ArchitecturalDiagnosticIds.OperationCardinality,
+			_ => ArchitecturalDiagnosticIds.OperationOrdering
+		};
 		var operation = evaluation.Occurrence?.Operation;
 		var site = operation?.Site ?? GetBehavioralDeclarationSite(body.OwningSymbol);
 		var span = operation?.Location.SourceSpan ?? body.DeclarationLocation.SourceSpan;
@@ -91,7 +97,7 @@ public static partial class ArchitectureEditorSnapshotService
 			null,
 			0,
 			ArchitectureDependencySiteStatus.TypePolicyViolation,
-			ArchitecturalDiagnosticIds.BehavioralOperationPolicyViolation,
+			diagnosticId,
 			tooltip,
 			evaluation.Reason);
 

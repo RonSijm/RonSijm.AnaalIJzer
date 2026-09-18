@@ -16,7 +16,7 @@ public sealed class PizzaOrdersController(PizzaOrderingService service, PizzaOrd
         return response;
     }
 
-    // ARCH001: a controller is an endpoint, so it must not inject a repository directly.
+    // ARCH_DEP_001: a controller is an endpoint, so it must not inject a repository directly.
     // The repository parameter above is intentionally present to make that boundary visible.
 }
 

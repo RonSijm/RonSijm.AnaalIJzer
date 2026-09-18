@@ -11,7 +11,20 @@ namespace RonSijm.AnaalIJzer.Core.Configuration.Compilation.Parsing;
 
 public static partial class ArchitecturalConfigParser
 {
-	private static ImmutableArray<ReturnValuePolicy> ParseReturnValuePolicies(IEnumerable<XElement> policyElements, string ownerLayerPath, string xmlPath, ImmutableArray<ConfigurationIssue>.Builder issues)
+	internal static ImmutableArray<ReturnValuePolicy> ParseGlobalReturnValuePolicies(IEnumerable<ArchitectureConfigurationElementInput> policyInputs, ImmutableArray<ConfigurationIssue>.Builder issues)
+	{
+		var policies = ImmutableArray.CreateBuilder<ReturnValuePolicy>();
+		foreach (var policyInput in policyInputs)
+		{
+			policies.AddRange(ParseReturnValuePolicies([policyInput.Element], "Global", policyInput.Path, issues, true));
+		}
+
+		var result = policies.ToImmutable();
+
+		return result;
+	}
+
+	private static ImmutableArray<ReturnValuePolicy> ParseReturnValuePolicies(IEnumerable<XElement> policyElements, string ownerLayerPath, string xmlPath, ImmutableArray<ConfigurationIssue>.Builder issues, bool isGlobal = false)
 	{
 		var policies = ImmutableArray.CreateBuilder<ReturnValuePolicy>();
 		foreach (var element in policyElements)
@@ -21,10 +34,21 @@ public static partial class ArchitecturalConfigParser
 				continue;
 			}
 
-			var rules = ParseReturnValueRules(element.Elements(), xmlPath, issues);
-			if (rules.IsDefaultOrEmpty)
+			var allowedReturnElements = element.Elements("AllowedReturn").ToArray();
+			if (allowedReturnElements.Length > 1)
 			{
-				AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, "ReturnValuePolicy requires at least one Literal, Invocation, New, Identifier, or MemberAccess matcher child.", element, xmlPath);
+				AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, "ReturnValuePolicy supports at most one AllowedReturn block.", element, xmlPath);
+
+				continue;
+			}
+
+			var rules = ParseReturnValueRules(element.Elements().Where(child => child.Name.LocalName != "AllowedReturn"), xmlPath, issues);
+			var allowedRules = allowedReturnElements.Length == 0
+				? ImmutableArray<ReturnValueRule>.Empty
+				: ParseAllowedReturnRules(allowedReturnElements[0], xmlPath, issues);
+			if (rules.IsDefaultOrEmpty && allowedRules.IsDefaultOrEmpty)
+			{
+				AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, "ReturnValuePolicy requires at least one forbidden matcher or one AllowedReturn matcher.", element, xmlPath);
 				continue;
 			}
 
@@ -35,12 +59,32 @@ public static partial class ArchitecturalConfigParser
 				element.Attribute("description")?.Value,
 				xmlPath,
 				line.HasLineInfo() ? line.LineNumber : 0,
-				line.HasLineInfo() ? line.LinePosition : 0);
+				line.HasLineInfo() ? line.LinePosition : 0,
+				allowedRules,
+				isGlobal);
 
 			policies.Add(policy);
 		}
 
 		var result = policies.ToImmutable();
+
+		return result;
+	}
+
+	private static ImmutableArray<ReturnValueRule> ParseAllowedReturnRules(XElement allowedReturnElement, string xmlPath, ImmutableArray<ConfigurationIssue>.Builder issues)
+	{
+		if (allowedReturnElement.Attributes().Any(attribute => attribute.Name.LocalName is not ("description" or "comment")))
+		{
+			AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, "AllowedReturn supports description and comment attributes only.", allowedReturnElement, xmlPath);
+
+			return ImmutableArray<ReturnValueRule>.Empty;
+		}
+
+		var result = ParseReturnValueRules(allowedReturnElement.Elements(), xmlPath, issues);
+		if (result.IsDefaultOrEmpty)
+		{
+			AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, "AllowedReturn requires at least one Literal, Invocation, New, Identifier, or MemberAccess matcher child.", allowedReturnElement, xmlPath);
+		}
 
 		return result;
 	}

@@ -5,14 +5,14 @@ namespace RonSijm.AnaalIJzer.Outputs.Violations;
 
 internal static partial class ViolationMarkdownReportBuilder
 {
-	private static void AppendArch003(StringBuilder sb, List<ViolationRecord> violations)
+	private static void AppendTypeNotAllowed(StringBuilder sb, List<ViolationRecord> violations)
 	{
 		if (violations.Count == 0)
 		{
 			return;
 		}
 
-		sb.AppendLine("## ARCH003 — Type Policy Violations");
+		sb.AppendLine("## ARCH_TYPE_001 — Types Not Allowed");
 		sb.AppendLine();
 		sb.AppendLine("These dependency types match an applicable `Forbidden` policy or fail an applicable `Allowed` policy.");
 		sb.AppendLine();
@@ -28,14 +28,14 @@ internal static partial class ViolationMarkdownReportBuilder
 		sb.AppendLine();
 	}
 
-	private static void AppendArch008(StringBuilder sb, List<ViolationRecord> violations)
+	private static void AppendNameShapeMismatch(StringBuilder sb, List<ViolationRecord> violations)
 	{
 		if (violations.Count == 0)
 		{
 			return;
 		}
 
-		sb.AppendLine("## ARCH008 — Name Rule Violations");
+		sb.AppendLine("## ARCH_NAME_008 — Name Shape Mismatches");
 		sb.AppendLine();
 		sb.AppendLine("These value movements or declarations fail an applicable layer-scoped `NameRules` policy.");
 		sb.AppendLine();
@@ -50,14 +50,14 @@ internal static partial class ViolationMarkdownReportBuilder
 		sb.AppendLine();
 	}
 
-	private static void AppendArch012(StringBuilder sb, List<ViolationRecord> violations)
+	private static void AppendVisibilityNotAllowed(StringBuilder sb, List<ViolationRecord> violations)
 	{
 		if (violations.Count == 0)
 		{
 			return;
 		}
 
-		sb.AppendLine("## ARCH012 — Visibility Policy Violations");
+		sb.AppendLine("## ARCH_VIS_001 — Visibility Not Allowed");
 		sb.AppendLine();
 		sb.AppendLine("These declarations fail an applicable layer-scoped `VisibilityPolicy`.");
 		sb.AppendLine();
@@ -72,14 +72,14 @@ internal static partial class ViolationMarkdownReportBuilder
 		sb.AppendLine();
 	}
 
-	private static void AppendArch013(StringBuilder sb, List<ViolationRecord> violations)
+	private static void AppendContractShapeMismatch(StringBuilder sb, List<ViolationRecord> violations)
 	{
 		if (violations.Count == 0)
 		{
 			return;
 		}
 
-		sb.AppendLine("## ARCH013 — Contract Purity Violations");
+		sb.AppendLine("## ARCH_CONT_008 — Contract Shape Mismatches");
 		sb.AppendLine();
 		sb.AppendLine("These contract declarations fail an applicable layer-scoped `ContractPolicy`.");
 		sb.AppendLine();
@@ -94,14 +94,14 @@ internal static partial class ViolationMarkdownReportBuilder
 		sb.AppendLine();
 	}
 
-	private static void AppendArch015(StringBuilder sb, List<ViolationRecord> violations)
+	private static void AppendSourceBoundaryPlacement(StringBuilder sb, List<ViolationRecord> violations)
 	{
 		if (violations.Count == 0)
 		{
 			return;
 		}
 
-		sb.AppendLine("## ARCH015 — Layer Source-Location Violations");
+		sb.AppendLine("## ARCH_SRC_007 — Source Boundary Placement Violations");
 		sb.AppendLine();
 		sb.AppendLine("These declarations are classified into a layer whose configured `SourceLocations` policies do not permit the file location.");
 		sb.AppendLine();
@@ -116,14 +116,14 @@ internal static partial class ViolationMarkdownReportBuilder
 		sb.AppendLine();
 	}
 
-	private static void AppendArch016(StringBuilder sb, List<ViolationRecord> violations)
+	private static void AppendBoundaryEntryPlacement(StringBuilder sb, List<ViolationRecord> violations)
 	{
 		if (violations.Count == 0)
 		{
 			return;
 		}
 
-		sb.AppendLine("## ARCH016 — Boundary Entry-Point Violations");
+		sb.AppendLine("## ARCH_BOUND_007 — Boundary Entry Placement Violations");
 		sb.AppendLine();
 		sb.AppendLine("These dependencies passed the ordinary dependency graph but still enter a boundary through the wrong child layer or entry selector.");
 		sb.AppendLine();
@@ -138,14 +138,14 @@ internal static partial class ViolationMarkdownReportBuilder
 		sb.AppendLine();
 	}
 
-	private static void AppendArch019(StringBuilder sb, List<ViolationRecord> violations)
+	private static void AppendInheritanceNotAllowed(StringBuilder sb, List<ViolationRecord> violations)
 	{
 		if (violations.Count == 0)
 		{
 			return;
 		}
 
-		sb.AppendLine("## ARCH019 — Inheritance Policy Violations");
+		sb.AppendLine("## ARCH_INH_001 — Inheritance Not Allowed");
 		sb.AppendLine();
 		sb.AppendLine("These declarations fail an applicable layer-scoped `InheritancePolicy`.");
 		sb.AppendLine();
@@ -160,16 +160,16 @@ internal static partial class ViolationMarkdownReportBuilder
 		sb.AppendLine();
 	}
 
-	private static void AppendArch020(StringBuilder sb, List<ViolationRecord> violations)
+	private static void AppendReturnNotAllowed(StringBuilder sb, List<ViolationRecord> violations)
 	{
 		if (violations.Count == 0)
 		{
 			return;
 		}
 
-		sb.AppendLine("## ARCH020 — Return-Value Policy Violations");
+		sb.AppendLine("## ARCH_RET_001 — Return Values Not Allowed");
 		sb.AppendLine();
-		sb.AppendLine("These methods directly return an expression that an applicable `ReturnValuePolicy` forbids.");
+		sb.AppendLine("These methods directly return an expression that an applicable `ReturnValuePolicy` rejects.");
 		sb.AppendLine();
 		sb.AppendLine("| Layer | Method | Expression kind | Reason |");
 		sb.AppendLine("|-------|--------|----------------|--------|");
@@ -182,14 +182,14 @@ internal static partial class ViolationMarkdownReportBuilder
 		sb.AppendLine();
 	}
 
-	private static void AppendArch021(StringBuilder sb, List<ViolationRecord> violations)
+	private static void AppendOperationNotAllowed(StringBuilder sb, List<ViolationRecord> violations)
 	{
 		if (violations.Count == 0)
 		{
 			return;
 		}
 
-		sb.AppendLine("## ARCH021 — Forbidden Operation Policy Violations");
+		sb.AppendLine("## ARCH_OPER_001 — Operations Not Allowed");
 		sb.AppendLine();
 		sb.AppendLine("These selected resolved operations are forbidden by an applicable layer-scoped `ForbiddenOperations` policy.");
 		sb.AppendLine();
@@ -204,14 +204,14 @@ internal static partial class ViolationMarkdownReportBuilder
 		sb.AppendLine();
 	}
 
-	private static void AppendArch022(StringBuilder sb, List<ViolationRecord> violations)
+	private static void AppendBehavioralOperationPolicy(StringBuilder sb, string diagnosticId, string title, List<ViolationRecord> violations)
 	{
 		if (violations.Count == 0)
 		{
 			return;
 		}
 
-		sb.AppendLine("## ARCH022 — Behavioral Operation Policy Violations");
+		sb.AppendLine($"## {diagnosticId} — {title}");
 		sb.AppendLine();
 		sb.AppendLine("These selected declaration bodies fail a mechanically provable operation presence, ordering, or count policy.");
 		sb.AppendLine();
@@ -226,14 +226,14 @@ internal static partial class ViolationMarkdownReportBuilder
 		sb.AppendLine();
 	}
 
-	private static void AppendArch023(StringBuilder sb, List<ViolationRecord> violations)
+	private static void AppendOperationContract(StringBuilder sb, string diagnosticId, string title, List<ViolationRecord> violations)
 	{
 		if (violations.Count == 0)
 		{
 			return;
 		}
 
-		sb.AppendLine("## ARCH023 — Operation Contract Violations");
+		sb.AppendLine($"## {diagnosticId} — {title}");
 		sb.AppendLine();
 		sb.AppendLine("These selected owner or entry-point methods do not satisfy an explicit operation contract.");
 		sb.AppendLine();
@@ -248,14 +248,14 @@ internal static partial class ViolationMarkdownReportBuilder
 		sb.AppendLine();
 	}
 
-	private static void AppendArch024(StringBuilder sb, List<ViolationRecord> violations)
+	private static void AppendAssemblyAttributeNotAllowed(StringBuilder sb, List<ViolationRecord> violations)
 	{
 		if (violations.Count == 0)
 		{
 			return;
 		}
 
-		sb.AppendLine("## ARCH024 — Assembly Attribute Policy Violations");
+		sb.AppendLine("## ARCH_ASSM_001 — Assembly Attributes Not Allowed");
 		sb.AppendLine();
 		sb.AppendLine("These compiled assembly attributes do not satisfy a configured assembly attribute policy.");
 		sb.AppendLine();
@@ -265,6 +265,28 @@ internal static partial class ViolationMarkdownReportBuilder
 		foreach (var violation in violations)
 		{
 			sb.AppendLine($"| `{violation.CallerTypeName}` | `{violation.DependencyTypeName}` | `{violation.DepLayerName}` | {EscapeTable(violation.ViolationReason)} |");
+		}
+
+		sb.AppendLine();
+	}
+
+	private static void AppendNamespaceBoundaryPlacement(StringBuilder sb, List<ViolationRecord> violations)
+	{
+		if (violations.Count == 0)
+		{
+			return;
+		}
+
+		sb.AppendLine("## ARCH_NS_007 — Namespace Boundary Placement Violations");
+		sb.AppendLine();
+		sb.AppendLine("These semantic references cross a namespace ownership direction blocked by a root-level `NamespaceHierarchyPolicy`.");
+		sb.AppendLine();
+		sb.AppendLine("| Caller (namespace) | Dependency (namespace) | Site | Reason |");
+		sb.AppendLine("|--------------------|------------------------|------|--------|");
+
+		foreach (var violation in violations)
+		{
+			sb.AppendLine($"| `{violation.CallerTypeName}` ({violation.CallerLayerName}) | `{violation.DependencyTypeName}` ({violation.DepLayerName}) | `{violation.DeclarationTarget}` | {EscapeTable(violation.ViolationReason)} |");
 		}
 
 		sb.AppendLine();

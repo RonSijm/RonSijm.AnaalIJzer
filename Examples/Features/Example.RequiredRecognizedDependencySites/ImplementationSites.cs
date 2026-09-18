@@ -5,7 +5,7 @@ namespace Example.RequiredRecognizedDependencySites;
 
 public sealed class UnknownLocalDependency { }
 
-// ARCH002 at Local.
+// ARCH_DEP_002 at Local.
 public sealed class LocalCaller
 {
     public void Run()
@@ -17,7 +17,7 @@ public sealed class LocalCaller
 
 public sealed class UnknownNewDependency { }
 
-// ARCH002 at New.
+// ARCH_DEP_002 at New.
 public sealed class NewCaller
 {
     public void Run()
@@ -28,7 +28,7 @@ public sealed class NewCaller
 
 public sealed class UnknownGenericInvocationDependency { }
 
-// ARCH002 at GenericInvocation.
+// ARCH_DEP_002 at GenericInvocation.
 public sealed class GenericInvocationCaller
 {
     public void Run()
@@ -44,5 +44,5 @@ public sealed class GenericInvocationCaller
 
 public sealed class UnknownGenericArgumentDependency { }
 
-// Lazy is recognized, but ARCH002 is reported for its GenericArgument.
+// Lazy is recognized, but ARCH_DEP_002 is reported for its GenericArgument.
 public sealed class GenericArgumentCaller(Lazy<UnknownGenericArgumentDependency> dependency) { }

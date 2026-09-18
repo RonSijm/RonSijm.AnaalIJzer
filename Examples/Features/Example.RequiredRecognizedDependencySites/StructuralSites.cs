@@ -5,17 +5,17 @@ namespace Example.RequiredRecognizedDependencySites;
 
 public class UnknownBaseDependency { }
 
-// ARCH002 at Inheritance.
+// ARCH_DEP_002 at Inheritance.
 public sealed class InheritanceCaller : UnknownBaseDependency { }
 
 public interface IUnknownInterfaceDependency { }
 
-// ARCH002 at InterfaceImplementation.
+// ARCH_DEP_002 at InterfaceImplementation.
 public sealed class InterfaceImplementationCaller : IUnknownInterfaceDependency { }
 
 public sealed class UnknownAttributeDependency : Attribute { }
 
-// ARCH002 at Attribute.
+// ARCH_DEP_002 at Attribute.
 [UnknownAttributeDependency]
 public sealed class AttributeCaller { }
 
@@ -27,7 +27,7 @@ public static class UnknownStaticDependency
     }
 }
 
-// ARCH002 at StaticMember.
+// ARCH_DEP_002 at StaticMember.
 public sealed class StaticMemberCaller
 {
     public int Get()

@@ -11,7 +11,7 @@ public sealed class BlockedStaticMemberSiteExample
         _ = allowed;
     }
 
-    // ARCH001: blockedSites="StaticMember" blocks this static call.
+    // ARCH_DEP_001: blockedSites="StaticMember" blocks this static call.
     public void Run()
     {
         BlockedStaticMemberType.Use();

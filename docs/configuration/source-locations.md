@@ -51,7 +51,7 @@ Attributes on one `<Source>` are combined with AND semantics. Separate `<Source>
 
 Default: `Project`.
 
-`Configuration` is only valid for file-based settings. Inline `AssemblyMetadata("AnaalIJzerSettings", ...)` has no physical settings directory, so that combination reports `ARCH006`.
+`Configuration` is only valid for file-based settings. Inline `AssemblyMetadata("AnaalIJzerSettings", ...)` has no physical settings directory, so that combination reports `ARCH_CONF_003`.
 
 ### Partial types
 

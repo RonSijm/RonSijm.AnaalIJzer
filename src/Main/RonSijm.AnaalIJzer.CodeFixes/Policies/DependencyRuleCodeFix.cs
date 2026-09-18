@@ -35,18 +35,18 @@ internal static class DependencyRuleCodeFix
 			return;
 		}
 
-		if (diagnostic.Id is ArchitecturalDiagnosticIds.IllegalLevelDependency or ArchitecturalDiagnosticIds.WrongDirectionDependency)
+		if (diagnostic.Id is ArchitecturalDiagnosticIds.DependencyNotAllowed or ArchitecturalDiagnosticIds.DependencyReverseDirection)
 		{
 			RegisterMissingAllowedDependencyFix(context, diagnostic, configurationSource, callerLayer, dependencyLayer);
 		}
 
-		if (diagnostic.Id == ArchitecturalDiagnosticIds.WrongDirectionDependency
+		if (diagnostic.Id == ArchitecturalDiagnosticIds.DependencyReverseDirection
 		    && TryReadReverseDependencyFlipFix(diagnostic, configurationSource, snapshots, out var reverseDependencyFix))
 		{
 			RegisterReverseDependencyFlipFix(context, diagnostic, reverseDependencyFix);
 		}
 
-		if (diagnostic.Id == ArchitecturalDiagnosticIds.SameLayerDependency)
+		if (diagnostic.Id == ArchitecturalDiagnosticIds.DependencyPeerScope)
 		{
 			RegisterSameLayerFixes(context, diagnostic, configurationSource, callerLayer, site);
 		}

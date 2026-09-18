@@ -104,4 +104,11 @@ public static partial class ArchitectureConfigurationEditService
 
 		return result;
 	}
+
+	public static ArchitectureConfigurationEditResult AddNamespaceHierarchyPolicy(ArchitectureConfigurationSource source, ImmutableDictionary<string, string> attributes, string childXml)
+	{
+		var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureRootEditor.AddNamespaceHierarchyPolicy(source, attributes, childXml));
+
+		return result;
+	}
 }

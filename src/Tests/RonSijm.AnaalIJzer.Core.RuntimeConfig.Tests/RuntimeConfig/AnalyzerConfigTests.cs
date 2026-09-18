@@ -142,7 +142,7 @@ public sealed class AnalyzerConfigTests
 		decision.IsAllowed.Should().BeFalse();
 		decision.Status.Should().Be(ArchitectureDependencySiteStatus.WrongDirection);
 		decision.Reason.Should().Contain("wrong direction");
-		decision.DiagnosticId.Should().Be(ArchitecturalDiagnosticIds.WrongDirectionDependency);
+		decision.DiagnosticId.Should().Be(ArchitecturalDiagnosticIds.DependencyReverseDirection);
 	}
 
 	[Fact]

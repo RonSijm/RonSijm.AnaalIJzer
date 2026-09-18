@@ -8,4 +8,4 @@ The configuration allows this path:
 Endpoint -> Application -> Persistence
 ```
 
-`PizzaOrdersController` also injects `PizzaOrderRepository` directly, so it reports one `ARCH001`. The controller can ask the application service for an order; it should not reach into storage as a shortcut.
+`PizzaOrdersController` also injects `PizzaOrderRepository` directly, so it reports one `ARCH_DEP_001`. The controller can ask the application service for an order; it should not reach into storage as a shortcut.

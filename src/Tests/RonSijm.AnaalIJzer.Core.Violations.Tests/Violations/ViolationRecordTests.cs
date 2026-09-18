@@ -6,7 +6,7 @@ public sealed class ViolationRecordTests
 	public void Constructor_PreservesCoreDependencyViolationFields()
 	{
 		var result = new ViolationRecord(
-			"ARCH001",
+			"ARCH_DEP_001",
 			"WaiterService",
 			"Waiter",
 			"PantryIngredient",
@@ -14,7 +14,7 @@ public sealed class ViolationRecordTests
 			"Waiters may not reach into the pantry directly.",
 			"Ask the chef instead.");
 
-		result.DiagnosticId.Should().Be("ARCH001");
+		result.DiagnosticId.Should().Be("ARCH_DEP_001");
 		result.CallerTypeName.Should().Be("WaiterService");
 		result.CallerLayerName.Should().Be("Waiter");
 		result.DependencyTypeName.Should().Be("PantryIngredient");
@@ -30,7 +30,7 @@ public sealed class ViolationRecordTests
 	public void Constructor_PreservesApiSurfaceAndProjectMetadata()
 	{
 		var result = new ViolationRecord(
-			"ARCH014",
+			"ARCH_API_010",
 			"OrderService",
 			"Application",
 			"OrderQuery",
@@ -68,7 +68,7 @@ public sealed class ViolationRecordTests
 	public void Constructor_PreservesPackageSourceLocationBoundaryAndCycleMetadata()
 	{
 		var result = new ViolationRecord(
-			"ARCH018",
+			"ARCH_DEP_006",
 			"Ordering -> Notifications",
 			"Ordering",
 			"Ordering -> Notifications -> Ordering",

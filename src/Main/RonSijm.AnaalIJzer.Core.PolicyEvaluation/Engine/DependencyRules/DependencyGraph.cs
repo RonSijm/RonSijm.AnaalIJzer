@@ -16,7 +16,7 @@ public readonly partial struct DependencyGraph(ImmutableArray<DependencyEdge> de
 
 	/// <summary>
 	///     Explicit directed edges declared via <c>&lt;AllowedDependency from="A" to="B"/&gt;</c>.
-	///     Exposed for tests and the ARCH004 reverse-direction check.
+	///     Exposed for tests and the ARCH_DEP_004 reverse-direction check.
 	/// </summary>
 	public ImmutableHashSet<(string From, string To)> AllowedEdges =>
 		DependencyEdges.Where(edge => edge.IsAllowed && edge.IsExplicit).Select(edge => (edge.From, edge.To))
@@ -47,7 +47,7 @@ public readonly partial struct DependencyGraph(ImmutableArray<DependencyEdge> de
 	/// <summary>
 	///     Returns <see langword="true" /> when an explicit directed edge from
 	///     <paramref name="from" /> to <paramref name="to" /> is configured, regardless of its site
-	///     filter. Used by ARCH004 so a reversed dependency still reports as wrong-direction.
+	///     filter. Used by ARCH_DEP_004 so a reversed dependency still reports as wrong-direction.
 	/// </summary>
 	public bool HasEdge(string from, string to)
 	{

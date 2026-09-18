@@ -38,7 +38,7 @@ public sealed partial class SemanticMatcherTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		var forbidden = diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.ForbiddenDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
 			.ToList();
 
 		forbidden.Should().ContainSingle();

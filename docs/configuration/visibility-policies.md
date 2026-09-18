@@ -80,10 +80,10 @@ The child policy cannot override a parent failure. The first failing policy is r
 #### What this rule does not mean
 
 - Visibility policies check a declaration's own accessibility. A public nested class inside an internal parent is still declared `Public`.
-- Whether a declaration is effectively visible outside all its containing types is exposed to documentation and editor tooling for context, but it does not change `ARCH012`.
-- Whether a public signature exposes a forbidden layer is a separate API-surface concern (`ARCH009`).
-- Whether an interface or contract contains an allowed kind of member is a separate contract-purity concern (`ARCH013`).
+- Whether a declaration is effectively visible outside all its containing types is exposed to documentation and editor tooling for context, but it does not change `ARCH_VIS_001`.
+- Whether a public signature exposes a forbidden layer is a separate API-surface concern (`ARCH_API_001`).
+- Whether an interface or contract contains an allowed kind of member is a separate contract-purity concern (`ARCH_CONT_008`).
 
 Arse includes visibility findings in `inspect`, `report`, generated documentation, and code evidence. The standalone WPF editor and Visual Studio graph inspector provide checkable target/accessibility controls and autosave the same `.anl` or inline metadata source.
 
-**Example project:** [`Example.Arch012.VisibilityPolicy`](../../Examples/Diagnostics/Example.Arch012.VisibilityPolicy)
+**Example project:** [`Example.Arch_VIS_001.VisibilityPolicy`](../../Examples/Diagnostics/VIS/Example.Arch_VIS_001.VisibilityPolicy)

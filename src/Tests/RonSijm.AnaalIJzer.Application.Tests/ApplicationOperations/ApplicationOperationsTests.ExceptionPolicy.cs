@@ -1,12 +1,13 @@
 using System.Globalization;
 using RonSijm.AnaalIJzer.Core.Exceptions;
+using RonSijm.AnaalIJzer.Core.Findings;
 
 namespace RonSijm.AnaalIJzer.Application.Tests.ApplicationOperations;
 
 public sealed partial class ApplicationOperationsTests
 {
 	[Fact]
-	public async Task ApplicationRunner_Inspect_ReturnsStructuredArch017FindingsWithStates()
+	public async Task ApplicationRunner_Inspect_ReturnsStructuredExceptionReviewFindingsWithStates()
 	{
 		var cancellationToken = TestContext.Current.CancellationToken;
 		var tempDirectory = CreateRepositoryTempDirectory("AnaalIJzer-inspect-exception-policy");
@@ -61,12 +62,12 @@ public sealed partial class ApplicationOperationsTests
 				InputPaths = [projectPath],
 				WriteOutput = false
 			}, cancellationToken);
-			var exceptionFindings = result.Findings.Where(finding => finding.Category == "ARCH017").ToArray();
+			var exceptionFindings = result.Findings.Where(finding => finding.Code == ArchitecturalDiagnosticIds.ExceptionReviewLifecycle).ToArray();
 
 			exceptionFindings.Should().NotBeEmpty();
 			exceptionFindings.Select(finding => finding.State).Should().Contain(["Invalid", "ExpiringSoon", "Expired", "Stale"]);
 			exceptionFindings.Should().Contain(finding => finding.State == "Stale" && finding.Message.Contains("GhostKitchen", StringComparison.Ordinal));
-			result.Content.Should().Contain("ARCH017");
+			result.Content.Should().Contain("ARCH_EXC_009");
 		}
 		finally
 		{

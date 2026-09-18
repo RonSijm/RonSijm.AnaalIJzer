@@ -1,0 +1,7 @@
+<ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:noNamespaceSchemaLocation="../../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd">
+  <NamespaceHierarchyPolicy rootNamespace="Restaurant"
+                            description="Neighbouring restaurant features coordinate through the root, not directly through one another.">
+    <BlockedRelation relation="SiblingToSibling" />
+  </NamespaceHierarchyPolicy>
+</ArchitecturalLevels>

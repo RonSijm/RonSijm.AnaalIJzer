@@ -20,5 +20,5 @@ public class MysteryBox { }
 // Valid: legacy kitchen code may still have unclassified constructor ingredients.
 public class LegacyChef(MysteryBox box) { }
 
-// ARCH002: AuditedKitchen requires constructor dependencies to have a configured layer.
+// ARCH_DEP_002: AuditedKitchen requires constructor dependencies to have a configured layer.
 public class AuditedChef(MysteryBox box) { }

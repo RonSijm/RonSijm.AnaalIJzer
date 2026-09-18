@@ -144,7 +144,7 @@ public sealed partial class EditorSnapshotTests
 		content.Lines.Should().Contain("Site: Constructor");
 		content.Lines.Should().Contain("Caller: CallerType (Caller)");
 		content.Lines.Should().Contain("Dependency: TargetDependency (Dependency)");
-		content.Lines.Should().Contain("Diagnostic: ARCH001");
+		content.Lines.Should().Contain("Diagnostic: ARCH_DEP_001");
 		content.Lines.Should().Contain(line => line.StartsWith("Reason:", StringComparison.Ordinal));
 	}
 

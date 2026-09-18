@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "RonSijm.Anaaltomy.Viewer": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:40333;http://localhost:40334"
+    }
+  }
+}

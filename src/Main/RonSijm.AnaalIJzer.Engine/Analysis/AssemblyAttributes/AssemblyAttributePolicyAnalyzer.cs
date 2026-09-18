@@ -45,8 +45,8 @@ internal static class AssemblyAttributePolicyAnalyzer
 			.Add(ArchitectureDiagnosticProperties.PropertyRuleXmlLine, rule.XmlLineNumber.ToString(System.Globalization.CultureInfo.InvariantCulture))
 			.Add(ArchitectureDiagnosticProperties.PropertyRuleXmlCol, rule.XmlLinePosition.ToString(System.Globalization.CultureInfo.InvariantCulture));
 
-		context.ReportDiagnostic(Diagnostic.Create(
-			ArchitecturalDiagnostics.AssemblyAttributePolicyViolation,
+		context.ReportDiagnostic(ArchitecturalDiagnostics.CreateDiagnostic(
+			ArchitecturalDiagnostics.AssemblyAttributeNotAllowed,
 			location,
 			properties,
 			assemblyName,

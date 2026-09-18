@@ -26,6 +26,7 @@
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Visibility\RonSijm.AnaalIJzer.Core.Visibility.csproj" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Contracts\RonSijm.AnaalIJzer.Core.Contracts.csproj" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.Inheritance\RonSijm.AnaalIJzer.Core.Inheritance.csproj" />
+		<ProjectReference Include="..\RonSijm.AnaalIJzer.Core.NamespaceHierarchy\RonSijm.AnaalIJzer.Core.NamespaceHierarchy.csproj" />
         <ProjectReference Include="..\RonSijm.AnaalIJzer.Core.ReturnValues\RonSijm.AnaalIJzer.Core.ReturnValues.csproj" />
 		<ProjectReference Include="..\RonSijm.AnaalIJzer.Core.OperationPolicies\RonSijm.AnaalIJzer.Core.OperationPolicies.csproj" />
 		<ProjectReference Include="..\RonSijm.AnaalIJzer.Core.SemanticOperations\RonSijm.AnaalIJzer.Core.SemanticOperations.csproj" />

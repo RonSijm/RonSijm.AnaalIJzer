@@ -24,7 +24,7 @@ public static partial class LayerDependencyAnalyzer
 
 		if (parameterList is not null && parameterList.Parameters.Count > 0)
 		{
-			AnalyzeParameters(context, config, violations, observedDependencies, typeDeclaration.Identifier.ValueText, GetContainingNamespace(typeDeclaration), parameterList.Parameters, DependencySites.Constructor);
+			AnalyzeParameters(context, config, violations, observedDependencies, typeDeclaration, parameterList.Parameters, DependencySites.Constructor);
 			NamingRules.LayerDependencyAnalyzer.AnalyzeParameterDeclarationNameRules(context, config, violations, parameterList.Parameters, DependencySites.Constructor);
 		}
 
@@ -33,7 +33,7 @@ public static partial class LayerDependencyAnalyzer
 			return;
 		}
 
-		var caller = TryGetCallerLayer(context, config, typeDeclaration);
+		var caller = TryGetCallerContext(context, config, typeDeclaration);
 		if (caller is null)
 		{
 			return;
@@ -48,14 +48,14 @@ public static partial class LayerDependencyAnalyzer
 			}
 
 			var site = GetBaseListDependencySite(typeDeclaration, type);
-			AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value.TypeName, caller.Value.Match, baseType.Type.GetLocation(), type, site);
+			AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value, baseType.Type.GetLocation(), type, site);
 		}
 	}
 
 	internal static void AnalyzeAttribute(SyntaxNodeAnalysisContext context, AnalyzerConfig config, ConcurrentBag<ViolationRecord> violations, ObservedDependencyCollector? observedDependencies)
 	{
 		var attribute = (AttributeSyntax)context.Node;
-		var caller = TryGetCallerLayer(context, config, attribute);
+		var caller = TryGetCallerContext(context, config, attribute);
 		if (caller is null)
 		{
 			return;
@@ -66,7 +66,7 @@ public static partial class LayerDependencyAnalyzer
 			return;
 		}
 
-		AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value.TypeName, caller.Value.Match, attribute.Name.GetLocation(), constructor.ContainingType, DependencySites.Attribute);
+		AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value, attribute.Name.GetLocation(), constructor.ContainingType, DependencySites.Attribute);
 	}
 
 	private static string GetBaseListDependencySite(TypeDeclarationSyntax typeDeclaration, ITypeSymbol type)

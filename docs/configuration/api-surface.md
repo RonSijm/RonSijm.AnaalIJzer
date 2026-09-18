@@ -35,7 +35,7 @@ public class CandyOrderingService
     // Allowed: a private implementation detail is not external API.
     private LollyQueryable BuildQuery() => null!;
 
-    // ARCH009: a repository-owned query surface escapes through public API.
+    // ARCH_API_001: a repository-owned query surface escapes through public API.
     public LollyQueryable OrderRawLolly() => null!;
 }
 ```
@@ -74,6 +74,6 @@ public class CandyOrderingService
 
 Locals, object creation, generic invocation, and static member access are implementation behavior rather than API declarations, so `<ApiSurface>` does not inspect them.
 
-To inspect the public object graph behind an allowed signature type, enable [`TransitiveExposure`](transitive-api-exposure.md). Direct violations remain ARCH009; hidden violations reached through a permitted contract report ARCH014.
+To inspect the public object graph behind an allowed signature type, enable [`TransitiveExposure`](transitive-api-exposure.md). Direct violations remain ARCH_API_001; hidden violations reached through a permitted contract report ARCH_API_010.
 
-**Example project:** [`Example.Arch009.ApiSurfaceLeakage`](../../Examples/Diagnostics/Example.Arch009.ApiSurfaceLeakage)
+**Example project:** [`Example.Arch_API_001.ApiSurfaceLeakage`](../../Examples/Diagnostics/API/Example.Arch_API_001.ApiSurfaceLeakage)

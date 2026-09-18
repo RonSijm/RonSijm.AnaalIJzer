@@ -18,7 +18,7 @@ public sealed class PizzaCatalogController(PizzaCatalogService service) : Contro
         return result;
     }
 
-    // ARCH009: code may use IQueryable internally, but an HTTP endpoint must not publish it as its API.
+    // ARCH_API_001: code may use IQueryable internally, but an HTTP endpoint must not publish it as its API.
     [HttpGet]
     public IQueryable<PizzaResponse> GetRawPizzas()
     {

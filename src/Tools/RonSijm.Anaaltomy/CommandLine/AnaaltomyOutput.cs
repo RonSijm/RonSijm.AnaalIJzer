@@ -94,8 +94,35 @@ internal static class AnaaltomyOutput
 					}
 				}
 				break;
+			case "markdown":
+			case "md":
+				await using (var writer = new StreamWriter(fullOutputPath, false, new System.Text.UTF8Encoding(false)))
+				{
+					await writer.WriteLineAsync("# Anaaltomy Statistics");
+					await writer.WriteLineAsync();
+					await writer.WriteLineAsync("| Dimension | Bucket | Count |");
+					await writer.WriteLineAsync("|---|---|---:|");
+					foreach (var measurement in summary.Measurements)
+					{
+						await writer.WriteLineAsync("| " + EscapeMarkdown(measurement.Dimension.ToString()) + " | " + EscapeMarkdown(measurement.Bucket) + " | " + measurement.Count + " |");
+					}
+
+					if (summary.GroupedMeasurements.Count > 0)
+					{
+						await writer.WriteLineAsync();
+						await writer.WriteLineAsync("## Grouped Measurements");
+						await writer.WriteLineAsync();
+						await writer.WriteLineAsync("| Dimension | Bucket | Group Dimension | Group Bucket | Count |");
+						await writer.WriteLineAsync("|---|---|---|---|---:|");
+						foreach (var measurement in summary.GroupedMeasurements)
+						{
+							await writer.WriteLineAsync("| " + EscapeMarkdown(measurement.Dimension.ToString()) + " | " + EscapeMarkdown(measurement.Bucket) + " | " + EscapeMarkdown(measurement.GroupDimension.ToString()) + " | " + EscapeMarkdown(measurement.GroupBucket) + " | " + measurement.Count + " |");
+						}
+					}
+				}
+				break;
 			default:
-				throw new ArgumentException("Unsupported export format: " + format + ". Use json or csv.");
+				throw new ArgumentException("Unsupported export format: " + format + ". Use json, csv, or markdown.");
 		}
 	}
 
@@ -115,6 +142,13 @@ internal static class AnaaltomyOutput
 		var result = value.IndexOfAny([',', '"', '\r', '\n']) >= 0
 			? "\"" + value.Replace("\"", "\"\"") + "\""
 			: value;
+
+		return result;
+	}
+
+	private static string EscapeMarkdown(string value)
+	{
+		var result = value.Replace("\\", "\\\\").Replace("|", "\\|").Replace("\r", " ").Replace("\n", " ");
 
 		return result;
 	}

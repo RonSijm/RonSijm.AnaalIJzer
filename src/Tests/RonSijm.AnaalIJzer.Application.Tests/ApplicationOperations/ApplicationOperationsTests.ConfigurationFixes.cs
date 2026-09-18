@@ -28,7 +28,7 @@ public sealed partial class ApplicationOperationsTests
 			fixesResult.Message.Should().Contain("Found");
 			fixesResult.Content.Should().Contain("# Architecture Configuration Fixes");
 			var fix = fixesResult.FixProposals.Single(proposal => proposal.Title == "Add allowed dependency 'Presentation' -> 'Persistence'");
-			fix.DiagnosticId.Should().Be("ARCH001");
+			fix.DiagnosticId.Should().Be("ARCH_DEP_001");
 			fix.TargetPath.Should().Be(configPath);
 			fix.PreviewDiff.Should().Contain("<AllowedDependency from=\"Presentation\" to=\"Persistence\" />");
 
@@ -88,7 +88,7 @@ public sealed partial class ApplicationOperationsTests
 			fixesResult.Message.Should().Contain("Found");
 			fixesResult.Content.Should().Contain("# Architecture Configuration Fixes");
 			var fix = fixesResult.FixProposals.Single(proposal => proposal.Title == "Add allowed dependency 'Presentation' -> 'Persistence'");
-			fix.DiagnosticId.Should().Be("ARCH001");
+			fix.DiagnosticId.Should().Be("ARCH_DEP_001");
 			fix.TargetPath.Should().Be(sourcePath);
 			fix.PreviewDiff.Should().Contain("<AllowedDependency from=\"Presentation\" to=\"Persistence\" />");
 
@@ -191,8 +191,9 @@ public sealed partial class ApplicationOperationsTests
 			var projectPath = CloneExampleProject(
 				tempDirectory,
 				"Diagnostics",
-				"Example.Arch004.WrongDirection",
-				"Example.Arch004.WrongDirection.csproj");
+				"DEP",
+				"Example.Arch_DEP_004.WrongDirection",
+				"Example.Arch_DEP_004.WrongDirection.csproj");
 			var sourcePath = Path.Combine(Path.GetDirectoryName(projectPath)!, "Example.cs");
 			var runner = new ApplicationRunner();
 
@@ -204,7 +205,7 @@ public sealed partial class ApplicationOperationsTests
 			}, cancellationToken);
 
 			var fix = fixesResult.FixProposals.Single(proposal => proposal.Title == "Flip configured dependency 'Chef' -> 'Pantry' to 'Pantry' -> 'Chef'");
-			fix.DiagnosticId.Should().Be("ARCH004");
+			fix.DiagnosticId.Should().Be("ARCH_DEP_004");
 			fix.TargetPath.Should().Be(sourcePath);
 			fix.PreviewDiff.Should().Contain("<AllowedDependency from=\"Pantry\" to=\"Chef\" />");
 
@@ -249,8 +250,9 @@ public sealed partial class ApplicationOperationsTests
 			var projectPath = CloneExampleProject(
 				tempDirectory,
 				"Diagnostics",
-				"Example.Arch007.CyclicGraph",
-				"Example.Arch007.CyclicGraph.csproj");
+				"CONF",
+				"Example.Arch_CONF_006.CyclicGraph",
+				"Example.Arch_CONF_006.CyclicGraph.csproj");
 			var sourcePath = Path.Combine(Path.GetDirectoryName(projectPath)!, "Example.cs");
 			var runner = new ApplicationRunner();
 
@@ -262,7 +264,7 @@ public sealed partial class ApplicationOperationsTests
 			}, cancellationToken);
 
 			var fix = fixesResult.FixProposals.Single(proposal => proposal.Title == "Break configured cycle by blocking 'Ordering' -> 'Inventory'");
-			fix.DiagnosticId.Should().Be("ARCH007");
+			fix.DiagnosticId.Should().Be("ARCH_CONF_006");
 			fix.TargetPath.Should().Be(sourcePath);
 			fix.Risk.Should().Be("HighRisk");
 			fix.PreviewDiff.Should().Contain("<BlockedDependency from=\"Ordering\" to=\"Inventory\" />");

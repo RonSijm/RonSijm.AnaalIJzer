@@ -44,14 +44,14 @@ public sealed class DirectTicketService
 
 public sealed class TrackedTicketService
 {
-    // ARCH008: IntraProcedural mode recovers customerId through the pending local.
+    // ARCH_NAME_008: IntraProcedural mode recovers customerId through the pending local.
     public void ForwardCustomerId(int customerId)
     {
         var pending = customerId;
         Save(pending);
     }
 
-    // ARCH008: the same bounded tracking applies to a return value.
+    // ARCH_NAME_008: the same bounded tracking applies to a return value.
 	public int GetOrderId(int customerId)
 	{
 		var pending = customerId;
@@ -59,7 +59,7 @@ public sealed class TrackedTicketService
 		return pending;
 	}
 
-	// ARCH008: a lambda body can hide the same alias before it invokes Save.
+	// ARCH_NAME_008: a lambda body can hide the same alias before it invokes Save.
 	public void ForwardCustomerIdThroughLambda(int customerId)
 	{
 		Action save = () =>

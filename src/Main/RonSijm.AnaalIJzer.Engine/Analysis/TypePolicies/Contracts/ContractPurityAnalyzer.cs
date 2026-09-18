@@ -82,8 +82,8 @@ internal static class ContractPurityAnalyzer
 			properties = properties.Add(ArchitecturalDiagnostics.PropertyContractPropertyAccessor, propertyAccessor.ToString());
 		}
 
-		context.ReportDiagnostic(Diagnostic.Create(
-			ArchitecturalDiagnostics.ContractPurityViolation,
+		context.ReportDiagnostic(ArchitecturalDiagnostics.CreateDiagnostic(
+			ArchitecturalDiagnostics.ContractShapeMismatch,
 			location,
 			properties,
 			symbolName,

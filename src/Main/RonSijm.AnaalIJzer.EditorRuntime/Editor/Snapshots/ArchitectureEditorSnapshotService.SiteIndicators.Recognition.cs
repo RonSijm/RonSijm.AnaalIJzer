@@ -61,7 +61,7 @@ public static partial class ArchitectureEditorSnapshotService
 
 		if (!matchedAnyLayer && !outerTypeIsIgnored && config.RequiresRecognizedDependencyAt(caller.Match, site))
 		{
-			indicators.Add(CreateUnrecognizedSiteIndicator(span, site, caller, dependencyType.Name, ArchitectureDependencySiteStatus.Unrecognized, ArchitecturalDiagnosticIds.UnrecognizedDependency, "not assigned to any architectural layer"));
+			indicators.Add(CreateUnrecognizedSiteIndicator(span, site, caller, dependencyType.Name, ArchitectureDependencySiteStatus.Unrecognized, ArchitecturalDiagnosticIds.DependencyRequiredMissing, "not assigned to any architectural layer"));
 		}
 
 		if (!config.RequiresRecognizedDependencyAt(caller.Match, DependencySites.GenericArgument))
@@ -77,7 +77,7 @@ public static partial class ArchitectureEditorSnapshotService
 		{
 			if (seenDependencyNames.Add(argument.Name))
 			{
-				indicators.Add(CreateUnrecognizedSiteIndicator(span, DependencySites.GenericArgument, caller, argument.Name, ArchitectureDependencySiteStatus.Unrecognized, ArchitecturalDiagnosticIds.UnrecognizedDependency, "generic argument is not assigned to any architectural layer"));
+				indicators.Add(CreateUnrecognizedSiteIndicator(span, DependencySites.GenericArgument, caller, argument.Name, ArchitectureDependencySiteStatus.Unrecognized, ArchitecturalDiagnosticIds.DependencyRequiredMissing, "generic argument is not assigned to any architectural layer"));
 			}
 		}
 	}

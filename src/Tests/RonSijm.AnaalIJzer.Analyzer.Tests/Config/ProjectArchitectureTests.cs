@@ -6,7 +6,7 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Config;
 public sealed class ProjectArchitectureTests
 {
 	[Fact]
-	public async Task ProjectMatcher_WithSemanticAttribute_ReportsARCH006()
+	public async Task ProjectMatcher_WithSemanticAttribute_ReportsARCH_CONF_003()
 	{
 		const string config = """
 		                      <ArchitecturalLevels>
@@ -20,7 +20,7 @@ public sealed class ProjectArchitectureTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class Placeholder { }", config);
 
-		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.InvalidConfiguration);
+		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
 	}
 
 }

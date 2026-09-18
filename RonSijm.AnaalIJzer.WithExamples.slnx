@@ -1,38 +1,70 @@
 <Solution>
   <Folder Name="/Examples/" />
-  <Folder Name="/Examples/Diagnostics/">
-    <Project Path="Examples/Diagnostics/Example.Arch001.GenericTypeArgument/Example.Arch001.GenericTypeArgument.csproj" />
-    <Project Path="Examples/Diagnostics/Example.Arch001.NoEdge/Example.Arch001.NoEdge.csproj" />
-    <Project Path="Examples/Diagnostics/Example.Arch001.NonConstructorInjection/Example.Arch001.NonConstructorInjection.csproj" />
-    <Project Path="Examples/Diagnostics/Example.Arch001.SkipsLayer/Example.Arch001.SkipsLayer.csproj" />
-    <Project Path="Examples/Diagnostics/Example.Arch002.UnrecognizedDependency/Example.Arch002.UnrecognizedDependency.csproj" />
-    <Project Path="Examples/Diagnostics/Example.Arch003.ForbiddenType/Example.Arch003.ForbiddenType.csproj" />
-    <Project Path="Examples/Diagnostics/Example.Arch004.WrongDirection/Example.Arch004.WrongDirection.csproj" />
-    <Project Path="Examples/Diagnostics/Example.Arch005.SameLayer/Example.Arch005.SameLayer.csproj" />
-    <Project Path="Examples/Diagnostics/Example.Arch006.UnknownLayer/Example.Arch006.UnknownLayer.csproj" />
-    <Project Path="Examples/Diagnostics/Example.Arch007.CyclicGraph/Example.Arch007.CyclicGraph.csproj" />
-    <Project Path="Examples/Diagnostics/Example.Arch009.ApiSurfaceLeakage/Example.Arch009.ApiSurfaceLeakage.csproj" />
-    <Project Path="Examples/Diagnostics/Example.Arch012.VisibilityPolicy/Example.Arch012.VisibilityPolicy.csproj" />
-    <Project Path="Examples/Diagnostics/Example.Arch013.ContractPurity/Example.Arch013.ContractPurity.csproj" />
-    <Project Path="Examples/Diagnostics/Example.Arch013.ContractPurity.MethodBodyNotAllowed/Example.Arch013.ContractPurity.MethodBodyNotAllowed.csproj" />
-    <Project Path="Examples/Diagnostics/Example.Arch014.TransitiveExposure/Example.Arch014.TransitiveExposure.csproj" />
-    <Project Path="Examples/Diagnostics/Example.Arch016.BoundaryEntryPoints/Example.Arch016.BoundaryEntryPoints.csproj" />
-    <Project Path="Examples/Diagnostics/Example.Arch018.ObservedCycle/Example.Arch018.ObservedCycle.csproj" />
-    <Project Path="Examples/Diagnostics/Example.Arch019.InheritancePolicy/Example.Arch019.InheritancePolicy.csproj" />
-    <Project Path="Examples/Diagnostics/Example.Arch020.ExplicitNullReturn/Example.Arch020.ExplicitNullReturn.csproj" />
-    <Project Path="Examples/Diagnostics/Example.Arch020.AnnotatedInvocationReturn/Example.Arch020.AnnotatedInvocationReturn.csproj" />
-    <Project Path="Examples/Diagnostics/Example.Arch020.ConfiguredLiteralReturns/Example.Arch020.ConfiguredLiteralReturns.csproj" />
-    <Project Path="Examples/Diagnostics/Example.Arch021.BlockingTaskAccess/Example.Arch021.BlockingTaskAccess.csproj" />
-    <Project Path="Examples/Diagnostics/Example.Arch021.ClockAccess/Example.Arch021.ClockAccess.csproj" />
-    <Project Path="Examples/Diagnostics/Example.Arch021.SelectedEnvironmentMember/Example.Arch021.SelectedEnvironmentMember.csproj" />
-    <Project Path="Examples/Diagnostics/Example.Arch021.ServiceLocation/Example.Arch021.ServiceLocation.csproj" />
-    <Project Path="Examples/Diagnostics/Example.Arch022.RequiredOperation/Example.Arch022.RequiredOperation.csproj" />
-    <Project Path="Examples/Diagnostics/Example.Arch022.RequiredOperationBefore/Example.Arch022.RequiredOperationBefore.csproj" />
-    <Project Path="Examples/Diagnostics/Example.Arch022.ForbiddenOperationAfter/Example.Arch022.ForbiddenOperationAfter.csproj" />
-    <Project Path="Examples/Diagnostics/Example.Arch022.MaximumOperationCount/Example.Arch022.MaximumOperationCount.csproj" />
-    <Project Path="Examples/Diagnostics/Example.Arch023.OperationContract/Example.Arch023.OperationContract.csproj" />
-    <Project Path="Examples/Diagnostics/Example.Arch024.AssemblyAttributePolicy.Code/Example.Arch024.AssemblyAttributePolicy.Code.csproj" />
-    <Project Path="Examples/Diagnostics/Example.Arch024.AssemblyAttributePolicy.Project/Example.Arch024.AssemblyAttributePolicy.Project.csproj" />
+  <Folder Name="/Examples/Diagnostics/" />
+  <Folder Name="/Examples/Diagnostics/API/">
+    <Project Path="Examples/Diagnostics/API/Example.Arch_API_001.ApiSurfaceLeakage/Example.Arch_API_001.ApiSurfaceLeakage.csproj" />
+    <Project Path="Examples/Diagnostics/API/Example.Arch_API_010.TransitiveExposure/Example.Arch_API_010.TransitiveExposure.csproj" />
+  </Folder>
+  <Folder Name="/Examples/Diagnostics/ASSM/">
+    <Project Path="Examples/Diagnostics/ASSM/Example.Arch_ASSM_001.AssemblyAttributePolicy.Code/Example.Arch_ASSM_001.AssemblyAttributePolicy.Code.csproj" />
+    <Project Path="Examples/Diagnostics/ASSM/Example.Arch_ASSM_001.AssemblyAttributePolicy.Project/Example.Arch_ASSM_001.AssemblyAttributePolicy.Project.csproj" />
+  </Folder>
+  <Folder Name="/Examples/Diagnostics/BOUND/">
+    <Project Path="Examples/Diagnostics/BOUND/Example.Arch_BOUND_007.BoundaryEntryPoints/Example.Arch_BOUND_007.BoundaryEntryPoints.csproj" />
+  </Folder>
+  <Folder Name="/Examples/Diagnostics/CONF/">
+    <Project Path="Examples/Diagnostics/CONF/Example.Arch_CONF_003.UnknownLayer/Example.Arch_CONF_003.UnknownLayer.csproj" />
+    <Project Path="Examples/Diagnostics/CONF/Example.Arch_CONF_006.CyclicGraph/Example.Arch_CONF_006.CyclicGraph.csproj" />
+  </Folder>
+  <Folder Name="/Examples/Diagnostics/CONT/">
+    <Project Path="Examples/Diagnostics/CONT/Example.Arch_CONT_008.ContractPurity.MethodBodyNotAllowed/Example.Arch_CONT_008.ContractPurity.MethodBodyNotAllowed.csproj" />
+    <Project Path="Examples/Diagnostics/CONT/Example.Arch_CONT_008.ContractPurity/Example.Arch_CONT_008.ContractPurity.csproj" />
+  </Folder>
+  <Folder Name="/Examples/Diagnostics/DEP/">
+    <Project Path="Examples/Diagnostics/DEP/Example.Arch_DEP_001.GenericTypeArgument/Example.Arch_DEP_001.GenericTypeArgument.csproj" />
+    <Project Path="Examples/Diagnostics/DEP/Example.Arch_DEP_001.NoEdge/Example.Arch_DEP_001.NoEdge.csproj" />
+    <Project Path="Examples/Diagnostics/DEP/Example.Arch_DEP_001.NonConstructorInjection/Example.Arch_DEP_001.NonConstructorInjection.csproj" />
+    <Project Path="Examples/Diagnostics/DEP/Example.Arch_DEP_001.SkipsLayer/Example.Arch_DEP_001.SkipsLayer.csproj" />
+    <Project Path="Examples/Diagnostics/DEP/Example.Arch_DEP_002.UnrecognizedDependency/Example.Arch_DEP_002.UnrecognizedDependency.csproj" />
+    <Project Path="Examples/Diagnostics/DEP/Example.Arch_DEP_004.WrongDirection/Example.Arch_DEP_004.WrongDirection.csproj" />
+    <Project Path="Examples/Diagnostics/DEP/Example.Arch_DEP_005.SameLayer/Example.Arch_DEP_005.SameLayer.csproj" />
+    <Project Path="Examples/Diagnostics/DEP/Example.Arch_DEP_006.ObservedCycle/Example.Arch_DEP_006.ObservedCycle.csproj" />
+  </Folder>
+  <Folder Name="/Examples/Diagnostics/INH/">
+    <Project Path="Examples/Diagnostics/INH/Example.Arch_INH_001.InheritancePolicy/Example.Arch_INH_001.InheritancePolicy.csproj" />
+  </Folder>
+  <Folder Name="/Examples/Diagnostics/NS/">
+    <Project Path="Examples/Diagnostics/NS/Example.Arch_NS_007.NamespaceHierarchy.AncestorToDescendant/Example.Arch_NS_007.NamespaceHierarchy.AncestorToDescendant.csproj" />
+    <Project Path="Examples/Diagnostics/NS/Example.Arch_NS_007.NamespaceHierarchy.DescendantToAncestor/Example.Arch_NS_007.NamespaceHierarchy.DescendantToAncestor.csproj" />
+    <Project Path="Examples/Diagnostics/NS/Example.Arch_NS_007.NamespaceHierarchy.SameNamespace/Example.Arch_NS_007.NamespaceHierarchy.SameNamespace.csproj" />
+    <Project Path="Examples/Diagnostics/NS/Example.Arch_NS_007.NamespaceHierarchy.SiblingToSibling/Example.Arch_NS_007.NamespaceHierarchy.SiblingToSibling.csproj" />
+  </Folder>
+  <Folder Name="/Examples/Diagnostics/OPCT/">
+    <Project Path="Examples/Diagnostics/OPCT/Example.Arch_OPCT_001.ParticipantNotAllowed/Example.Arch_OPCT_001.ParticipantNotAllowed.csproj" />
+    <Project Path="Examples/Diagnostics/OPCT/Example.Arch_OPCT_002.RequiredOwnerInvocation/Example.Arch_OPCT_002.RequiredOwnerInvocation.csproj" />
+    <Project Path="Examples/Diagnostics/OPCT/Example.Arch_OPCT_008.ResponseShapeMismatch/Example.Arch_OPCT_008.ResponseShapeMismatch.csproj" />
+  </Folder>
+  <Folder Name="/Examples/Diagnostics/OPER/">
+    <Project Path="Examples/Diagnostics/OPER/Example.Arch_OPER_001.BlockingTaskAccess/Example.Arch_OPER_001.BlockingTaskAccess.csproj" />
+    <Project Path="Examples/Diagnostics/OPER/Example.Arch_OPER_001.ClockAccess/Example.Arch_OPER_001.ClockAccess.csproj" />
+    <Project Path="Examples/Diagnostics/OPER/Example.Arch_OPER_001.SelectedEnvironmentMember/Example.Arch_OPER_001.SelectedEnvironmentMember.csproj" />
+    <Project Path="Examples/Diagnostics/OPER/Example.Arch_OPER_001.ServiceLocation/Example.Arch_OPER_001.ServiceLocation.csproj" />
+    <Project Path="Examples/Diagnostics/OPER/Example.Arch_OPER_002.RequiredOperation/Example.Arch_OPER_002.RequiredOperation.csproj" />
+    <Project Path="Examples/Diagnostics/OPER/Example.Arch_OPER_011.MaximumOperationCount/Example.Arch_OPER_011.MaximumOperationCount.csproj" />
+    <Project Path="Examples/Diagnostics/OPER/Example.Arch_OPER_012.ForbiddenOperationAfter/Example.Arch_OPER_012.ForbiddenOperationAfter.csproj" />
+    <Project Path="Examples/Diagnostics/OPER/Example.Arch_OPER_012.RequiredOperationBefore/Example.Arch_OPER_012.RequiredOperationBefore.csproj" />
+  </Folder>
+  <Folder Name="/Examples/Diagnostics/RET/">
+    <Project Path="Examples/Diagnostics/RET/Example.Arch_RET_001.AnnotatedInvocationReturn/Example.Arch_RET_001.AnnotatedInvocationReturn.csproj" />
+    <Project Path="Examples/Diagnostics/RET/Example.Arch_RET_001.ConfiguredLiteralReturns/Example.Arch_RET_001.ConfiguredLiteralReturns.csproj" />
+    <Project Path="Examples/Diagnostics/RET/Example.Arch_RET_001.ExplicitNullReturn/Example.Arch_RET_001.ExplicitNullReturn.csproj" />
+    <Project Path="Examples/Diagnostics/RET/Example.Arch_RET_001.OnlyIdentifierReturn/Example.Arch_RET_001.OnlyIdentifierReturn.csproj" />
+  </Folder>
+  <Folder Name="/Examples/Diagnostics/TYPE/">
+    <Project Path="Examples/Diagnostics/TYPE/Example.Arch_TYPE_001.ForbiddenType/Example.Arch_TYPE_001.ForbiddenType.csproj" />
+  </Folder>
+  <Folder Name="/Examples/Diagnostics/VIS/">
+    <Project Path="Examples/Diagnostics/VIS/Example.Arch_VIS_001.VisibilityPolicy/Example.Arch_VIS_001.VisibilityPolicy.csproj" />
   </Folder>
   <Folder Name="/Examples/Features/">
     <Project Path="Examples/Features/Example.AllowedSites/Example.AllowedSites.csproj" />
@@ -46,6 +78,7 @@
 	<Project Path="Examples/Features/Example.GeneratedCode/Example.GeneratedCode.csproj" />
     <Project Path="Examples/Features/Example.ExceptionPolicy/Example.ExceptionPolicy.csproj" />
     <Project Path="Examples/Features/Example.Exceptions/Example.Exceptions.csproj" />
+    <Project Path="Examples/Features/Example.GlobalReturnValuePolicy/Example.GlobalReturnValuePolicy.csproj" />
     <Project Path="Examples/Features/Example.IncludeSettings/Example.IncludeSettings.csproj" />
     <Project Path="Examples/Features/Example.IncludeWildcardSettings/Example.IncludeWildcardSettings.csproj" />
     <Project Path="Examples/Features/Example.InlineXml/Example.InlineXml.csproj" />
@@ -55,6 +88,7 @@
     <Project Path="Examples/Features/Example.NameRules/Example.NameRules.csproj" />
     <Project Path="Examples/Features/Example.NestedExceptions/Example.NestedExceptions.csproj" />
     <Project Path="Examples/Features/Example.NestedLayers/Example.NestedLayers.csproj" />
+    <Project Path="Examples/Features/Example.NamespaceHierarchySites/Example.NamespaceHierarchySites.csproj" />
     <Project Path="Examples/Features/Example.NonClassCallers/Example.NonClassCallers.csproj" />
     <Project Path="Examples/Features/Example.RequiredRecognizedDependencySites/Example.RequiredRecognizedDependencySites.csproj" />
     <Project Path="Examples/Features/Example.SameLayerInheritance/Example.SameLayerInheritance.csproj" />
@@ -134,6 +168,7 @@
     <Project Path="src/Main/RonSijm.AnaalIJzer.Core.Exceptions/RonSijm.AnaalIJzer.Core.Exceptions.csproj" />
     <Project Path="src/Main/RonSijm.AnaalIJzer.Core.Inheritance/RonSijm.AnaalIJzer.Core.Inheritance.csproj" />
     <Project Path="src/Main/RonSijm.AnaalIJzer.Core.NameRules/RonSijm.AnaalIJzer.Core.NameRules.csproj" />
+	<Project Path="src/Main/RonSijm.AnaalIJzer.Core.NamespaceHierarchy/RonSijm.AnaalIJzer.Core.NamespaceHierarchy.csproj" />
 	<Project Path="src/Main/RonSijm.AnaalIJzer.Core.OperationPolicies/RonSijm.AnaalIJzer.Core.OperationPolicies.csproj" />
 	<Project Path="src/Main/RonSijm.AnaalIJzer.Core.OperationContracts/RonSijm.AnaalIJzer.Core.OperationContracts.csproj" />
     <Project Path="src/Main/RonSijm.AnaalIJzer.Core.PolicyEvaluation/RonSijm.AnaalIJzer.Core.PolicyEvaluation.csproj" />
@@ -188,6 +223,7 @@
     <Project Path="src/Tests/RonSijm.AnaalIJzer.Core.ApiSurface.Tests/RonSijm.AnaalIJzer.Core.ApiSurface.Tests.csproj" />
 	<Project Path="src/Tests/RonSijm.AnaalIJzer.Core.AssemblyAttributes.Tests/RonSijm.AnaalIJzer.Core.AssemblyAttributes.Tests.csproj" />
     <Project Path="src/Tests/RonSijm.AnaalIJzer.Core.NameRules.Tests/RonSijm.AnaalIJzer.Core.NameRules.Tests.csproj" />
+	<Project Path="src/Tests/RonSijm.AnaalIJzer.Core.NamespaceHierarchy.Tests/RonSijm.AnaalIJzer.Core.NamespaceHierarchy.Tests.csproj" />
     <Project Path="src/Tests/RonSijm.AnaalIJzer.Core.SourceLocations.Tests/RonSijm.AnaalIJzer.Core.SourceLocations.Tests.csproj" />
     <Project Path="src/Tests/RonSijm.AnaalIJzer.Core.LayerModel.Tests/RonSijm.AnaalIJzer.Core.LayerModel.Tests.csproj" />
     <Project Path="src/Tests/RonSijm.AnaalIJzer.Core.PolicyEvaluation.Tests/RonSijm.AnaalIJzer.Core.PolicyEvaluation.Tests.csproj" />
@@ -221,5 +257,6 @@
     <Project Path="src/Tools/RonSijm.AnaalIJzer.GraphEditor.Standalone/RonSijm.AnaalIJzer.GraphEditor.Standalone.csproj" />
     <Project Path="src/Tools/RonSijm.AnaalIJzer.Arse/RonSijm.AnaalIJzer.Arse.csproj" />
     <Project Path="src/Tools/RonSijm.Anaaltomy/RonSijm.Anaaltomy.csproj" />
+    <Project Path="src/Tools/RonSijm.Anaaltomy.Viewer/RonSijm.Anaaltomy.Viewer.csproj" />
   </Folder>
 </Solution>

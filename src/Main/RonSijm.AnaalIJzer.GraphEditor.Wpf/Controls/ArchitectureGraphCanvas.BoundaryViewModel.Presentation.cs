@@ -37,7 +37,7 @@ internal sealed partial class ArchitectureGraphCanvas
 			get
 			{
 				var evidence = TypeCount > 0 ? "  (" + TypeCount + ")" : string.Empty;
-				var exceptionReviews = ExceptionReviewCount > 0 ? "  [ARCH017 " + ExceptionReviewCount + "]" : string.Empty;
+				var exceptionReviews = ExceptionReviewCount > 0 ? "  [ARCH_EXC_009 " + ExceptionReviewCount + "]" : string.Empty;
 				var marker = Kind == ArchitectureGraphNodeKind.SolutionModule ? "Solution topology: " : string.Empty;
 				var result = marker + DisplayName + evidence + exceptionReviews;
 

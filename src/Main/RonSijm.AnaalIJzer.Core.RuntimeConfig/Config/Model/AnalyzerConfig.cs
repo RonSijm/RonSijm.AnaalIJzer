@@ -11,6 +11,7 @@ using RonSijm.AnaalIJzer.Core.Exceptions;
 using RonSijm.AnaalIJzer.Core.Inheritance.Policies;
 using RonSijm.AnaalIJzer.Core.LayerModel;
 using RonSijm.AnaalIJzer.Core.NameRules;
+	using RonSijm.AnaalIJzer.Core.NamespaceHierarchy.Policies;
 using RonSijm.AnaalIJzer.Core.Observations;
 using RonSijm.AnaalIJzer.Core.OperationContracts.Model;
 using RonSijm.AnaalIJzer.Core.OperationPolicies.Behavioral;
@@ -31,7 +32,7 @@ namespace RonSijm.AnaalIJzer.Core.RuntimeConfig.Config.Model;
 public readonly struct AnalyzerConfig(
 	CompiledArchitectureConfig compiledConfig)
 {
-	private readonly ArchitecturePolicyEngine _engine = new(compiledConfig.LayerCatalog);
+	private readonly ArchitecturePolicyEngine _engine = new(compiledConfig.LayerCatalog, compiledConfig.GlobalReturnValuePolicies, compiledConfig.NamespaceHierarchyPolicies);
 
 	public static readonly AnalyzerConfig Empty = new(CompiledArchitectureConfig.Empty);
 
@@ -79,6 +80,8 @@ public readonly struct AnalyzerConfig(
 	public GeneratedCodeAnalysisScope GeneratedCodeScope => CompiledConfig.GeneratedCodeScope;
 	public OperationContractCatalog OperationContracts => CompiledConfig.OperationContracts;
 	public AssemblyAttributePolicyCatalog AssemblyAttributePolicies => CompiledConfig.AssemblyAttributePolicies;
+	public ImmutableArray<ReturnValuePolicy> GlobalReturnValuePolicies => CompiledConfig.GlobalReturnValuePolicies;
+	public ImmutableArray<NamespaceHierarchyPolicy> NamespaceHierarchyPolicies => CompiledConfig.NamespaceHierarchyPolicies;
 
 	public ImmutableHashSet<(string From, string To)> AllowedEdges => CompiledConfig.Graph.AllowedEdges;
 	public ImmutableHashSet<string> WildcardTargets => CompiledConfig.Graph.WildcardTargets;
@@ -98,12 +101,14 @@ public readonly struct AnalyzerConfig(
 	public bool HasContractPolicies => Engine.HasContractPolicies;
 	public bool HasInheritancePolicies => Engine.HasInheritancePolicies;
 	public bool HasReturnValuePolicies => Engine.HasReturnValuePolicies;
+	public bool HasNamespaceHierarchyPolicies => Engine.HasNamespaceHierarchyPolicies;
 	public bool HasForbiddenOperationPolicies => Engine.HasForbiddenOperationPolicies;
 	public bool HasBehavioralOperationPolicies => Engine.HasBehavioralOperationPolicies;
 	public bool HasOperationContracts => OperationContracts.HasDefinitions;
 	public bool HasAssemblyAttributePolicies => AssemblyAttributePolicies.HasPolicies;
 	public bool HasVisibilityPolicies => Engine.HasVisibilityPolicies;
 	public bool HasApiSurfacePolicies => Engine.HasApiSurfacePolicies;
+	public bool HasConfiguredRules => HasLayers || HasProjectArchitecture || HasSolutionTopology || HasOperationContracts || HasAssemblyAttributePolicies || HasReturnValuePolicies || HasNamespaceHierarchyPolicies;
 	public bool HasEntryPointPolicies => Engine.HasEntryPointPolicies;
 	public bool HasSourceLocationPolicies => Engine.HasSourceLocationPolicies;
 	public bool HasIntraProceduralNameRules => Engine.HasIntraProceduralNameRules;
@@ -169,9 +174,16 @@ public readonly struct AnalyzerConfig(
 		return result;
 	}
 
-	public ReturnValuePolicyEvaluation? EvaluateReturnValuePolicies(LayerMatch layerMatch, ExpressionSyntax expression, SemanticModel semanticModel, CancellationToken cancellationToken)
+	public ReturnValuePolicyEvaluation? EvaluateReturnValuePolicies(LayerMatch? layerMatch, ExpressionSyntax expression, SemanticModel semanticModel, CancellationToken cancellationToken)
 	{
 		var result = Engine.EvaluateReturnValuePolicies(layerMatch, expression, semanticModel, cancellationToken);
+
+		return result;
+	}
+
+	public NamespaceHierarchyEvaluation? EvaluateNamespaceHierarchyPolicies(string callerNamespace, string dependencyNamespace, string site)
+	{
+		var result = Engine.EvaluateNamespaceHierarchyPolicies(callerNamespace, dependencyNamespace, site);
 
 		return result;
 	}

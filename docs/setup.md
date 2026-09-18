@@ -12,7 +12,7 @@ Or add the package reference directly to your `.csproj`:
 
 ```xml
 <ItemGroup>
-    <PackageReference Include="RonSijm.AnaalIJzer" Version="0.0.7" PrivateAssets="all" />
+    <PackageReference Include="RonSijm.AnaalIJzer" Version="0.4.0" PrivateAssets="all" />
 </ItemGroup>
 ```
 
@@ -89,7 +89,7 @@ If several projects should use the same `Architecture.anl`, put the XML next to 
 ```xml
 <Project>
   <ItemGroup>
-    <PackageReference Include="RonSijm.AnaalIJzer" Version="0.0.7" PrivateAssets="all" />
+    <PackageReference Include="RonSijm.AnaalIJzer" Version="0.4.0" PrivateAssets="all" />
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)Architecture.anl" Link="Architecture.anl" />
   </ItemGroup>
 </Project>

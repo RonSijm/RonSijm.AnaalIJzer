@@ -39,24 +39,24 @@ public sealed class ValidPatientEndpoint(PatientId patientId)
     }
 }
 
-// ARCH008 at Constructor: DoctorId does not describe patientId.
+// ARCH_NAME_008 at Constructor: DoctorId does not describe patientId.
 public sealed class PatientEndpoint(DoctorId patientId)
 {
-    // ARCH008 at Field.
+    // ARCH_NAME_008 at Field.
     private readonly DoctorId _patientId = patientId;
 
-    // ARCH008 at Property.
+    // ARCH_NAME_008 at Property.
     public DoctorId PatientId { get; } = patientId;
 
-    // ARCH008 at Method.
+    // ARCH_NAME_008 at Method.
     public void Load(DoctorId patientId)
     {
     }
 
-    // ARCH008 at MethodReturn.
+    // ARCH_NAME_008 at MethodReturn.
     public DoctorId GetPatientId()
     {
-        // ARCH008 at Local.
+        // ARCH_NAME_008 at Local.
         DoctorId patientId = default;
 
         return patientId;

@@ -1,6 +1,6 @@
-﻿### `enforceAcyclic` attribute
+### `enforceAcyclic` attribute
 
-Set `enforceAcyclic="true"` to require explicit allowed dependency edges to form an acyclic graph. A cycle reports ARCH007 before code needs to use every permitted direction, on the grounds that a cycle you have merely authorised is still a cycle waiting for a deadline to discover it:
+Set `enforceAcyclic="true"` to require explicit allowed dependency edges to form an acyclic graph. A cycle reports ARCH_CONF_006 before code needs to use every permitted direction, on the grounds that a cycle you have merely authorised is still a cycle waiting for a deadline to discover it:
 
 ```xml
 <ArchitecturalLevels enforceAcyclic="true">
@@ -12,4 +12,4 @@ Set `enforceAcyclic="true"` to require explicit allowed dependency edges to form
 
 Wildcard and self-edges are excluded because they do not describe a finite directional chain. An unfiltered matching `<BlockedDependency>` removes blocked directions from cycle evaluation.
 
-**Example project:** [`Example.Arch007.CyclicGraph`](../../Examples/Diagnostics/Example.Arch007.CyclicGraph)
+**Example project:** [`Example.Arch_CONF_006.CyclicGraph`](../../Examples/Diagnostics/CONF/Example.Arch_CONF_006.CyclicGraph)

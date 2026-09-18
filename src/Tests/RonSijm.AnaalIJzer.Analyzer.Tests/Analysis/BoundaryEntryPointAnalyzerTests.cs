@@ -38,7 +38,7 @@ public sealed class BoundaryEntryPointAnalyzerTests
 			null,
 			("Architecture.anl", config));
 
-		diagnostics.Should().NotContain(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.BoundaryEntryPointViolation);
+		diagnostics.Should().NotContain(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.BoundaryEntryPlacement);
 	}
 
 	[Fact]
@@ -74,7 +74,7 @@ public sealed class BoundaryEntryPointAnalyzerTests
 			null,
 			("Architecture.anl", config));
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.BoundaryEntryPointViolation).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.BoundaryEntryPlacement).Subject;
 		diagnostic.Properties[ArchitecturalDiagnostics.PropertyBoundaryLayerName].Should().Be("Ordering");
 		diagnostic.Properties[ArchitecturalDiagnostics.PropertyViolationReason].Should().Contain("permits entry only through");
 	}
@@ -107,8 +107,8 @@ public sealed class BoundaryEntryPointAnalyzerTests
 			null,
 			("Architecture.anl", config));
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency);
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.BoundaryEntryPointViolation);
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed);
+		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.BoundaryEntryPlacement);
 	}
 
 	[Fact]
@@ -140,7 +140,7 @@ public sealed class BoundaryEntryPointAnalyzerTests
 			null,
 			("Architecture.anl", config));
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.BoundaryEntryPointViolation)
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.BoundaryEntryPlacement)
 			.Which.Properties[ArchitecturalDiagnostics.PropertyEntryPointFailureReason].Should().Be("the matching entry point does not allow site Constructor");
 	}
 }

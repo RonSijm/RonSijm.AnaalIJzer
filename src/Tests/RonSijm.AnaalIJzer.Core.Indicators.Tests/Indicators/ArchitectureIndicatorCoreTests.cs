@@ -164,7 +164,7 @@ public sealed class ArchitectureIndicatorCoreTests
 			null,
 			0,
 			ArchitectureDependencySiteStatus.SiteFiltered,
-			"ARCH001",
+			"ARCH_DEP_001",
 			"Raw ingredients cannot be returned to the waiter.");
 
 		result.Reason.Should().Be("Raw ingredients cannot be returned to the waiter.");
@@ -182,7 +182,7 @@ public sealed class ArchitectureIndicatorCoreTests
 			"Pantry",
 			5,
 			ArchitectureDependencySiteStatus.Blocked,
-			"ARCH001",
+			"ARCH_DEP_001",
 			"Waiters should not store pantry ingredients.",
 			"blockedSites blocks Field");
 
@@ -209,7 +209,7 @@ public sealed class ArchitectureIndicatorCoreTests
 
 		result.ExposureSegments.Should().BeEmpty();
 		result.IsTransitive.Should().BeFalse();
-		result.DiagnosticId.Should().Be("ARCH009");
+		result.DiagnosticId.Should().Be("ARCH_API_001");
 	}
 
 	[Fact]
@@ -266,7 +266,7 @@ public sealed class ArchitectureIndicatorCoreTests
 			"patientid",
 			"Property names must match their type.");
 
-		result.DiagnosticId.Should().Be("ARCH008");
+		result.DiagnosticId.Should().Be("ARCH_NAME_008");
 		result.Reason.Should().Be("Property names must match their type.");
 	}
 
@@ -285,7 +285,7 @@ public sealed class ArchitectureIndicatorCoreTests
 			"Architecture.anl",
 			22);
 
-		result.DiagnosticId.Should().Be("ARCH012");
+		result.DiagnosticId.Should().Be("ARCH_VIS_001");
 		result.IsEffectivelyExternallyVisible.Should().BeTrue();
 	}
 }

@@ -37,9 +37,9 @@ public sealed partial class EditorSnapshotTests
 		indicator.ExposedTypeName.Should().Be("LollyQueryable");
 		indicator.ExposedLayerPath.Should().Be("QuerySurface");
 		indicator.Site.Should().Be("MethodReturn");
-		indicator.DiagnosticId.Should().Be(ArchitecturalDiagnosticIds.ApiSurfaceLeakage);
+		indicator.DiagnosticId.Should().Be(ArchitecturalDiagnosticIds.ApiExposureNotAllowed);
 		var content = ArchitectureQuickInfoContentBuilder.CreateApiSurfaceContent(indicator).ToString();
-		content.Should().Contain("Diagnostic: ARCH009");
+		content.Should().Contain("Diagnostic: ARCH_API_001");
 		content.Should().Contain("Public contracts only");
 		content.Should().Contain("Exposed type: LollyQueryable (QuerySurface)");
 	}
@@ -99,7 +99,7 @@ public sealed partial class EditorSnapshotTests
 			""";
 
 		var snapshot = await CreateSnapshotAsync(source, config);
-		var indicator = snapshot.ApiSurfaceIndicators.Should().ContainSingle(item => item.DiagnosticId == ArchitecturalDiagnosticIds.ForbiddenTransitiveExposure).Which;
+		var indicator = snapshot.ApiSurfaceIndicators.Should().ContainSingle(item => item.DiagnosticId == ArchitecturalDiagnosticIds.ApiTransitiveExposure).Which;
 
 		indicator.ExposureDepth.Should().Be(1);
 		indicator.ExposurePath.Should().Contain("CandyService.OrderRaw");
@@ -143,7 +143,7 @@ public sealed partial class EditorSnapshotTests
 
 		var snapshot = await CreateSnapshotAsync(source, config, includeProjectEvidence: true);
 		var evidence = snapshot.GraphSnapshot.Evidence.Dependencies.Should().ContainSingle(item =>
-			item.DiagnosticId == ArchitecturalDiagnosticIds.ForbiddenTransitiveExposure).Which;
+			item.DiagnosticId == ArchitecturalDiagnosticIds.ApiTransitiveExposure).Which;
 
 		evidence.CallerLayerPath.Should().Be("Application");
 		evidence.DependencyLayerPath.Should().Be("QuerySurface");

@@ -80,7 +80,7 @@ internal static class ApplicationDocumentationOperations
 	private static async Task<ApplicationRunResult> GenerateSolutionReportAsync(ApplicationRequest request, ApplicationWorkspaceAnalysisService workspace, CancellationToken cancellationToken)
 	{
 		var result = await workspace.AnalyzeSolutionAsync(request, cancellationToken);
-		var representativeProject = workspace.EnsureSolutionHasLayers(result);
+		var representativeProject = workspace.EnsureSolutionHasRules(result);
 		var outputPath = ApplicationOutputPathService.ResolveOutputPath(
 			request.OutputPath,
 			representativeProject.Config.EnableReport ? representativeProject.Config.ReportPath : Path.Combine(result.SolutionDirectory, "architectural-violations.md"),

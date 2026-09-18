@@ -25,6 +25,7 @@
       <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.GraphModel\RonSijm.AnaalIJzer.GraphModel.csproj" />
       <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Core.Violations\RonSijm.AnaalIJzer.Core.Violations.csproj" />
       <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Diagnostics\RonSijm.AnaalIJzer.Diagnostics.csproj" />
+      <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Core.NamespaceHierarchy\RonSijm.AnaalIJzer.Core.NamespaceHierarchy.csproj" />
         <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Engine\RonSijm.AnaalIJzer.Engine.csproj" />
       <ProjectReference Include="..\..\Main\RonSijm.AnaalIJzer.Outputs\RonSijm.AnaalIJzer.Outputs.csproj" />
     </ItemGroup>

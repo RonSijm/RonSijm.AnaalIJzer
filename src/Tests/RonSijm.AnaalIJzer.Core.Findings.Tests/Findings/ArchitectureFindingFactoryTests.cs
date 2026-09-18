@@ -93,7 +93,7 @@ public sealed class ArchitectureFindingFactoryTests
 	[Fact]
 	public void Finding_WithContextPrefix_AppendsExistingContext()
 	{
-		var finding = new ArchitectureFinding(ArchitectureFindingSeverity.Error, "ARCH001", "message", "Kitchen.cs:12");
+		var finding = new ArchitectureFinding(ArchitectureFindingSeverity.Error, "ARCH_DEP_001", "message", "Kitchen.cs:12");
 
 		var result = finding.WithContextPrefix("Project A");
 
@@ -103,13 +103,13 @@ public sealed class ArchitectureFindingFactoryTests
 	[Fact]
 	public void Finding_WithContextPrefix_UsesPrefix_WhenContextIsEmpty()
 	{
-		var finding = new ArchitectureFinding(ArchitectureFindingSeverity.Info, "ARCH001", "message", string.Empty);
+		var finding = new ArchitectureFinding(ArchitectureFindingSeverity.Info, "ARCH_DEP_001", "message", string.Empty);
 
 		var result = finding.WithContextPrefix("Project A");
 
 		result.Context.Should().Be("Project A");
 		result.SeverityText.Should().Be("Info");
-		result.Category.Should().Be("ARCH001");
+		result.Category.Should().Be("Architecture.Dependency");
 	}
 
 	[Theory]
@@ -127,7 +127,7 @@ public sealed class ArchitectureFindingFactoryTests
 	private static Diagnostic CreateDiagnostic(Location location, ImmutableDictionary<string, string?> properties)
 	{
 		var descriptor = new DiagnosticDescriptor(
-			"ARCH001",
+			"ARCH_DEP_001",
 			"Title",
 			"Rule message",
 			"Architecture",

@@ -21,7 +21,7 @@ public sealed class PizzaOrdersController(PizzaOrderingService service) : Contro
 [Route("api/pizza-order-preview")]
 public sealed class PizzaOrderPreviewController : ControllerBase
 {
-    // ARCH023: the selected HTTP action returns the configured response, but it never delegates to the owner.
+    // ARCH_OPCT_002: the selected HTTP action returns the configured response, but it never delegates to the owner.
     [HttpPost]
     public PlacePizzaOrderResponse PlacePizzaOrder(PlacePizzaOrderRequest request)
     {

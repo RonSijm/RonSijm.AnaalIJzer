@@ -30,9 +30,9 @@ public sealed partial class EditorSnapshotTests
 		indicators.Select(indicator => indicator.DeclarationTarget).Should().BeEquivalentTo("Type", "Property");
 		indicators.Should().OnlyContain(indicator => indicator.DeclaredAccessibility == "Public");
 		indicators.Should().OnlyContain(indicator => indicator.LayerPath == "QuerySurface");
-		indicators.Should().OnlyContain(indicator => indicator.DiagnosticId == ArchitecturalDiagnosticIds.VisibilityPolicyViolation);
+		indicators.Should().OnlyContain(indicator => indicator.DiagnosticId == ArchitecturalDiagnosticIds.VisibilityNotAllowed);
 		var content = ArchitectureQuickInfoContentBuilder.CreateVisibilityPolicyContent(indicators[0]);
-		content.ToString().Should().Contain("Diagnostic: ARCH012");
+		content.ToString().Should().Contain("Diagnostic: ARCH_VIS_001");
 		content.ToString().Should().Contain("Keep query state private");
 	}
 

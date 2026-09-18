@@ -11,6 +11,6 @@ public sealed class BlockedFieldSiteExample
         _ = allowed;
     }
 
-    // ARCH001: blockedSites="Field" blocks this field.
+    // ARCH_DEP_001: blockedSites="Field" blocks this field.
     private readonly BlockedFieldType _blocked = null!;
 }

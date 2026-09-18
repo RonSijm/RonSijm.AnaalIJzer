@@ -33,13 +33,13 @@ public static partial class LayerDependencyAnalyzer
 			string.Empty,
 			null);
 
-		context.ReportDiagnostic(Diagnostic.Create(
-			ArchitecturalDiagnostics.UnrecognizedDependency,
+		context.ReportDiagnostic(ArchitecturalDiagnostics.CreateDiagnostic(
+			ArchitecturalDiagnostics.DependencyRequiredMissing,
 			reportLocation,
 			properties,
 			callerTypeName, callerLayerName, dependencyTypeName, string.Empty));
 
-		violations.Add(new ViolationRecord(ArchitecturalDiagnosticIds.UnrecognizedDependency, callerTypeName, callerLayerName, dependencyTypeName, string.Empty, string.Empty, null));
+		violations.Add(new ViolationRecord(ArchitecturalDiagnosticIds.DependencyRequiredMissing, callerTypeName, callerLayerName, dependencyTypeName, string.Empty, string.Empty, null));
 	}
 
 	private static void ReportIllegalDependency(SyntaxNodeAnalysisContext context, ConcurrentBag<ViolationRecord> violations, string callerTypeName, string callerLayerName, string depTypeName, string depLayerName, Location reportLocation, string site, AnalyzerConfig config, ImmutableDictionary<string, string?> ruleProperties, DependencyEdgeEvaluation edgeEvaluation)
@@ -50,26 +50,26 @@ public static partial class LayerDependencyAnalyzer
 
 		if (callerLayerName == depLayerName)
 		{
-			descriptor = ArchitecturalDiagnostics.SameLayerDependency;
-			diagnosticId = ArchitecturalDiagnosticIds.SameLayerDependency;
+			descriptor = ArchitecturalDiagnostics.DependencyPeerScope;
+			diagnosticId = ArchitecturalDiagnosticIds.DependencyPeerScope;
 			reason = edgeEvaluation.IsDeniedBySiteFilter ? edgeEvaluation.DenialReason : $"types in the same layer ('{callerLayerName}') may not depend on each other";
 		}
 		else if (edgeEvaluation.IsDeniedByBlockedEdge)
 		{
-			descriptor = ArchitecturalDiagnostics.IllegalDependency;
-			diagnosticId = ArchitecturalDiagnosticIds.IllegalLevelDependency;
+			descriptor = ArchitecturalDiagnostics.DependencyNotAllowed;
+			diagnosticId = ArchitecturalDiagnosticIds.DependencyNotAllowed;
 			reason = edgeEvaluation.DenialReason;
 		}
 		else if (config.Graph.HasEdge(edgeEvaluation.ScopePath, depLayerName, callerLayerName))
 		{
-			descriptor = ArchitecturalDiagnostics.WrongDirectionDependency;
-			diagnosticId = ArchitecturalDiagnosticIds.WrongDirectionDependency;
+			descriptor = ArchitecturalDiagnostics.DependencyReverseDirection;
+			diagnosticId = ArchitecturalDiagnosticIds.DependencyReverseDirection;
 			reason = edgeEvaluation.IsDeniedBySiteFilter ? edgeEvaluation.DenialReason : $"this dependency goes the wrong direction — the reverse ('{depLayerName}' \u2192 '{callerLayerName}') is configured";
 		}
 		else
 		{
-			descriptor = ArchitecturalDiagnostics.IllegalDependency;
-			diagnosticId = ArchitecturalDiagnosticIds.IllegalLevelDependency;
+			descriptor = ArchitecturalDiagnostics.DependencyNotAllowed;
+			diagnosticId = ArchitecturalDiagnosticIds.DependencyNotAllowed;
 			reason = edgeEvaluation.DenialReason;
 		}
 
@@ -82,13 +82,13 @@ public static partial class LayerDependencyAnalyzer
 			reason,
 			null);
 		properties = AddDependencyRuleProperties(properties, edgeEvaluation, site);
-		if (diagnosticId == ArchitecturalDiagnosticIds.WrongDirectionDependency
+		if (diagnosticId == ArchitecturalDiagnosticIds.DependencyReverseDirection
 		    && TryFindReverseDependencyEdge(config, edgeEvaluation.ScopePath, callerLayerName, depLayerName, out var reverseEdge))
 		{
 			properties = AddReverseDependencyRuleProperties(properties, reverseEdge);
 		}
 
-		context.ReportDiagnostic(Diagnostic.Create(
+		context.ReportDiagnostic(ArchitecturalDiagnostics.CreateDiagnostic(
 			descriptor,
 			reportLocation,
 			properties,
@@ -122,14 +122,14 @@ public static partial class LayerDependencyAnalyzer
 			evaluation.Reason,
 			null);
 
-		context.ReportDiagnostic(Diagnostic.Create(
-			ArchitecturalDiagnostics.BoundaryEntryPointViolation,
+		context.ReportDiagnostic(ArchitecturalDiagnostics.CreateDiagnostic(
+			ArchitecturalDiagnostics.BoundaryEntryPlacement,
 			reportLocation,
 			properties,
 			callerTypeName, callerLayerName, depTypeName, depLayerName, evaluation.BoundaryLayerName, evaluation.Reason));
 
 		violations.Add(new ViolationRecord(
-			ArchitecturalDiagnosticIds.BoundaryEntryPointViolation,
+			ArchitecturalDiagnosticIds.BoundaryEntryPlacement,
 			callerTypeName,
 			callerLayerName,
 			depTypeName,

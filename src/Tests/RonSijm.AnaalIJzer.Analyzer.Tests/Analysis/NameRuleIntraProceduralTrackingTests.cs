@@ -13,7 +13,7 @@ public sealed class NameRuleIntraProceduralTrackingTests
 			Save(alias);
 			"""), CreateConfig("Direct"));
 
-		diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.NameRuleViolation).Should().BeEmpty();
+		diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Should().BeEmpty();
 	}
 
 	[Fact]
@@ -24,7 +24,7 @@ public sealed class NameRuleIntraProceduralTrackingTests
 			Save(alias);
 			"""), CreateConfig("IntraProcedural"));
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.NameRuleViolation).Which;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Which;
 		diagnostic.Properties["SourceName"].Should().Be("animalId");
 		diagnostic.Properties["TargetName"].Should().Be("fruitId");
 		diagnostic.Properties["Site"].Should().Be("Method");
@@ -46,7 +46,7 @@ public sealed class NameRuleIntraProceduralTrackingTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig("IntraProcedural"));
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.NameRuleViolation).Which;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Which;
 		diagnostic.Properties["SourceName"].Should().Be("animalId");
 		diagnostic.Properties["TargetName"].Should().Be("GetFruitId");
 		diagnostic.Properties["Site"].Should().Be("MethodReturn");
@@ -60,7 +60,7 @@ public sealed class NameRuleIntraProceduralTrackingTests
 			Save(alias);
 			"""), CreateConfig("IntraProcedural"));
 
-		diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.NameRuleViolation).Should().BeEmpty();
+		diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Should().BeEmpty();
 	}
 
 	[Fact]
@@ -88,7 +88,7 @@ public sealed class NameRuleIntraProceduralTrackingTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig("IntraProcedural"));
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.NameRuleViolation).Which;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Which;
 		diagnostic.Properties["SourceName"].Should().Be("animalId");
 		diagnostic.Properties["TargetName"].Should().Be("fruitId");
 		diagnostic.Properties["Site"].Should().Be("Method");

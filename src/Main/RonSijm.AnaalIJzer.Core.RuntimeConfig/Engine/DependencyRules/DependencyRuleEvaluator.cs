@@ -20,7 +20,7 @@ public static class DependencyRuleEvaluator
 			var forbiddenResult = new DependencyRuleDecision(
 				dependencyLayer.Name,
 				ArchitectureDependencySiteStatus.TypePolicyViolation,
-				ArchitecturalDiagnosticIds.ForbiddenDependency,
+				ArchitecturalDiagnosticIds.TypeNotAllowed,
 				forbiddenReason,
 				null,
 				null,
@@ -34,7 +34,7 @@ public static class DependencyRuleEvaluator
 			var policyResult = new DependencyRuleDecision(
 				typePolicyViolation.DependencyLayerName,
 				ArchitectureDependencySiteStatus.TypePolicyViolation,
-				ArchitecturalDiagnosticIds.ForbiddenDependency,
+				ArchitecturalDiagnosticIds.TypeNotAllowed,
 				typePolicyViolation.Reason,
 				typePolicyViolation,
 				null,
@@ -61,9 +61,9 @@ public static class DependencyRuleEvaluator
 		var status = GetDeniedStatus(callerMatch.Layer.Name, dependencyLayer.Name, edgeEvaluation, config);
 		var diagnosticId = status switch
 		{
-			ArchitectureDependencySiteStatus.WrongDirection => ArchitecturalDiagnosticIds.WrongDirectionDependency,
-			ArchitectureDependencySiteStatus.SameLayer => ArchitecturalDiagnosticIds.SameLayerDependency,
-			_ => ArchitecturalDiagnosticIds.IllegalLevelDependency
+			ArchitectureDependencySiteStatus.WrongDirection => ArchitecturalDiagnosticIds.DependencyReverseDirection,
+			ArchitectureDependencySiteStatus.SameLayer => ArchitecturalDiagnosticIds.DependencyPeerScope,
+			_ => ArchitecturalDiagnosticIds.DependencyNotAllowed
 		};
 		var reason = status == ArchitectureDependencySiteStatus.SameLayer && !edgeEvaluation.IsDeniedBySiteFilter
 			? $"types in the same layer ('{callerMatch.Layer.Name}') may not depend on each other"

@@ -33,7 +33,6 @@
     <!-- Suppress "parameter unread" - example classes are intentionally minimal stubs -->
     <NoWarn>CS9113</NoWarn>
     <AnaalIJzerEngineProjectPath>$(MSBuildThisFileDirectory)..\src\Main\RonSijm.AnaalIJzer.Engine\RonSijm.AnaalIJzer.Engine.csproj</AnaalIJzerEngineProjectPath>
-    <AnaalIJzerEngineOutputDirectory>$(MSBuildThisFileDirectory)..\src\Main\RonSijm.AnaalIJzer.Engine\bin\$(Configuration)\netstandard2.0\</AnaalIJzerEngineOutputDirectory>
     <EnableArchitecturalLevelAnalyzer Condition="'$(EnableArchitecturalLevelAnalyzer)' == '' AND '$(Configuration)' == 'Release'">true</EnableArchitecturalLevelAnalyzer>
     <EnableArchitecturalLevelAnalyzer Condition="'$(EnableArchitecturalLevelAnalyzer)' == '' AND '$(EnableAnalyzerOnDebug)' == 'true'">true</EnableArchitecturalLevelAnalyzer>
     <EnableArchitecturalLevelAnalyzer Condition="'$(EnableArchitecturalLevelAnalyzer)' == ''">false</EnableArchitecturalLevelAnalyzer>
@@ -47,7 +46,7 @@
              Properties="Configuration=$(Configuration)" />
 
     <ItemGroup>
-      <Analyzer Include="$(AnaalIJzerEngineOutputDirectory)RonSijm.AnaalIJzer*.dll" />
+      <Analyzer Include="$([System.IO.Path]::GetDirectoryName('$(AnaalIJzerEngineProjectPath)'))\bin\$(Configuration)\netstandard2.0\RonSijm.AnaalIJzer*.dll" />
     </ItemGroup>
   </Target>
 

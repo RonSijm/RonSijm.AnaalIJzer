@@ -5,11 +5,11 @@ project into its own `ProjectGroup`.
 
 `Example.ProjectReferenceRuleSelectors.Orders.Application` references two contract
 projects. The configuration permits the ordering contract and rejects the payments
-contract with `ARCH010`:
+contract with `ARCH_PROJ_001`:
 
 ```text
 Orders.Application -> Orders.Contracts    allowed
-Orders.Application -> Payments.Contracts  ARCH010
+Orders.Application -> Payments.Contracts  ARCH_PROJ_001
 ```
 
 The rule keeps the useful broad groups (`Application` and `Contracts`) but narrows one
@@ -19,6 +19,6 @@ into allowlist mode.
 
 Expected Release result:
 
-- `Example.ProjectReferenceRuleSelectors.Orders.Application`: `ARCH010 = 1`
+- `Example.ProjectReferenceRuleSelectors.Orders.Application`: `ARCH_PROJ_001 = 1`
 - `Example.ProjectReferenceRuleSelectors.Orders.Contracts`: clean
 - `Example.ProjectReferenceRuleSelectors.Payments.Contracts`: clean

@@ -69,8 +69,8 @@ public sealed class ExampleConfigurationFixIntegrationTests
 	}
 
 	[Theory]
-	[InlineData(@"D:\source\RonSijm\RonSijm.AnaalIJzer\Examples\Diagnostics\Example.Arch004.WrongDirection\Example.cs", @"Diagnostics\Example.Arch004.WrongDirection\Example.cs")]
-	[InlineData("/home/runner/work/RonSijm.AnaalIJzer/RonSijm.AnaalIJzer/Examples/Diagnostics/Example.Arch004.WrongDirection/Example.cs", @"Diagnostics\Example.Arch004.WrongDirection\Example.cs")]
+	[InlineData(@"D:\source\RonSijm\RonSijm.AnaalIJzer\Examples\Diagnostics\DEP\Example.Arch_DEP_004.WrongDirection\Example.cs", @"Diagnostics\DEP\Example.Arch_DEP_004.WrongDirection\Example.cs")]
+	[InlineData("/home/runner/work/RonSijm.AnaalIJzer/RonSijm.AnaalIJzer/Examples/Diagnostics/DEP/Example.Arch_DEP_004.WrongDirection/Example.cs", @"Diagnostics\DEP\Example.Arch_DEP_004.WrongDirection\Example.cs")]
 	public void ProposalTargetPath_MatchesPlatformIndependentSuffix(string targetPath, string expectedTargetSuffix)
 	{
 		var result = HasExpectedTargetSuffix(targetPath, expectedTargetSuffix);

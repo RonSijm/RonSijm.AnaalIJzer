@@ -16,7 +16,7 @@ namespace Example.BlockedDependency;
 // Allowed by the wildcard edge.
 public sealed class OrderService(OrderRepository repository);
 
-// ARCH001: the specific block overrides the wildcard allowance.
+// ARCH_DEP_001: the specific block overrides the wildcard allowance.
 public sealed class OrderController(OrderRepository repository);
 
 public sealed class OrderRepository;

@@ -15,10 +15,11 @@ namespace RonSijm.AnaalIJzer.Engine.Analysis.BoundaryRules.LayerDependencies;
 
 public static partial class LayerDependencyAnalyzer
 {
-	private static void AnalyzeTypeReference(SyntaxNodeAnalysisContext context, AnalyzerConfig config, ConcurrentBag<ViolationRecord> violations, ObservedDependencyCollector? observedDependencies, string callerTypeName, LayerMatch callerMatch, Location reportLocation, ITypeSymbol depType, string site)
+	private static void AnalyzeTypeReference(SyntaxNodeAnalysisContext context, AnalyzerConfig config, ConcurrentBag<ViolationRecord> violations, ObservedDependencyCollector? observedDependencies, CallerDependencyContext caller, Location reportLocation, ITypeSymbol depType, string site)
 	{
-		var callerLayer = callerMatch.Layer;
-		var seenDepTypeNames = new HashSet<string>(StringComparer.Ordinal);
+		var callerMatch = caller.LayerMatch;
+		var seenLayerDependencyTypeNames = new HashSet<string>(StringComparer.Ordinal);
+		var seenNamespaceHierarchyDependencyKeys = new HashSet<string>(StringComparer.Ordinal);
 		var unrecognizedGenericArguments = new List<ITypeSymbol>();
 		var matchedAnyLayer = false;
 		var outerTypeIsIgnored = false;
@@ -35,13 +36,34 @@ public static partial class LayerDependencyAnalyzer
 				continue;
 			}
 
-			if (depTypeName == callerTypeName || IsIgnoredRecognitionType(current))
+			if (SymbolEqualityComparer.Default.Equals(current, caller.Symbol) || IsIgnoredRecognitionType(current))
 			{
 				outerTypeIsIgnored |= isOuter;
 				continue;
 			}
 
 			var depNamespace = current.ContainingNamespace?.ToString() ?? string.Empty;
+			if (config.HasNamespaceHierarchyPolicies)
+			{
+				var namespaceHierarchyEvaluation = config.EvaluateNamespaceHierarchyPolicies(caller.NamespaceName, depNamespace, effectiveSite);
+				if (namespaceHierarchyEvaluation is not null)
+				{
+					var dependencyKey = current.ToDisplayString() + "|" + effectiveSite;
+					if (seenNamespaceHierarchyDependencyKeys.Add(dependencyKey))
+					{
+						ReportNamespaceHierarchyViolation(context, violations, caller, depTypeName, depNamespace, reportLocation, effectiveSite, namespaceHierarchyEvaluation.Value);
+					}
+
+					continue;
+				}
+			}
+
+			if (callerMatch is not { } matchedCaller)
+			{
+				continue;
+			}
+
+			var callerLayer = matchedCaller.Layer;
 			var depMatch = config.Engine.FindLayer(depTypeName, depNamespace, current);
 
 			if (depMatch is null)
@@ -56,7 +78,7 @@ public static partial class LayerDependencyAnalyzer
 
 			matchedAnyLayer = true;
 
-			if (!seenDepTypeNames.Add(depTypeName))
+			if (!seenLayerDependencyTypeNames.Add(depTypeName))
 			{
 				continue;
 			}
@@ -64,17 +86,17 @@ public static partial class LayerDependencyAnalyzer
 			var (depLayer, matchedSuffix) = (depMatch.Value.Layer, depMatch.Value.MatchedSuffix);
 			if (!depLayer.IsForbidden)
 			{
-				observedDependencies?.Record(callerTypeName, callerLayer.Name, depTypeName, depLayer.Name, effectiveSite, reportLocation);
+				observedDependencies?.Record(caller.TypeName, callerLayer.Name, depTypeName, depLayer.Name, effectiveSite, reportLocation);
 			}
 
 			var ruleProperties = BuildRuleProperties(depMatch.Value, depTypeName);
-			var decision = DependencyRuleEvaluator.Evaluate(config, callerMatch, depMatch.Value, current, effectiveSite);
+			var decision = DependencyRuleEvaluator.Evaluate(config, matchedCaller, depMatch.Value, current, effectiveSite);
 
 			if (decision.IsForbiddenLayer)
 			{
 				var properties = AddViolationProperties(
 					ruleProperties.Add(ArchitecturalDiagnostics.PropertySite, effectiveSite),
-					callerTypeName,
+					caller.TypeName,
 					callerLayer.Name,
 					depTypeName,
 					depLayer.Name,
@@ -87,13 +109,13 @@ public static partial class LayerDependencyAnalyzer
 						.Add(ArchitecturalDiagnostics.PropertyFixSuffix, depLayer.FixSuffix);
 				}
 
-				context.ReportDiagnostic(Diagnostic.Create(
-					ArchitecturalDiagnostics.ForbiddenDependency,
+				context.ReportDiagnostic(ArchitecturalDiagnostics.CreateDiagnostic(
+					ArchitecturalDiagnostics.TypeNotAllowed,
 					reportLocation,
 					properties,
-					callerTypeName, callerLayer.Name, depTypeName, decision.Reason));
+					caller.TypeName, callerLayer.Name, depTypeName, decision.Reason));
 
-				violations.Add(new ViolationRecord(ArchitecturalDiagnosticIds.ForbiddenDependency, callerTypeName, callerLayer.Name, depTypeName, depLayer.Name, decision.Reason, depLayer.Comment));
+				violations.Add(new ViolationRecord(ArchitecturalDiagnosticIds.TypeNotAllowed, caller.TypeName, callerLayer.Name, depTypeName, depLayer.Name, decision.Reason, depLayer.Comment));
 				continue;
 			}
 
@@ -104,7 +126,7 @@ public static partial class LayerDependencyAnalyzer
 					: ImmutableDictionary<string, string?>.Empty.Add(ArchitecturalDiagnostics.PropertyDepTypeName, depTypeName);
 				var properties = AddViolationProperties(
 					policyRuleProperties.Add(ArchitecturalDiagnostics.PropertySite, effectiveSite),
-					callerTypeName,
+					caller.TypeName,
 					callerLayer.Name,
 					depTypeName,
 					policyViolation.DependencyLayerName,
@@ -118,13 +140,13 @@ public static partial class LayerDependencyAnalyzer
 						.Add(ArchitecturalDiagnostics.PropertyFixSuffix, matchedRule.Layer.FixSuffix);
 				}
 
-				context.ReportDiagnostic(Diagnostic.Create(
-					ArchitecturalDiagnostics.ForbiddenDependency,
+				context.ReportDiagnostic(ArchitecturalDiagnostics.CreateDiagnostic(
+					ArchitecturalDiagnostics.TypeNotAllowed,
 					reportLocation,
 					properties,
-					callerTypeName, callerLayer.Name, depTypeName, policyViolation.Reason));
+					caller.TypeName, callerLayer.Name, depTypeName, policyViolation.Reason));
 
-				violations.Add(new ViolationRecord(ArchitecturalDiagnosticIds.ForbiddenDependency, callerTypeName, callerLayer.Name, depTypeName, policyViolation.DependencyLayerName, policyViolation.Reason, policyViolation.Comment));
+				violations.Add(new ViolationRecord(ArchitecturalDiagnosticIds.TypeNotAllowed, caller.TypeName, callerLayer.Name, depTypeName, policyViolation.DependencyLayerName, policyViolation.Reason, policyViolation.Comment));
 				continue;
 			}
 
@@ -132,34 +154,40 @@ public static partial class LayerDependencyAnalyzer
 			{
 				if (config.Engine.HasEntryPointPolicies)
 				{
-					var entryPointEvaluation = config.Engine.EvaluateBoundaryEntryPoints(callerMatch, depMatch.Value, depTypeName, depNamespace, current, effectiveSite);
+					var entryPointEvaluation = config.Engine.EvaluateBoundaryEntryPoints(matchedCaller, depMatch.Value, depTypeName, depNamespace, current, effectiveSite);
 					if (!entryPointEvaluation.IsAllowed)
 					{
-						ReportBoundaryEntryPointViolation(context, violations, callerTypeName, callerLayer.Name, depTypeName, depLayer.Name, reportLocation, effectiveSite, ruleProperties, entryPointEvaluation);
+						ReportBoundaryEntryPointViolation(context, violations, caller.TypeName, callerLayer.Name, depTypeName, depLayer.Name, reportLocation, effectiveSite, ruleProperties, entryPointEvaluation);
 					}
 				}
 
 				continue;
 			}
 
-			ReportIllegalDependency(context, violations, callerTypeName, callerLayer.Name, depTypeName, depLayer.Name, reportLocation, effectiveSite, config, ruleProperties, decision.EdgeEvaluation!.Value);
+			ReportIllegalDependency(context, violations, caller.TypeName, callerLayer.Name, depTypeName, depLayer.Name, reportLocation, effectiveSite, config, ruleProperties, decision.EdgeEvaluation!.Value);
 		}
 
-		if (!matchedAnyLayer && !outerTypeIsIgnored && config.RequiresRecognizedDependencyAt(callerMatch, site))
+		if (callerMatch is not { } callerLayerMatch)
 		{
-			ReportUnrecognizedDependency(context, violations, callerTypeName, callerLayer.Name, depType.Name, reportLocation, site);
+			return;
 		}
 
-		if (!config.RequiresRecognizedDependencyAt(callerMatch, DependencySites.GenericArgument))
+		var matchedCallerLayer = callerLayerMatch.Layer;
+		if (!matchedAnyLayer && !outerTypeIsIgnored && config.RequiresRecognizedDependencyAt(callerLayerMatch, site))
+		{
+			ReportUnrecognizedDependency(context, violations, caller.TypeName, matchedCallerLayer.Name, depType.Name, reportLocation, site);
+		}
+
+		if (!config.RequiresRecognizedDependencyAt(callerLayerMatch, DependencySites.GenericArgument))
 		{
 			return;
 		}
 
 		foreach (var argument in unrecognizedGenericArguments)
 		{
-			if (seenDepTypeNames.Add(argument.Name))
+			if (seenLayerDependencyTypeNames.Add(argument.Name))
 			{
-				ReportUnrecognizedDependency(context, violations, callerTypeName, callerLayer.Name, argument.Name, reportLocation, DependencySites.GenericArgument);
+				ReportUnrecognizedDependency(context, violations, caller.TypeName, matchedCallerLayer.Name, argument.Name, reportLocation, DependencySites.GenericArgument);
 			}
 		}
 	}

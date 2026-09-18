@@ -16,7 +16,7 @@ namespace Example.NonClassCallers;
 
 public sealed class OrderRepository;
 
-// ARCH001: records are architectural callers too.
+// ARCH_DEP_001: records are architectural callers too.
 public sealed record OrderRecordCaller
 {
     public OrderRepository Get()
@@ -25,7 +25,7 @@ public sealed record OrderRecordCaller
     }
 }
 
-// ARCH001: structs are architectural callers too.
+// ARCH_DEP_001: structs are architectural callers too.
 public struct OrderStructCaller
 {
     public OrderRepository Get()
@@ -34,7 +34,7 @@ public struct OrderStructCaller
     }
 }
 
-// ARCH001: interface API surfaces are architectural callers too.
+// ARCH_DEP_001: interface API surfaces are architectural callers too.
 public interface IOrderInterfaceCaller
 {
     OrderRepository Get();

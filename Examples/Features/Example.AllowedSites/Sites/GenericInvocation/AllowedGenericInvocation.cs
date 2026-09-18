@@ -5,7 +5,7 @@ namespace Example.AllowedSites.Sites.GenericInvocation;
 
 public sealed class AllowedGenericInvocationSiteExample
 {
-    // ARCH001: allowedSites="GenericInvocation" does not allow the constructor parameter above.
+    // ARCH_DEP_001: allowedSites="GenericInvocation" does not allow the constructor parameter above.
     public AllowedGenericInvocationSiteExample(AllowedGenericInvocationType wrongSite)
     {
         _ = wrongSite;

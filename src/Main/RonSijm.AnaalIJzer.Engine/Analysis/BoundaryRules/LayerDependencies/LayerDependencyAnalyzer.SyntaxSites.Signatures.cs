@@ -19,7 +19,7 @@ public static partial class LayerDependencyAnalyzer
 			return;
 		}
 
-		AnalyzeParameters(context, config, violations, observedDependencies, typeDeclaration.Identifier.ValueText, GetContainingNamespace(typeDeclaration), ctorDecl.ParameterList.Parameters, DependencySites.Constructor);
+		AnalyzeParameters(context, config, violations, observedDependencies, typeDeclaration, ctorDecl.ParameterList.Parameters, DependencySites.Constructor);
 		NamingRules.LayerDependencyAnalyzer.AnalyzeParameterDeclarationNameRules(context, config, violations, ctorDecl.ParameterList.Parameters, DependencySites.Constructor);
 	}
 
@@ -31,7 +31,7 @@ public static partial class LayerDependencyAnalyzer
 			return;
 		}
 
-		var caller = TryGetCallerLayer(context, config, methodDecl);
+		var caller = TryGetCallerContext(context, config, methodDecl);
 		if (caller is null)
 		{
 			return;
@@ -40,13 +40,13 @@ public static partial class LayerDependencyAnalyzer
 		var returnTypeInfo = context.SemanticModel.GetTypeInfo(methodDecl.ReturnType, context.CancellationToken);
 		if (returnTypeInfo.Type is not null)
 		{
-			AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value.TypeName, caller.Value.Match, methodDecl.ReturnType.GetLocation(), returnTypeInfo.Type, DependencySites.MethodReturn);
+			AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value, methodDecl.ReturnType.GetLocation(), returnTypeInfo.Type, DependencySites.MethodReturn);
 			NamingRules.LayerDependencyAnalyzer.AnalyzeMethodReturnDeclarationNameRule(context, config, violations, methodDecl);
 		}
 
 		if (methodDecl.ParameterList.Parameters.Count > 0)
 		{
-			AnalyzeParameters(context, config, violations, observedDependencies, typeDeclaration.Identifier.ValueText, GetContainingNamespace(typeDeclaration), methodDecl.ParameterList.Parameters, DependencySites.Method);
+			AnalyzeParameters(context, config, violations, observedDependencies, typeDeclaration, methodDecl.ParameterList.Parameters, DependencySites.Method);
 			NamingRules.LayerDependencyAnalyzer.AnalyzeParameterDeclarationNameRules(context, config, violations, methodDecl.ParameterList.Parameters, DependencySites.Method);
 		}
 	}
@@ -54,7 +54,7 @@ public static partial class LayerDependencyAnalyzer
 	internal static void AnalyzeFieldDeclaration(SyntaxNodeAnalysisContext context, AnalyzerConfig config, ConcurrentBag<ViolationRecord> violations, ObservedDependencyCollector? observedDependencies)
 	{
 		var fieldDecl = (FieldDeclarationSyntax)context.Node;
-		var caller = TryGetCallerLayer(context, config, fieldDecl);
+		var caller = TryGetCallerContext(context, config, fieldDecl);
 		if (caller is null)
 		{
 			return;
@@ -67,7 +67,7 @@ public static partial class LayerDependencyAnalyzer
 			return;
 		}
 
-		AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value.TypeName, caller.Value.Match, typeSyntax.GetLocation(), typeInfo.Type, DependencySites.Field);
+		AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value, typeSyntax.GetLocation(), typeInfo.Type, DependencySites.Field);
 		NamingRules.LayerDependencyAnalyzer.AnalyzeFieldInitializerNameRules(context, config, violations, fieldDecl);
 		NamingRules.LayerDependencyAnalyzer.AnalyzeFieldDeclarationNameRules(context, config, violations, fieldDecl);
 	}
@@ -75,7 +75,7 @@ public static partial class LayerDependencyAnalyzer
 	public static void AnalyzePropertyDeclaration(SyntaxNodeAnalysisContext context, AnalyzerConfig config, ConcurrentBag<ViolationRecord> violations, ObservedDependencyCollector? observedDependencies)
 	{
 		var propDecl = (PropertyDeclarationSyntax)context.Node;
-		var caller = TryGetCallerLayer(context, config, propDecl);
+		var caller = TryGetCallerContext(context, config, propDecl);
 		if (caller is null)
 		{
 			return;
@@ -87,7 +87,7 @@ public static partial class LayerDependencyAnalyzer
 			return;
 		}
 
-		AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value.TypeName, caller.Value.Match, propDecl.Type.GetLocation(), typeInfo.Type, DependencySites.Property);
+		AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value, propDecl.Type.GetLocation(), typeInfo.Type, DependencySites.Property);
 		NamingRules.LayerDependencyAnalyzer.AnalyzePropertyInitializerNameRules(context, config, violations, propDecl);
 		NamingRules.LayerDependencyAnalyzer.AnalyzePropertyDeclarationNameRule(context, config, violations, propDecl);
 	}

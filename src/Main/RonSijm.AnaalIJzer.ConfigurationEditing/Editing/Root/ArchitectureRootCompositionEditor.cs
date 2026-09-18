@@ -155,6 +155,46 @@ internal static class ArchitectureRootCompositionEditor
 		return result;
 	}
 
+	internal static ArchitectureConfigurationDocumentOperationResult AddNamespaceHierarchyPolicy(ArchitectureConfigurationSource source, ImmutableDictionary<string, string> attributes, string childXml)
+	{
+		if (!source.CanEdit)
+		{
+			return ArchitectureConfigurationDocumentOperationResult.Failure("This configuration source is not editable.");
+		}
+
+		if (attributes.Keys.Any(key => key is not ("rootNamespace" or "description" or "comment")))
+		{
+			return ArchitectureConfigurationDocumentOperationResult.Failure("NamespaceHierarchyPolicy supports rootNamespace, description, and comment attributes only.");
+		}
+
+		if (!attributes.TryGetValue("rootNamespace", out var rootNamespace) || string.IsNullOrWhiteSpace(rootNamespace))
+		{
+			return ArchitectureConfigurationDocumentOperationResult.Failure("NamespaceHierarchyPolicy requires rootNamespace.");
+		}
+
+		if (!TryReadNamespaceHierarchyPolicyChildren(childXml, out var children, out var message))
+		{
+			return ArchitectureConfigurationDocumentOperationResult.Failure(message);
+		}
+
+		var result = ArchitectureConfigurationEditExecution.EditConfiguration(
+			source.Kind,
+			source.Path,
+			document =>
+			{
+				if (document.Root is null)
+				{
+					return ArchitectureConfigurationDocumentOperationResult.Failure("Architecture configuration has no root element.");
+				}
+
+				document.Root.Add(new XElement(ArchitectureConfigurationXmlNames.NamespaceHierarchyPolicyElementName, attributes.Select(attribute => new XAttribute(attribute.Key, attribute.Value)), children));
+
+				return ArchitectureConfigurationDocumentOperationResult.Success("Added namespace hierarchy policy.");
+			});
+
+		return result;
+	}
+
 	private static bool TryReadOperationContractChildren(string childXml, out IEnumerable<XNode> children, out string message)
 	{
 		try
@@ -214,6 +254,50 @@ internal static class ArchitectureRootCompositionEditor
 		{
 			children = [];
 			message = "Assembly attribute policy XML is invalid: " + exception.Message;
+
+			return false;
+		}
+	}
+
+	private static bool TryReadNamespaceHierarchyPolicyChildren(string childXml, out IEnumerable<XNode> children, out string message)
+	{
+		try
+		{
+			var wrapper = XElement.Parse("<Root>" + childXml + "</Root>", LoadOptions.PreserveWhitespace);
+			var elements = wrapper.Elements().ToArray();
+			if (elements.Length == 0 || elements.Any(element => element.Name.LocalName != ArchitectureConfigurationXmlNames.BlockedRelationElementName))
+			{
+				children = [];
+				message = "NamespaceHierarchyPolicy requires one or more BlockedRelation children.";
+
+				return false;
+			}
+
+			if (elements.Any(element => element.Attributes().Any(attribute => attribute.Name.LocalName is not ("relation" or "allowedSites" or "blockedSites" or "description" or "comment"))))
+			{
+				children = [];
+				message = "BlockedRelation supports relation, allowedSites, blockedSites, description, and comment attributes only.";
+
+				return false;
+			}
+
+			if (elements.Any(element => string.IsNullOrWhiteSpace(element.Attribute("relation")?.Value)))
+			{
+				children = [];
+				message = "Every BlockedRelation requires relation.";
+
+				return false;
+			}
+
+			children = elements;
+			message = string.Empty;
+
+			return true;
+		}
+		catch (System.Xml.XmlException exception)
+		{
+			children = [];
+			message = "Namespace hierarchy policy XML is invalid: " + exception.Message;
 
 			return false;
 		}

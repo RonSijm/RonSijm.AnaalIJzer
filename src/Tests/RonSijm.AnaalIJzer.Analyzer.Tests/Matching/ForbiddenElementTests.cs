@@ -6,7 +6,7 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Matching;
 public sealed class ForbiddenElementTests
 {
 	[Fact]
-	public async Task Forbidden_ReportsARCH003WithCustomComment()
+	public async Task Forbidden_ReportsARCH_TYPE_001WithCustomComment()
 	{
 		const string config = """
 		                      <ArchitecturalLevels>
@@ -32,7 +32,7 @@ public sealed class ForbiddenElementTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var arch003 = diagnostics.Where(d => d.Id == ArchitecturalDiagnosticIds.ForbiddenDependency).ToList();
+		var arch003 = diagnostics.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed).ToList();
 		arch003.Count.Should().Be(1);
 
 		var msg = arch003[0].GetMessage(CultureInfo.InvariantCulture);
@@ -41,7 +41,7 @@ public sealed class ForbiddenElementTests
 	}
 
 	[Fact]
-	public async Task Forbidden_WithoutComment_ReportsARCH003WithNoHint()
+	public async Task Forbidden_WithoutComment_ReportsARCH_TYPE_001WithNoHint()
 	{
 		const string config = """
 		                      <ArchitecturalLevels>
@@ -62,7 +62,7 @@ public sealed class ForbiddenElementTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.ForbiddenDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
 			.Should().NotBeEmpty();
 	}
 }

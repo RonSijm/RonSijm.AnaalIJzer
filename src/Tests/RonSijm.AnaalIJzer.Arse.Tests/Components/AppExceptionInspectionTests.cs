@@ -15,10 +15,10 @@ public sealed class AppExceptionInspectionTests
 			app,
 			"_inspectionFindings",
 			ImmutableArray.Create(
-				new ArchitectureFinding(ArchitectureFindingSeverity.Warning, "ARCH017", "Missing owner", "Architecture.anl:10", "Invalid"),
-				new ArchitectureFinding(ArchitectureFindingSeverity.Warning, "ARCH017", "Expires soon", "Architecture.anl:12", "ExpiringSoon"),
-				new ArchitectureFinding(ArchitectureFindingSeverity.Warning, "ARCH017", "Already expired", "Architecture.anl:14", "Expired"),
-				new ArchitectureFinding(ArchitectureFindingSeverity.Warning, "ARCH017", "No longer matches code", "Architecture.anl:16", "Stale")));
+				new ArchitectureFinding(ArchitectureFindingSeverity.Warning, "ARCH_EXC_009", "Missing owner", "Architecture.anl:10", "Invalid"),
+				new ArchitectureFinding(ArchitectureFindingSeverity.Warning, "ARCH_EXC_009", "Expires soon", "Architecture.anl:12", "ExpiringSoon"),
+				new ArchitectureFinding(ArchitectureFindingSeverity.Warning, "ARCH_EXC_009", "Already expired", "Architecture.anl:14", "Expired"),
+				new ArchitectureFinding(ArchitectureFindingSeverity.Warning, "ARCH_EXC_009", "No longer matches code", "Architecture.anl:16", "Stale")));
 
 		await InvokePrivateTaskMethod(app, "ToggleInspectionExceptionFilter", "Invalid");
 		await InvokePrivateTaskMethod(app, "ToggleInspectionExceptionFilter", "Expired");

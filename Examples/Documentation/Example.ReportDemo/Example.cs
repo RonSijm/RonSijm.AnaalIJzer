@@ -46,18 +46,18 @@ public interface ISecondaryOrderService { }
 public interface IOrderRepository { }
 public sealed class MysteryDependency { }
 
-// ARCH001: Presentation -> Persistence has no configured edge.
+// ARCH_DEP_001: Presentation -> Persistence has no configured edge.
 public class AdminEndpoint(IOrderRepository repository) { }
 
-// ARCH004: Persistence -> Application reverses the configured edge.
+// ARCH_DEP_004: Persistence -> Application reverses the configured edge.
 public class OrderRepository(IOrderService service) { }
 
-// ARCH005: OrderService and ISecondaryOrderService are both in Application.
+// ARCH_DEP_005: OrderService and ISecondaryOrderService are both in Application.
 public class OrderService(ISecondaryOrderService secondaryService) { }
 
-// ARCH003: OrderStore matches the forbidden Store pattern.
+// ARCH_TYPE_001: OrderStore matches the forbidden Store pattern.
 public class OrderStore { }
 public class OrderManager(OrderStore store) { }
 
-// ARCH002: MysteryDependency is unrecognized while recognized dependencies are required.
+// ARCH_DEP_002: MysteryDependency is unrecognized while recognized dependencies are required.
 public class OrderCoordinator(MysteryDependency dependency) { }

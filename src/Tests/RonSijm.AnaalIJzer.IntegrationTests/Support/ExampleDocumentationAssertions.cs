@@ -1,4 +1,5 @@
 using AwesomeAssertions;
+using RonSijm.AnaalIJzer.Core.Findings;
 
 namespace RonSijm.AnaalIJzer.IntegrationTests.Support;
 
@@ -35,13 +36,13 @@ internal static class ExampleDocumentationAssertions
 
 	public static void VerifyHealthReport(string healthReport)
 	{
-		healthReport.Should().Contain("Configured cycle");
-		healthReport.Should().Contain("Observed dependency cycle");
-		healthReport.Should().Contain("Unclassified type");
-		healthReport.Should().Contain("Unmatched matcher");
-		healthReport.Should().Contain("ARCH017");
+		healthReport.Should().Contain(ArchitecturalDiagnosticIds.ConfigurationCycle);
+		healthReport.Should().Contain(ArchitecturalDiagnosticIds.DependencyCycle);
+		healthReport.Should().Contain(ArchitecturalDiagnosticIds.TypeRequiredMissing);
+		healthReport.Should().Contain(ArchitecturalDiagnosticIds.ConfigurationRequiredMissing);
+		healthReport.Should().Contain(ArchitecturalDiagnosticIds.ExceptionReviewLifecycle);
 		healthReport.Should().Contain("stale");
-		healthReport.Should().Contain("Unused allowed edge");
+		healthReport.Should().Contain(ArchitecturalDiagnosticIds.DependencyReviewLifecycle);
 	}
 
 	public static void VerifyMergedConfiguration(string mergedConfiguration)

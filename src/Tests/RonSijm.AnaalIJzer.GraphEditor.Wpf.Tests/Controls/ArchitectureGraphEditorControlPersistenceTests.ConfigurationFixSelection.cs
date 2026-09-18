@@ -36,7 +36,7 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 								"Add allowed dependency 'Customer' -> 'Waiter'",
 								"Adds the missing dependency rule.",
 								"Guided",
-								"ARCH001",
+								"ARCH_DEP_001",
 								path,
 								"+ <AllowedDependency from=\"Customer\" to=\"Waiter\" />",
 								ImmutableDictionary<string, string>.Empty
@@ -47,7 +47,7 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 								"Add allowed dependency 'Chef' -> 'Pantry'",
 								"Adds an unrelated dependency rule.",
 								"Guided",
-								"ARCH001",
+								"ARCH_DEP_001",
 								path,
 								"+ <AllowedDependency from=\"Chef\" to=\"Pantry\" />",
 								ImmutableDictionary<string, string>.Empty

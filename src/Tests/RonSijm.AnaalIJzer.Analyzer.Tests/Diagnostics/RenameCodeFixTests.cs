@@ -36,7 +36,7 @@ public sealed class RenameCodeFixTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var arch003 = diagnostics.First(d => d.Id == ArchitecturalDiagnosticIds.ForbiddenDependency);
+		var arch003 = diagnostics.First(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed);
 		arch003.Properties[ArchitecturalDiagnostics.PropertyMatchedSuffix].Should().Be("Store");
 		arch003.Properties[ArchitecturalDiagnostics.PropertyFixSuffix].Should().Be("Repository");
 	}
@@ -62,7 +62,7 @@ public sealed class RenameCodeFixTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var arch003 = diagnostics.First(d => d.Id == ArchitecturalDiagnosticIds.ForbiddenDependency);
+		var arch003 = diagnostics.First(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed);
 		arch003.Properties.ContainsKey(ArchitecturalDiagnostics.PropertyMatchedSuffix).Should().BeFalse();
 		arch003.Properties.ContainsKey(ArchitecturalDiagnostics.PropertyFixSuffix).Should().BeFalse();
 	}
@@ -90,7 +90,7 @@ public sealed class RenameCodeFixTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var arch003 = diagnostics.First(d => d.Id == ArchitecturalDiagnosticIds.ForbiddenDependency);
+		var arch003 = diagnostics.First(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed);
 		// Exact-name matches produce no MatchedSuffix, so the fixer will not offer a rename.
 		arch003.Properties.ContainsKey(ArchitecturalDiagnostics.PropertyMatchedSuffix).Should().BeFalse();
 	}

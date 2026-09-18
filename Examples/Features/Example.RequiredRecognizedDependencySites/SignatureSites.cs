@@ -3,12 +3,12 @@ namespace Example.RequiredRecognizedDependencySites;
 
 public sealed class UnknownConstructorDependency { }
 
-// ARCH002 at Constructor.
+// ARCH_DEP_002 at Constructor.
 public sealed class ConstructorCaller(UnknownConstructorDependency dependency) { }
 
 public sealed class UnknownMethodDependency { }
 
-// ARCH002 at Method.
+// ARCH_DEP_002 at Method.
 public sealed class MethodCaller
 {
     public void Use(UnknownMethodDependency dependency) { }
@@ -16,7 +16,7 @@ public sealed class MethodCaller
 
 public sealed class UnknownReturnDependency { }
 
-// ARCH002 at MethodReturn.
+// ARCH_DEP_002 at MethodReturn.
 public sealed class MethodReturnCaller
 {
     public UnknownReturnDependency Get()
@@ -27,7 +27,7 @@ public sealed class MethodReturnCaller
 
 public sealed class UnknownFieldDependency { }
 
-// ARCH002 at Field.
+// ARCH_DEP_002 at Field.
 public sealed class FieldCaller
 {
     public readonly UnknownFieldDependency Dependency = null!;
@@ -35,7 +35,7 @@ public sealed class FieldCaller
 
 public sealed class UnknownPropertyDependency { }
 
-// ARCH002 at Property.
+// ARCH_DEP_002 at Property.
 public sealed class PropertyCaller
 {
     public UnknownPropertyDependency Dependency { get; set; } = null!;

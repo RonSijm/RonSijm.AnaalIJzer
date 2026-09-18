@@ -1,6 +1,6 @@
 # Entity Framework Core Context Boundary
 
-`PizzaOrderRepository` receives `PizzaOrderingDbContext`, but `PizzaOrderApplicationService` does not. The direct context constructor parameter is intentional and produces one `ARCH001`.
+`PizzaOrderRepository` receives `PizzaOrderingDbContext`, but `PizzaOrderApplicationService` does not. The direct context constructor parameter is intentional and produces one `ARCH_DEP_001`.
 
 ```text
 Application -> Repository -> Context

@@ -84,12 +84,43 @@ internal static partial class ArchitectureConfigurationExplainer
 
 	private static void AppendReturnValuePolicy(StringBuilder sb, XElement element, int depth)
 	{
-		AppendLine(sb, depth, "- Return-value policy forbids configured direct returned expressions.");
+		var policyScope = element.Parent?.Name.LocalName == "ArchitecturalLevels"
+			? "- Global return-value policy forbids configured direct returned expressions across every analyzed method and can require an allowed direct return shape."
+			: "- Return-value policy forbids configured direct returned expressions and can require an allowed direct return shape.";
+		AppendLine(sb, depth, policyScope);
 		AppendDescription(sb, element, depth + 1);
 		foreach (var matcher in element.Elements().Where(child => child.Name.LocalName is "Literal" or "Invocation" or "New" or "Identifier" or "MemberAccess"))
 		{
 			AppendLine(sb, depth + 1, "- Forbids returned " + matcher.Name.LocalName.ToLowerInvariant() + " " + FormatMatcher(matcher) + ".");
 			AppendDescription(sb, matcher, depth + 2);
+		}
+
+		foreach (var allowedReturn in element.Elements("AllowedReturn"))
+		{
+			AppendLine(sb, depth + 1, "- Allows only returned expressions matching one of these alternatives.");
+			AppendDescription(sb, allowedReturn, depth + 2);
+			foreach (var matcher in allowedReturn.Elements().Where(child => child.Name.LocalName is "Literal" or "Invocation" or "New" or "Identifier" or "MemberAccess"))
+			{
+				AppendLine(sb, depth + 2, "- Allows returned " + matcher.Name.LocalName.ToLowerInvariant() + " " + FormatMatcher(matcher) + ".");
+				AppendDescription(sb, matcher, depth + 3);
+			}
+		}
+	}
+
+	private static void AppendNamespaceHierarchyPolicy(StringBuilder sb, XElement element, int depth)
+	{
+		var rootNamespace = element.Attribute("rootNamespace")?.Value ?? "(missing rootNamespace)";
+		AppendLine(sb, depth, "- Namespace hierarchy policy protects namespace ownership below `" + Escape(rootNamespace) + "`.");
+		AppendDescription(sb, element, depth + 1);
+		foreach (var rule in element.Elements("BlockedRelation"))
+		{
+			var relation = rule.Attribute("relation")?.Value ?? "(missing relation)";
+			var details = new List<string>();
+			AddAttribute(details, rule, "allowedSites");
+			AddAttribute(details, rule, "blockedSites");
+			var detailText = details.Count == 0 ? " at all dependency sites" : " (" + string.Join(", ", details) + ")";
+			AppendLine(sb, depth + 1, "- Blocks `" + Escape(relation) + "` dependencies" + detailText + ".");
+			AppendDescription(sb, rule, depth + 2);
 		}
 	}
 

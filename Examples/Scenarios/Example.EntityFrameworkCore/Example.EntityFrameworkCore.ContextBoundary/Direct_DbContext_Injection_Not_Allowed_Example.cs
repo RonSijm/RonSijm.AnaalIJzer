@@ -13,7 +13,7 @@ public sealed class PizzaOrderApplicationService(PizzaOrderRepository repository
         return result;
     }
 
-    // ARCH001: Application -> Context is not allowed at Site=Constructor.
+    // ARCH_DEP_001: Application -> Context is not allowed at Site=Constructor.
     // The service should ask the repository, rather than receive DbContext directly.
 }
 

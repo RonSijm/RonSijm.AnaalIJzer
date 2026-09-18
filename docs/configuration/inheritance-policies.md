@@ -84,10 +84,10 @@ The child policy cannot override an outer denial. The first failure is reported 
 #### What this rule does not mean
 
 - Inheritance policies do not grant or deny dependency edges. That is still controlled by `<AllowedDependency>` and `<BlockedDependency>`.
-- Inheritance policies do not decide whether a declaration may be `public` or `internal`. That is a visibility-policy concern (`ARCH012`).
+- Inheritance policies do not decide whether a declaration may be `public` or `internal`. That is a visibility-policy concern (`ARCH_VIS_001`).
 - Inheritance policies do not replace contract purity. A type can inherit the right base class and still violate `<ContractPolicy>`.
 - Inheritance policies check declarations that already exist. They do not classify a type into a layer by themselves; the layer matchers still do that.
 
 Arse includes inheritance-policy findings in `inspect`, `report`, generated documentation, and code evidence. The standalone WPF editor and Visual Studio graph inspector expose the same settings at layer scope.
 
-**Example projects:** [`Example.Arch019.InheritancePolicy`](../../Examples/Diagnostics/Example.Arch019.InheritancePolicy), [`Example.StructuralDeclarationMatchers`](../../Examples/Features/Example.StructuralDeclarationMatchers)
+**Example projects:** [`Example.Arch_INH_001.InheritancePolicy`](../../Examples/Diagnostics/INH/Example.Arch_INH_001.InheritancePolicy), [`Example.StructuralDeclarationMatchers`](../../Examples/Features/Example.StructuralDeclarationMatchers)

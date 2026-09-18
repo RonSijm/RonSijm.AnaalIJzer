@@ -27,7 +27,7 @@ public sealed class RecognizedDependencyCodeFixTests
 		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
 			source,
 			config,
-			ArchitecturalDiagnosticIds.UnrecognizedDependency,
+			ArchitecturalDiagnosticIds.DependencyRequiredMissing,
 			"Classify 'MysteryIngredient' into layer 'Mystery'");
 
 		updatedConfig.Should().Contain("<Class typeName=\"MysteryIngredient\" />");
@@ -51,7 +51,7 @@ public sealed class RecognizedDependencyCodeFixTests
 		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
 			source,
 			config,
-			ArchitecturalDiagnosticIds.UnrecognizedDependency,
+			ArchitecturalDiagnosticIds.DependencyRequiredMissing,
 			"Stop requiring recognized dependencies at Constructor globally");
 
 		updatedConfig.Should().Contain("requireRecognizedDependencies=\"Local\"");
@@ -76,7 +76,7 @@ public sealed class RecognizedDependencyCodeFixTests
 		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
 			source,
 			config,
-			ArchitecturalDiagnosticIds.UnrecognizedDependency,
+			ArchitecturalDiagnosticIds.DependencyRequiredMissing,
 			"Stop requiring recognized dependencies at Constructor for layer 'Caller'");
 
 		updatedConfig.Should().Contain("requireRecognizedDependencies=\"Local\"");
@@ -106,7 +106,7 @@ public sealed class RecognizedDependencyCodeFixTests
 
 		var updatedSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
 			source,
-			ArchitecturalDiagnosticIds.UnrecognizedDependency,
+			ArchitecturalDiagnosticIds.DependencyRequiredMissing,
 			"Classify 'MysteryIngredient' into layer 'Mystery'");
 
 		updatedSource.Should().Contain("<Class typeName=\"MysteryIngredient\" />");

@@ -7,25 +7,31 @@ using RonSijm.AnaalIJzer.Core.EntryPoints;
 using RonSijm.AnaalIJzer.Core.Inheritance.Policies;
 using RonSijm.AnaalIJzer.Core.LayerModel;
 using RonSijm.AnaalIJzer.Core.NameRules;
+using RonSijm.AnaalIJzer.Core.NamespaceHierarchy.Policies;
 using RonSijm.AnaalIJzer.Core.OperationPolicies.Behavioral;
 using RonSijm.AnaalIJzer.Core.OperationPolicies.Policies;
 using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.DependencyRules;
 using RonSijm.AnaalIJzer.Core.ReturnValues.Policies;
-	using RonSijm.AnaalIJzer.Core.SemanticOperations.Model;
+using RonSijm.AnaalIJzer.Core.SemanticOperations.Model;
 using RonSijm.AnaalIJzer.Core.SourceLocations;
 using RonSijm.AnaalIJzer.Core.Visibility;
 
 namespace RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.PolicyEvaluation;
 
 public readonly struct ArchitecturePolicyEngine(
-	CompiledLayerCatalog catalog)
+	CompiledLayerCatalog catalog,
+	ImmutableArray<ReturnValuePolicy> globalReturnValuePolicies = default,
+	ImmutableArray<NamespaceHierarchyPolicy> namespaceHierarchyPolicies = default)
 {
 	private readonly LayerRegistry _registry = new(catalog);
+	private readonly ImmutableArray<ReturnValuePolicy> _globalReturnValuePolicies = globalReturnValuePolicies.IsDefault ? ImmutableArray<ReturnValuePolicy>.Empty : globalReturnValuePolicies;
+	private readonly ImmutableArray<NamespaceHierarchyPolicy> _namespaceHierarchyPolicies = namespaceHierarchyPolicies.IsDefault ? ImmutableArray<NamespaceHierarchyPolicy>.Empty : namespaceHierarchyPolicies;
 
 	public bool HasLayers => _registry.HasLayers;
 	public bool HasContractPolicies => _registry.HasContractPolicies;
 	public bool HasInheritancePolicies => _registry.HasInheritancePolicies;
-	public bool HasReturnValuePolicies => _registry.HasReturnValuePolicies;
+	public bool HasReturnValuePolicies => !_globalReturnValuePolicies.IsDefaultOrEmpty || _registry.HasReturnValuePolicies;
+	public bool HasNamespaceHierarchyPolicies => !_namespaceHierarchyPolicies.IsDefaultOrEmpty;
 	public bool HasForbiddenOperationPolicies => _registry.HasForbiddenOperationPolicies;
 	public bool HasBehavioralOperationPolicies => _registry.HasBehavioralOperationPolicies;
 	public bool HasVisibilityPolicies => _registry.HasVisibilityPolicies;
@@ -69,11 +75,39 @@ public readonly struct ArchitecturePolicyEngine(
 		return result;
 	}
 
-	public ReturnValuePolicyEvaluation? EvaluateReturnValuePolicies(LayerMatch layerMatch, ExpressionSyntax expression, SemanticModel semanticModel, CancellationToken cancellationToken)
+	public ReturnValuePolicyEvaluation? EvaluateReturnValuePolicies(LayerMatch? layerMatch, ExpressionSyntax expression, SemanticModel semanticModel, CancellationToken cancellationToken)
 	{
-		var result = _registry.EvaluateReturnValuePolicies(layerMatch, expression, semanticModel, cancellationToken);
+		foreach (var policy in _globalReturnValuePolicies)
+		{
+			var evaluation = policy.Evaluate(expression, semanticModel, cancellationToken);
+			if (evaluation is not null)
+			{
+				return evaluation;
+			}
+		}
+
+		if (layerMatch is null)
+		{
+			return null;
+		}
+
+		var result = _registry.EvaluateReturnValuePolicies(layerMatch.Value, expression, semanticModel, cancellationToken);
 
 		return result;
+	}
+
+	public NamespaceHierarchyEvaluation? EvaluateNamespaceHierarchyPolicies(string callerNamespace, string dependencyNamespace, string site)
+	{
+		foreach (var policy in _namespaceHierarchyPolicies)
+		{
+			var evaluation = policy.Evaluate(callerNamespace, dependencyNamespace, site);
+			if (evaluation is not null)
+			{
+				return evaluation;
+			}
+		}
+
+		return null;
 	}
 
 	public ForbiddenOperationPolicyEvaluation? EvaluateForbiddenOperationPolicies(LayerMatch layerMatch, SemanticOperation operation)

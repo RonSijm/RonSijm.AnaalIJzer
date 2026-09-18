@@ -48,7 +48,7 @@ public sealed partial class ArchitectureGraphEditorControl
 
 		if (_snapshot.HasConfigurationIssues)
 		{
-			_statusText.Text = "AnaalIJzer configuration has issues. Fix ARCH006 diagnostics before graph rendering.";
+			_statusText.Text = "AnaalIJzer configuration has issues. Fix ARCH_CONF_003 diagnostics before graph rendering.";
 			RenderSelection(ArchitectureGraphSelection.None);
 			return;
 		}

@@ -203,7 +203,7 @@ public sealed class PackageOrderResponse { }
         $env:NUGET_PACKAGES = $globalPackagesDirectory
         Invoke-DotNet @("restore", "PackageSmoke.Consumer.csproj", "--configfile", "NuGet.Config", "--no-cache") | Out-Null
         $buildOutput = Invoke-DotNet @("build", "PackageSmoke.Consumer.csproj", "--no-restore", "--nologo") 1
-        foreach ($diagnosticId in @("ARCH001", "ARCH010", "ARCH021", "ARCH023")) {
+        foreach ($diagnosticId in @("ARCH_DEP_001", "ARCH_PROJ_001", "ARCH_OPER_001", "ARCH_OPCT_008")) {
             if ($buildOutput -notmatch $diagnosticId) {
                 throw "A clean consumer PackageReference build did not report $diagnosticId.$([Environment]::NewLine)$buildOutput"
             }

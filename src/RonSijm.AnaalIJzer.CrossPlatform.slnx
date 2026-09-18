@@ -35,6 +35,7 @@
     <Project Path="Main/RonSijm.AnaalIJzer.Core.Exceptions/RonSijm.AnaalIJzer.Core.Exceptions.csproj" />
     <Project Path="Main/RonSijm.AnaalIJzer.Core.Inheritance/RonSijm.AnaalIJzer.Core.Inheritance.csproj" />
     <Project Path="Main/RonSijm.AnaalIJzer.Core.NameRules/RonSijm.AnaalIJzer.Core.NameRules.csproj" />
+	<Project Path="Main/RonSijm.AnaalIJzer.Core.NamespaceHierarchy/RonSijm.AnaalIJzer.Core.NamespaceHierarchy.csproj" />
 	<Project Path="Main/RonSijm.AnaalIJzer.Core.OperationPolicies/RonSijm.AnaalIJzer.Core.OperationPolicies.csproj" />
 	<Project Path="Main/RonSijm.AnaalIJzer.Core.OperationContracts/RonSijm.AnaalIJzer.Core.OperationContracts.csproj" />
     <Project Path="Main/RonSijm.AnaalIJzer.Core.PolicyEvaluation/RonSijm.AnaalIJzer.Core.PolicyEvaluation.csproj" />
@@ -88,6 +89,7 @@
     <Project Path="Tests/RonSijm.AnaalIJzer.Core.ApiSurface.Tests/RonSijm.AnaalIJzer.Core.ApiSurface.Tests.csproj" />
 	<Project Path="Tests/RonSijm.AnaalIJzer.Core.AssemblyAttributes.Tests/RonSijm.AnaalIJzer.Core.AssemblyAttributes.Tests.csproj" />
     <Project Path="Tests/RonSijm.AnaalIJzer.Core.NameRules.Tests/RonSijm.AnaalIJzer.Core.NameRules.Tests.csproj" />
+	<Project Path="Tests/RonSijm.AnaalIJzer.Core.NamespaceHierarchy.Tests/RonSijm.AnaalIJzer.Core.NamespaceHierarchy.Tests.csproj" />
     <Project Path="Tests/RonSijm.AnaalIJzer.Core.SourceLocations.Tests/RonSijm.AnaalIJzer.Core.SourceLocations.Tests.csproj" />
     <Project Path="Tests/RonSijm.AnaalIJzer.Core.LayerModel.Tests/RonSijm.AnaalIJzer.Core.LayerModel.Tests.csproj" />
     <Project Path="Tests/RonSijm.AnaalIJzer.Core.PolicyEvaluation.Tests/RonSijm.AnaalIJzer.Core.PolicyEvaluation.Tests.csproj" />

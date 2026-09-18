@@ -24,7 +24,7 @@ public sealed class ApiSurfaceAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiSurfaceLeakage).Subject;
+		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed).Subject;
 		violation.Properties[ArchitecturalDiagnostics.PropertyDepTypeName].Should().Be("LollyQueryable");
 		violation.Properties[ArchitecturalDiagnostics.PropertyDepLayerName].Should().Be("QuerySurface");
 		violation.Properties[ArchitecturalDiagnostics.PropertySite].Should().Be(DependencySites.MethodReturn);
@@ -75,7 +75,7 @@ public sealed class ApiSurfaceAnalyzerTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		var sites = diagnostics
-			.Where(item => item.Id == ArchitecturalDiagnosticIds.ApiSurfaceLeakage)
+			.Where(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed)
 			.Select(item => item.Properties[ArchitecturalDiagnostics.PropertySite])
 			.ToArray();
 		sites.Should().Contain(DependencySites.Constructor);
@@ -123,7 +123,7 @@ public sealed class ApiSurfaceAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Count(item => item.Id == ArchitecturalDiagnosticIds.ApiSurfaceLeakage).Should().BeGreaterThanOrEqualTo(5);
+		diagnostics.Count(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed).Should().BeGreaterThanOrEqualTo(5);
 	}
 
 	[Fact]
@@ -142,7 +142,7 @@ public sealed class ApiSurfaceAnalyzerTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		var violation = diagnostics.Should().ContainSingle(item =>
-			item.Id == ArchitecturalDiagnosticIds.ApiSurfaceLeakage
+			item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed
 			&& item.Properties[ArchitecturalDiagnostics.PropertySite] == DependencySites.GenericArgument).Subject;
 		source.Substring(violation.Location.SourceSpan.Start, violation.Location.SourceSpan.Length).Should().Be("LollyQueryable");
 	}
@@ -168,7 +168,7 @@ public sealed class ApiSurfaceAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiSurfaceLeakage);
+		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed);
 	}
 
 	[Fact]
@@ -186,7 +186,7 @@ public sealed class ApiSurfaceAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiSurfaceLeakage);
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed);
 	}
 
 	[Fact]
@@ -230,8 +230,8 @@ public sealed class ApiSurfaceAnalyzerTests
 		var allowedDiagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, allowedConfig);
 		var blockedDiagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, blockedConfig);
 
-		allowedDiagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiSurfaceLeakage);
-		blockedDiagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiSurfaceLeakage);
+		allowedDiagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed);
+		blockedDiagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed);
 	}
 
 	[Fact]
@@ -261,7 +261,7 @@ public sealed class ApiSurfaceAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiSurfaceLeakage).Subject;
+		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed).Subject;
 		violation.Properties[ArchitecturalDiagnostics.PropertySite].Should().Be(DependencySites.MethodReturn);
 	}
 
@@ -300,7 +300,7 @@ public sealed class ApiSurfaceAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiSurfaceLeakage);
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed);
 	}
 
 	[Fact]
@@ -332,7 +332,7 @@ public sealed class ApiSurfaceAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiSurfaceLeakage);
+		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed);
 	}
 
 	[Fact]
@@ -351,8 +351,8 @@ public sealed class ApiSurfaceAnalyzerTests
 		var ignoredDiagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, ignoredConfig);
 		var requiredDiagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, requiredConfig);
 
-		ignoredDiagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiSurfaceLeakage);
-		requiredDiagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiSurfaceLeakage);
+		ignoredDiagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed);
+		requiredDiagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed);
 	}
 
 	[Theory]
@@ -377,7 +377,7 @@ public sealed class ApiSurfaceAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class CandyService { }", config);
 
-		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.InvalidConfiguration);
+		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
 	}
 
 	[Fact]
@@ -399,7 +399,7 @@ public sealed class ApiSurfaceAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiSurfaceLeakage);
+		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed);
 	}
 
 	private static string CreateBlockConfig()

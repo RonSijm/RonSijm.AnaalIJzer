@@ -48,7 +48,7 @@ public sealed class BehavioralOperationPolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.BehavioralOperationPolicyViolation).Subject;
+		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.OperationRequiredMissing).Subject;
 		violation.Properties[ArchitecturalDiagnostics.PropertyBehavioralOperationViolationKind].Should().Be("RequiredOperationDoesNotDominateExit");
 		violation.Properties[ArchitecturalDiagnostics.PropertyBehavioralOperationOrdering].Should().Be("Dominance");
 		violation.Properties[ArchitecturalDiagnostics.PropertyDeclaredSymbolName].Should().Be("Submit");
@@ -103,7 +103,7 @@ public sealed class BehavioralOperationPolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.BehavioralOperationPolicyViolation).Subject;
+		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.OperationOrdering).Subject;
 		violation.Properties[ArchitecturalDiagnostics.PropertyBehavioralOperationViolationKind].Should().Be("MissingRequiredOperationBefore");
 		violation.Properties[ArchitecturalDiagnostics.PropertyOperationDisplayName].Should().Contain("Save");
 	}
@@ -153,7 +153,7 @@ public sealed class BehavioralOperationPolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.BehavioralOperationPolicyViolation).Subject;
+		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.OperationOrdering).Subject;
 		violation.Properties[ArchitecturalDiagnostics.PropertyBehavioralOperationViolationKind].Should().Be("ForbiddenOperationAfter");
 		violation.Properties[ArchitecturalDiagnostics.PropertyOperationDisplayName].Should().Contain("Record");
 	}
@@ -196,7 +196,7 @@ public sealed class BehavioralOperationPolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.BehavioralOperationPolicyViolation).Subject;
+		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.OperationCardinality).Subject;
 		violation.Properties[ArchitecturalDiagnostics.PropertyBehavioralOperationViolationKind].Should().Be("MaximumOperationCountExceeded");
 		violation.Properties[ArchitecturalDiagnostics.PropertyOperationDisplayName].Should().Contain("Publish");
 	}
@@ -235,7 +235,7 @@ public sealed class BehavioralOperationPolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.BehavioralOperationPolicyViolation).Subject;
+		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.OperationRequiredMissing).Subject;
 		violation.GetMessage().Should().Contain("layer Application/Kitchen");
 		violation.Properties[ArchitecturalDiagnostics.PropertyViolationReason].Should().Contain("layer 'Application'");
 	}
@@ -272,7 +272,7 @@ public sealed class BehavioralOperationPolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violations = diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.BehavioralOperationPolicyViolation).ToArray();
+		var violations = diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.OperationRequiredMissing).ToArray();
 		violations.Should().ContainSingle();
 		violations[0].Properties[ArchitecturalDiagnostics.PropertyDeclaredSymbolName].Should().Be("Submit");
 	}
@@ -312,7 +312,7 @@ public sealed class BehavioralOperationPolicyAnalyzerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.BehavioralOperationPolicyViolation).Subject;
+		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.OperationRequiredMissing).Subject;
 		violation.Properties[ArchitecturalDiagnostics.PropertyDeclaredSymbolName].Should().Be("get_MenuPizza");
 		violation.Properties[ArchitecturalDiagnostics.PropertySite].Should().Be("Declaration");
 	}

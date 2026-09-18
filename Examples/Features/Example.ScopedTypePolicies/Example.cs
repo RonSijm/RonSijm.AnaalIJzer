@@ -44,8 +44,8 @@ public class DeleteOrderAuditRecord { }
 // DeleteOrderAuditRecord proves that the Query block-list does not leak into Audit.
 public class CheckoutService(CreateOrderCommand create, FindOrderQuery find, DeleteOrderAuditRecord audit) { }
 
-// ARCH003: Process is not an allowed Command verb.
+// ARCH_TYPE_001: Process is not an allowed Command verb.
 public class WorkflowService(ProcessOrderCommand process) { }
 
-// ARCH003: Delete is explicitly forbidden only inside the Query layer.
+// ARCH_TYPE_001: Delete is explicitly forbidden only inside the Query layer.
 public class AdministrationService(DeleteOrderQuery delete) { }

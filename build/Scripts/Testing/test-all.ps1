@@ -13,6 +13,9 @@ $ErrorActionPreference = "Stop"
 $scriptDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repositoryRoot = (Resolve-Path (Join-Path $scriptDirectory "..\..\..")).Path
 $runningOnWindows = [System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT
+$env:MSBUILDDISABLENODEREUSE = "1"
+
+& (Join-Path $scriptDirectory "check-diagnostic-ids.ps1")
 
 function Get-RelativePath {
 	param(

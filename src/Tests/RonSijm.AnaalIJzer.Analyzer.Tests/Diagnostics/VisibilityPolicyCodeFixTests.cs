@@ -21,7 +21,7 @@ public sealed class VisibilityPolicyCodeFixTests
 		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
 			source,
 			config,
-			ArchitecturalDiagnosticIds.VisibilityPolicyViolation,
+			ArchitecturalDiagnosticIds.VisibilityNotAllowed,
 			"Allow visibility 'Public' in VisibilityPolicy");
 
 		updatedConfig.Should().Contain("allowedAccessibilities=\"Public, Internal, File\"");
@@ -43,7 +43,7 @@ public sealed class VisibilityPolicyCodeFixTests
 		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
 			source,
 			config,
-			ArchitecturalDiagnosticIds.VisibilityPolicyViolation,
+			ArchitecturalDiagnosticIds.VisibilityNotAllowed,
 			"Remove visibility 'Public' from blockedAccessibilities");
 
 		updatedConfig.Should().Contain("blockedAccessibilities=\"Internal\"");
@@ -65,7 +65,7 @@ public sealed class VisibilityPolicyCodeFixTests
 		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
 			source,
 			config,
-			ArchitecturalDiagnosticIds.VisibilityPolicyViolation,
+			ArchitecturalDiagnosticIds.VisibilityNotAllowed,
 			"Remove VisibilityPolicy that only blocks 'Public'");
 
 		updatedConfig.Should().NotContain("<VisibilityPolicy");
@@ -91,7 +91,7 @@ public sealed class VisibilityPolicyCodeFixTests
 
 		var updatedSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
 			source,
-			ArchitecturalDiagnosticIds.VisibilityPolicyViolation,
+			ArchitecturalDiagnosticIds.VisibilityNotAllowed,
 			"Allow visibility 'Public' in VisibilityPolicy");
 
 		updatedSource.Should().Contain("allowedAccessibilities=\"Public, Internal, File\"");

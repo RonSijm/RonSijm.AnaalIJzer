@@ -39,7 +39,7 @@ public sealed class MultiCallerAndForkTests
 	}
 
 	[Fact]
-	public async Task MultipleCallers_DepNotCallableFromUnlistedCaller_ReportsARCH001()
+	public async Task MultipleCallers_DepNotCallableFromUnlistedCaller_ReportsARCH_DEP_001()
 	{
 		const string config = """
 		                      <ArchitecturalLevels>
@@ -65,7 +65,7 @@ public sealed class MultiCallerAndForkTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
 			.Should().NotBeEmpty();
 	}
 
@@ -105,7 +105,7 @@ public sealed class MultiCallerAndForkTests
 	}
 
 	[Fact]
-	public async Task Fork_ServiceAgentToDatabase_ReportsARCH001()
+	public async Task Fork_ServiceAgentToDatabase_ReportsARCH_DEP_001()
 	{
 		const string config = """
 		                      <ArchitecturalLevels>
@@ -135,7 +135,7 @@ public sealed class MultiCallerAndForkTests
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
 		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency)
+			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
 			.Should().NotBeEmpty();
 	}
 }

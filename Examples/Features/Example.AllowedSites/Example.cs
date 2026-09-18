@@ -4,5 +4,5 @@
 //   Sites/{Site}/Blocked{Site}.cs demonstrates blockedSites="{Site}".
 //   Shared/SharedTypes.cs contains the tiny dependency types used by the site examples.
 //
-// Building this project should produce one ARCH001 diagnostic from each site file,
+// Building this project should produce one ARCH_DEP_001 diagnostic from each site file,
 // for 26 diagnostics total.

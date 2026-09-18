@@ -21,7 +21,7 @@ public sealed class HierarchicalLayerTests
 	{
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(CrossBoundarySource, CreateCrossBoundaryConfig(missingGate));
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Subject;
 		diagnostic.GetMessage().Should().Contain(expectedBoundary);
 		diagnostic.GetMessage().Should().Contain("Ordering/Application");
 		diagnostic.GetMessage().Should().Contain("Billing/Contracts");
@@ -65,8 +65,8 @@ public sealed class HierarchicalLayerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency);
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.SameLayerDependency);
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed);
+		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.DependencyPeerScope);
 	}
 
 	[Fact]
@@ -82,7 +82,7 @@ public sealed class HierarchicalLayerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateCrossBoundaryConfig());
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.SameLayerDependency).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyPeerScope).Subject;
 		diagnostic.GetMessage().Should().Contain("Ordering/Application");
 	}
 
@@ -148,7 +148,7 @@ public sealed class HierarchicalLayerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(CrossBoundarySource, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Subject;
 		diagnostic.GetMessage().Should().Contain("explicitly blocks");
 	}
 
@@ -168,7 +168,7 @@ public sealed class HierarchicalLayerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateCrossBoundaryConfig());
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.WrongDirectionDependency);
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyReverseDirection);
 	}
 
 	[Fact]
@@ -180,7 +180,7 @@ public sealed class HierarchicalLayerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(CrossBoundarySource, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Subject;
 		diagnostic.GetMessage().Should().Contain("allowedSites does not include Constructor");
 		diagnostic.GetMessage().Should().Contain("boundary 'Ordering'");
 	}
@@ -202,7 +202,7 @@ public sealed class HierarchicalLayerTests
 	{
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(FrameworkDependencySource, CreateFrameworkBoundaryConfig());
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Subject;
 		diagnostic.GetMessage().Should().Contain("boundary 'Application'");
 	}
 
@@ -258,7 +258,7 @@ public sealed class HierarchicalLayerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Subject;
 		diagnostic.GetMessage().Should().Contain("DataAbstraction/Contracts").And.Contain("boundary 'DataAbstraction'");
 	}
 
@@ -269,7 +269,7 @@ public sealed class HierarchicalLayerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(FrameworkDependencySource, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Subject;
 		diagnostic.GetMessage().Should().Contain("allowedSites does not include Constructor");
 	}
 
@@ -282,7 +282,7 @@ public sealed class HierarchicalLayerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(FrameworkDependencySource, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Subject;
 		diagnostic.GetMessage().Should().Contain("explicitly blocks").And.Contain("boundary 'Application'");
 	}
 
@@ -298,7 +298,7 @@ public sealed class HierarchicalLayerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(FrameworkDependencySource, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.IllegalLevelDependency).Subject;
+		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Subject;
 		diagnostic.GetMessage().Should().Contain("explicitly blocks");
 	}
 
@@ -313,7 +313,7 @@ public sealed class HierarchicalLayerTests
 
 		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(FrameworkDependencySource, config);
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.WrongDirectionDependency);
+		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyReverseDirection);
 	}
 
 	private static string CreateCrossBoundaryConfig(string? missingGate = null)

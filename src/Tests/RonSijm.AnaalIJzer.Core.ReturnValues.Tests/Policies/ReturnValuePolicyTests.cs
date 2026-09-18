@@ -85,6 +85,102 @@ public sealed class ReturnValuePolicyTests
 		evaluation.Should().BeNull();
 	}
 
+	[Fact]
+	public void Evaluate_RejectsReturnThatDoesNotMatchAllowedRules()
+	{
+		var (expression, semanticModel) = GetReturnExpression(
+			"""
+			public sealed class PizzaKitchen
+			{
+				private object BakePizza() => new object();
+
+				public object Serve() => BakePizza();
+			}
+			""");
+		var rule = new ReturnValueRule(
+			new CodeObservationMatcher(CodeObservationMatchTarget.Identifier, []),
+			"any identifier",
+			"Return a named value after making the serving decision.",
+			"Architecture.anl",
+			9,
+			7);
+		var policy = new ReturnValuePolicy("Kitchen", ImmutableArray<ReturnValueRule>.Empty, null, "Architecture.anl", 8, 5, [rule]);
+
+		var evaluation = policy.Evaluate(expression, semanticModel, CancellationToken.None);
+
+		evaluation.Should().NotBeNull();
+		evaluation.Value.Rule.Should().Be(rule);
+		evaluation.Value.RuleMode.Should().Be(ReturnValuePolicyRuleMode.Allowed);
+		evaluation.Value.Reason.Should().Contain("permits only direct returned identifier");
+	}
+
+	[Fact]
+	public void Evaluate_AllowsDirectIdentifierMatchingAllowedRules()
+	{
+		var (expression, semanticModel) = GetReturnExpression(
+			"""
+			public sealed class PizzaKitchen
+			{
+				public object Serve()
+				{
+					var result = new object();
+
+					return result;
+				}
+			}
+			""");
+		var rule = new ReturnValueRule(
+			new CodeObservationMatcher(CodeObservationMatchTarget.Identifier, []),
+			"any identifier",
+			null,
+			"Architecture.anl",
+			9,
+			7);
+		var policy = new ReturnValuePolicy("Kitchen", ImmutableArray<ReturnValueRule>.Empty, null, "Architecture.anl", 8, 5, [rule]);
+
+		var evaluation = policy.Evaluate(expression, semanticModel, CancellationToken.None);
+
+		evaluation.Should().BeNull();
+	}
+
+	[Fact]
+	public void Evaluate_UsesForbiddenRuleBeforeAllowedReturnShape()
+	{
+		var (expression, semanticModel) = GetReturnExpression(
+			"""
+			public sealed class PizzaKitchen
+			{
+				public object Serve()
+				{
+					var mysteryPizza = new object();
+
+					return mysteryPizza;
+				}
+			}
+			""");
+		var forbiddenRule = new ReturnValueRule(
+			new CodeObservationMatcher(CodeObservationMatchTarget.Identifier, [new MatchCondition(MatchKind.Equals, "mysteryPizza")]),
+			"identifier exactName=\"mysteryPizza\"",
+			null,
+			"Architecture.anl",
+			9,
+			7);
+		var allowedRule = new ReturnValueRule(
+			new CodeObservationMatcher(CodeObservationMatchTarget.Identifier, []),
+			"any identifier",
+			null,
+			"Architecture.anl",
+			10,
+			7);
+		var policy = new ReturnValuePolicy("Kitchen", [forbiddenRule], null, "Architecture.anl", 8, 5, [allowedRule]);
+
+		var evaluation = policy.Evaluate(expression, semanticModel, CancellationToken.None);
+
+		evaluation.Should().NotBeNull();
+		evaluation.Value.Rule.Should().Be(forbiddenRule);
+		evaluation.Value.RuleMode.Should().Be(ReturnValuePolicyRuleMode.Forbidden);
+	}
+
 	private static (ExpressionSyntax Expression, SemanticModel SemanticModel) GetReturnExpression(string source)
 	{
 		var syntaxTree = CSharpSyntaxTree.ParseText(source);
@@ -103,7 +199,8 @@ public sealed class ReturnValuePolicyTests
 		diagnostics.Should().BeEmpty();
 		var servingMethod = syntaxTree.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>()
 			.Single(method => method.Identifier.ValueText == "Serve");
-		var expression = servingMethod.ExpressionBody!.Expression;
+		var expression = servingMethod.ExpressionBody?.Expression
+			?? servingMethod.Body!.Statements.OfType<ReturnStatementSyntax>().Single().Expression!;
 		var semanticModel = compilation.GetSemanticModel(syntaxTree);
 		var result = (expression, semanticModel);
 

@@ -7,7 +7,7 @@ namespace Example.GeneratedCode;
 
 public sealed class GeneratedClockKitchen
 {
-	// ARCH021: this file is normally ignored, but Architecture.anl explicitly opts it into analysis.
+	// ARCH_OPER_001: this file is normally ignored, but Architecture.anl explicitly opts it into analysis.
 	public DateTime GetGeneratedServingTime()
 	{
 		return DateTime.UtcNow;
