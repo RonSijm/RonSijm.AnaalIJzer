@@ -55,6 +55,10 @@ internal static class AnaaltomyCommandLine
 
 			return (int)AnaaltomyExitCode.InvalidInput;
 		}
+		catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+		{
+			throw;
+		}
 		catch (Exception exception)
 		{
 			await error.WriteLineAsync("Anaaltomy could not complete the operation: " + exception.Message);

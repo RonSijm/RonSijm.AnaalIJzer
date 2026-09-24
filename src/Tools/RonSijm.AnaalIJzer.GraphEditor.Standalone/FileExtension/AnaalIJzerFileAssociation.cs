@@ -4,25 +4,25 @@ namespace RonSijm.AnaalIJzer.GraphEditor.Standalone.FileExtension;
 
 internal static class AnaalIJzerFileAssociation
 {
-	private const string Extension = ".anl";
-	private const string ProgramName = "RonSijm.AnaalIJzer.GraphEditor.anl";
-	private const string FileTypeDescription = "AnaalIJzer architecture settings";
+    private const string Extension = ".anl";
+    private const string ProgramName = "RonSijm.AnaalIJzer.GraphEditor.anl";
+    private const string FileTypeDescription = "AnaalIJzer architecture settings";
 
-	internal static bool AssociateAnlFiles(ILogger logger)
-	{
-		logger.LogInformation("Associating {Extension} files with the AnaalIJzer Graph Editor.", Extension);
-		var result = Extension.CreateFileExtensionAssociation(ProgramName, FileTypeDescription);
-		logger.LogInformation("Association result for {Extension}: changed={Changed}", Extension, result);
+    internal static bool AssociateAnlFiles(ILogger logger)
+    {
+        logger.LogInformation("Associating {Extension} files with the AnaalIJzer Graph Editor.", Extension);
+        var result = Extension.CreateFileExtensionAssociation(ProgramName, FileTypeDescription);
+        logger.LogInformation("Association result for {Extension}: changed={Changed}", Extension, result);
 
-		return result;
-	}
+        return result;
+    }
 
-	internal static bool UnassociateAnlFiles(ILogger logger)
-	{
-		logger.LogInformation("Removing {Extension} file association for the AnaalIJzer Graph Editor.", Extension);
-		var result = Extension.RemoveFileExtensionAssociation(ProgramName);
-		logger.LogInformation("Association removal result for {Extension}: changed={Changed}", Extension, result);
+    internal static bool UnassociateAnlFiles(ILogger logger)
+    {
+        logger.LogInformation("Removing {Extension} file association for the AnaalIJzer Graph Editor.", Extension);
+        var result = Extension.RemoveFileExtensionAssociation(ProgramName);
+        logger.LogInformation("Association removal result for {Extension}: changed={Changed}", Extension, result);
 
-		return result;
-	}
+        return result;
+    }
 }

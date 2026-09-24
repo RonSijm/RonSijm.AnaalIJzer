@@ -7,52 +7,52 @@ namespace RonSijm.AnaalIJzer.GraphApplication;
 
 internal sealed partial class ArchitectureGraphEditService
 {
-	public ArchitectureConfigurationEditResult RemoveDependency(ArchitectureDependencyRuleEditHandle handle)
-	{
-		var result = ArchitectureConfigurationEditService.RemoveDependency(handle);
+    public ArchitectureConfigurationEditResult RemoveDependency(ArchitectureDependencyRuleEditHandle handle)
+    {
+        var result = ArchitectureConfigurationEditService.RemoveDependency(handle);
 
-		return result;
-	}
+        return result;
+    }
 
-	public ArchitectureConfigurationEditResult SetDependencySites(ArchitectureDependencyRuleEditHandle handle, ArchitectureSiteFilterEditMode mode, ImmutableArray<string> sites)
-	{
-		var result = ArchitectureConfigurationEditService.SetDependencySites(handle, mode, sites);
+    public ArchitectureConfigurationEditResult SetDependencySites(ArchitectureDependencyRuleEditHandle handle, ArchitectureSiteFilterEditMode mode, ImmutableArray<string> sites)
+    {
+        var result = ArchitectureConfigurationEditService.SetDependencySites(handle, mode, sites);
 
-		return result;
-	}
+        return result;
+    }
 
-	public ArchitectureConfigurationEditResult SetDependencyKind(ArchitectureDependencyRuleEditHandle handle, string elementKind)
-	{
-		var result = ArchitectureConfigurationEditService.SetDependencyKind(handle, elementKind);
+    public ArchitectureConfigurationEditResult SetDependencyKind(ArchitectureDependencyRuleEditHandle handle, string elementKind)
+    {
+        var result = ArchitectureConfigurationEditService.SetDependencyKind(handle, elementKind);
 
-		return result;
-	}
+        return result;
+    }
 
-	public ArchitectureConfigurationEditResult SetDependencyAppliesToDescendants(ArchitectureDependencyRuleEditHandle handle, bool appliesToDescendants)
-	{
-		var result = ArchitectureConfigurationEditService.SetDependencyAppliesToDescendants(handle, appliesToDescendants);
+    public ArchitectureConfigurationEditResult SetDependencyAppliesToDescendants(ArchitectureDependencyRuleEditHandle handle, bool appliesToDescendants)
+    {
+        var result = ArchitectureConfigurationEditService.SetDependencyAppliesToDescendants(handle, appliesToDescendants);
 
-		return result;
-	}
+        return result;
+    }
 
-	public ArchitectureConfigurationEditResult SetDependencyDescription(ArchitectureDependencyRuleEditHandle handle, string? description)
-	{
-		var result = ArchitectureConfigurationEditService.SetDependencyDescription(handle, description);
+    public ArchitectureConfigurationEditResult SetDependencyDescription(ArchitectureDependencyRuleEditHandle handle, string? description)
+    {
+        var result = ArchitectureConfigurationEditService.SetDependencyDescription(handle, description);
 
-		return result;
-	}
+        return result;
+    }
 
-	public ArchitectureConfigurationEditResult AddAllowedDependency(ArchitectureConfigurationSource source, string from, string to)
-	{
-		var result = ArchitectureConfigurationEditService.AddAllowedDependency(source, from, to);
+    public ArchitectureConfigurationEditResult AddAllowedDependency(ArchitectureConfigurationSource source, string from, string to)
+    {
+        var result = ArchitectureConfigurationEditService.AddAllowedDependency(source, from, to);
 
-		return result;
-	}
+        return result;
+    }
 
-	public ArchitectureConfigurationEditResult AddDependency(ArchitectureConfigurationSource source, string from, string to, string elementKind)
-	{
-		var result = ArchitectureConfigurationEditService.AddDependency(source, from, to, elementKind);
+    public ArchitectureConfigurationEditResult AddDependency(ArchitectureConfigurationSource source, string from, string to, string elementKind)
+    {
+        var result = ArchitectureConfigurationEditService.AddDependency(source, from, to, elementKind);
 
-		return result;
-	}
+        return result;
+    }
 }

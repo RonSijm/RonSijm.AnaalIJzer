@@ -5,10 +5,10 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Analysis.ReturnValues;
 
 public sealed class ReturnValuePolicyAnalyzerTests
 {
-	[Fact]
-	public async Task ReturnValuePolicy_RejectsConfiguredLiteralReturnValues()
-	{
-		const string source = """
+    [Fact]
+    public async Task ReturnValuePolicy_RejectsConfiguredLiteralReturnValues()
+    {
+        const string source = """
 			namespace Shop.Application;
 
 			public enum PizzaStatus
@@ -30,7 +30,7 @@ public sealed class ReturnValuePolicyAnalyzerTests
 				public object ReturnPizza() => new object();
 			}
 			""";
-		const string config = """
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Namespace startsWith="Shop.Application" />
@@ -44,18 +44,18 @@ public sealed class ReturnValuePolicyAnalyzerTests
 			</ArchitecturalLevels>
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violations = diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.ReturnNotAllowed).ToArray();
-		violations.Should().HaveCount(4);
-		violations.Should().OnlyContain(item => item.Properties[ArchitecturalDiagnostics.PropertyReturnValueRuleTarget] == "Literal");
-		violations.Should().OnlyContain(item => item.Properties[ArchitecturalDiagnostics.PropertySite] == "MethodReturn");
-	}
+        var violations = diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.ReturnNotAllowed).ToArray();
+        violations.Should().HaveCount(4);
+        violations.Should().OnlyContain(item => item.Properties[ArchitecturalDiagnostics.PropertyReturnValueRuleTarget] == "Literal");
+        violations.Should().OnlyContain(item => item.Properties[ArchitecturalDiagnostics.PropertySite] == "MethodReturn");
+    }
 
-	[Fact]
-	public async Task ReturnValuePolicy_RequiresConfiguredAnnotatedInvocationToBeHandled()
-	{
-		const string source = """
+    [Fact]
+    public async Task ReturnValuePolicy_RequiresConfiguredAnnotatedInvocationToBeHandled()
+    {
+        const string source = """
 			namespace JetBrains.Annotations
 			{
 				[System.AttributeUsage(System.AttributeTargets.Method)]
@@ -83,7 +83,7 @@ public sealed class ReturnValuePolicyAnalyzerTests
 				}
 			}
 			""";
-		const string config = """
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Namespace startsWith="Shop.Application" />
@@ -94,19 +94,67 @@ public sealed class ReturnValuePolicyAnalyzerTests
 			</ArchitecturalLevels>
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ReturnNotAllowed).Subject;
-		violation.Properties[ArchitecturalDiagnostics.PropertyDeclaredSymbolName].Should().Be("ReturnLookupDirectly");
-		violation.Properties[ArchitecturalDiagnostics.PropertyReturnValueRuleTarget].Should().Be("Invocation");
-		violation.Properties[ArchitecturalDiagnostics.PropertyReturnValueRule].Should().Contain("JetBrains.Annotations.CanBeNullAttribute");
-		violation.GetMessage().Should().Contain("blocks returned invocation");
-	}
+        var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ReturnNotAllowed).Subject;
+        violation.Properties[ArchitecturalDiagnostics.PropertyDeclaredSymbolName].Should().Be("ReturnLookupDirectly");
+        violation.Properties[ArchitecturalDiagnostics.PropertyReturnValueRuleTarget].Should().Be("Invocation");
+        violation.Properties[ArchitecturalDiagnostics.PropertyReturnValueRule].Should().Contain("JetBrains.Annotations.CanBeNullAttribute");
+        violation.GetMessage().Should().Contain("blocks returned invocation");
+    }
 
-	[Fact]
-	public async Task ReturnValuePolicy_RequiresDirectIdentifierReturnWhenConfigured()
-	{
-		const string source = """
+    [Fact]
+    public async Task ReturnValuePolicy_RejectsDirectInvocationWithoutRejectingLiterals()
+    {
+        const string source = """
+			namespace Shop.Application;
+
+			public sealed class Pizza { }
+
+			public sealed class PizzaOven
+			{
+				public Pizza BakePizza() => new Pizza();
+			}
+
+			public sealed class PizzaKitchen(PizzaOven oven)
+			{
+				public Pizza ReturnOvenDirectly() => oven.BakePizza();
+
+				public Pizza ReturnNamedResult()
+				{
+					var result = oven.BakePizza();
+
+					return result;
+				}
+
+				public bool ReturnFalse() => false;
+
+				public Pizza? ReturnNull() => null;
+			}
+			""";
+        const string config = """
+			<ArchitecturalLevels>
+			  <Layer name="Kitchen">
+			    <Class endsWith="Kitchen" />
+			    <ReturnValuePolicy>
+			      <Invocation />
+			    </ReturnValuePolicy>
+			  </Layer>
+			</ArchitecturalLevels>
+			""";
+
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+
+        var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ReturnNotAllowed).Subject;
+        violation.Properties[ArchitecturalDiagnostics.PropertyDeclaredSymbolName].Should().Be("ReturnOvenDirectly");
+        violation.Properties[ArchitecturalDiagnostics.PropertyReturnValueRuleTarget].Should().Be("Invocation");
+        violation.Properties[ArchitecturalDiagnostics.PropertyReturnValueRuleMode].Should().Be("Forbidden");
+    }
+
+    [Fact]
+    public async Task ReturnValuePolicy_RequiresDirectIdentifierReturnWhenConfigured()
+    {
+        const string source = """
 			namespace Shop.Application;
 
 			public sealed class Pizza { }
@@ -128,7 +176,7 @@ public sealed class ReturnValuePolicyAnalyzerTests
 				}
 			}
 			""";
-		const string config = """
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Kitchen">
 			    <Class endsWith="Kitchen" />
@@ -141,19 +189,20 @@ public sealed class ReturnValuePolicyAnalyzerTests
 			</ArchitecturalLevels>
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ReturnNotAllowed).Subject;
-		violation.Properties[ArchitecturalDiagnostics.PropertyDeclaredSymbolName].Should().Be("ReturnOvenDirectly");
-		violation.Properties[ArchitecturalDiagnostics.PropertyReturnValueRuleTarget].Should().Be("Identifier");
-		violation.Properties[ArchitecturalDiagnostics.PropertyReturnValueRuleMode].Should().Be("Allowed");
-		violation.GetMessage().Should().Contain("permits only direct returned identifier");
-	}
+        var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ReturnNotAllowed).Subject;
+        violation.Properties[ArchitecturalDiagnostics.PropertyDeclaredSymbolName].Should().Be("ReturnOvenDirectly");
+        violation.Properties[ArchitecturalDiagnostics.PropertyReturnValueRuleTarget].Should().Be("Identifier");
+        violation.Properties[ArchitecturalDiagnostics.PropertyReturnedExpressionKind].Should().Be("Invocation");
+        violation.Properties[ArchitecturalDiagnostics.PropertyReturnValueRuleMode].Should().Be("Allowed");
+        violation.GetMessage().Should().Contain("permits only direct returned identifier");
+    }
 
-	[Fact]
-	public async Task GlobalReturnValuePolicy_AppliesToUnclassifiedTypes()
-	{
-		const string source = """
+    [Fact]
+    public async Task GlobalReturnValuePolicy_AppliesToUnclassifiedTypes()
+    {
+        const string source = """
 			public sealed class Pizza { }
 
 			public sealed class PizzaOven
@@ -181,7 +230,7 @@ public sealed class ReturnValuePolicyAnalyzerTests
 				}
 			}
 			""";
-		const string config = """
+        const string config = """
 			<ArchitecturalLevels>
 			  <ReturnValuePolicy>
 			    <AllowedReturn>
@@ -191,19 +240,19 @@ public sealed class ReturnValuePolicyAnalyzerTests
 			</ArchitecturalLevels>
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ReturnNotAllowed).Subject;
-		violation.Properties[ArchitecturalDiagnostics.PropertyDeclaredSymbolName].Should().Be("ReturnOvenDirectly");
-		violation.Properties[ArchitecturalDiagnostics.PropertyCallerLayerName].Should().Be("unclassified");
-		violation.Properties[ArchitecturalDiagnostics.PropertyReturnValueRuleMode].Should().Be("Allowed");
-		violation.GetMessage().Should().Contain("the global configuration");
-	}
+        var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ReturnNotAllowed).Subject;
+        violation.Properties[ArchitecturalDiagnostics.PropertyDeclaredSymbolName].Should().Be("ReturnOvenDirectly");
+        violation.Properties[ArchitecturalDiagnostics.PropertyCallerLayerName].Should().Be("unclassified");
+        violation.Properties[ArchitecturalDiagnostics.PropertyReturnValueRuleMode].Should().Be("Allowed");
+        violation.GetMessage().Should().Contain("the global configuration");
+    }
 
-	[Fact]
-	public async Task LayerReturnValuePolicy_CanFurtherRestrictAGlobalReturnValuePolicy()
-	{
-		const string source = """
+    [Fact]
+    public async Task LayerReturnValuePolicy_CanFurtherRestrictAGlobalReturnValuePolicy()
+    {
+        const string source = """
 			public sealed class Pizza { }
 
 			public sealed class PizzaKitchen
@@ -216,7 +265,7 @@ public sealed class ReturnValuePolicyAnalyzerTests
 				}
 			}
 			""";
-		const string config = """
+        const string config = """
 			<ArchitecturalLevels>
 			  <ReturnValuePolicy>
 			    <AllowedReturn>
@@ -232,17 +281,17 @@ public sealed class ReturnValuePolicyAnalyzerTests
 			</ArchitecturalLevels>
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ReturnNotAllowed).Subject;
-		violation.Properties[ArchitecturalDiagnostics.PropertyCallerLayerName].Should().Be("Kitchen");
-		violation.GetMessage().Should().Contain("layer 'Kitchen'");
-	}
+        var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ReturnNotAllowed).Subject;
+        violation.Properties[ArchitecturalDiagnostics.PropertyCallerLayerName].Should().Be("Kitchen");
+        violation.GetMessage().Should().Contain("layer 'Kitchen'");
+    }
 
-	[Fact]
-	public async Task ReturnValuePolicy_UsesAllowedReturnFromInlineAssemblyMetadata()
-	{
-		const string source = """
+    [Fact]
+    public async Task ReturnValuePolicy_UsesAllowedReturnFromInlineAssemblyMetadata()
+    {
+        const string source = """
 			using System.Reflection;
 
 			[assembly: AssemblyMetadata("AnaalIJzerSettings", "<ArchitecturalLevels><Layer name=\"Kitchen\"><Class endsWith=\"Kitchen\" /><ReturnValuePolicy><AllowedReturn><Identifier /></AllowedReturn></ReturnValuePolicy></Layer></ArchitecturalLevels>")]
@@ -258,17 +307,17 @@ public sealed class ReturnValuePolicyAnalyzerTests
 			}
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ReturnNotAllowed).Subject;
-		violation.Properties[ArchitecturalDiagnostics.PropertyReturnValueRuleTarget].Should().Be("Identifier");
-		violation.Properties[ArchitecturalDiagnostics.PropertyReturnValueRuleMode].Should().Be("Allowed");
-	}
+        var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ReturnNotAllowed).Subject;
+        violation.Properties[ArchitecturalDiagnostics.PropertyReturnValueRuleTarget].Should().Be("Identifier");
+        violation.Properties[ArchitecturalDiagnostics.PropertyReturnValueRuleMode].Should().Be("Allowed");
+    }
 
-	[Fact]
-	public async Task GlobalReturnValuePolicy_UsesAllowedReturnFromInlineAssemblyMetadata()
-	{
-		const string source = """
+    [Fact]
+    public async Task GlobalReturnValuePolicy_UsesAllowedReturnFromInlineAssemblyMetadata()
+    {
+        const string source = """
 			using System.Reflection;
 
 			[assembly: AssemblyMetadata("AnaalIJzerSettings", "<ArchitecturalLevels><ReturnValuePolicy><AllowedReturn><Identifier /></AllowedReturn></ReturnValuePolicy></ArchitecturalLevels>")]
@@ -281,17 +330,17 @@ public sealed class ReturnValuePolicyAnalyzerTests
 			}
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ReturnNotAllowed).Subject;
-		violation.Properties[ArchitecturalDiagnostics.PropertyCallerLayerName].Should().Be("unclassified");
-		violation.GetMessage().Should().Contain("the global configuration");
-	}
+        var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ReturnNotAllowed).Subject;
+        violation.Properties[ArchitecturalDiagnostics.PropertyCallerLayerName].Should().Be("unclassified");
+        violation.GetMessage().Should().Contain("the global configuration");
+    }
 
-	[Fact]
-	public async Task ParentReturnValuePolicy_AppliesToNestedLayerAndOuterFailureWins()
-	{
-		const string source = """
+    [Fact]
+    public async Task ParentReturnValuePolicy_AppliesToNestedLayerAndOuterFailureWins()
+    {
+        const string source = """
 			namespace Shop.Application.Orders;
 
 			public sealed class Pizza { }
@@ -301,7 +350,7 @@ public sealed class ReturnValuePolicyAnalyzerTests
 				public Pizza GetPizza() => null!;
 			}
 			""";
-		const string config = """
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Assembly exactName="TestAssembly" />
@@ -318,21 +367,21 @@ public sealed class ReturnValuePolicyAnalyzerTests
 			</ArchitecturalLevels>
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ReturnNotAllowed).Subject;
-		violation.Properties[ArchitecturalDiagnostics.PropertyCallerLayerName].Should().Be("Application/Orders");
-		violation.GetMessage().Should().Contain("layer 'Application'");
-	}
+        var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ReturnNotAllowed).Subject;
+        violation.Properties[ArchitecturalDiagnostics.PropertyCallerLayerName].Should().Be("Application/Orders");
+        violation.GetMessage().Should().Contain("layer 'Application'");
+    }
 
-	[Theory]
-	[InlineData("""<ReturnValuePolicy />""")]
-	[InlineData("""<ReturnValuePolicy disallowExplicitNull="true"><Literal value="null" /></ReturnValuePolicy>""")]
-	[InlineData("""<ReturnValuePolicy><Throw /></ReturnValuePolicy>""")]
-	[InlineData("""<ReturnValuePolicy><Literal value="null" unsupported="pizza" /></ReturnValuePolicy>""")]
-	public async Task InvalidReturnValuePolicy_ReportsConfigurationIssue(string policy)
-	{
-		var config = $"""
+    [Theory]
+    [InlineData("""<ReturnValuePolicy />""")]
+    [InlineData("""<ReturnValuePolicy disallowExplicitNull="true"><Literal value="null" /></ReturnValuePolicy>""")]
+    [InlineData("""<ReturnValuePolicy><Throw /></ReturnValuePolicy>""")]
+    [InlineData("""<ReturnValuePolicy><Literal value="null" unsupported="pizza" /></ReturnValuePolicy>""")]
+    public async Task InvalidReturnValuePolicy_ReportsConfigurationIssue(string policy)
+    {
+        var config = $"""
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Class endsWith="Service" />
@@ -341,22 +390,22 @@ public sealed class ReturnValuePolicyAnalyzerTests
 			</ArchitecturalLevels>
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public sealed class PizzaService { public object GetPizza() => null!; }", config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public sealed class PizzaService { public object GetPizza() => null!; }", config);
 
-		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ReturnNotAllowed);
-	}
+        diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
+        diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ReturnNotAllowed);
+    }
 
-	[Fact]
-	public async Task ConfigurationWithoutReturnValuePolicy_RemainsUnchanged()
-	{
-		const string source = """
+    [Fact]
+    public async Task ConfigurationWithoutReturnValuePolicy_RemainsUnchanged()
+    {
+        const string source = """
 			public sealed class PizzaService
 			{
 				public object GetPizza() => null!;
 			}
 			""";
-		const string config = """
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Class endsWith="Service" />
@@ -364,8 +413,8 @@ public sealed class ReturnValuePolicyAnalyzerTests
 			</ArchitecturalLevels>
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ReturnNotAllowed);
-	}
+        diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ReturnNotAllowed);
+    }
 }

@@ -37,9 +37,9 @@ public sealed class ArchitectureEditorSnapshot(
     public ArchitectureGraphSnapshot GraphSnapshot { get; } = graphSnapshot ?? ArchitectureGraphSnapshot.Empty;
 
     public static ArchitectureEditorSnapshot Empty { get; } = new(
-		false,
-		false,
-		ImmutableArray<ArchitectureLayerIndicator>.Empty,
-		ImmutableArray<ArchitectureDependencySiteIndicator>.Empty,
-		ImmutableArray<string>.Empty);
+        false,
+        false,
+        ImmutableArray<ArchitectureLayerIndicator>.Empty,
+        ImmutableArray<ArchitectureDependencySiteIndicator>.Empty,
+        ImmutableArray<string>.Empty);
 }

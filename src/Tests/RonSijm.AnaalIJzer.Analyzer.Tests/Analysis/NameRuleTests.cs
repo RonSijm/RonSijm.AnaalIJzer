@@ -5,10 +5,10 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Analysis;
 
 public sealed class NameRuleTests
 {
-	[Fact]
-	public async Task RequireMatchingNames_ReportsSwappedMethodArguments()
-	{
-		const string config = """
+    [Fact]
+    public async Task RequireMatchingNames_ReportsSwappedMethodArguments()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Service" />
@@ -21,7 +21,7 @@ public sealed class NameRuleTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public class OrderService
 		                      {
 		                          public void Initialize()
@@ -38,19 +38,19 @@ public sealed class NameRuleTests
 		                      }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var nameRuleDiagnostics = diagnostics.Where(d => d.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).ToArray();
-		nameRuleDiagnostics.Should().HaveCount(2);
-		nameRuleDiagnostics.Should().OnlyContain(d => d.Properties["Site"] == "Method");
-		nameRuleDiagnostics.Select(d => d.Properties["SourceName"]).Should().BeEquivalentTo("animalId", "fruitId");
-		nameRuleDiagnostics.Select(d => d.Properties["TargetName"]).Should().BeEquivalentTo("fruitId", "animalId");
-	}
+        var nameRuleDiagnostics = diagnostics.Where(d => d.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).ToArray();
+        nameRuleDiagnostics.Should().HaveCount(2);
+        nameRuleDiagnostics.Should().OnlyContain(d => d.Properties["Site"] == "Method");
+        nameRuleDiagnostics.Select(d => d.Properties["SourceName"]).Should().BeEquivalentTo("animalId", "fruitId");
+        nameRuleDiagnostics.Select(d => d.Properties["TargetName"]).Should().BeEquivalentTo("fruitId", "animalId");
+    }
 
-	[Fact]
-	public async Task RequireMatchingNames_AllowsMatchingPropertyAssignment()
-	{
-		const string config = """
+    [Fact]
+    public async Task RequireMatchingNames_AllowsMatchingPropertyAssignment()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Service" />
@@ -63,7 +63,7 @@ public sealed class NameRuleTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public sealed class Customer
 		                      {
 		                          public int Id { get; set; }
@@ -78,15 +78,15 @@ public sealed class NameRuleTests
 		                      }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Where(d => d.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Should().BeEmpty();
-	}
+        diagnostics.Where(d => d.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Should().BeEmpty();
+    }
 
-	[Fact]
-	public async Task RequireMatchingNames_ReportsMismatchedPropertyAssignment()
-	{
-		const string config = """
+    [Fact]
+    public async Task RequireMatchingNames_ReportsMismatchedPropertyAssignment()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Service" />
@@ -99,7 +99,7 @@ public sealed class NameRuleTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public sealed class Customer
 		                      {
 		                          public int Id { get; set; }
@@ -114,18 +114,18 @@ public sealed class NameRuleTests
 		                      }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Which;
-		diagnostic.Properties["Site"].Should().Be("Property");
-		diagnostic.Properties["SourceName"].Should().Be("animalId");
-		diagnostic.Properties["TargetName"].Should().Be("Customer.Id");
-	}
+        var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Which;
+        diagnostic.Properties["Site"].Should().Be("Property");
+        diagnostic.Properties["SourceName"].Should().Be("animalId");
+        diagnostic.Properties["TargetName"].Should().Be("Customer.Id");
+    }
 
-	[Fact]
-	public async Task RequireMatchingNames_AllowMapping_CanPermitIntentionalRename()
-	{
-		const string config = """
+    [Fact]
+    public async Task RequireMatchingNames_AllowMapping_CanPermitIntentionalRename()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Service" />
@@ -139,7 +139,7 @@ public sealed class NameRuleTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public class OrderService
 		                      {
 		                          public void Run(int legacyCustomerId)
@@ -153,15 +153,15 @@ public sealed class NameRuleTests
 		                      }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Where(d => d.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Should().BeEmpty();
-	}
+        diagnostics.Where(d => d.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Should().BeEmpty();
+    }
 
-	[Fact]
-	public async Task RequireMatchingNames_AllowMapping_RespectsAllowedSites()
-	{
-		const string config = """
+    [Fact]
+    public async Task RequireMatchingNames_AllowMapping_RespectsAllowedSites()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Service" />
@@ -175,7 +175,7 @@ public sealed class NameRuleTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public sealed class Customer
 		                      {
 		                          public Customer(int customerId)
@@ -197,17 +197,17 @@ public sealed class NameRuleTests
 		                      }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Which;
-		diagnostic.Properties["Site"].Should().Be("Method");
-		diagnostic.GetMessage().Should().Contain("allowedSites does not include Method");
-	}
+        var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Which;
+        diagnostic.Properties["Site"].Should().Be("Method");
+        diagnostic.GetMessage().Should().Contain("allowedSites does not include Method");
+    }
 
-	[Fact]
-	public async Task RequireMatchingNames_CanBeScopedToOneSite()
-	{
-		const string config = """
+    [Fact]
+    public async Task RequireMatchingNames_CanBeScopedToOneSite()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Service" />
@@ -220,7 +220,7 @@ public sealed class NameRuleTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public class OrderService
 		                      {
 		                          public void Run(int animalId)
@@ -235,16 +235,16 @@ public sealed class NameRuleTests
 		                      }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Which;
-		diagnostic.Properties["Site"].Should().Be("Local");
-	}
+        var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Which;
+        diagnostic.Properties["Site"].Should().Be("Local");
+    }
 
-	[Fact]
-	public async Task RequireMatchingNames_IsLayerScoped()
-	{
-		const string config = """
+    [Fact]
+    public async Task RequireMatchingNames_IsLayerScoped()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Service" />
@@ -260,7 +260,7 @@ public sealed class NameRuleTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public class OrderService
 		                      {
 		                          public void Run(int animalId)
@@ -278,16 +278,16 @@ public sealed class NameRuleTests
 		                      }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Which;
-		diagnostic.GetMessage().Should().Contain("OrderService");
-	}
+        var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Which;
+        diagnostic.GetMessage().Should().Contain("OrderService");
+    }
 
-	[Fact]
-	public async Task RequireMatchingNames_UsesCombinedMatcherConditions()
-	{
-		const string config = """
+    [Fact]
+    public async Task RequireMatchingNames_UsesCombinedMatcherConditions()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Service" />
@@ -300,7 +300,7 @@ public sealed class NameRuleTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public class OrderService
 		                      {
 		                          public void Run(int animalId, int customerId)
@@ -311,10 +311,10 @@ public sealed class NameRuleTests
 		                      }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Which;
-		diagnostic.Properties["SourceName"].Should().Be("customerId");
-		diagnostic.Properties["TargetName"].Should().Be("orderId");
-	}
+        var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Which;
+        diagnostic.Properties["SourceName"].Should().Be("customerId");
+        diagnostic.Properties["TargetName"].Should().Be("orderId");
+    }
 }

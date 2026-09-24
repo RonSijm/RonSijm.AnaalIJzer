@@ -5,86 +5,86 @@ namespace RonSijm.AnaalIJzer.Arse.Components;
 
 public partial class App
 {
-	private int MinimumConfidenceFocusOrder(ApplicationInputDefinition input)
-	{
-		var result = FirstCommandOptionFocusOrder(input);
+    private int MinimumConfidenceFocusOrder(ApplicationInputDefinition input)
+    {
+        var result = FirstCommandOptionFocusOrder(input);
 
-		return result;
-	}
+        return result;
+    }
 
-	private int MinimumSupportFocusOrder(ApplicationInputDefinition input)
-	{
-		var result = FirstCommandOptionFocusOrder(input) + 1;
+    private int MinimumSupportFocusOrder(ApplicationInputDefinition input)
+    {
+        var result = FirstCommandOptionFocusOrder(input) + 1;
 
-		return result;
-	}
+        return result;
+    }
 
-	private int OutputFocusOrder(ApplicationOperationDefinition operation, ApplicationInputDefinition input)
-	{
-		var result = FirstCommandOptionFocusOrder(input);
-		if (operation.Kind == ApplicationOperationKind.GenerateConfig && _generationStrategy == ConventionsStrategy)
-		{
-			result += 2;
-		}
+    private int OutputFocusOrder(ApplicationOperationDefinition operation, ApplicationInputDefinition input)
+    {
+        var result = FirstCommandOptionFocusOrder(input);
+        if (operation.Kind == ApplicationOperationKind.GenerateConfig && _generationStrategy == ConventionsStrategy)
+        {
+            result += 2;
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	private int RunFocusOrder(ApplicationOperationDefinition operation, ApplicationInputDefinition input)
-	{
-		var result = operation.Kind is ApplicationOperationKind.Inspect or ApplicationOperationKind.Fixes
-			? FirstCommandOptionFocusOrder(input)
-			: OutputFocusOrder(operation, input) + 1;
+    private int RunFocusOrder(ApplicationOperationDefinition operation, ApplicationInputDefinition input)
+    {
+        var result = operation.Kind is ApplicationOperationKind.Inspect or ApplicationOperationKind.Fixes
+            ? FirstCommandOptionFocusOrder(input)
+            : OutputFocusOrder(operation, input) + 1;
 
-		return result;
-	}
+        return result;
+    }
 
-	private int ClearFocusOrder(ApplicationOperationDefinition operation, ApplicationInputDefinition input)
-	{
-		var result = RunFocusOrder(operation, input) + 1;
+    private int ClearFocusOrder(ApplicationOperationDefinition operation, ApplicationInputDefinition input)
+    {
+        var result = RunFocusOrder(operation, input) + 1;
 
-		return result;
-	}
+        return result;
+    }
 
-	private static int FirstCommandOptionFocusOrder(ApplicationInputDefinition input)
-	{
-		var result = IsMsBuildInput(input.Kind) ? 2 : 1;
+    private static int FirstCommandOptionFocusOrder(ApplicationInputDefinition input)
+    {
+        var result = IsMsBuildInput(input.Kind) ? 2 : 1;
 
-		return result;
-	}
+        return result;
+    }
 
-	private ConfigurationGenerationOptions CreateGenerationOptions()
-	{
-		if (_generationStrategy == SnapshotStrategy)
-		{
-			return new();
-		}
+    private ConfigurationGenerationOptions CreateGenerationOptions()
+    {
+        if (_generationStrategy == SnapshotStrategy)
+        {
+            return new();
+        }
 
-		if (_generationStrategy == HelpfulStrategy)
-		{
-			return new ConfigurationGenerationOptions
-			{
-				Strategy = ConfigurationGenerationStrategy.Helpful
-			};
-		}
+        if (_generationStrategy == HelpfulStrategy)
+        {
+            return new ConfigurationGenerationOptions
+            {
+                Strategy = ConfigurationGenerationStrategy.Helpful
+            };
+        }
 
-		if (!double.TryParse(_minimumConfidence, NumberStyles.Float, CultureInfo.InvariantCulture, out var minimumConfidence))
-		{
-			throw new ApplicationOperationException("Minimum confidence must be a number from 0 to 1.");
-		}
+        if (!double.TryParse(_minimumConfidence, NumberStyles.Float, CultureInfo.InvariantCulture, out var minimumConfidence))
+        {
+            throw new ApplicationOperationException("Minimum confidence must be a number from 0 to 1.");
+        }
 
-		if (!int.TryParse(_minimumSupport, NumberStyles.None, CultureInfo.InvariantCulture, out var minimumSupport))
-		{
-			throw new ApplicationOperationException("Minimum supporting callers must be a whole number.");
-		}
+        if (!int.TryParse(_minimumSupport, NumberStyles.None, CultureInfo.InvariantCulture, out var minimumSupport))
+        {
+            throw new ApplicationOperationException("Minimum supporting callers must be a whole number.");
+        }
 
-		var result = new ConfigurationGenerationOptions
-		{
-			Strategy = ConfigurationGenerationStrategy.Conventions,
-			MinimumConfidence = minimumConfidence,
-			MinimumSupport = minimumSupport
-		};
+        var result = new ConfigurationGenerationOptions
+        {
+            Strategy = ConfigurationGenerationStrategy.Conventions,
+            MinimumConfidence = minimumConfidence,
+            MinimumSupport = minimumSupport
+        };
 
-		return result;
-	}
+        return result;
+    }
 }

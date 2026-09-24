@@ -12,7 +12,7 @@ Or add the package reference directly to your `.csproj`:
 
 ```xml
 <ItemGroup>
-    <PackageReference Include="RonSijm.AnaalIJzer" Version="0.4.0" PrivateAssets="all" />
+    <PackageReference Include="RonSijm.AnaalIJzer" Version="0.3.5" PrivateAssets="all" />
 </ItemGroup>
 ```
 
@@ -47,9 +47,15 @@ Add a file called `Architecture.anl` to the **root of the project you want to an
 
 ### Why `.anl` instead of `.xml`?
 
-`Architecture.anl` is an XML document. The format originally used the ordinary `.xml` extension, and the XML syntax has not changed: settings still use the `<ArchitecturalLevels>` root, standard XML tooling, and the AnaalIJzer XSD schema.
+`Architecture.anl` is an XML document. I originally used the ordinary `.xml` extension and later changed only the extension, not the format. Settings still use the `<ArchitecturalLevels>` root, standard XML tooling, and the AnaalIJzer XSD schema.
 
-The custom `.anl` extension gives the settings file an architectural identity instead of making it look like unrelated application data - a generic `Architecture.xml` tends to get filed under "legacy config of uncertain ownership" and removed during a tidy-up sprint. It also gives tools a stable file type to recognize and associate: Arse and the standalone graph editor can be registered as `.anl` handlers, while the Visual Studio companion can recognize an `.anl` file and open it in its dependency-graph editor.
+I chose `.anl` for a couple of practical reasons:
+
+- It gives the settings file an architectural identity instead of making it look like unrelated application data.
+  - A generic `Architecture.xml` tends to get filed under "legacy config of uncertain ownership" and removed during a tidy-up sprint.
+- It gives the tools a stable file type to recognize.
+  - Arse and the standalone graph editor can register themselves as `.anl` handlers.
+  - The Visual Studio companion can open an `.anl` file in its dependency-graph editor.
 
 Add an XSD schema hint when you want XML-aware editors to validate element and attribute names while you edit. The schema is [AnaalIJzer.xsd](../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd); generated configurations can place a copy beside `Architecture.anl`:
 
@@ -89,7 +95,7 @@ If several projects should use the same `Architecture.anl`, put the XML next to 
 ```xml
 <Project>
   <ItemGroup>
-    <PackageReference Include="RonSijm.AnaalIJzer" Version="0.4.0" PrivateAssets="all" />
+    <PackageReference Include="RonSijm.AnaalIJzer" Version="0.3.5" PrivateAssets="all" />
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)Architecture.anl" Link="Architecture.anl" />
   </ItemGroup>
 </Project>
@@ -138,11 +144,22 @@ public sealed class OrderRepository { }
 
 The analyzer recognizes `AssemblyMetadata("AnaalIJzerSettings", "...")` and reads the second constructor argument as XML. No custom helper attribute or extra package reference is needed.
 
-If both config sources exist, `Architecture.anl` wins and the inline metadata value is ignored without comment, so if carefully crafted inline rules suddenly stopped applying, look for a file someone added last week. Visual Studio and Rider code fixes can now edit both file-based settings and inline `AssemblyMetadata("AnaalIJzerSettings", ...)`, including the owning included file when a rule comes from `<Include>`. The simple one-file examples in this repository use `AssemblyMetadata("AnaalIJzerSettings", ...)`, and exact type-name rules use `nameof(...)` so refactors break the code at compile time instead of quietly breaking the config. Broader examples use XML files when that makes the configuration easier to read. See [IDE code fixes](../docs/configuration/ide-code-fixes.md) for the supported fixer matrix.
+If both config sources exist, `Architecture.anl` wins and the inline metadata value is ignored without comment. If carefully crafted inline rules suddenly stop applying, look for a file someone added last week.
+
+The practical split is:
+
+- **One-file examples and very small projects** use `AssemblyMetadata("AnaalIJzerSettings", ...)`.
+  - Exact type-name rules can use `nameof(...)`, so a refactor breaks at compile time instead of quietly breaking the config.
+- **Broader examples and real rule sets** use `.anl` files.
+  - XML is easier to read once the settings need includes, nested layers, or several policy families.
+- **Code fixes** can edit either source.
+  - When a rule comes from `<Include>`, the fixer targets the included file that actually owns it.
+
+See [IDE code fixes](../docs/configuration/ide-code-fixes.md) for the supported fixer matrix.
 
 **Example project:** [`Example.InlineXml`](../Examples/Features/Example.InlineXml)
 
-That's it. The analyzer activates automatically for every `.cs` file in the project.
+That's it. The analyzer now runs for every `.cs` file in the project.
 
 Examples use one vocabulary at a time. Explanatory diagnostics use the restaurant roles `Customer`, `Waiter`, `Chef`, and `Pantry`. Setup and reference examples use the technical layers `Presentation`, `Application`, and `Persistence`. A diagram, code block, or explanation never maps one vocabulary onto the other, because a `Waiter` in the `Persistence` layer helps nobody.
 
@@ -151,6 +168,6 @@ flowchart LR
     Customer --> Waiter --> Chef --> Pantry
 ```
 
-The self-contained projects under [`Examples/`](../Examples/) are referenced inline where their feature is documented. Most intentionally fail with documented `ARCH00X` errors; a few demonstrate clean wildcard config or generated report/documentation output. Scenario examples, such as [`Example.RepositoryQuerySurface`](../Examples/Scenarios/Example.RepositoryQuerySurface), show larger usage patterns rather than a single analyzer feature.
+The self-contained projects under [`Examples/`](../Examples/) are referenced inline where their feature is documented. Most intentionally fail with documented `ARCH_<CONCERN>_<REASON>` errors; a few demonstrate clean wildcard config or generated report/documentation output. Scenario examples, such as [`Example.RepositoryQuerySurface`](../Examples/Scenarios/Example.RepositoryQuerySurface), show larger usage patterns rather than a single analyzer feature.
 
 ---

@@ -5,10 +5,10 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Analysis.Operations;
 
 public sealed class BehavioralOperationPolicyAnalyzerTests
 {
-	[Fact]
-	public async Task RequiredOperation_DominanceReportsWhenTheRequiredCallOnlyOccursOnOneBranch()
-	{
-		const string source = """
+    [Fact]
+    public async Task RequiredOperation_DominanceReportsWhenTheRequiredCallOnlyOccursOnOneBranch()
+    {
+        const string source = """
 			namespace Shop.Application;
 
 			public sealed class PizzaKitchen
@@ -27,7 +27,7 @@ public sealed class BehavioralOperationPolicyAnalyzerTests
 			public static class PizzaValidator { public static void Validate() { } }
 			public static class PizzaRepository { public static void Save() { } }
 			""";
-		const string config = """
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Namespace startsWith="Shop.Application" />
@@ -46,18 +46,18 @@ public sealed class BehavioralOperationPolicyAnalyzerTests
 			</ArchitecturalLevels>
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.OperationRequiredMissing).Subject;
-		violation.Properties[ArchitecturalDiagnostics.PropertyBehavioralOperationViolationKind].Should().Be("RequiredOperationDoesNotDominateExit");
-		violation.Properties[ArchitecturalDiagnostics.PropertyBehavioralOperationOrdering].Should().Be("Dominance");
-		violation.Properties[ArchitecturalDiagnostics.PropertyDeclaredSymbolName].Should().Be("Submit");
-	}
+        var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.OperationRequiredMissing).Subject;
+        violation.Properties[ArchitecturalDiagnostics.PropertyBehavioralOperationViolationKind].Should().Be("RequiredOperationDoesNotDominateExit");
+        violation.Properties[ArchitecturalDiagnostics.PropertyBehavioralOperationOrdering].Should().Be("Dominance");
+        violation.Properties[ArchitecturalDiagnostics.PropertyDeclaredSymbolName].Should().Be("Submit");
+    }
 
-	[Fact]
-	public async Task RequiredOperationBefore_DominanceReportsTheUnvalidatedMutation()
-	{
-		const string source = """
+    [Fact]
+    public async Task RequiredOperationBefore_DominanceReportsTheUnvalidatedMutation()
+    {
+        const string source = """
 			namespace Shop.Application;
 
 			public sealed class PizzaKitchen
@@ -76,7 +76,7 @@ public sealed class BehavioralOperationPolicyAnalyzerTests
 			public static class PizzaValidator { public static void Validate() { } }
 			public static class PizzaRepository { public static void Save() { } }
 			""";
-		const string config = """
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Namespace startsWith="Shop.Application" />
@@ -101,17 +101,17 @@ public sealed class BehavioralOperationPolicyAnalyzerTests
 			</ArchitecturalLevels>
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.OperationOrdering).Subject;
-		violation.Properties[ArchitecturalDiagnostics.PropertyBehavioralOperationViolationKind].Should().Be("MissingRequiredOperationBefore");
-		violation.Properties[ArchitecturalDiagnostics.PropertyOperationDisplayName].Should().Contain("Save");
-	}
+        var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.OperationOrdering).Subject;
+        violation.Properties[ArchitecturalDiagnostics.PropertyBehavioralOperationViolationKind].Should().Be("MissingRequiredOperationBefore");
+        violation.Properties[ArchitecturalDiagnostics.PropertyOperationDisplayName].Should().Contain("Save");
+    }
 
-	[Fact]
-	public async Task ForbiddenOperationAfter_ReportsTheOperationAfterTheTerminalCall()
-	{
-		const string source = """
+    [Fact]
+    public async Task ForbiddenOperationAfter_ReportsTheOperationAfterTheTerminalCall()
+    {
+        const string source = """
 			namespace Shop.Application;
 
 			public sealed class PizzaKitchen
@@ -126,7 +126,7 @@ public sealed class BehavioralOperationPolicyAnalyzerTests
 			public static class PizzaRepository { public static void Commit() { } }
 			public static class PizzaAudit { public static void Record() { } }
 			""";
-		const string config = """
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Namespace startsWith="Shop.Application" />
@@ -151,17 +151,17 @@ public sealed class BehavioralOperationPolicyAnalyzerTests
 			</ArchitecturalLevels>
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.OperationOrdering).Subject;
-		violation.Properties[ArchitecturalDiagnostics.PropertyBehavioralOperationViolationKind].Should().Be("ForbiddenOperationAfter");
-		violation.Properties[ArchitecturalDiagnostics.PropertyOperationDisplayName].Should().Contain("Record");
-	}
+        var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.OperationOrdering).Subject;
+        violation.Properties[ArchitecturalDiagnostics.PropertyBehavioralOperationViolationKind].Should().Be("ForbiddenOperationAfter");
+        violation.Properties[ArchitecturalDiagnostics.PropertyOperationDisplayName].Should().Contain("Record");
+    }
 
-	[Fact]
-	public async Task MaximumOperationCount_ReportsEveryOccurrenceBeyondTheConfiguredLimit()
-	{
-		const string source = """
+    [Fact]
+    public async Task MaximumOperationCount_ReportsEveryOccurrenceBeyondTheConfiguredLimit()
+    {
+        const string source = """
 			namespace Shop.Application;
 
 			public sealed class PizzaKitchen
@@ -175,7 +175,7 @@ public sealed class BehavioralOperationPolicyAnalyzerTests
 
 			public static class PizzaPublisher { public static void Publish() { } }
 			""";
-		const string config = """
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Namespace startsWith="Shop.Application" />
@@ -194,17 +194,17 @@ public sealed class BehavioralOperationPolicyAnalyzerTests
 			</ArchitecturalLevels>
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.OperationCardinality).Subject;
-		violation.Properties[ArchitecturalDiagnostics.PropertyBehavioralOperationViolationKind].Should().Be("MaximumOperationCountExceeded");
-		violation.Properties[ArchitecturalDiagnostics.PropertyOperationDisplayName].Should().Contain("Publish");
-	}
+        var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.OperationCardinality).Subject;
+        violation.Properties[ArchitecturalDiagnostics.PropertyBehavioralOperationViolationKind].Should().Be("MaximumOperationCountExceeded");
+        violation.Properties[ArchitecturalDiagnostics.PropertyOperationDisplayName].Should().Contain("Publish");
+    }
 
-	[Fact]
-	public async Task BehavioralOperations_ApplyFromAnOuterLayerToNestedLayers()
-	{
-		const string source = """
+    [Fact]
+    public async Task BehavioralOperations_ApplyFromAnOuterLayerToNestedLayers()
+    {
+        const string source = """
 			namespace Shop.Application;
 
 			public sealed class PizzaKitchen
@@ -212,7 +212,7 @@ public sealed class BehavioralOperationPolicyAnalyzerTests
 				public void Submit() { }
 			}
 			""";
-		const string config = """
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Namespace startsWith="Shop.Application" />
@@ -233,17 +233,17 @@ public sealed class BehavioralOperationPolicyAnalyzerTests
 			</ArchitecturalLevels>
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.OperationRequiredMissing).Subject;
-		violation.GetMessage().Should().Contain("layer Application/Kitchen");
-		violation.Properties[ArchitecturalDiagnostics.PropertyViolationReason].Should().Contain("layer 'Application'");
-	}
+        var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.OperationRequiredMissing).Subject;
+        violation.GetMessage().Should().Contain("layer Application/Kitchen");
+        violation.Properties[ArchitecturalDiagnostics.PropertyViolationReason].Should().Contain("layer 'Application'");
+    }
 
-	[Fact]
-	public async Task BehavioralOperations_DoNotApplyToADifferentDeclaration()
-	{
-		const string source = """
+    [Fact]
+    public async Task BehavioralOperations_DoNotApplyToADifferentDeclaration()
+    {
+        const string source = """
 			namespace Shop.Application;
 
 			public sealed class PizzaKitchen
@@ -252,7 +252,7 @@ public sealed class BehavioralOperationPolicyAnalyzerTests
 				public void Inspect() { }
 			}
 			""";
-		const string config = """
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Namespace startsWith="Shop.Application" />
@@ -270,17 +270,17 @@ public sealed class BehavioralOperationPolicyAnalyzerTests
 			</ArchitecturalLevels>
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violations = diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.OperationRequiredMissing).ToArray();
-		violations.Should().ContainSingle();
-		violations[0].Properties[ArchitecturalDiagnostics.PropertyDeclaredSymbolName].Should().Be("Submit");
-	}
+        var violations = diagnostics.Where(item => item.Id == ArchitecturalDiagnosticIds.OperationRequiredMissing).ToArray();
+        violations.Should().ContainSingle();
+        violations[0].Properties[ArchitecturalDiagnostics.PropertyDeclaredSymbolName].Should().Be("Submit");
+    }
 
-	[Fact]
-	public async Task BehavioralOperations_ApplyToAnExpressionBodiedPropertyAccessor()
-	{
-		const string source = """
+    [Fact]
+    public async Task BehavioralOperations_ApplyToAnExpressionBodiedPropertyAccessor()
+    {
+        const string source = """
 			namespace Shop.Application;
 
 			public sealed class PizzaKitchen
@@ -291,7 +291,7 @@ public sealed class BehavioralOperationPolicyAnalyzerTests
 			public static class PizzaSafetyCheck { public static void Validate() { } }
 			public static class PizzaMenu { public static string Lookup() => "Margherita"; }
 			""";
-		const string config = """
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Namespace startsWith="Shop.Application" />
@@ -310,10 +310,10 @@ public sealed class BehavioralOperationPolicyAnalyzerTests
 			</ArchitecturalLevels>
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.OperationRequiredMissing).Subject;
-		violation.Properties[ArchitecturalDiagnostics.PropertyDeclaredSymbolName].Should().Be("get_MenuPizza");
-		violation.Properties[ArchitecturalDiagnostics.PropertySite].Should().Be("Declaration");
-	}
+        var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.OperationRequiredMissing).Subject;
+        violation.Properties[ArchitecturalDiagnostics.PropertyDeclaredSymbolName].Should().Be("get_MenuPizza");
+        violation.Properties[ArchitecturalDiagnostics.PropertySite].Should().Be("Declaration");
+    }
 }

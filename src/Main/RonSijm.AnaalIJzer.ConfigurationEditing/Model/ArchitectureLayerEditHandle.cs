@@ -26,23 +26,23 @@ public sealed class ArchitectureLayerEditHandle(
     public string? Description { get; } = description;
 
     public bool CanEdit
-	{
-		get
-		{
-			var result = SourceKind != ArchitectureConfigurationSourceKind.None
-			             && !string.IsNullOrWhiteSpace(SourcePath)
-			             && !string.IsNullOrWhiteSpace(LayerPath);
+    {
+        get
+        {
+            var result = SourceKind != ArchitectureConfigurationSourceKind.None
+                         && !string.IsNullOrWhiteSpace(SourcePath)
+                         && !string.IsNullOrWhiteSpace(LayerPath);
 
-			return result;
-		}
-	}
+            return result;
+        }
+    }
 
-	public static ArchitectureLayerEditHandle None { get; } = new(
-		ArchitectureConfigurationSourceKind.None,
-		string.Empty,
-		0,
-		string.Empty,
-		string.Empty,
-		string.Empty,
-		null);
+    public static ArchitectureLayerEditHandle None { get; } = new(
+        ArchitectureConfigurationSourceKind.None,
+        string.Empty,
+        0,
+        string.Empty,
+        string.Empty,
+        string.Empty,
+        null);
 }

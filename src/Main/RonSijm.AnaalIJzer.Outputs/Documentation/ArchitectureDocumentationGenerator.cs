@@ -7,10 +7,10 @@ namespace RonSijm.AnaalIJzer.Outputs.Documentation;
 /// </summary>
 internal static class ArchitectureDocumentationGenerator
 {
-	internal static string GenerateMarkdown(AnalyzerConfig config, string? assemblyName)
-	{
-		var result = ArchitectureDocumentationMarkdownBuilder.Generate(config, assemblyName);
+    internal static string GenerateMarkdown(AnalyzerConfig config, string? assemblyName)
+    {
+        var result = ArchitectureDocumentationMarkdownBuilder.Generate(config, assemblyName);
 
-		return result;
-	}
+        return result;
+    }
 }

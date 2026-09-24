@@ -5,10 +5,10 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Analysis;
 
 public sealed class WildcardEdgeTests
 {
-	[Fact]
-	public async Task WildcardEdge_AllowedFromAnyLeveledCaller_NoDiagnostic()
-	{
-		const string config = """
+    [Fact]
+    public async Task WildcardEdge_AllowedFromAnyLeveledCaller_NoDiagnostic()
+    {
+        const string config = """
 		                      <ArchitecturalLevels requireRecognizedDependencies="Constructor">
 		                          <Layer name="Manager">
 		                              <Class endsWith="Manager" />
@@ -24,21 +24,21 @@ public sealed class WildcardEdgeTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public interface ILogger { }
 		                      public class PatientRepository { }
 		                      public class PatientManager(PatientRepository repo, ILogger logger) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().BeEmpty();
-	}
+        diagnostics.Should().BeEmpty();
+    }
 
-	[Fact]
-	public async Task WildcardEdge_AllowedToAnyLayer_NoDiagnostic()
-	{
-		const string config = """
+    [Fact]
+    public async Task WildcardEdge_AllowedToAnyLayer_NoDiagnostic()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Diagnostics">
 		                              <Class endsWith="Diagnostics" />
@@ -54,21 +54,21 @@ public sealed class WildcardEdgeTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public class PatientRepository { }
 		                      public class PatientManager { }
 		                      public class HealthDiagnostics(PatientManager mgr, PatientRepository repo) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().BeEmpty();
-	}
+        diagnostics.Should().BeEmpty();
+    }
 
-	[Fact]
-	public async Task WildcardEdge_AllowedToAnyLayer_DoesNotApplyToOtherCallers()
-	{
-		const string config = """
+    [Fact]
+    public async Task WildcardEdge_AllowedToAnyLayer_DoesNotApplyToOtherCallers()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Diagnostics">
 		                              <Class endsWith="Diagnostics" />
@@ -83,23 +83,23 @@ public sealed class WildcardEdgeTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		// Manager has no edge to Repository — the to="*" rule is for Diagnostics only.
-		const string source = """
+        // Manager has no edge to Repository — the to="*" rule is for Diagnostics only.
+        const string source = """
 		                      public class PatientRepository { }
 		                      public class PatientManager(PatientRepository repo) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
-			.Should().NotBeEmpty();
-	}
+        diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
+            .Should().NotBeEmpty();
+    }
 
-	[Fact]
-	public async Task WildcardEdge_AllowedToAnyLayer_ForbiddenStillReportsARCH_TYPE_001()
-	{
-		const string config = """
+    [Fact]
+    public async Task WildcardEdge_AllowedToAnyLayer_ForbiddenStillReportsARCH_TYPE_001()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Diagnostics">
 		                              <Class endsWith="Diagnostics" />
@@ -111,22 +111,22 @@ public sealed class WildcardEdgeTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public interface IPartnerStore { }
 		                      public class HealthDiagnostics(IPartnerStore store) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
-			.Should().NotBeEmpty();
-	}
+        diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
+            .Should().NotBeEmpty();
+    }
 
-	[Fact]
-	public async Task WildcardEdge_AllowAny_PermitsEveryInterLayerDependency()
-	{
-		const string config = """
+    [Fact]
+    public async Task WildcardEdge_AllowAny_PermitsEveryInterLayerDependency()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Manager">
 		                              <Class endsWith="Manager" />
@@ -138,14 +138,14 @@ public sealed class WildcardEdgeTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		// Without the wildcard this would have been ARCH_DEP_004 (Repository -> Manager goes up).
-		const string source = """
+        // Without the wildcard this would have been ARCH_DEP_004 (Repository -> Manager goes up).
+        const string source = """
 		                      public class PatientManager { }
 		                      public class PatientRepository(PatientManager mgr) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().BeEmpty();
-	}
+        diagnostics.Should().BeEmpty();
+    }
 }

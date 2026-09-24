@@ -5,22 +5,22 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Diagnostics;
 
 public sealed class OperationContractCodeFixTests
 {
-	[Fact]
-	public void OperationContractDiagnostics_AreNotListedAsFixable()
-	{
-		var fixableIds = new ArchitecturalLevelCodeFixProvider()
-			.FixableDiagnosticIds
-			.ToArray();
+    [Fact]
+    public void OperationContractDiagnostics_AreNotListedAsFixable()
+    {
+        var fixableIds = new ArchitecturalLevelCodeFixProvider()
+            .FixableDiagnosticIds
+            .ToArray();
 
-		fixableIds.Should().NotContain(ArchitecturalDiagnosticIds.OperationContractNotAllowed);
-		fixableIds.Should().NotContain(ArchitecturalDiagnosticIds.OperationContractRequiredMissing);
-		fixableIds.Should().NotContain(ArchitecturalDiagnosticIds.OperationContractShapeMismatch);
-	}
+        fixableIds.Should().NotContain(ArchitecturalDiagnosticIds.OperationContractNotAllowed);
+        fixableIds.Should().NotContain(ArchitecturalDiagnosticIds.OperationContractRequiredMissing);
+        fixableIds.Should().NotContain(ArchitecturalDiagnosticIds.OperationContractShapeMismatch);
+    }
 
-	[Fact]
-	public async Task OperationContractViolation_OffersNoSpeculativeCodeFix()
-	{
-		const string source = """
+    [Fact]
+    public async Task OperationContractViolation_OffersNoSpeculativeCodeFix()
+    {
+        const string source = """
 			public sealed class PizzaOrderController
 			{
 				public PlacePizzaOrderResponse PlacePizzaOrder(PlacePizzaOrderRequest request) => new();
@@ -34,7 +34,7 @@ public sealed class OperationContractCodeFixTests
 			public sealed class PlacePizzaOrderRequest { }
 			public sealed class PlacePizzaOrderResponse { }
 			""";
-		const string config = """
+        const string config = """
 			<ArchitecturalLevels>
 			  <Operations>
 			    <Operation name="PlacePizzaOrder">
@@ -55,8 +55,8 @@ public sealed class OperationContractCodeFixTests
 			</ArchitecturalLevels>
 			""";
 
-		var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(source, config, ArchitecturalDiagnosticIds.OperationContractRequiredMissing);
+        var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(source, config, ArchitecturalDiagnosticIds.OperationContractRequiredMissing);
 
-		titles.Should().BeEmpty();
-	}
+        titles.Should().BeEmpty();
+    }
 }

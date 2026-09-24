@@ -5,7 +5,7 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Analysis;
 
 public sealed class DeclarationNameMatchesTypeTests
 {
-	private const string AllSitesConfig = """
+    private const string AllSitesConfig = """
 		<ArchitecturalLevels>
 		  <Layer name="Application">
 		    <Class endsWith="Service" />
@@ -18,10 +18,10 @@ public sealed class DeclarationNameMatchesTypeTests
 		</ArchitecturalLevels>
 		""";
 
-	[Fact]
-	public async Task MatchingDeclarationNames_AreAllowedAtEverySupportedSite()
-	{
-		const string source = """
+    [Fact]
+    public async Task MatchingDeclarationNames_AreAllowedAtEverySupportedSite()
+    {
+        const string source = """
 			interface IHonestType { }
 			sealed class PatientId : IHonestType { }
 
@@ -40,15 +40,15 @@ public sealed class DeclarationNameMatchesTypeTests
 			}
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, AllSitesConfig);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, AllSitesConfig);
 
-		diagnostics.Where(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Should().BeEmpty();
-	}
+        diagnostics.Where(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Should().BeEmpty();
+    }
 
-	[Fact]
-	public async Task MismatchedDeclarationNames_ReportAtEverySupportedSite()
-	{
-		const string source = """
+    [Fact]
+    public async Task MismatchedDeclarationNames_ReportAtEverySupportedSite()
+    {
+        const string source = """
 			interface IHonestType { }
 			sealed class PatientId : IHonestType { }
 			sealed class DoctorId : IHonestType { }
@@ -68,19 +68,19 @@ public sealed class DeclarationNameMatchesTypeTests
 			}
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, AllSitesConfig);
-		var nameDiagnostics = diagnostics.Where(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).ToArray();
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, AllSitesConfig);
+        var nameDiagnostics = diagnostics.Where(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).ToArray();
 
-		nameDiagnostics.Should().HaveCount(6);
-		nameDiagnostics.Select(diagnostic => diagnostic.Properties["Site"]).Should().BeEquivalentTo("Constructor", "Method", "MethodReturn", "Field", "Property", "Local");
-		nameDiagnostics.Should().OnlyContain(diagnostic => diagnostic.Properties["NameRuleKind"] == "RequireDeclarationNameMatchesType");
-		nameDiagnostics.Should().OnlyContain(diagnostic => diagnostic.Properties["TypeName"] == "DoctorId");
-	}
+        nameDiagnostics.Should().HaveCount(6);
+        nameDiagnostics.Select(diagnostic => diagnostic.Properties["Site"]).Should().BeEquivalentTo("Constructor", "Method", "MethodReturn", "Field", "Property", "Local");
+        nameDiagnostics.Should().OnlyContain(diagnostic => diagnostic.Properties["NameRuleKind"] == "RequireDeclarationNameMatchesType");
+        nameDiagnostics.Should().OnlyContain(diagnostic => diagnostic.Properties["TypeName"] == "DoctorId");
+    }
 
-	[Fact]
-	public async Task SwappedMethodParameters_ReportBothDeclarationNames()
-	{
-		const string config = """
+    [Fact]
+    public async Task SwappedMethodParameters_ReportBothDeclarationNames()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="AspEndpoints">
 			    <Class endsWith="Controller" />
@@ -92,7 +92,7 @@ public sealed class DeclarationNameMatchesTypeTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			interface IHonestType { }
 			sealed class PatientId : IHonestType { }
 			sealed class DoctorId : IHonestType { }
@@ -103,19 +103,19 @@ public sealed class DeclarationNameMatchesTypeTests
 			}
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
-		var nameDiagnostics = diagnostics.Where(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).ToArray();
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var nameDiagnostics = diagnostics.Where(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).ToArray();
 
-		nameDiagnostics.Should().HaveCount(2);
-		nameDiagnostics.Select(diagnostic => diagnostic.Properties["DeclaredName"]).Should().BeEquivalentTo("patientId", "doctorId");
-		nameDiagnostics.Select(diagnostic => diagnostic.Properties["TypeName"]).Should().BeEquivalentTo("DoctorId", "PatientId");
-		nameDiagnostics.Should().OnlyContain(diagnostic => diagnostic.GetMessage().Contains("violates name rule 'RequireDeclarationNameMatchesType' at Method", StringComparison.Ordinal));
-	}
+        nameDiagnostics.Should().HaveCount(2);
+        nameDiagnostics.Select(diagnostic => diagnostic.Properties["DeclaredName"]).Should().BeEquivalentTo("patientId", "doctorId");
+        nameDiagnostics.Select(diagnostic => diagnostic.Properties["TypeName"]).Should().BeEquivalentTo("DoctorId", "PatientId");
+        nameDiagnostics.Should().OnlyContain(diagnostic => diagnostic.GetMessage(null).Contains("violates name rule 'RequireDeclarationNameMatchesType' at Method", StringComparison.Ordinal));
+    }
 
-	[Fact]
-	public async Task TypeAndNameMatchers_AreConjunctiveWithinElementsAndAlternativesBetweenElements()
-	{
-		const string config = """
+    [Fact]
+    public async Task TypeAndNameMatchers_AreConjunctiveWithinElementsAndAlternativesBetweenElements()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Class endsWith="Service" />
@@ -129,7 +129,7 @@ public sealed class DeclarationNameMatchesTypeTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			sealed class DoctorId { }
 			struct FallbackValue { }
 			struct PatientId { }
@@ -150,15 +150,15 @@ public sealed class DeclarationNameMatchesTypeTests
 			}
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Where(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Should().HaveCount(2);
-	}
+        diagnostics.Where(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Should().HaveCount(2);
+    }
 
-	[Fact]
-	public async Task AllowMapping_CanPermitIntentionalTypeToNameTranslation()
-	{
-		const string config = """
+    [Fact]
+    public async Task AllowMapping_CanPermitIntentionalTypeToNameTranslation()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Class endsWith="Service" />
@@ -171,7 +171,7 @@ public sealed class DeclarationNameMatchesTypeTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			sealed class LegacyPatientIdentifier { }
 
 			class PatientService
@@ -180,15 +180,15 @@ public sealed class DeclarationNameMatchesTypeTests
 			}
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Where(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Should().BeEmpty();
-	}
+        diagnostics.Where(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Should().BeEmpty();
+    }
 
-	[Fact]
-	public async Task AllowMapping_WithWrongSite_ExplainsSiteDenial()
-	{
-		const string config = """
+    [Fact]
+    public async Task AllowMapping_WithWrongSite_ExplainsSiteDenial()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Class endsWith="Service" />
@@ -201,7 +201,7 @@ public sealed class DeclarationNameMatchesTypeTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			sealed class LegacyPatientIdentifier { }
 
 			class PatientService
@@ -210,16 +210,16 @@ public sealed class DeclarationNameMatchesTypeTests
 			}
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Which;
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Which;
 
-		diagnostic.GetMessage().Should().Contain("allowedSites does not include Property");
-	}
+        diagnostic.GetMessage().Should().Contain("allowedSites does not include Property");
+    }
 
-	[Fact]
-	public async Task DeclarationRule_DoesNotRunForValueMovement()
-	{
-		const string config = """
+    [Fact]
+    public async Task DeclarationRule_DoesNotRunForValueMovement()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Class endsWith="Service" />
@@ -231,7 +231,7 @@ public sealed class DeclarationNameMatchesTypeTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			readonly struct PatientId { }
 			readonly struct DoctorId { }
 
@@ -244,15 +244,15 @@ public sealed class DeclarationNameMatchesTypeTests
 			}
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Where(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Should().BeEmpty();
-	}
+        diagnostics.Where(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.NameShapeMismatch).Should().BeEmpty();
+    }
 
-	[Fact]
-	public async Task ParentLayerRule_AppliesToDescendantLayer()
-	{
-		const string config = """
+    [Fact]
+    public async Task ParentLayerRule_AppliesToDescendantLayer()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Namespace startsWith="Shop" />
@@ -267,7 +267,7 @@ public sealed class DeclarationNameMatchesTypeTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			namespace Shop
 			{
 				sealed class DoctorId { }
@@ -279,8 +279,8 @@ public sealed class DeclarationNameMatchesTypeTests
 			}
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().ContainSingle(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.NameShapeMismatch);
-	}
+        diagnostics.Should().ContainSingle(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.NameShapeMismatch);
+    }
 }

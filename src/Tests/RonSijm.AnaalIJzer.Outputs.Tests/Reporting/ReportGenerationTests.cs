@@ -13,19 +13,19 @@ namespace RonSijm.AnaalIJzer.Outputs.Tests.Reporting;
 
 public sealed class ReportGenerationTests
 {
-	[Fact]
-	public async Task Analyzer_DoesNotWriteReportOrDocumentationFiles()
-	{
-		var tempDir = Path.Combine(Path.GetTempPath(), $"arch-analyzer-test-{Guid.NewGuid():N}");
-		Directory.CreateDirectory(tempDir);
+    [Fact]
+    public async Task Analyzer_DoesNotWriteReportOrDocumentationFiles()
+    {
+        var tempDir = Path.Combine(Path.GetTempPath(), $"arch-analyzer-test-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempDir);
 
-		try
-		{
-			var configPath = Path.Combine(tempDir, "Architecture.anl");
-			var reportPath = Path.Combine(tempDir, "violations.md");
-			var documentationPath = Path.Combine(tempDir, "architecture.md");
+        try
+        {
+            var configPath = Path.Combine(tempDir, "Architecture.anl");
+            var reportPath = Path.Combine(tempDir, "violations.md");
+            var documentationPath = Path.Combine(tempDir, "architecture.md");
 
-			var config = $"""
+            var config = $"""
 			              <ArchitecturalLevels requireRecognizedDependencies="Constructor"
 			                                    enableReport="true"
 			                                    reportPath="{reportPath}"
@@ -41,28 +41,28 @@ public sealed class ReportGenerationTests
 			              </ArchitecturalLevels>
 			              """;
 
-			const string source = """
+            const string source = """
 			                      public interface IPartnerStore { }
 			                      public class PatientConsentRepository { }
 			                      public class PatientManager(PatientConsentRepository repo, IPartnerStore store) { }
 			                      """;
 
-			var diagnostics = await AnalyzerOutputTestHelper.GetDiagnosticsAsync(source, config, configPath);
+            var diagnostics = await AnalyzerOutputTestHelper.GetDiagnosticsAsync(source, config, configPath);
 
-			diagnostics.Should().Contain(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.DependencyRequiredMissing);
-			File.Exists(reportPath).Should().BeFalse("the analyzer no longer writes report files during compilation");
-			File.Exists(documentationPath).Should().BeFalse("Arse owns documentation generation");
-		}
-		finally
-		{
-			Directory.Delete(tempDir, true);
-		}
-	}
+            diagnostics.Should().Contain(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.DependencyRequiredMissing);
+            File.Exists(reportPath).Should().BeFalse("the analyzer no longer writes report files during compilation");
+            File.Exists(documentationPath).Should().BeFalse("Arse owns documentation generation");
+        }
+        finally
+        {
+            Directory.Delete(tempDir, true);
+        }
+    }
 
-	[Fact]
-	public async Task ViolationReporter_RendersAnalyzerDiagnostics()
-	{
-		const string config = """
+    [Fact]
+    public async Task ViolationReporter_RendersAnalyzerDiagnostics()
+    {
+        const string config = """
 		                      <ArchitecturalLevels requireRecognizedDependencies="Constructor">
 		                          <Forbidden>
 		                              <Class endsWith="Store" comment="Use Repository instead." />
@@ -77,31 +77,59 @@ public sealed class ReportGenerationTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public class MysteryTopping { }
 		                      public class CheeseStore { }
 		                      public class PatientManager(MysteryTopping topping, CheeseStore cheeseStore) { }
 		                      """;
 
-		var diagnostics = await AnalyzerOutputTestHelper.GetDiagnosticsAsync(source, config);
-		var report = ArchitecturalViolationReporter.GenerateMarkdownReport(diagnostics, ParseConfig(config), "Test.Assembly");
+        var diagnostics = await AnalyzerOutputTestHelper.GetDiagnosticsAsync(source, config);
+        var report = ArchitecturalViolationReporter.GenerateMarkdownReport(diagnostics, ParseConfig(config), "Test.Assembly");
 
-		report.Should().Contain("**Assembly**: `Test.Assembly`");
-		report.Should().Contain("| Dependency | RequiredMissing | `ARCH_DEP_002` — Architectural dependency classification is missing | 1 |");
-		report.Should().Contain("| Type | NotAllowed | `ARCH_TYPE_001` — Architectural type policy violation | 1 |");
-		report.Should().Contain("| `PatientManager` (Manager) | `MysteryTopping` |");
-		report.Should().Contain("| `PatientManager` (Manager) | `CheeseStore` | the type matches a global &lt;Forbidden&gt; rule: Use Repository instead. |");
+        report.Should().Contain("**Assembly**: `Test.Assembly`");
+        report.Should().Contain("| Dependency | RequiredMissing | `ARCH_DEP_002` — Architectural dependency classification is missing | 1 |");
+        report.Should().Contain("| Type | NotAllowed | `ARCH_TYPE_001` — Architectural type policy violation | 1 |");
+        report.Should().Contain("| `PatientManager` (Manager) | `MysteryTopping` |");
+        report.Should().Contain("| `PatientManager` (Manager) | `CheeseStore` | the type matches a global &lt;Forbidden&gt; rule: Use Repository instead. |");
 
-		var unrecognizedDiagnostic = diagnostics.Single(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.DependencyRequiredMissing);
-		unrecognizedDiagnostic.Properties[ArchitecturalDiagnostics.PropertyCallerTypeName].Should().Be("PatientManager");
-		unrecognizedDiagnostic.Properties[ArchitecturalDiagnostics.PropertyCallerLayerName].Should().Be("Manager");
-		unrecognizedDiagnostic.Properties[ArchitecturalDiagnostics.PropertyDepTypeName].Should().Be("MysteryTopping");
-	}
+        var unrecognizedDiagnostic = diagnostics.Single(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.DependencyRequiredMissing);
+        unrecognizedDiagnostic.Properties[ArchitecturalDiagnostics.PropertyCallerTypeName].Should().Be("PatientManager");
+        unrecognizedDiagnostic.Properties[ArchitecturalDiagnostics.PropertyCallerLayerName].Should().Be("Manager");
+        unrecognizedDiagnostic.Properties[ArchitecturalDiagnostics.PropertyDepTypeName].Should().Be("MysteryTopping");
+    }
 
-	[Fact]
-	public void DocumentationGenerator_RendersSolutionTopologyInConfigurationOrder()
-	{
-		var config = ParseConfig("""
+    [Fact]
+    public async Task ViolationReporter_RendersObservedReturnExpressionInsteadOfAllowedRuleTarget()
+    {
+        const string config = """
+			<ArchitecturalLevels>
+			  <ReturnValuePolicy>
+			    <AllowedReturn>
+			      <Identifier />
+			    </AllowedReturn>
+			  </ReturnValuePolicy>
+			</ArchitecturalLevels>
+			""";
+        const string source = """
+			public sealed class PizzaKitchen
+			{
+				public object PreparePizza() => new object();
+
+				public object ServePizza() => PreparePizza();
+			}
+			""";
+
+        var diagnostics = await AnalyzerOutputTestHelper.GetDiagnosticsAsync(source, config);
+        var report = ArchitecturalViolationReporter.GenerateMarkdownReport(diagnostics, ParseConfig(config), "Test.Assembly");
+
+        report.Should().Contain("| `unclassified` | `ServePizza` | `Invocation` |");
+        report.Should().NotContain("| `unclassified` | `ServePizza` | `Identifier` |");
+    }
+
+    [Fact]
+    public void DocumentationGenerator_RendersSolutionTopologyInConfigurationOrder()
+    {
+        var config = ParseConfig("""
 		                         <ArchitecturalLevels>
 		                           <SolutionTopology requireRecognizedProjects="true" enforceAcyclic="true" description="The cafe topology.">
 		                             <Module name="DiningRoom" description="Customer-facing projects.">
@@ -116,21 +144,21 @@ public sealed class ReportGenerationTests
 		                         </ArchitecturalLevels>
 		                         """);
 
-		var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
+        var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
 
-		markdown.Should().Contain("## Solution Topology");
-		markdown.Should().Contain("`requireRecognizedProjects`: `true`");
-		markdown.Should().Contain("`enforceAcyclic`: `true`");
-		markdown.Should().Contain("The cafe topology.");
-		markdown.Should().Contain("| `DiningRoom` | Project endsWith=\".Web\" | Customer-facing projects. |");
-		markdown.Should().Contain("| Allowed | `DiningRoom -> Kitchen` | Orders enter through the kitchen. |");
-		markdown.Should().Contain("| Blocked | `Kitchen -x-> DiningRoom` | The kitchen does not control the dining room. |");
-	}
+        markdown.Should().Contain("## Solution Topology");
+        markdown.Should().Contain("`requireRecognizedProjects`: `true`");
+        markdown.Should().Contain("`enforceAcyclic`: `true`");
+        markdown.Should().Contain("The cafe topology.");
+        markdown.Should().Contain("| `DiningRoom` | Project endsWith=\".Web\" | Customer-facing projects. |");
+        markdown.Should().Contain("| Allowed | `DiningRoom -> Kitchen` | Orders enter through the kitchen. |");
+        markdown.Should().Contain("| Blocked | `Kitchen -x-> DiningRoom` | The kitchen does not control the dining room. |");
+    }
 
-	[Fact]
-	public void DocumentationGenerator_RendersDescriptionsWildcardsAndEscapesMermaidLabels()
-	{
-		var config = ParseConfig("""
+    [Fact]
+    public void DocumentationGenerator_RendersDescriptionsWildcardsAndEscapesMermaidLabels()
+    {
+        var config = ParseConfig("""
 		                         <ArchitecturalLevels description="Rules for the pizzeria">
 		                             <Allowed description="Only approved dependency names.">
 		                                 <Class startsWith="Order" endsWith="Contract" typeKind="Interface" description="Order contract interfaces are approved." />
@@ -159,35 +187,35 @@ public sealed class ReportGenerationTests
 		                         </ArchitecturalLevels>
 		                         """);
 
-		var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
+        var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
 
-		markdown.Should().NotContain("**Assembly**");
-		markdown.Should().Contain("# Architecture Documentation");
-		markdown.Should().Contain("Rules for the pizzeria");
-		markdown.Should().Contain("L_Data____Storage_[\"Data &#124; &quot;Storage&quot;\"]");
-		markdown.Should().Contain("Any([\"all layers\"])");
-		markdown.Should().Contain("L_Controller -->|\"allowed sites: Constructor, Local\"| L_Data____Storage_");
-		markdown.Should().Contain("L_Controller -. \"blocked: allowed sites: Field\" .-> L_Data____Storage_");
-		markdown.Should().Contain("Any --> L_Crosscutting");
-		markdown.Should().Contain("L_Diagnostics --> Any");
-		markdown.Should().Contain("Any -->|\"blocked sites: Field, Property\"| Any");
-		markdown.Should().Contain("style Any fill:#fff4cc");
-		markdown.Should().Contain("| `Controller` | Waiters taking orders. |");
-		markdown.Should().Contain("| Allowed | `root` | `Controller -> Data \\| \"Storage\"` | allowed sites: Constructor, Local | Waiters can receive the fridge in approved places only. |");
-		markdown.Should().Contain("| Blocked | `root` | `Controller -> Data \\| \"Storage\"` | allowed sites: Field | Controllers may not retain storage. |");
-		markdown.Should().Contain("## Type Policies");
-		markdown.Should().Contain("| Allowed | `global` | `Class startsWith=\"Order\" endsWith=\"Contract\" typeKind=\"Interface\"` | Order contract interfaces are approved. |");
-		markdown.Should().Contain("| Forbidden | `global` | `Class endsWith=\"Store\"` | Use Repository instead. |");
-		markdown.Should().Contain("| Forbidden | `global` | `Namespace contains=\"Bad \"Ns\"\"` | Do not use internals. |");
-		markdown.Should().Contain("- **AllowedDependency** `Controller -> Data | \"Storage\"`");
-		markdown.Should().Contain("- **BlockedDependency** `Controller -x-> Data | \"Storage\"`");
-		markdown.Should().Contain("Infrastructure should be a repository.");
-	}
+        markdown.Should().NotContain("**Assembly**");
+        markdown.Should().Contain("# Architecture Documentation");
+        markdown.Should().Contain("Rules for the pizzeria");
+        markdown.Should().Contain("L_Data____Storage_[\"Data &#124; &quot;Storage&quot;\"]");
+        markdown.Should().Contain("Any([\"all layers\"])");
+        markdown.Should().Contain("L_Controller -->|\"allowed sites: Constructor, Local\"| L_Data____Storage_");
+        markdown.Should().Contain("L_Controller -. \"blocked: allowed sites: Field\" .-> L_Data____Storage_");
+        markdown.Should().Contain("Any --> L_Crosscutting");
+        markdown.Should().Contain("L_Diagnostics --> Any");
+        markdown.Should().Contain("Any -->|\"blocked sites: Field, Property\"| Any");
+        markdown.Should().Contain("style Any fill:#fff4cc");
+        markdown.Should().Contain("| `Controller` | Waiters taking orders. |");
+        markdown.Should().Contain("| Allowed | `root` | `Controller -> Data \\| \"Storage\"` | allowed sites: Constructor, Local | Waiters can receive the fridge in approved places only. |");
+        markdown.Should().Contain("| Blocked | `root` | `Controller -> Data \\| \"Storage\"` | allowed sites: Field | Controllers may not retain storage. |");
+        markdown.Should().Contain("## Type Policies");
+        markdown.Should().Contain("| Allowed | `global` | `Class startsWith=\"Order\" endsWith=\"Contract\" typeKind=\"Interface\"` | Order contract interfaces are approved. |");
+        markdown.Should().Contain("| Forbidden | `global` | `Class endsWith=\"Store\"` | Use Repository instead. |");
+        markdown.Should().Contain("| Forbidden | `global` | `Namespace contains=\"Bad \"Ns\"\"` | Do not use internals. |");
+        markdown.Should().Contain("- **AllowedDependency** `Controller -> Data | \"Storage\"`");
+        markdown.Should().Contain("- **BlockedDependency** `Controller -x-> Data | \"Storage\"`");
+        markdown.Should().Contain("Infrastructure should be a repository.");
+    }
 
-	[Fact]
-	public void DocumentationGenerator_RendersNestedBoundariesAndScopedDescriptions()
-	{
-		var config = ParseConfig("""
+    [Fact]
+    public void DocumentationGenerator_RendersNestedBoundariesAndScopedDescriptions()
+    {
+        var config = ParseConfig("""
 		                         <ArchitecturalLevels description="A modular candy shop.">
 		                           <Layer name="Ordering" description="Owns ordering.">
 		                             <Namespace startsWith="CandyShop.Ordering" />
@@ -206,88 +234,88 @@ public sealed class ReportGenerationTests
 		                         </ArchitecturalLevels>
 		                         """);
 
-		var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
+        var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
 
-		markdown.Should().Contain("subgraph SG_Ordering[\"Ordering\"]");
-		markdown.Should().Contain("subgraph SG_Billing[\"Billing\"]");
-		markdown.Should().NotContain("(boundary)");
-		markdown.Should().Contain("SG_Ordering --> SG_Billing");
-		markdown.Should().Contain("L_Ordering_Application[\"Application\"]");
-		markdown.Should().Contain("L_Billing_Application[\"Application\"]");
-		markdown.Should().Contain("L_Ordering_Application --> L_Ordering_Repository");
-		markdown.Should().Contain("L_Ordering_Application --> L_Billing_Contracts");
-		markdown.Should().Contain("| `Ordering/Application` | Ordering use cases. |");
-		markdown.Should().Contain("| Allowed | `Ordering` | `Ordering/Application -> Ordering/Repository` | all sites | Use cases may store orders. |");
-		markdown.Should().Contain("Billing ingress.");
-	}
+        markdown.Should().Contain("subgraph SG_Ordering[\"Ordering\"]");
+        markdown.Should().Contain("subgraph SG_Billing[\"Billing\"]");
+        markdown.Should().NotContain("(boundary)");
+        markdown.Should().Contain("SG_Ordering --> SG_Billing");
+        markdown.Should().Contain("L_Ordering_Application[\"Application\"]");
+        markdown.Should().Contain("L_Billing_Application[\"Application\"]");
+        markdown.Should().Contain("L_Ordering_Application --> L_Ordering_Repository");
+        markdown.Should().Contain("L_Ordering_Application --> L_Billing_Contracts");
+        markdown.Should().Contain("| `Ordering/Application` | Ordering use cases. |");
+        markdown.Should().Contain("| Allowed | `Ordering` | `Ordering/Application -> Ordering/Repository` | all sites | Use cases may store orders. |");
+        markdown.Should().Contain("Billing ingress.");
+    }
 
-	[Fact]
-	public void ViolationReporter_RendersEveryDiagnosticSection()
-	{
-		var violations = new[]
-		{
-			new ViolationRecord(ArchitecturalDiagnosticIds.DependencyNotAllowed, "MenuController", "Controller", "ICheeseRepository", "Repository", "no Controller -> Repository edge", null),
-			new ViolationRecord(ArchitecturalDiagnosticIds.DependencyRequiredMissing, "OvenCoordinator", "Application", "MysteryTopping", string.Empty, string.Empty, "unknown ingredient"),
-			new ViolationRecord(ArchitecturalDiagnosticIds.TypeNotAllowed, "ToppingManager", "Application", "CheeseStore", string.Empty, string.Empty, "Use Repository instead."),
-			new ViolationRecord(ArchitecturalDiagnosticIds.DependencyReverseDirection, "CheeseRepository", "Repository", "IPizzaKitchen", "Application", "reverse edge", null),
-			new ViolationRecord(ArchitecturalDiagnosticIds.DependencyPeerScope, "PizzaKitchen", "Application", "ISauceKitchen", "Application", "same layer", null),
-			new ViolationRecord(ArchitecturalDiagnosticIds.ApiExposureNotAllowed, "CandyOrderingService", "Application", "LollyQueryable", "RepositoryQuerySurface", "query surfaces are blocked", null, "MethodReturn", null, "CandyOrderingService.OrderRawLolly"),
-			new ViolationRecord(ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed, "Shop.Web", "Presentation", "Shop.Domain", "Domain", "no AllowedProjectReference permits project group 'Presentation' to reference project group 'Domain'", null, sourceProjectName: "Shop.Web", sourceProjectGroup: "Presentation", targetProjectName: "Shop.Domain", targetProjectGroup: "Domain"),
-			new ViolationRecord(ArchitecturalDiagnosticIds.PackageReferenceNotAllowed, "Shop.Domain", "Domain", "Microsoft.Extensions.Logging", "9.0.0", "Domain may not reference infrastructure packages", null, sourceProjectName: "Shop.Domain", sourceProjectGroup: "Domain", packageId: "Microsoft.Extensions.Logging", packageVersion: "9.0.0", packageReferenceKind: "Direct"),
-			new ViolationRecord(ArchitecturalDiagnosticIds.VisibilityNotAllowed, "LollyQueryable", "RepositoryQuerySurface", "LollyQueryable.CurrentQuery", string.Empty, "public properties are blocked", null, "Property", "Public"),
-			new ViolationRecord(ArchitecturalDiagnosticIds.ContractShapeMismatch, "IPizzaContract.Name", "Contracts", "IPizzaContract.Name", string.Empty, "contracts expose getters only", null, "DisallowedPropertyAccessor"),
-			new ViolationRecord(ArchitecturalDiagnosticIds.ApiTransitiveExposure, "CandyOrderingService", "Application", "LollyQueryable", "RepositoryQuerySurface", "nested query surfaces are blocked", null, "Property", null, "CandyOrderingService.OrderRawLolly", "CandyOrderingService.OrderRawLolly -> CandyReceipt.RawQuery -> LollyQueryable", 1, "CandyReceipt.RawQuery"),
-			new ViolationRecord(ArchitecturalDiagnosticIds.SourceBoundaryPlacement, "CandyOrderingService", "Ordering/Application", string.Empty, string.Empty, "source file 'Infrastructure/CandyOrderingService.cs' does not match an allowed SourceLocations rule for layer 'Ordering'", null, sourceFilePath: @"D:\repo\Shop\Infrastructure\CandyOrderingService.cs", normalizedSourcePath: "Infrastructure/CandyOrderingService.cs", sourceAssemblyName: "Shop.Application"),
-			new ViolationRecord(ArchitecturalDiagnosticIds.BoundaryEntryPlacement, "CandyAdminController", "Presentation", "CandyOrderingService", "Ordering/Implementation", "boundary 'Ordering': the boundary permits entry only through Ordering/Contracts", null, boundaryLayerName: "Ordering", matchedEntryPoint: "Ordering/Contracts"),
-			new ViolationRecord(ArchitecturalDiagnosticIds.DependencyCycle, "Ordering -> Notifications", "Ordering", "Ordering -> Notifications -> Ordering", string.Empty, "Ordering -> Notifications -> Ordering", null, sourceProjectName: "Candy.Shop", cycleLayers: "Ordering|Notifications", cycleLength: 2, observedSites: "Constructor, Method", cycleScope: "Project"),
-			new ViolationRecord(ArchitecturalDiagnosticIds.InheritanceNotAllowed, "SyrupEntity", "PersistenceEntities", "SyrupEntity", string.Empty, "persistence entities must inherit Entity", null, "MissingRequiredBaseType")
-		};
+    [Fact]
+    public void ViolationReporter_RendersEveryDiagnosticSection()
+    {
+        var violations = new[]
+        {
+            new ViolationRecord(ArchitecturalDiagnosticIds.DependencyNotAllowed, "MenuController", "Controller", "ICheeseRepository", "Repository", "no Controller -> Repository edge", null),
+            new ViolationRecord(ArchitecturalDiagnosticIds.DependencyRequiredMissing, "OvenCoordinator", "Application", "MysteryTopping", string.Empty, string.Empty, "unknown ingredient"),
+            new ViolationRecord(ArchitecturalDiagnosticIds.TypeNotAllowed, "ToppingManager", "Application", "CheeseStore", string.Empty, string.Empty, "Use Repository instead."),
+            new ViolationRecord(ArchitecturalDiagnosticIds.DependencyReverseDirection, "CheeseRepository", "Repository", "IPizzaKitchen", "Application", "reverse edge", null),
+            new ViolationRecord(ArchitecturalDiagnosticIds.DependencyPeerScope, "PizzaKitchen", "Application", "ISauceKitchen", "Application", "same layer", null),
+            new ViolationRecord(ArchitecturalDiagnosticIds.ApiExposureNotAllowed, "CandyOrderingService", "Application", "LollyQueryable", "RepositoryQuerySurface", "query surfaces are blocked", null, "MethodReturn", null, "CandyOrderingService.OrderRawLolly"),
+            new ViolationRecord(ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed, "Shop.Web", "Presentation", "Shop.Domain", "Domain", "no AllowedProjectReference permits project group 'Presentation' to reference project group 'Domain'", null, sourceProjectName: "Shop.Web", sourceProjectGroup: "Presentation", targetProjectName: "Shop.Domain", targetProjectGroup: "Domain"),
+            new ViolationRecord(ArchitecturalDiagnosticIds.PackageReferenceNotAllowed, "Shop.Domain", "Domain", "Microsoft.Extensions.Logging", "9.0.0", "Domain may not reference infrastructure packages", null, sourceProjectName: "Shop.Domain", sourceProjectGroup: "Domain", packageId: "Microsoft.Extensions.Logging", packageVersion: "9.0.0", packageReferenceKind: "Direct"),
+            new ViolationRecord(ArchitecturalDiagnosticIds.VisibilityNotAllowed, "LollyQueryable", "RepositoryQuerySurface", "LollyQueryable.CurrentQuery", string.Empty, "public properties are blocked", null, "Property", "Public"),
+            new ViolationRecord(ArchitecturalDiagnosticIds.ContractShapeMismatch, "IPizzaContract.Name", "Contracts", "IPizzaContract.Name", string.Empty, "contracts expose getters only", null, "DisallowedPropertyAccessor"),
+            new ViolationRecord(ArchitecturalDiagnosticIds.ApiTransitiveExposure, "CandyOrderingService", "Application", "LollyQueryable", "RepositoryQuerySurface", "nested query surfaces are blocked", null, "Property", null, "CandyOrderingService.OrderRawLolly", "CandyOrderingService.OrderRawLolly -> CandyReceipt.RawQuery -> LollyQueryable", 1, "CandyReceipt.RawQuery"),
+            new ViolationRecord(ArchitecturalDiagnosticIds.SourceBoundaryPlacement, "CandyOrderingService", "Ordering/Application", string.Empty, string.Empty, "source file 'Infrastructure/CandyOrderingService.cs' does not match an allowed SourceLocations rule for layer 'Ordering'", null, sourceFilePath: @"D:\repo\Shop\Infrastructure\CandyOrderingService.cs", normalizedSourcePath: "Infrastructure/CandyOrderingService.cs", sourceAssemblyName: "Shop.Application"),
+            new ViolationRecord(ArchitecturalDiagnosticIds.BoundaryEntryPlacement, "CandyAdminController", "Presentation", "CandyOrderingService", "Ordering/Implementation", "boundary 'Ordering': the boundary permits entry only through Ordering/Contracts", null, boundaryLayerName: "Ordering", matchedEntryPoint: "Ordering/Contracts"),
+            new ViolationRecord(ArchitecturalDiagnosticIds.DependencyCycle, "Ordering -> Notifications", "Ordering", "Ordering -> Notifications -> Ordering", string.Empty, "Ordering -> Notifications -> Ordering", null, sourceProjectName: "Candy.Shop", cycleLayers: "Ordering|Notifications", cycleLength: 2, observedSites: "Constructor, Method", cycleScope: "Project"),
+            new ViolationRecord(ArchitecturalDiagnosticIds.InheritanceNotAllowed, "SyrupEntity", "PersistenceEntities", "SyrupEntity", string.Empty, "persistence entities must inherit Entity", null, "MissingRequiredBaseType")
+        };
 
-		var report = ArchitecturalViolationReporter.GenerateMarkdownReport(
-			violations,
-			AnalyzerConfiguration.Empty,
-			null);
+        var report = ArchitecturalViolationReporter.GenerateMarkdownReport(
+            violations,
+            AnalyzerConfiguration.Empty,
+            null);
 
-		report.Should().NotContain("**Assembly**");
-		report.Should().Contain("| **Total** | **15** |");
-		report.Should().Contain("## ARCH_DEP_001");
-		report.Should().Contain("| `MenuController` (Controller) | `ICheeseRepository` (Repository) | no Controller -> Repository edge |");
-		report.Should().Contain("## ARCH_DEP_002");
-		report.Should().Contain("| `OvenCoordinator` (Application) | `MysteryTopping` | unknown ingredient |");
-		report.Should().Contain("<Layer name=\"MysteryTopping\">");
-		report.Should().Contain("<AllowedDependency from=\"Application\" to=\"MysteryTopping\" />");
-		report.Should().Contain("## ARCH_TYPE_001");
-		report.Should().Contain("| `ToppingManager` (Application) | `CheeseStore` | Use Repository instead. |");
-		report.Should().Contain("## ARCH_DEP_004");
-		report.Should().Contain("| `CheeseRepository` (Repository) | `IPizzaKitchen` (Application) | reverse edge |");
-		report.Should().Contain("## ARCH_DEP_005");
-		report.Should().Contain("| `PizzaKitchen` (Application) | `ISauceKitchen` | same layer |");
-		report.Should().Contain("## ARCH_API_001");
-		report.Should().Contain("| `Application` | `CandyOrderingService.OrderRawLolly` | `LollyQueryable` (`RepositoryQuerySurface`) | `MethodReturn` | query surfaces are blocked |");
-		report.Should().Contain("## ARCH_PROJ_001");
-		report.Should().Contain("| `Shop.Web` (Presentation) | `Shop.Domain` (Domain) | no AllowedProjectReference permits project group 'Presentation' to reference project group 'Domain' |");
-		report.Should().Contain("## ARCH_PKG_001");
-		report.Should().Contain("| `Shop.Domain` (Domain) | `Microsoft.Extensions.Logging` | `9.0.0` | `Direct` | Domain may not reference infrastructure packages |");
-		report.Should().Contain("## ARCH_VIS_001");
-		report.Should().Contain("| `RepositoryQuerySurface` | `LollyQueryable.CurrentQuery` | `Property` | `Public` | public properties are blocked |");
-		report.Should().Contain("## ARCH_CONT_008");
-		report.Should().Contain("| `Contracts` | `IPizzaContract.Name` | `DisallowedPropertyAccessor` | contracts expose getters only |");
-		report.Should().Contain("## ARCH_API_010");
-		report.Should().Contain("| `Application` | `CandyOrderingService.OrderRawLolly` | `CandyOrderingService.OrderRawLolly -&gt; CandyReceipt.RawQuery -&gt; LollyQueryable` | 1 | `Property` | nested query surfaces are blocked |");
-		report.Should().Contain("## ARCH_SRC_007");
-		report.Should().Contain("| `Ordering/Application` | `CandyOrderingService` | `D:\\repo\\Shop\\Infrastructure\\CandyOrderingService.cs` | `Infrastructure/CandyOrderingService.cs` | `Shop.Application` | source file 'Infrastructure/CandyOrderingService.cs' does not match an allowed SourceLocations rule for layer 'Ordering' |");
-		report.Should().Contain("## ARCH_BOUND_007");
-		report.Should().Contain("| `CandyAdminController` (Presentation) | `Ordering` | `CandyOrderingService` (Ordering/Implementation) | `Ordering/Contracts` | boundary 'Ordering': the boundary permits entry only through Ordering/Contracts |");
-		report.Should().Contain("## ARCH_DEP_006");
-		report.Should().Contain("| `Project` | `Ordering -&gt; Notifications -&gt; Ordering` | 2 | `Constructor, Method` | `Candy.Shop` |");
-		report.Should().Contain("## ARCH_INH_001");
-		report.Should().Contain("| `PersistenceEntities` | `SyrupEntity` | `MissingRequiredBaseType` | persistence entities must inherit Entity |");
-	}
+        report.Should().NotContain("**Assembly**");
+        report.Should().Contain("| **Total** | **15** |");
+        report.Should().Contain("## ARCH_DEP_001");
+        report.Should().Contain("| `MenuController` (Controller) | `ICheeseRepository` (Repository) | no Controller -> Repository edge |");
+        report.Should().Contain("## ARCH_DEP_002");
+        report.Should().Contain("| `OvenCoordinator` (Application) | `MysteryTopping` | unknown ingredient |");
+        report.Should().Contain("<Layer name=\"MysteryTopping\">");
+        report.Should().Contain("<AllowedDependency from=\"Application\" to=\"MysteryTopping\" />");
+        report.Should().Contain("## ARCH_TYPE_001");
+        report.Should().Contain("| `ToppingManager` (Application) | `CheeseStore` | Use Repository instead. |");
+        report.Should().Contain("## ARCH_DEP_004");
+        report.Should().Contain("| `CheeseRepository` (Repository) | `IPizzaKitchen` (Application) | reverse edge |");
+        report.Should().Contain("## ARCH_DEP_005");
+        report.Should().Contain("| `PizzaKitchen` (Application) | `ISauceKitchen` | same layer |");
+        report.Should().Contain("## ARCH_API_001");
+        report.Should().Contain("| `Application` | `CandyOrderingService.OrderRawLolly` | `LollyQueryable` (`RepositoryQuerySurface`) | `MethodReturn` | query surfaces are blocked |");
+        report.Should().Contain("## ARCH_PROJ_001");
+        report.Should().Contain("| `Shop.Web` (Presentation) | `Shop.Domain` (Domain) | no AllowedProjectReference permits project group 'Presentation' to reference project group 'Domain' |");
+        report.Should().Contain("## ARCH_PKG_001");
+        report.Should().Contain("| `Shop.Domain` (Domain) | `Microsoft.Extensions.Logging` | `9.0.0` | `Direct` | Domain may not reference infrastructure packages |");
+        report.Should().Contain("## ARCH_VIS_001");
+        report.Should().Contain("| `RepositoryQuerySurface` | `LollyQueryable.CurrentQuery` | `Property` | `Public` | public properties are blocked |");
+        report.Should().Contain("## ARCH_CONT_008");
+        report.Should().Contain("| `Contracts` | `IPizzaContract.Name` | `DisallowedPropertyAccessor` | contracts expose getters only |");
+        report.Should().Contain("## ARCH_API_010");
+        report.Should().Contain("| `Application` | `CandyOrderingService.OrderRawLolly` | `CandyOrderingService.OrderRawLolly -&gt; CandyReceipt.RawQuery -&gt; LollyQueryable` | 1 | `Property` | nested query surfaces are blocked |");
+        report.Should().Contain("## ARCH_SRC_007");
+        report.Should().Contain("| `Ordering/Application` | `CandyOrderingService` | `D:\\repo\\Shop\\Infrastructure\\CandyOrderingService.cs` | `Infrastructure/CandyOrderingService.cs` | `Shop.Application` | source file 'Infrastructure/CandyOrderingService.cs' does not match an allowed SourceLocations rule for layer 'Ordering' |");
+        report.Should().Contain("## ARCH_BOUND_007");
+        report.Should().Contain("| `CandyAdminController` (Presentation) | `Ordering` | `CandyOrderingService` (Ordering/Implementation) | `Ordering/Contracts` | boundary 'Ordering': the boundary permits entry only through Ordering/Contracts |");
+        report.Should().Contain("## ARCH_DEP_006");
+        report.Should().Contain("| `Project` | `Ordering -&gt; Notifications -&gt; Ordering` | 2 | `Constructor, Method` | `Candy.Shop` |");
+        report.Should().Contain("## ARCH_INH_001");
+        report.Should().Contain("| `PersistenceEntities` | `SyrupEntity` | `MissingRequiredBaseType` | persistence entities must inherit Entity |");
+    }
 
-	[Fact]
-	public void DocumentationGenerator_RendersVisibilityPolicyTable()
-	{
-		var config = ParseConfig("""
+    [Fact]
+    public void DocumentationGenerator_RendersVisibilityPolicyTable()
+    {
+        var config = ParseConfig("""
 			<ArchitecturalLevels>
 			  <Layer name="RepositoryQuerySurface">
 			    <Class endsWith="Queryable" />
@@ -297,18 +325,18 @@ public sealed class ReportGenerationTests
 			</ArchitecturalLevels>
 			""");
 
-		var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
+        var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
 
-		markdown.Should().Contain("## Visibility Policies");
-		markdown.Should().Contain("| `RepositoryQuerySurface` | Type | Allow only | Internal, File | Keep query surfaces internal. |");
-		markdown.Should().Contain("| `RepositoryQuerySurface` | Field, Property | Block | Public, Protected | Do not expose query state. |");
-		markdown.Should().Contain("- **VisibilityPolicy** `Visibility Type`");
-	}
+        markdown.Should().Contain("## Visibility Policies");
+        markdown.Should().Contain("| `RepositoryQuerySurface` | Type | Allow only | Internal, File | Keep query surfaces internal. |");
+        markdown.Should().Contain("| `RepositoryQuerySurface` | Field, Property | Block | Public, Protected | Do not expose query state. |");
+        markdown.Should().Contain("- **VisibilityPolicy** `Visibility Type`");
+    }
 
-	[Fact]
-	public void DocumentationGenerator_RendersApiSurfacePolicyTable()
-	{
-		var config = ParseConfig("""
+    [Fact]
+    public void DocumentationGenerator_RendersApiSurfacePolicyTable()
+    {
+        var config = ParseConfig("""
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Class endsWith="Service" />
@@ -323,20 +351,20 @@ public sealed class ReportGenerationTests
 			</ArchitecturalLevels>
 			""");
 
-		var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
+        var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
 
-		markdown.Should().Contain("## API Surface Policies");
-		markdown.Should().Contain("| `Application` | Required | 4 | Allow | `/Contracts` | Only MethodReturn | Return DTOs. |");
-		markdown.Should().Contain("| `Application` | Required | 4 | Block | `/QuerySurface` | Except Method | Never leak query surfaces. |");
-		markdown.Should().Contain("- **ApiSurface** `API surface`");
-		markdown.Should().Contain("- **TransitiveExposure** `Traverse public object graph to depth 4`");
-		markdown.Should().Contain("- **BlockedLayer** `Block exposure of /QuerySurface`");
-	}
+        markdown.Should().Contain("## API Surface Policies");
+        markdown.Should().Contain("| `Application` | Required | 4 | Allow | `/Contracts` | Only MethodReturn | Return DTOs. |");
+        markdown.Should().Contain("| `Application` | Required | 4 | Block | `/QuerySurface` | Except Method | Never leak query surfaces. |");
+        markdown.Should().Contain("- **ApiSurface** `API surface`");
+        markdown.Should().Contain("- **TransitiveExposure** `Traverse public object graph to depth 4`");
+        markdown.Should().Contain("- **BlockedLayer** `Block exposure of /QuerySurface`");
+    }
 
-	[Fact]
-	public void DocumentationGenerator_RendersContractPolicyTable()
-	{
-		var config = ParseConfig("""
+    [Fact]
+    public void DocumentationGenerator_RendersContractPolicyTable()
+    {
+        var config = ParseConfig("""
 			<ArchitecturalLevels>
 			  <Layer name="Contracts">
 			    <Class endsWith="Contract" typeKind="Interface" />
@@ -352,17 +380,17 @@ public sealed class ReportGenerationTests
 			</ArchitecturalLevels>
 			""");
 
-		var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
+        var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
 
-		markdown.Should().Contain("## Contract Policies");
-		markdown.Should().Contain("| `Contracts` | Interface | Method, Property | Get, Init | false | false | false | Contracts stay abstract. |");
-		markdown.Should().Contain("- **ContractPolicy** `ContractPolicy`");
-	}
+        markdown.Should().Contain("## Contract Policies");
+        markdown.Should().Contain("| `Contracts` | Interface | Method, Property | Get, Init | false | false | false | Contracts stay abstract. |");
+        markdown.Should().Contain("- **ContractPolicy** `ContractPolicy`");
+    }
 
-	[Fact]
-	public void DocumentationGenerator_RendersInheritancePolicyTable()
-	{
-		var config = ParseConfig("""
+    [Fact]
+    public void DocumentationGenerator_RendersInheritancePolicyTable()
+    {
+        var config = ParseConfig("""
 			<ArchitecturalLevels>
 			  <Layer name="PersistenceEntities">
 			    <Namespace startsWith="Shop.Persistence" />
@@ -375,17 +403,17 @@ public sealed class ReportGenerationTests
 			</ArchitecturalLevels>
 			""");
 
-		var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
+        var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
 
-		markdown.Should().Contain("## Inheritance Policies");
-		markdown.Should().Contain("| `PersistenceEntities` | Class, Record | Entity, AggregateRoot | IAuditedEntity | Persistence entities use the shared entity contract. |");
-		markdown.Should().Contain("- **InheritancePolicy** `InheritancePolicy`");
-	}
+        markdown.Should().Contain("## Inheritance Policies");
+        markdown.Should().Contain("| `PersistenceEntities` | Class, Record | Entity, AggregateRoot | IAuditedEntity | Persistence entities use the shared entity contract. |");
+        markdown.Should().Contain("- **InheritancePolicy** `InheritancePolicy`");
+    }
 
-	[Fact]
-	public void DocumentationGenerator_RendersReturnValuePolicyTable()
-	{
-		var config = ParseConfig("""
+    [Fact]
+    public void DocumentationGenerator_RendersReturnValuePolicyTable()
+    {
+        var config = ParseConfig("""
 			<ArchitecturalLevels>
 			  <Layer name="Kitchen">
 			    <Class endsWith="Kitchen" />
@@ -401,22 +429,22 @@ public sealed class ReportGenerationTests
 			</ArchitecturalLevels>
 			""");
 
-		var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
+        var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
 
-		markdown.Should().Contain("## Return-Value Policies");
-		markdown.Should().Contain("| `Kitchen` | Forbids Literal value=\"null\" | No invisible empty plate. |");
-		markdown.Should().Contain("| `Kitchen` | Forbids Literal value=\"\" | No sentinel meals. |");
-		markdown.Should().Contain("| `Kitchen` | Forbids Invocation withAttribute=\"JetBrains.Annotations.CanBeNullAttribute\" | No sentinel meals. |");
-		markdown.Should().Contain("| `Kitchen` | Allows only Identifier | Serve a named result once the kitchen has decided. |");
-		markdown.IndexOf("| `Kitchen` | Allows only Identifier", StringComparison.Ordinal).Should().BeLessThan(markdown.IndexOf("| `Kitchen` | Forbids Literal value=\"null\"", StringComparison.Ordinal));
-		markdown.Should().Contain("- **ReturnValuePolicy** `Return-value safety`");
-		markdown.Should().Contain("- **AllowedReturn** `Allowed direct return shapes`");
-	}
+        markdown.Should().Contain("## Return-Value Policies");
+        markdown.Should().Contain("| `Kitchen` | Forbids Literal value=\"null\" | No invisible empty plate. |");
+        markdown.Should().Contain("| `Kitchen` | Forbids Literal value=\"\" | No sentinel meals. |");
+        markdown.Should().Contain("| `Kitchen` | Forbids Invocation withAttribute=\"JetBrains.Annotations.CanBeNullAttribute\" | No sentinel meals. |");
+        markdown.Should().Contain("| `Kitchen` | Allows only Identifier | Serve a named result once the kitchen has decided. |");
+        markdown.IndexOf("| `Kitchen` | Allows only Identifier", StringComparison.Ordinal).Should().BeLessThan(markdown.IndexOf("| `Kitchen` | Forbids Literal value=\"null\"", StringComparison.Ordinal));
+        markdown.Should().Contain("- **ReturnValuePolicy** `Return-value safety`");
+        markdown.Should().Contain("- **AllowedReturn** `Allowed direct return shapes`");
+    }
 
-	[Fact]
-	public void DocumentationGenerator_RendersGlobalReturnValuePolicyTable()
-	{
-		var config = ParseConfig("""
+    [Fact]
+    public void DocumentationGenerator_RendersGlobalReturnValuePolicyTable()
+    {
+        var config = ParseConfig("""
 			<ArchitecturalLevels>
 			  <ReturnValuePolicy description="Every meal leaves through a named hand-off.">
 			    <AllowedReturn>
@@ -426,15 +454,15 @@ public sealed class ReportGenerationTests
 			</ArchitecturalLevels>
 			""");
 
-		var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
+        var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
 
-		markdown.Should().Contain("| `Global configuration` | Allows only Identifier | Every meal leaves through a named hand-off. |");
-	}
+        markdown.Should().Contain("| `Global configuration` | Allows only Identifier | Every meal leaves through a named hand-off. |");
+    }
 
-	[Fact]
-	public void DocumentationGenerator_RendersForbiddenOperationPolicyTable()
-	{
-		var config = ParseConfig("""
+    [Fact]
+    public void DocumentationGenerator_RendersForbiddenOperationPolicyTable()
+    {
+        var config = ParseConfig("""
 			<ArchitecturalLevels>
 			  <Layer name="Kitchen">
 			    <Class endsWith="Kitchen" />
@@ -450,18 +478,18 @@ public sealed class ReportGenerationTests
 			</ArchitecturalLevels>
 			""");
 
-		var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
+        var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
 
-		markdown.Should().Contain("## Forbidden Operation Policies");
-		markdown.Should().Contain("| `Kitchen` | OperationMatcher kind=\"PropertyRead\" staticAccess=\"true\" [ContainingType exactFullName=\"System.DateTime\"; Member exactName=\"UtcNow\" memberKind=\"Property\"] | only StaticMember | Direct system-clock reads hide a dependency. |");
-		markdown.Should().Contain("- **ForbiddenOperations** `Forbidden selected operations`");
-		markdown.Should().Contain("- **OperationMatcher** `Operation PropertyRead`");
-	}
+        markdown.Should().Contain("## Forbidden Operation Policies");
+        markdown.Should().Contain("| `Kitchen` | OperationMatcher kind=\"PropertyRead\" staticAccess=\"true\" [ContainingType exactFullName=\"System.DateTime\"; Member exactName=\"UtcNow\" memberKind=\"Property\"] | only StaticMember | Direct system-clock reads hide a dependency. |");
+        markdown.Should().Contain("- **ForbiddenOperations** `Forbidden selected operations`");
+        markdown.Should().Contain("- **OperationMatcher** `Operation PropertyRead`");
+    }
 
-	[Fact]
-	public void DocumentationGenerator_RendersBehavioralOperationPolicyTable()
-	{
-		var config = ParseConfig("""
+    [Fact]
+    public void DocumentationGenerator_RendersBehavioralOperationPolicyTable()
+    {
+        var config = ParseConfig("""
 			<ArchitecturalLevels>
 			  <Layer name="Kitchen">
 			    <Class endsWith="Kitchen" />
@@ -484,64 +512,64 @@ public sealed class ReportGenerationTests
 			</ArchitecturalLevels>
 			""");
 
-		var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
+        var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
 
-		markdown.Should().Contain("## Behavioral Operation Policies");
-		markdown.Should().Contain("| `Kitchen` | Require operation before target | Member exactName=\"Submit\" memberKind=\"Method\" | OperationMatcher kind=\"Invocation\" [Member exactName=\"Validate\" memberKind=\"Method\"] | OperationMatcher kind=\"Invocation\" [Member exactName=\"Save\" memberKind=\"Method\"] | Dominance | all sites | Every submitted pizza is validated. |");
-		markdown.Should().Contain("- **BehavioralOperations** `Behavioral operation policies`");
-		markdown.Should().Contain("- **BeforeOperation** `Operation that must come after the required operation`");
-	}
+        markdown.Should().Contain("## Behavioral Operation Policies");
+        markdown.Should().Contain("| `Kitchen` | Require operation before target | Member exactName=\"Submit\" memberKind=\"Method\" | OperationMatcher kind=\"Invocation\" [Member exactName=\"Validate\" memberKind=\"Method\"] | OperationMatcher kind=\"Invocation\" [Member exactName=\"Save\" memberKind=\"Method\"] | Dominance | all sites | Every submitted pizza is validated. |");
+        markdown.Should().Contain("- **BehavioralOperations** `Behavioral operation policies`");
+        markdown.Should().Contain("- **BeforeOperation** `Operation that must come after the required operation`");
+    }
 
-	[Fact]
-	public void ViolationReporter_RendersForbiddenOperationPolicyViolation()
-	{
-		var report = ArchitecturalViolationReporter.GenerateMarkdownReport(
-			[
-				new ViolationRecord(
-					ArchitecturalDiagnosticIds.OperationNotAllowed,
-					"PizzaKitchen",
-					"Kitchen",
-					"System.DateTime.UtcNow",
-					string.Empty,
-					"the ForbiddenOperations policy in layer 'Kitchen' blocks System.DateTime.UtcNow at StaticMember",
-					null,
-					"PropertyRead")
-			],
-			AnalyzerConfiguration.Empty,
-			null);
+    [Fact]
+    public void ViolationReporter_RendersForbiddenOperationPolicyViolation()
+    {
+        var report = ArchitecturalViolationReporter.GenerateMarkdownReport(
+            [
+                new ViolationRecord(
+                    ArchitecturalDiagnosticIds.OperationNotAllowed,
+                    "PizzaKitchen",
+                    "Kitchen",
+                    "System.DateTime.UtcNow",
+                    string.Empty,
+                    "the ForbiddenOperations policy in layer 'Kitchen' blocks System.DateTime.UtcNow at StaticMember",
+                    null,
+                    "PropertyRead")
+            ],
+            AnalyzerConfiguration.Empty,
+            null);
 
-		report.Should().Contain("| Operation | NotAllowed | `ARCH_OPER_001` — Architectural operation is not allowed | 1 |");
-		report.Should().Contain("## ARCH_OPER_001 — Operations Not Allowed");
-		report.Should().Contain("| `Kitchen` | `PizzaKitchen` | `System.DateTime.UtcNow` | `PropertyRead` | the ForbiddenOperations policy in layer 'Kitchen' blocks System.DateTime.UtcNow at StaticMember |");
-	}
+        report.Should().Contain("| Operation | NotAllowed | `ARCH_OPER_001` — Architectural operation is not allowed | 1 |");
+        report.Should().Contain("## ARCH_OPER_001 — Operations Not Allowed");
+        report.Should().Contain("| `Kitchen` | `PizzaKitchen` | `System.DateTime.UtcNow` | `PropertyRead` | the ForbiddenOperations policy in layer 'Kitchen' blocks System.DateTime.UtcNow at StaticMember |");
+    }
 
-	[Fact]
-	public void ViolationReporter_RendersBehavioralOperationPolicyViolation()
-	{
-		var report = ArchitecturalViolationReporter.GenerateMarkdownReport(
-			[
-				new ViolationRecord(
-					ArchitecturalDiagnosticIds.OperationOrdering,
-					"PizzaKitchen",
-					"Kitchen",
-					"PizzaRepository.Save",
-					string.Empty,
-					"the BehavioralOperations policy in layer 'Kitchen' requires validation before PizzaRepository.Save",
-					null,
-					"MissingRequiredOperationBefore")
-			],
-			AnalyzerConfiguration.Empty,
-			null);
+    [Fact]
+    public void ViolationReporter_RendersBehavioralOperationPolicyViolation()
+    {
+        var report = ArchitecturalViolationReporter.GenerateMarkdownReport(
+            [
+                new ViolationRecord(
+                    ArchitecturalDiagnosticIds.OperationOrdering,
+                    "PizzaKitchen",
+                    "Kitchen",
+                    "PizzaRepository.Save",
+                    string.Empty,
+                    "the BehavioralOperations policy in layer 'Kitchen' requires validation before PizzaRepository.Save",
+                    null,
+                    "MissingRequiredOperationBefore")
+            ],
+            AnalyzerConfiguration.Empty,
+            null);
 
-		report.Should().Contain("| Operation | Ordering | `ARCH_OPER_012` — Architectural operation ordering violation | 1 |");
-		report.Should().Contain("## ARCH_OPER_012 — Operation Ordering Violations");
-		report.Should().Contain("| `Kitchen` | `PizzaKitchen` | `PizzaRepository.Save` | `MissingRequiredOperationBefore` | the BehavioralOperations policy in layer 'Kitchen' requires validation before PizzaRepository.Save |");
-	}
+        report.Should().Contain("| Operation | Ordering | `ARCH_OPER_012` — Architectural operation ordering violation | 1 |");
+        report.Should().Contain("## ARCH_OPER_012 — Operation Ordering Violations");
+        report.Should().Contain("| `Kitchen` | `PizzaKitchen` | `PizzaRepository.Save` | `MissingRequiredOperationBefore` | the BehavioralOperations policy in layer 'Kitchen' requires validation before PizzaRepository.Save |");
+    }
 
-	[Fact]
-	public void DocumentationGenerator_RendersProjectArchitectureTable()
-	{
-		var config = ParseConfig("""
+    [Fact]
+    public void DocumentationGenerator_RendersProjectArchitectureTable()
+    {
+        var config = ParseConfig("""
 			<ArchitecturalLevels>
 			  <ProjectArchitecture requireRecognizedProjects="true" description="Solution-level reference rules.">
 			    <ProjectGroup name="Presentation" description="UI projects.">
@@ -555,21 +583,21 @@ public sealed class ReportGenerationTests
 			</ArchitecturalLevels>
 			""");
 
-		var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
+        var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
 
-		markdown.Should().Contain("## Project Architecture");
-		markdown.Should().Contain("`requireRecognizedProjects`: `true`");
-		markdown.Should().Contain("### Project Groups");
-		markdown.Should().Contain("| `Presentation` | Project endsWith=\".Web\" | UI projects. |");
-		markdown.Should().Contain("### Project Reference Rules");
-		markdown.Should().Contain("| Allowed | `Presentation -> Application` | All matching projects | Presentation calls application. |");
-		markdown.Should().Contain("- **ProjectArchitecture** `Project topology`");
-	}
+        markdown.Should().Contain("## Project Architecture");
+        markdown.Should().Contain("`requireRecognizedProjects`: `true`");
+        markdown.Should().Contain("### Project Groups");
+        markdown.Should().Contain("| `Presentation` | Project endsWith=\".Web\" | UI projects. |");
+        markdown.Should().Contain("### Project Reference Rules");
+        markdown.Should().Contain("| Allowed | `Presentation -> Application` | All matching projects | Presentation calls application. |");
+        markdown.Should().Contain("- **ProjectArchitecture** `Project topology`");
+    }
 
-	[Fact]
-	public void DocumentationGenerator_RendersProjectReferenceRuleSelectors()
-	{
-		var config = ParseConfig("""
+    [Fact]
+    public void DocumentationGenerator_RendersProjectReferenceRuleSelectors()
+    {
+        var config = ParseConfig("""
 			<ArchitecturalLevels>
 			  <ProjectArchitecture>
 			    <ProjectGroup name="Application"><Project endsWith=".Application" /></ProjectGroup>
@@ -582,17 +610,17 @@ public sealed class ReportGenerationTests
 			</ArchitecturalLevels>
 			""");
 
-		var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
+        var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
 
-		markdown.Should().Contain("| Allowed | `Application -> Contracts` | From: Project exactName=\"Shop.Orders.Application\"; To: Project exactName=\"Shop.Orders.Contracts\" |  |");
-		markdown.Should().Contain("- **From** `Project exactName=\"Shop.Orders.Application\"`");
-		markdown.Should().Contain("- **To** `Project exactName=\"Shop.Orders.Contracts\"`");
-	}
+        markdown.Should().Contain("| Allowed | `Application -> Contracts` | From: Project exactName=\"Shop.Orders.Application\"; To: Project exactName=\"Shop.Orders.Contracts\" |  |");
+        markdown.Should().Contain("- **From** `Project exactName=\"Shop.Orders.Application\"`");
+        markdown.Should().Contain("- **To** `Project exactName=\"Shop.Orders.Contracts\"`");
+    }
 
-	[Fact]
-	public void DocumentationGenerator_RendersPackagePolicyTable()
-	{
-		var config = ParseConfig("""
+    [Fact]
+    public void DocumentationGenerator_RendersPackagePolicyTable()
+    {
+        var config = ParseConfig("""
 			<ArchitecturalLevels>
 			  <ProjectArchitecture requireRecognizedProjects="true" description="Solution-level boundaries.">
 			    <ProjectGroup name="Domain"><Project endsWith=".Domain" /></ProjectGroup>
@@ -609,19 +637,19 @@ public sealed class ReportGenerationTests
 			</ArchitecturalLevels>
 			""");
 
-		var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
+        var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
 
-		markdown.Should().Contain("### Package Policies");
-		markdown.Should().Contain("| `Domain` | true | Allowed | `Package startsWith=\"System.\"` | BCL packages are fine. |");
-		markdown.Should().Contain("| `Domain` | true | Forbidden | `Package exactName=\"Microsoft.Extensions.Logging\"` | Infrastructure logging belongs outside Domain. |");
-		markdown.Should().Contain("- **PackagePolicy** `Package policy for Domain`");
-		markdown.Should().Contain("- **Package** `Package exactName=\"Microsoft.Extensions.Logging\"`");
-	}
+        markdown.Should().Contain("### Package Policies");
+        markdown.Should().Contain("| `Domain` | true | Allowed | `Package startsWith=\"System.\"` | BCL packages are fine. |");
+        markdown.Should().Contain("| `Domain` | true | Forbidden | `Package exactName=\"Microsoft.Extensions.Logging\"` | Infrastructure logging belongs outside Domain. |");
+        markdown.Should().Contain("- **PackagePolicy** `Package policy for Domain`");
+        markdown.Should().Contain("- **Package** `Package exactName=\"Microsoft.Extensions.Logging\"`");
+    }
 
-	[Fact]
-	public void DocumentationGenerator_RendersAssemblyReferencePolicyTable()
-	{
-		var config = ParseConfig("""
+    [Fact]
+    public void DocumentationGenerator_RendersAssemblyReferencePolicyTable()
+    {
+        var config = ParseConfig("""
 			<ArchitecturalLevels>
 			  <ProjectArchitecture description="Project-level boundaries.">
 			    <ProjectGroup name="Domain"><Project endsWith=".Domain" /></ProjectGroup>
@@ -637,61 +665,61 @@ public sealed class ReportGenerationTests
 			</ArchitecturalLevels>
 			""");
 
-		var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
+        var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
 
-		markdown.Should().Contain("### Assembly Reference Policies");
-		markdown.Should().Contain("They do not produce compiler `ARCHxxx` diagnostics.");
-		markdown.Should().Contain("| `Domain` | Allowed | `Assembly reference startsWith=\"System.\"` | Framework assemblies are fine. |");
-		markdown.Should().Contain("| `Domain` | Forbidden | `Assembly reference exactName=\"Legacy.Transport\"` | Use a project boundary instead. |");
-		markdown.Should().Contain("- **AssemblyReferencePolicy** `Assembly reference policy for Domain`");
-		markdown.Should().Contain("- **Assembly** `Assembly reference exactName=\"Legacy.Transport\"`");
-	}
+        markdown.Should().Contain("### Assembly Reference Policies");
+        markdown.Should().Contain("They do not produce compiler `ARCHxxx` diagnostics.");
+        markdown.Should().Contain("| `Domain` | Allowed | `Assembly reference startsWith=\"System.\"` | Framework assemblies are fine. |");
+        markdown.Should().Contain("| `Domain` | Forbidden | `Assembly reference exactName=\"Legacy.Transport\"` | Use a project boundary instead. |");
+        markdown.Should().Contain("- **AssemblyReferencePolicy** `Assembly reference policy for Domain`");
+        markdown.Should().Contain("- **Assembly** `Assembly reference exactName=\"Legacy.Transport\"`");
+    }
 
-	[Fact]
-	public void ViolationReport_AppendsWorkspaceAssemblyReferencePolicyFindings()
-	{
-		var finding = new ArchitectureFinding(
-			ArchitectureFindingSeverity.Error,
-			ArchitectureFindingCodes.AssemblyReferencePolicyViolation,
-			"the assembly matches a Forbidden policy for project group 'Domain'",
-			"Shop.Domain -> Legacy.Transport",
-			properties: ImmutableDictionary<string, string?>.Empty
-				.Add(ArchitectureDiagnosticProperties.PropertySourceProjectName, "Shop.Domain")
-				.Add(ArchitectureDiagnosticProperties.PropertySourceProjectGroup, "Domain")
-				.Add(ArchitectureDiagnosticProperties.PropertyAssemblyIdentity, "Legacy.Transport")
-				.Add(ArchitectureDiagnosticProperties.PropertyAssemblyHintPath, "lib/Legacy.Transport.dll"));
+    [Fact]
+    public void ViolationReport_AppendsWorkspaceAssemblyReferencePolicyFindings()
+    {
+        var finding = new ArchitectureFinding(
+            ArchitectureFindingSeverity.Error,
+            ArchitectureFindingCodes.AssemblyReferencePolicyViolation,
+            "the assembly matches a Forbidden policy for project group 'Domain'",
+            "Shop.Domain -> Legacy.Transport",
+            properties: ImmutableDictionary<string, string?>.Empty
+                .Add(ArchitectureDiagnosticProperties.PropertySourceProjectName, "Shop.Domain")
+                .Add(ArchitectureDiagnosticProperties.PropertySourceProjectGroup, "Domain")
+                .Add(ArchitectureDiagnosticProperties.PropertyAssemblyIdentity, "Legacy.Transport")
+                .Add(ArchitectureDiagnosticProperties.PropertyAssemblyHintPath, "lib/Legacy.Transport.dll"));
 
-		var markdown = WorkspaceAssemblyReferenceReportAppender.Append("# Architectural Violation Report\n\n✅ **No violations found.**\n", [finding]);
+        var markdown = WorkspaceAssemblyReferenceReportAppender.Append("# Architectural Violation Report\n\n✅ **No violations found.**\n", [finding]);
 
-		markdown.Should().Contain("✅ **No compiler analyzer violations found.**");
-		markdown.Should().Contain("## Workspace Assembly Reference Policy Findings");
-		markdown.Should().Contain("`Shop.Domain` (Domain) | `Legacy.Transport` | `lib/Legacy.Transport.dll`");
-	}
+        markdown.Should().Contain("✅ **No compiler analyzer violations found.**");
+        markdown.Should().Contain("## Workspace Assembly Reference Policy Findings");
+        markdown.Should().Contain("`Shop.Domain` (Domain) | `Legacy.Transport` | `lib/Legacy.Transport.dll`");
+    }
 
-	[Fact]
-	public void ViolationReport_AppendsWorkspaceOperationContractFindings()
-	{
-		var finding = new ArchitectureFinding(
-			ArchitectureFindingSeverity.Error,
-			ArchitectureFindingCodes.OperationContractOwnerMissing,
-			"Operation 'PlacePizzaOrder' has no configured owner method in the inspected scope.",
-			"Architecture.anl:12",
-			"MissingOwner",
-			"MissingOwner",
-			ImmutableDictionary<string, string?>.Empty.Add(ArchitectureDiagnosticProperties.PropertyOperationContractName, "PlacePizzaOrder"));
+    [Fact]
+    public void ViolationReport_AppendsWorkspaceOperationContractFindings()
+    {
+        var finding = new ArchitectureFinding(
+            ArchitectureFindingSeverity.Error,
+            ArchitectureFindingCodes.OperationContractOwnerMissing,
+            "Operation 'PlacePizzaOrder' has no configured owner method in the inspected scope.",
+            "Architecture.anl:12",
+            "MissingOwner",
+            "MissingOwner",
+            ImmutableDictionary<string, string?>.Empty.Add(ArchitectureDiagnosticProperties.PropertyOperationContractName, "PlacePizzaOrder"));
 
-		var markdown = WorkspaceOperationContractReportAppender.Append("# Architectural Violation Report\n\n✅ **No violations found.**\n", [finding]);
+        var markdown = WorkspaceOperationContractReportAppender.Append("# Architectural Violation Report\n\n✅ **No violations found.**\n", [finding]);
 
-		markdown.Should().Contain("✅ **No compiler analyzer violations found.**");
-		markdown.Should().Contain("## Workspace Operation Contract Findings");
-		markdown.Should().Contain("`PlacePizzaOrder`");
-		markdown.Should().Contain("has no configured owner method");
-	}
+        markdown.Should().Contain("✅ **No compiler analyzer violations found.**");
+        markdown.Should().Contain("## Workspace Operation Contract Findings");
+        markdown.Should().Contain("`PlacePizzaOrder`");
+        markdown.Should().Contain("has no configured owner method");
+    }
 
-	[Fact]
-	public void DocumentationGenerator_RendersSourceLocationPolicies()
-	{
-		var config = ParseConfig("""
+    [Fact]
+    public void DocumentationGenerator_RendersSourceLocationPolicies()
+    {
+        var config = ParseConfig("""
 			<ArchitecturalLevels>
 			  <Layer name="Ordering" description="Ordering boundary.">
 			    <Class endsWith="Service" />
@@ -703,18 +731,18 @@ public sealed class ReportGenerationTests
 			</ArchitecturalLevels>
 			""");
 
-		var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
+        var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
 
-		markdown.Should().Contain("## Source Locations");
-		markdown.Should().Contain("| `Ordering` | Project | `Source startsWith=\"Ordering/\"` | Shop.Application | Implementation files. |");
-		markdown.Should().Contain("| `Ordering` | Project | `Source startsWith=\"Contracts/Ordering/\"` |  | Contract files. |");
-		markdown.Should().Contain("- **SourceLocations** `Source ownership (Project)`");
-	}
+        markdown.Should().Contain("## Source Locations");
+        markdown.Should().Contain("| `Ordering` | Project | `Source startsWith=\"Ordering/\"` | Shop.Application | Implementation files. |");
+        markdown.Should().Contain("| `Ordering` | Project | `Source startsWith=\"Contracts/Ordering/\"` |  | Contract files. |");
+        markdown.Should().Contain("- **SourceLocations** `Source ownership (Project)`");
+    }
 
-	[Fact]
-	public void DocumentationGenerator_RendersBoundaryEntryPointPolicies()
-	{
-		var config = ParseConfig("""
+    [Fact]
+    public void DocumentationGenerator_RendersBoundaryEntryPointPolicies()
+    {
+        var config = ParseConfig("""
 			<ArchitecturalLevels>
 			  <Layer name="Presentation">
 			    <Class endsWith="Controller" />
@@ -738,21 +766,21 @@ public sealed class ReportGenerationTests
 			</ArchitecturalLevels>
 			""");
 
-		var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
+        var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
 
-		markdown.Should().Contain("## Boundary Entry Points");
-		markdown.Should().Contain("| `Ordering` | `Contracts` | All | Public ingress for other boundaries. |");
-		markdown.Should().Contain("| `Ordering` | `Class endsWith=\"OrderingFacade\"` | Only Constructor | Outside callers must enter through contracts. |");
-		markdown.Should().Contain("L_Ordering_Contracts[\"Contracts\\nentry\"]");
-		markdown.Should().Contain("- **EntryPoints** `Boundary entry points`");
-		markdown.Should().Contain("- **EntryPoint** `Entry via Contracts`");
-		markdown.Should().Contain("- **EntryPoint** `Entry via matcher`");
-	}
+        markdown.Should().Contain("## Boundary Entry Points");
+        markdown.Should().Contain("| `Ordering` | `Contracts` | All | Public ingress for other boundaries. |");
+        markdown.Should().Contain("| `Ordering` | `Class endsWith=\"OrderingFacade\"` | Only Constructor | Outside callers must enter through contracts. |");
+        markdown.Should().Contain("L_Ordering_Contracts[\"Contracts\\nentry\"]");
+        markdown.Should().Contain("- **EntryPoints** `Boundary entry points`");
+        markdown.Should().Contain("- **EntryPoint** `Entry via Contracts`");
+        markdown.Should().Contain("- **EntryPoint** `Entry via matcher`");
+    }
 
-	[Fact]
-	public void DocumentationGenerator_RendersOperationContractsInConfigurationOrder()
-	{
-		var config = ParseConfig("""
+    [Fact]
+    public void DocumentationGenerator_RendersOperationContractsInConfigurationOrder()
+    {
+        var config = ParseConfig("""
 			<ArchitecturalLevels>
 			  <Layer name="Controller"><Class endsWith="Controller" /></Layer>
 			  <Layer name="Application"><Class endsWith="Kitchen" /></Layer>
@@ -777,19 +805,19 @@ public sealed class ReportGenerationTests
 			</ArchitecturalLevels>
 			""");
 
-		var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
+        var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
 
-		markdown.Should().Contain("## Operation Contracts");
-		markdown.Should().Contain("`PlacePizzaOrder`");
-		markdown.Should().Contain("ContainingType endsWith=\"Kitchen\"");
-		markdown.Should().Contain("Class exactName=\"PlacePizzaOrderRequest\"");
-		markdown.Should().Contain("The waiter sends an order to the kitchen.");
-	}
+        markdown.Should().Contain("## Operation Contracts");
+        markdown.Should().Contain("`PlacePizzaOrder`");
+        markdown.Should().Contain("ContainingType endsWith=\"Kitchen\"");
+        markdown.Should().Contain("Class exactName=\"PlacePizzaOrderRequest\"");
+        markdown.Should().Contain("The waiter sends an order to the kitchen.");
+    }
 
-	[Fact]
-	public void DocumentationGenerator_RendersAssemblyAttributePoliciesInConfigurationOrder()
-	{
-		var config = ParseConfig("""
+    [Fact]
+    public void DocumentationGenerator_RendersAssemblyAttributePoliciesInConfigurationOrder()
+    {
+        var config = ParseConfig("""
 			<ArchitecturalLevels>
 			  <AssemblyAttributePolicy description="Friend access is reviewed.">
 			    <Forbidden>
@@ -801,61 +829,61 @@ public sealed class ReportGenerationTests
 			</ArchitecturalLevels>
 			""");
 
-		var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
+        var markdown = ArchitectureDocumentationGenerator.GenerateMarkdown(config, null);
 
-		markdown.Should().Contain("## Assembly Attribute Policies");
-		markdown.Should().Contain("System.Runtime.CompilerServices.InternalsVisibleToAttribute");
-		markdown.Should().Contain("NotAllowedExample");
-		markdown.Should().Contain("Unapproved friends do not receive recipe access.");
-		markdown.Should().Contain("- **AssemblyAttributePolicy** `Assembly attribute policy`");
-	}
+        markdown.Should().Contain("## Assembly Attribute Policies");
+        markdown.Should().Contain("System.Runtime.CompilerServices.InternalsVisibleToAttribute");
+        markdown.Should().Contain("NotAllowedExample");
+        markdown.Should().Contain("Unapproved friends do not receive recipe access.");
+        markdown.Should().Contain("- **AssemblyAttributePolicy** `Assembly attribute policy`");
+    }
 
-	[Fact]
-	public void ViolationReporter_RendersAssemblyAttributePolicyViolation()
-	{
-		var report = ArchitecturalViolationReporter.GenerateMarkdownReport(
-			[
-				new ViolationRecord(
-					ArchitecturalDiagnosticIds.AssemblyAttributeNotAllowed,
-					"Shop.Kitchen",
-					"Assembly",
-					"System.Runtime.CompilerServices.InternalsVisibleToAttribute",
-					"attribute System.Runtime.CompilerServices.InternalsVisibleToAttribute with argument #0 exactName=\"NotAllowedExample\"",
-					"the AssemblyAttributePolicy blocks the unapproved friend",
-					null,
-					"AssemblyAttribute")
-			],
-			AnalyzerConfiguration.Empty,
-			null);
+    [Fact]
+    public void ViolationReporter_RendersAssemblyAttributePolicyViolation()
+    {
+        var report = ArchitecturalViolationReporter.GenerateMarkdownReport(
+            [
+                new ViolationRecord(
+                    ArchitecturalDiagnosticIds.AssemblyAttributeNotAllowed,
+                    "Shop.Kitchen",
+                    "Assembly",
+                    "System.Runtime.CompilerServices.InternalsVisibleToAttribute",
+                    "attribute System.Runtime.CompilerServices.InternalsVisibleToAttribute with argument #0 exactName=\"NotAllowedExample\"",
+                    "the AssemblyAttributePolicy blocks the unapproved friend",
+                    null,
+                    "AssemblyAttribute")
+            ],
+            AnalyzerConfiguration.Empty,
+            null);
 
-		report.Should().Contain("| Assembly | NotAllowed | `ARCH_ASSM_001` — Architectural assembly attribute is not allowed | 1 |");
-		report.Should().Contain("## ARCH_ASSM_001 — Assembly Attributes Not Allowed");
-		report.Should().Contain("`Shop.Kitchen`");
-		report.Should().Contain("`System.Runtime.CompilerServices.InternalsVisibleToAttribute`");
-	}
+        report.Should().Contain("| Assembly | NotAllowed | `ARCH_ASSM_001` — Architectural assembly attribute is not allowed | 1 |");
+        report.Should().Contain("## ARCH_ASSM_001 — Assembly Attributes Not Allowed");
+        report.Should().Contain("`Shop.Kitchen`");
+        report.Should().Contain("`System.Runtime.CompilerServices.InternalsVisibleToAttribute`");
+    }
 
-	private static AnalyzerConfiguration ParseConfig(string config)
-	{
-		var additionalText = new TestAdditionalText("Architecture.anl", config);
+    private static AnalyzerConfiguration ParseConfig(string config)
+    {
+        var additionalText = new TestAdditionalText("Architecture.anl", config);
 
-		var result = ArchitecturalConfigParser.Parse(
+        var result = ArchitecturalConfigParser.Parse(
             [additionalText],
-			CancellationToken.None);
+            CancellationToken.None);
 
-		return result;
-	}
+        return result;
+    }
 
-	private sealed class TestAdditionalText(string path, string content) : AdditionalText
-	{
-		private readonly SourceText _text = SourceText.From(content);
+    private sealed class TestAdditionalText(string path, string content) : AdditionalText
+    {
+        private readonly SourceText _text = SourceText.From(content);
 
-		public override string Path { get; } = path;
+        public override string Path { get; } = path;
 
-		public override SourceText GetText(CancellationToken cancellationToken = default)
+        public override SourceText GetText(CancellationToken cancellationToken = default)
         {
             var result = _text;
 
-			return result;
+            return result;
         }
     }
 }

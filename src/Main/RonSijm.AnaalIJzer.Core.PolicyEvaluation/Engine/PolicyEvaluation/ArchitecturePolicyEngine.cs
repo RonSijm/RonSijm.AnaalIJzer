@@ -19,143 +19,143 @@ using RonSijm.AnaalIJzer.Core.Visibility;
 namespace RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.PolicyEvaluation;
 
 public readonly struct ArchitecturePolicyEngine(
-	CompiledLayerCatalog catalog,
-	ImmutableArray<ReturnValuePolicy> globalReturnValuePolicies = default,
-	ImmutableArray<NamespaceHierarchyPolicy> namespaceHierarchyPolicies = default)
+    CompiledLayerCatalog catalog,
+    ImmutableArray<ReturnValuePolicy> globalReturnValuePolicies = default,
+    ImmutableArray<NamespaceHierarchyPolicy> namespaceHierarchyPolicies = default)
 {
-	private readonly LayerRegistry _registry = new(catalog);
-	private readonly ImmutableArray<ReturnValuePolicy> _globalReturnValuePolicies = globalReturnValuePolicies.IsDefault ? ImmutableArray<ReturnValuePolicy>.Empty : globalReturnValuePolicies;
-	private readonly ImmutableArray<NamespaceHierarchyPolicy> _namespaceHierarchyPolicies = namespaceHierarchyPolicies.IsDefault ? ImmutableArray<NamespaceHierarchyPolicy>.Empty : namespaceHierarchyPolicies;
+    private readonly LayerRegistry _registry = new(catalog);
+    private readonly ImmutableArray<ReturnValuePolicy> _globalReturnValuePolicies = globalReturnValuePolicies.IsDefault ? ImmutableArray<ReturnValuePolicy>.Empty : globalReturnValuePolicies;
+    private readonly ImmutableArray<NamespaceHierarchyPolicy> _namespaceHierarchyPolicies = namespaceHierarchyPolicies.IsDefault ? ImmutableArray<NamespaceHierarchyPolicy>.Empty : namespaceHierarchyPolicies;
 
-	public bool HasLayers => _registry.HasLayers;
-	public bool HasContractPolicies => _registry.HasContractPolicies;
-	public bool HasInheritancePolicies => _registry.HasInheritancePolicies;
-	public bool HasReturnValuePolicies => !_globalReturnValuePolicies.IsDefaultOrEmpty || _registry.HasReturnValuePolicies;
-	public bool HasNamespaceHierarchyPolicies => !_namespaceHierarchyPolicies.IsDefaultOrEmpty;
-	public bool HasForbiddenOperationPolicies => _registry.HasForbiddenOperationPolicies;
-	public bool HasBehavioralOperationPolicies => _registry.HasBehavioralOperationPolicies;
-	public bool HasVisibilityPolicies => _registry.HasVisibilityPolicies;
-	public bool HasApiSurfacePolicies => _registry.HasApiSurfacePolicies;
-	public bool HasEntryPointPolicies => _registry.HasEntryPointPolicies;
-	public bool HasSourceLocationPolicies => _registry.HasSourceLocationPolicies;
-	public bool HasIntraProceduralNameRules => _registry.HasIntraProceduralNameRules;
+    public bool HasLayers => _registry.HasLayers;
+    public bool HasContractPolicies => _registry.HasContractPolicies;
+    public bool HasInheritancePolicies => _registry.HasInheritancePolicies;
+    public bool HasReturnValuePolicies => !_globalReturnValuePolicies.IsDefaultOrEmpty || _registry.HasReturnValuePolicies;
+    public bool HasNamespaceHierarchyPolicies => !_namespaceHierarchyPolicies.IsDefaultOrEmpty;
+    public bool HasForbiddenOperationPolicies => _registry.HasForbiddenOperationPolicies;
+    public bool HasBehavioralOperationPolicies => _registry.HasBehavioralOperationPolicies;
+    public bool HasVisibilityPolicies => _registry.HasVisibilityPolicies;
+    public bool HasApiSurfacePolicies => _registry.HasApiSurfacePolicies;
+    public bool HasEntryPointPolicies => _registry.HasEntryPointPolicies;
+    public bool HasSourceLocationPolicies => _registry.HasSourceLocationPolicies;
+    public bool HasIntraProceduralNameRules => _registry.HasIntraProceduralNameRules;
 
-	public LayerMatch? FindLayer(string typeName, string namespaceName, ITypeSymbol? symbol = null)
-	{
-		var result = _registry.FindLayer(typeName, namespaceName, symbol);
+    public LayerMatch? FindLayer(string typeName, string namespaceName, ITypeSymbol? symbol = null)
+    {
+        var result = _registry.FindLayer(typeName, namespaceName, symbol);
 
-		return result;
-	}
+        return result;
+    }
 
-	public TypePolicyViolation? EvaluateTypePolicy(LayerMatch layerMatch, string typeName, string namespaceName, ITypeSymbol? symbol = null)
-	{
-		var result = _registry.EvaluateTypePolicy(layerMatch, typeName, namespaceName, symbol);
+    public TypePolicyViolation? EvaluateTypePolicy(LayerMatch layerMatch, string typeName, string namespaceName, ITypeSymbol? symbol = null)
+    {
+        var result = _registry.EvaluateTypePolicy(layerMatch, typeName, namespaceName, symbol);
 
-		return result;
-	}
+        return result;
+    }
 
-	public NameRuleViolation? EvaluateNameRules(LayerMatch layerMatch, NameRuleTrigger trigger, NameRuleSubject source, NameRuleSubject target, string site, NameRuleValueTrackingMode? valueTracking = null)
-	{
-		var result = _registry.EvaluateNameRules(layerMatch, trigger, source, target, site, valueTracking);
+    public NameRuleViolation? EvaluateNameRules(LayerMatch layerMatch, NameRuleTrigger trigger, NameRuleSubject source, NameRuleSubject target, string site, NameRuleValueTrackingMode? valueTracking = null)
+    {
+        var result = _registry.EvaluateNameRules(layerMatch, trigger, source, target, site, valueTracking);
 
-		return result;
-	}
+        return result;
+    }
 
-	public ContractPolicyEvaluation? EvaluateContractPolicies(LayerMatch layerMatch, ContractDeclarationShape shape)
-	{
-		var result = _registry.EvaluateContractPolicies(layerMatch, shape);
+    public ContractPolicyEvaluation? EvaluateContractPolicies(LayerMatch layerMatch, ContractDeclarationShape shape)
+    {
+        var result = _registry.EvaluateContractPolicies(layerMatch, shape);
 
-		return result;
-	}
+        return result;
+    }
 
-	public InheritancePolicyEvaluation? EvaluateInheritancePolicies(LayerMatch layerMatch, INamedTypeSymbol symbol)
-	{
-		var result = _registry.EvaluateInheritancePolicies(layerMatch, symbol);
+    public InheritancePolicyEvaluation? EvaluateInheritancePolicies(LayerMatch layerMatch, INamedTypeSymbol symbol)
+    {
+        var result = _registry.EvaluateInheritancePolicies(layerMatch, symbol);
 
-		return result;
-	}
+        return result;
+    }
 
-	public ReturnValuePolicyEvaluation? EvaluateReturnValuePolicies(LayerMatch? layerMatch, ExpressionSyntax expression, SemanticModel semanticModel, CancellationToken cancellationToken)
-	{
-		foreach (var policy in _globalReturnValuePolicies)
-		{
-			var evaluation = policy.Evaluate(expression, semanticModel, cancellationToken);
-			if (evaluation is not null)
-			{
-				return evaluation;
-			}
-		}
+    public ReturnValuePolicyEvaluation? EvaluateReturnValuePolicies(LayerMatch? layerMatch, ExpressionSyntax expression, SemanticModel semanticModel, CancellationToken cancellationToken)
+    {
+        foreach (var policy in _globalReturnValuePolicies)
+        {
+            var evaluation = policy.Evaluate(expression, semanticModel, cancellationToken);
+            if (evaluation is not null)
+            {
+                return evaluation;
+            }
+        }
 
-		if (layerMatch is null)
-		{
-			return null;
-		}
+        if (layerMatch is null)
+        {
+            return null;
+        }
 
-		var result = _registry.EvaluateReturnValuePolicies(layerMatch.Value, expression, semanticModel, cancellationToken);
+        var result = _registry.EvaluateReturnValuePolicies(layerMatch.Value, expression, semanticModel, cancellationToken);
 
-		return result;
-	}
+        return result;
+    }
 
-	public NamespaceHierarchyEvaluation? EvaluateNamespaceHierarchyPolicies(string callerNamespace, string dependencyNamespace, string site)
-	{
-		foreach (var policy in _namespaceHierarchyPolicies)
-		{
-			var evaluation = policy.Evaluate(callerNamespace, dependencyNamespace, site);
-			if (evaluation is not null)
-			{
-				return evaluation;
-			}
-		}
+    public NamespaceHierarchyEvaluation? EvaluateNamespaceHierarchyPolicies(string callerNamespace, string dependencyNamespace, string site)
+    {
+        foreach (var policy in _namespaceHierarchyPolicies)
+        {
+            var evaluation = policy.Evaluate(callerNamespace, dependencyNamespace, site);
+            if (evaluation is not null)
+            {
+                return evaluation;
+            }
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	public ForbiddenOperationPolicyEvaluation? EvaluateForbiddenOperationPolicies(LayerMatch layerMatch, SemanticOperation operation)
-	{
-		var result = _registry.EvaluateForbiddenOperationPolicies(layerMatch, operation);
+    public ForbiddenOperationPolicyEvaluation? EvaluateForbiddenOperationPolicies(LayerMatch layerMatch, SemanticOperation operation)
+    {
+        var result = _registry.EvaluateForbiddenOperationPolicies(layerMatch, operation);
 
-		return result;
-	}
+        return result;
+    }
 
-	public ImmutableArray<BehavioralOperationPolicyEvaluation> EvaluateBehavioralOperationPolicies(LayerMatch layerMatch, BehavioralOperationBodyAnalysis body)
-	{
-		var result = _registry.EvaluateBehavioralOperationPolicies(layerMatch, body);
+    public ImmutableArray<BehavioralOperationPolicyEvaluation> EvaluateBehavioralOperationPolicies(LayerMatch layerMatch, BehavioralOperationBodyAnalysis body)
+    {
+        var result = _registry.EvaluateBehavioralOperationPolicies(layerMatch, body);
 
-		return result;
-	}
+        return result;
+    }
 
-	public VisibilityPolicyEvaluation? EvaluateVisibilityPolicies(LayerMatch layerMatch, VisibilityPolicyTarget target, ArchitectureAccessibility accessibility)
-	{
-		var result = _registry.EvaluateVisibilityPolicies(layerMatch, target, accessibility);
+    public VisibilityPolicyEvaluation? EvaluateVisibilityPolicies(LayerMatch layerMatch, VisibilityPolicyTarget target, ArchitectureAccessibility accessibility)
+    {
+        var result = _registry.EvaluateVisibilityPolicies(layerMatch, target, accessibility);
 
-		return result;
-	}
+        return result;
+    }
 
-	public ApiSurfaceEvaluation? EvaluateApiSurfacePolicies(LayerMatch callerLayerMatch, LayerMatch? exposedLayerMatch, string exposedTypeName, string site, int exposureDepth = 0)
-	{
-		var result = _registry.EvaluateApiSurfacePolicies(callerLayerMatch, exposedLayerMatch, exposedTypeName, site, exposureDepth);
+    public ApiSurfaceEvaluation? EvaluateApiSurfacePolicies(LayerMatch callerLayerMatch, LayerMatch? exposedLayerMatch, string exposedTypeName, string site, int exposureDepth = 0)
+    {
+        var result = _registry.EvaluateApiSurfacePolicies(callerLayerMatch, exposedLayerMatch, exposedTypeName, site, exposureDepth);
 
-		return result;
-	}
+        return result;
+    }
 
-	public int GetTransitiveExposureMaxDepth(LayerMatch callerLayerMatch)
-	{
-		var result = _registry.GetTransitiveExposureMaxDepth(callerLayerMatch);
+    public int GetTransitiveExposureMaxDepth(LayerMatch callerLayerMatch)
+    {
+        var result = _registry.GetTransitiveExposureMaxDepth(callerLayerMatch);
 
-		return result;
-	}
+        return result;
+    }
 
-	public BoundaryEntryPointEvaluation EvaluateBoundaryEntryPoints(LayerMatch callerMatch, LayerMatch dependencyMatch, string dependencyTypeName, string dependencyNamespace, ITypeSymbol dependencyType, string site)
-	{
-		var result = _registry.EvaluateBoundaryEntryPoints(callerMatch, dependencyMatch, dependencyTypeName, dependencyNamespace, dependencyType, site);
+    public BoundaryEntryPointEvaluation EvaluateBoundaryEntryPoints(LayerMatch callerMatch, LayerMatch dependencyMatch, string dependencyTypeName, string dependencyNamespace, ITypeSymbol dependencyType, string site)
+    {
+        var result = _registry.EvaluateBoundaryEntryPoints(callerMatch, dependencyMatch, dependencyTypeName, dependencyNamespace, dependencyType, site);
 
-		return result;
-	}
+        return result;
+    }
 
-	public ImmutableArray<SourceLocationPolicy> GetSourceLocationPolicies(LayerMatch layerMatch)
-	{
-		var result = _registry.GetSourceLocationPolicies(layerMatch);
+    public ImmutableArray<SourceLocationPolicy> GetSourceLocationPolicies(LayerMatch layerMatch)
+    {
+        var result = _registry.GetSourceLocationPolicies(layerMatch);
 
-		return result;
-	}
+        return result;
+    }
 }

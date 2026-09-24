@@ -6,13 +6,13 @@ namespace RonSijm.AnaalIJzer.ConfigurationEditing.Tests.Editing;
 
 public sealed partial class ArchitectureConfigurationEditServiceTests
 {
-	[Fact]
-	public void GetLayerDetails_ReturnsRecursiveExceptionMatchersFromMatchersAndPolicies()
-	{
-		using var directory = new TemporaryDirectory();
-		var path = directory.WriteFile(
-			"Architecture.anl",
-			"""
+    [Fact]
+    public void GetLayerDetails_ReturnsRecursiveExceptionMatchersFromMatchersAndPolicies()
+    {
+        using var directory = new TemporaryDirectory();
+        var path = directory.WriteFile(
+            "Architecture.anl",
+            """
 			<ArchitecturalLevels>
 			  <Layer name="Kitchen">
 			    <Class endsWith="Kitchen">
@@ -41,25 +41,25 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""");
-		var handle = new ArchitectureLayerEditHandle(ArchitectureConfigurationSourceKind.XmlFile, path, 0, "Kitchen", "Kitchen", string.Empty, null);
+        var handle = new ArchitectureLayerEditHandle(ArchitectureConfigurationSourceKind.XmlFile, path, 0, "Kitchen", "Kitchen", string.Empty, null);
 
-		var result = ArchitectureConfigurationEditService.GetLayerDetails(handle);
+        var result = ArchitectureConfigurationEditService.GetLayerDetails(handle);
 
-		result.Succeeded.Should().BeTrue(result.Message);
-		result.ExceptionMatchers.Select(item => item.Summary).Should().Contain([
-			"<Class typeName=\"OutdoorKitchen\" />",
-			"<Class typeName=\"PizzaTruckKitchen\" />",
-			"<Class typeName=\"TempChef\" />",
-			"<Class typeName=\"LegacyStore\" />"]);
-	}
+        result.Succeeded.Should().BeTrue(result.Message);
+        result.ExceptionMatchers.Select(item => item.Summary).Should().Contain([
+            "<Class typeName=\"OutdoorKitchen\" />",
+            "<Class typeName=\"PizzaTruckKitchen\" />",
+            "<Class typeName=\"TempChef\" />",
+            "<Class typeName=\"LegacyStore\" />"]);
+    }
 
-	[Fact]
-	public void GetRootDetails_ReturnsRecursiveGlobalExceptionMatchers()
-	{
-		using var directory = new TemporaryDirectory();
-		var path = directory.WriteFile(
-			"Architecture.anl",
-			"""
+    [Fact]
+    public void GetRootDetails_ReturnsRecursiveGlobalExceptionMatchers()
+    {
+        using var directory = new TemporaryDirectory();
+        var path = directory.WriteFile(
+            "Architecture.anl",
+            """
 			<ArchitecturalLevels>
 			  <Allowed>
 			    <Class endsWith="Contract">
@@ -81,24 +81,24 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 			  </Forbidden>
 			</ArchitecturalLevels>
 			""");
-		var source = new ArchitectureConfigurationSource(ArchitectureConfigurationSourceKind.XmlFile, path);
+        var source = new ArchitectureConfigurationSource(ArchitectureConfigurationSourceKind.XmlFile, path);
 
-		var result = ArchitectureConfigurationEditService.GetRootDetails(source);
+        var result = ArchitectureConfigurationEditService.GetRootDetails(source);
 
-		result.Succeeded.Should().BeTrue(result.Message);
-		result.ExceptionMatchers.Select(item => item.Summary).Should().Contain([
-			"<Class typeName=\"LegacyContract\" />",
-			"<Namespace exactName=\"Legacy.Allowed\" />",
-			"<Namespace exactName=\"Legacy.Allowed.Internal\" />"]);
-	}
+        result.Succeeded.Should().BeTrue(result.Message);
+        result.ExceptionMatchers.Select(item => item.Summary).Should().Contain([
+            "<Class typeName=\"LegacyContract\" />",
+            "<Namespace exactName=\"Legacy.Allowed\" />",
+            "<Namespace exactName=\"Legacy.Allowed.Internal\" />"]);
+    }
 
-	[Fact]
-	public void RemoveConfigurationElement_RemovesEmptyExceptionsContainer()
-	{
-		using var directory = new TemporaryDirectory();
-		var path = directory.WriteFile(
-			"Architecture.anl",
-			"""
+    [Fact]
+    public void RemoveConfigurationElement_RemovesEmptyExceptionsContainer()
+    {
+        using var directory = new TemporaryDirectory();
+        var path = directory.WriteFile(
+            "Architecture.anl",
+            """
 			<ArchitecturalLevels>
 			  <Layer name="Kitchen">
 			    <Class endsWith="Kitchen">
@@ -109,14 +109,14 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""");
-		var handle = new ArchitectureLayerEditHandle(ArchitectureConfigurationSourceKind.XmlFile, path, 0, "Kitchen", "Kitchen", string.Empty, null);
-		var exceptionMatcher = ArchitectureConfigurationEditService.GetLayerDetails(handle).ExceptionMatchers.Should().ContainSingle().Which;
+        var handle = new ArchitectureLayerEditHandle(ArchitectureConfigurationSourceKind.XmlFile, path, 0, "Kitchen", "Kitchen", string.Empty, null);
+        var exceptionMatcher = ArchitectureConfigurationEditService.GetLayerDetails(handle).ExceptionMatchers.Should().ContainSingle().Which;
 
-		var result = ArchitectureConfigurationEditService.RemoveConfigurationElement(exceptionMatcher.Handle);
+        var result = ArchitectureConfigurationEditService.RemoveConfigurationElement(exceptionMatcher.Handle);
 
-		result.Succeeded.Should().BeTrue(result.Message);
-		var content = File.ReadAllText(path);
-		content.Should().NotContain("<Exceptions>");
-		ArchitectureConfigurationEditService.GetLayerDetails(handle).ExceptionMatchers.Should().BeEmpty();
-	}
+        result.Succeeded.Should().BeTrue(result.Message);
+        var content = File.ReadAllText(path);
+        content.Should().NotContain("<Exceptions>");
+        ArchitectureConfigurationEditService.GetLayerDetails(handle).ExceptionMatchers.Should().BeEmpty();
+    }
 }

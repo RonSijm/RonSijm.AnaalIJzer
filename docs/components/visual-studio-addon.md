@@ -1,6 +1,6 @@
 ## Visual Studio 2026 companion extension
 
-The Visual Studio add-on is a VSIX companion for the analyzer. The analyzer remains the authority for `ARCH00X` diagnostics; the extension makes the configured architecture visible while you read and edit code. It cannot bless a dependency the analyzer rejects, however tidy the graph looks.
+I made the Visual Studio add-on because an architecture rule is easier to understand when its layer is visible next to the code instead of being reconstructed from XML in your head. It is a VSIX companion, not a second analyzer: the analyzer remains the authority for `ARCH_<CONCERN>_<REASON>` diagnostics. The extension cannot bless a dependency the analyzer rejects, however tidy the graph looks.
 
 It adds four visual workflows to Visual Studio 2026:
 
@@ -19,11 +19,11 @@ Build the VSIX from the repository root:
 build\Scripts\Addon\build-vs-extension.cmd
 ```
 
-The script writes `RonSijm.AnaalIJzer.VisualStudio.vsix` to `build\Artifacts\VisualStudio`. Install that VSIX into Visual Studio 2026 to enable the editor companion. Each VSIX build stamps a fresh timestamp-based extension version, so Visual Studio can install a newly built local VSIX over the previous one instead of insisting that the version you just changed is already installed.
+The script writes `RonSijm.AnaalIJzer.VisualStudio.vsix` to `build\Artifacts\VisualStudio`. Install that VSIX into Visual Studio 2026 to enable the editor companion. Each build stamps a timestamp-based extension version so Visual Studio recognizes it as newer than the previous local build.
 
 The GitHub `build-vsix.yml` workflow builds and uploads the VSIX artifact on Windows. On pushes to `main`, it also submits the VSIX to Visual Studio Marketplace when the repository secret `VS_MARKETPLACE_TOKEN` is configured. Marketplace metadata lives in `src\Extensions\RonSijm.AnaalIJzer.VisualStudio\marketplace-publish.json`.
 
-The established classic companion reads the same `Architecture.anl` or `AssemblyMetadata("AnaalIJzerSettings", ...)` configuration as the analyzer through Visual Studio's Roslyn workspace. If no AnaalIJzer config exists, it renders nothing - an empty editor means "nothing is configured", not "everything is in order". If the config is invalid, the classic companion stays quiet and leaves the existing `ARCH_CONF_003` analyzer diagnostic as the source of truth.
+The companion reads the same `Architecture.anl` or `AssemblyMetadata("AnaalIJzerSettings", ...)` configuration as the analyzer through Visual Studio's Roslyn workspace. If no AnaalIJzer config exists, it renders nothing - an empty editor means "nothing is configured", not "everything is in order". If the config is invalid, the companion stays quiet and leaves the existing `ARCH_CONF_003` analyzer diagnostic as the source of truth.
 
 ### Layer information on declarations
 
@@ -40,7 +40,7 @@ Layer indicators are controlled from Visual Studio 2026 Settings under `AnaalIJz
 | Highlight code in layer | On | Shows a region-like block highlight around a layered type declaration. |
 | Tint layer declaration text | Off | Applies the older line-background tint to a layered type declaration. |
 
-Start in this settings page when you want to decide how much architectural context belongs in the editor. The controls separate fast scanning aids, such as glyphs and badges, from richer information that only appears when you hover or open CodeLens.
+Use this settings page to choose how much architectural context appears in the editor. Glyphs and badges support scanning; hover and CodeLens content provide additional detail on demand.
 
 ![AnaalIJzer editor settings](../../Examples/Assets/VisualStudio/editor-settings.png)
 
@@ -48,25 +48,25 @@ Start in this settings page when you want to decide how much architectural conte
 
 ![Layer badge](../../Examples/Assets/VisualStudio/layer-badge.png)
 
-**Layer metadata above a declaration.** The CodeLens-style summary exposes the layer's immediate relationship to the rest of the graph before you open a hover card. It is useful when reading an unfamiliar file top to bottom.
+**Layer metadata above a declaration.** The CodeLens-style summary shows the layer's immediate relationship to the rest of the graph before you open a hover card.
 
 ![Layer metadata above a declaration](../../Examples/Assets/VisualStudio/layer-codelens.png)
 
-**Not in layer.** This neutral badge is deliberately opt-in: it helps distinguish a type that has not been classified from a type that simply has no dependency violation.
+**Not in layer.** This optional neutral badge distinguishes an unclassified type from a classified type with no dependency violation.
 
 ![Not in layer badge](../../Examples/Assets/VisualStudio/not-in-layer-badge.png)
 
-**Gutter glyph.** The glyph keeps layer information visible while the declaration itself is off to the side or collapsed, making the editor margin useful for quick file-level scanning.
+**Gutter glyph.** The glyph keeps layer information visible in the editor margin when the declaration is horizontally out of view or collapsed.
 
 ![Layer gutter glyph](../../Examples/Assets/VisualStudio/layer-gutter-glyph.png)
 
-**Block highlight.** Highlighting frames the complete declaration rather than only tinting a line. That makes the boundary of the type easy to follow in a dense file.
+**Block highlight.** Highlighting frames the complete declaration instead of tinting one line, making the type boundary visible in a dense file.
 
 ![Layer block highlight](../../Examples/Assets/VisualStudio/layer-block-highlight.png)
 
 Hovering a layered type or dependency site also shows native Visual Studio QuickInfo. Layer QuickInfo shows the canonical path, ancestry, palette slot, description when configured, which layers may call the current layer, and which layers the current layer may call.
 
-The hover complements the lightweight badge: it answers the next architectural question, “what is this layer connected to?”, including a compact call chain when the relationship is linear.
+The hover adds incoming and outgoing layer relationships to the badge information, including a compact call chain when the relationship is linear.
 
 ![Layer CodeLens and QuickInfo](../../Examples/Assets/VisualStudio/layer-badge-hover-info.png)
 
@@ -92,23 +92,37 @@ Layer information and Sites Diagnostics use the same supported dependency sites 
 | Attribute | Show Attribute Layer Information | Show Attribute Site Diagnostics |
 | Static member access | Show StaticMember Layer Information | Show StaticMember Site Diagnostics |
 
-The labels do not create or suppress diagnostics. They make the syntactic location and resolved layer visible while the analyzer remains responsible for compile/build errors. Turning a label off hides the annotation, not the rule. Separate allowed, warning, unclassified, and error colors make an allowed constructor dependency distinct from a site-filtered or blocked one.
+The labels are editor information, not analyzer switches:
+
+- They show the syntactic site and resolved layer.
+- Turning one off hides the annotation, not the rule.
+- Allowed, warning, unclassified, and error states use different colors.
+
+The analyzer still owns compile and build diagnostics. A hidden badge is not an architectural pardon.
 
 For a clean demonstration of every site in one editor tab, open [`Example.VisualStudioSiteDiagnostics`](../../Examples/Documentation/Example.VisualStudioSiteDiagnostics). It deliberately has no analyzer violations, so the layer and site labels remain easy to inspect.
 
-**A focused site explanation.** The constructor is the smallest useful example. Its label identifies where the dependency is being introduced, while the analyzer's red squiggle remains responsible for saying whether that use is legal.
+**A focused site explanation.** The constructor label identifies where the dependency is introduced. The analyzer diagnostic states whether that use is permitted.
 
 ![Constructor Site Diagnostics](../../Examples/Assets/VisualStudio/site-diagnostics-constructor.png)
 
-**A whole-file view.** The all-sites showcase makes it easier to see the difference between a type's layer and the code location that references it. Open the example, enable the relevant group of controls, and use the labelled lines to learn each site shape in context.
+**A whole-file view.** The all-sites example shows the difference between a referenced type's layer and the C# site that introduces the dependency. Open the example and enable the relevant controls to compare the labels.
 
 ![All Layer Information sites](../../Examples/Assets/VisualStudio/site-layer-information-all-sites.png)
 
 ### Dependency graphs
 
-Use `Extensions > IJzer > Show Dependency Graphs` or command search to open a dockable dependency-graph sidebar. The sidebar groups concrete layer rules into connected graphs and shows wildcard/global rules separately. The graph is the same reusable WPF editor hosted by the standalone graph editor. It supports layer grouping, user-controlled layout, connector-based dependency creation, right-click editing, nested-boundary visualization, and PNG export. When the loaded solution has `<SolutionTopology>`, it also shows that configuration as a separate read-only module graph with observed direct project-reference evidence; edit the `.anl` source for module policy changes.
+Use `Extensions > IJzer > Show Dependency Graphs` or command search to open the dockable graph sidebar. It uses the same WPF editor as the standalone graph tool and supports:
 
-**Start with the configured structure.** With code evidence off, the graph stays focused on the intended architecture: the named layers and the allowed paths between them. This is the clearest mode for discussing or editing the rules themselves.
+- connected-graph grouping, with wildcard and global rules kept separately;
+- nested-boundary visualization;
+- user-controlled layout;
+- connector-based dependency creation and right-click editing;
+- PNG export.
+
+When the solution has `<SolutionTopology>`, the sidebar adds a separate read-only module graph with observed direct project-reference evidence. Edit the `.anl` source when the module policy itself needs to change.
+
+**Start with the configured structure.** With code evidence off, the graph contains the named layers and configured paths between them. Use this mode when reviewing or editing rules.
 
 ![Dependency graph without code evidence](../../Examples/Assets/VisualStudio/graph-no-code.png)
 
@@ -118,7 +132,7 @@ Use `Extensions > IJzer > Show Dependency Graphs` or command search to open a do
 | Open .anl files in diagram editor | On | Opens or selects an `.anl` settings file in the graph editor automatically. |
 | Include code evidence | Off | Includes matching project types and observed violations in graph snapshots. |
 
-**Add evidence when investigating a real project.** Enabling code evidence adds matching-type counts and observed violations to the same graph. The dashed red connection in this capture turns an abstract rule into a concrete place to investigate.
+**Add evidence when investigating a project.** Enabling code evidence adds matching-type counts and observed violations to the same graph. A dashed red connection identifies the observed dependency that violated a rule.
 
 ![Dependency graph with code evidence](../../Examples/Assets/VisualStudio/graph-with-code.png)
 
@@ -130,18 +144,44 @@ When the graph comes from an active C# document in a loaded Visual Studio projec
 - show the target file, risk level, and preview diff for each proposal;
 - apply one selected proposal and immediately refresh the graph.
 
-You can also right-click a layer or dependency connection and jump straight to the scoped fixer view for that selection. The proposal list is filtered to the selected layer or dependency pair, so you do not have to scan every fix in the active project by hand.
+You can also right-click a layer or dependency connection and open the scoped fixer view for that selection. The proposal list is filtered to the selected layer or dependency pair.
 
 Detached `.anl` files still open in the graph editor, but they do not automatically have enough Roslyn project context to offer analyzer-backed configuration fixes.
 
 ### Status and troubleshooting
 
-Use `Extensions > IJzer > Show Status` if the editor appears quiet. It analyzes the active document and reports whether the file is part of Visual Studio's Roslyn workspace, whether settings were found, how many layer/site indicators were produced, and whether configuration issues are suppressing visual adornments. It is a faster diagnosis than the traditional method of restarting Visual Studio three times and hoping.
+Use `Extensions > IJzer > Show Status` if the editor appears quiet. It analyzes the active document and reports whether the file is part of Visual Studio's Roslyn workspace, whether settings were found, how many layer/site indicators were produced, and whether configuration issues are suppressing visual adornments. It is faster than the traditional method of restarting Visual Studio three times and hoping.
 
-The companion writes diagnostic logs to Visual Studio's Activity Log and to an Output window pane named `AnaalIJzer`. If settings, menu commands, or editor visuals do not appear, start Visual Studio with logging enabled, reproduce the issue, and search the Activity Log for `AnaalIJzer`. If there are no `AnaalIJzer` entries at all, the VSIX package is not loading; if package initialization is present but no tagger entries appear, the editor MEF component is not being created for the active C# view.
+The companion writes logs to Visual Studio's Activity Log and to an Output pane named `AnaalIJzer`.
 
-For local validation, use the [Visual Studio companion manual acceptance checklist](../../docs/visual-studio-companion-manual-acceptance.md). If no adornments appear, run `Extensions > IJzer > Show Status` first. The extension reads analyzer `AdditionalFiles`, inline `AssemblyMetadata("AnaalIJzerSettings", ...)`, and as an editor-only convenience the nearest `Architecture.anl` above the active document; if the config is invalid, the companion intentionally renders nothing and leaves the `ARCH_CONF_003` diagnostic as the source of truth.
+If settings, commands, or editor visuals do not appear:
+
+1. Run `Extensions > IJzer > Show Status`.
+2. Start Visual Studio with logging enabled.
+3. Reproduce the issue.
+4. Search the Activity Log and `AnaalIJzer` Output pane.
+
+The first missing event usually tells you which half is broken:
+
+- No `AnaalIJzer` entries at all means the VSIX package is not loading.
+- Package initialization without tagger entries means the editor MEF component is not being created for the active C# view.
+
+For local validation, use the [Visual Studio companion manual acceptance checklist](../../docs/visual-studio-companion-manual-acceptance.md).
+
+The extension looks for settings in this order:
+
+- analyzer `AdditionalFiles`;
+- inline `AssemblyMetadata("AnaalIJzerSettings", ...)`;
+- as an editor-only convenience, the nearest `Architecture.anl` above the active document.
+
+An invalid config intentionally produces no adornments. `ARCH_CONF_003` remains the source of truth instead of decorating the editor with guesses from a half-parsed file.
 
 ### Technical notes
 
-The VSIX uses classic Visual Studio editor extension points: MEF taggers, glyphs, inline adornments, option pages and Fonts & Colors format definitions. The shared snapshot logic lives in the analyzer assembly under `RonSijm.AnaalIJzer.Editor`, so the extension does not duplicate config parsing or layer matching.
+The implementation uses:
+
+- MEF taggers, glyphs, and inline adornments;
+- option pages and Fonts & Colors format definitions;
+- shared snapshot logic from `RonSijm.AnaalIJzer.Editor`.
+
+The last part matters: the extension does not maintain its own slightly different interpretation of config parsing and layer matching.

@@ -11,7 +11,7 @@ using RonSijm.AnaalIJzer.Core.Exceptions;
 using RonSijm.AnaalIJzer.Core.Inheritance.Policies;
 using RonSijm.AnaalIJzer.Core.LayerModel;
 using RonSijm.AnaalIJzer.Core.NameRules;
-	using RonSijm.AnaalIJzer.Core.NamespaceHierarchy.Policies;
+using RonSijm.AnaalIJzer.Core.NamespaceHierarchy.Policies;
 using RonSijm.AnaalIJzer.Core.Observations;
 using RonSijm.AnaalIJzer.Core.OperationContracts.Model;
 using RonSijm.AnaalIJzer.Core.OperationPolicies.Behavioral;
@@ -23,217 +23,217 @@ using RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.PolicyEvaluation;
 using RonSijm.AnaalIJzer.Core.ProjectArchitecture;
 using RonSijm.AnaalIJzer.Core.ProjectArchitecture.SolutionTopology;
 using RonSijm.AnaalIJzer.Core.ReturnValues.Policies;
-	using RonSijm.AnaalIJzer.Core.SemanticOperations.Model;
+using RonSijm.AnaalIJzer.Core.SemanticOperations.Model;
 using RonSijm.AnaalIJzer.Core.SourceLocations;
 using RonSijm.AnaalIJzer.Core.Visibility;
 
 namespace RonSijm.AnaalIJzer.Core.RuntimeConfig.Config.Model;
 
 public readonly struct AnalyzerConfig(
-	CompiledArchitectureConfig compiledConfig)
+    CompiledArchitectureConfig compiledConfig)
 {
-	private readonly ArchitecturePolicyEngine _engine = new(compiledConfig.LayerCatalog, compiledConfig.GlobalReturnValuePolicies, compiledConfig.NamespaceHierarchyPolicies);
+    private readonly ArchitecturePolicyEngine _engine = new(compiledConfig.LayerCatalog, compiledConfig.GlobalReturnValuePolicies, compiledConfig.NamespaceHierarchyPolicies);
 
-	public static readonly AnalyzerConfig Empty = new(CompiledArchitectureConfig.Empty);
+    public static readonly AnalyzerConfig Empty = new(CompiledArchitectureConfig.Empty);
 
-	public static AnalyzerConfig Invalid(ConfigurationIssue issue)
-	{
-		var compiled = new CompiledArchitectureConfig(
-			CompiledLayerCatalog.Empty,
-			new DependencyGraph(ImmutableArray<DependencyEdge>.Empty),
-			new OutputConfig(false, string.Empty, false, string.Empty),
-			ImmutableHashSet<string>.Empty,
-			ImmutableDictionary<string, ImmutableHashSet<string>>.Empty,
-			ArchitectureExceptionPolicy.Disabled,
-			ImmutableArray<ArchitectureExceptionDefinition>.Empty,
-			ImmutableArray<ArchitectureExceptionReview>.Empty,
-			false,
-			false,
-			ImmutableArray<string>.Empty,
-			ImmutableArray<(string, string?)>.Empty,
-			ProjectArchitectureConfig.Empty,
-			ArchitectureDocumentation.Empty,
-			[issue],
-			SolutionTopologyConfig.Empty);
-		var result = new AnalyzerConfig(compiled);
+    public static AnalyzerConfig Invalid(ConfigurationIssue issue)
+    {
+        var compiled = new CompiledArchitectureConfig(
+            CompiledLayerCatalog.Empty,
+            new DependencyGraph(ImmutableArray<DependencyEdge>.Empty),
+            new OutputConfig(false, string.Empty, false, string.Empty),
+            ImmutableHashSet<string>.Empty,
+            ImmutableDictionary<string, ImmutableHashSet<string>>.Empty,
+            ArchitectureExceptionPolicy.Disabled,
+            ImmutableArray<ArchitectureExceptionDefinition>.Empty,
+            ImmutableArray<ArchitectureExceptionReview>.Empty,
+            false,
+            false,
+            ImmutableArray<string>.Empty,
+            ImmutableArray<(string, string?)>.Empty,
+            ProjectArchitectureConfig.Empty,
+            ArchitectureDocumentation.Empty,
+            [issue],
+            SolutionTopologyConfig.Empty);
+        var result = new AnalyzerConfig(compiled);
 
-		return result;
-	}
+        return result;
+    }
 
-	public CompiledArchitectureConfig CompiledConfig { get; } = compiledConfig;
-	public DependencyGraph Graph => CompiledConfig.Graph;
-	public OutputConfig Output => CompiledConfig.Output;
-	public ArchitectureDocumentation Documentation => CompiledConfig.Documentation;
-	public ImmutableHashSet<string> RequiredRecognizedDependencySites => CompiledConfig.RequiredRecognizedDependencySites;
-	public ImmutableDictionary<string, ImmutableHashSet<string>> LayerRequiredRecognizedDependencySites => CompiledConfig.LayerRequiredRecognizedDependencySites;
-	public ArchitectureExceptionPolicy ExceptionPolicy => CompiledConfig.ExceptionPolicy;
-	public ImmutableArray<ArchitectureExceptionDefinition> ExceptionDefinitions => CompiledConfig.ExceptionDefinitions;
-	public ImmutableArray<ArchitectureExceptionReview> ExceptionReviews => CompiledConfig.ExceptionReviews;
-	public bool EnforceAcyclic => CompiledConfig.EnforceAcyclic;
-	public bool EnforceObservedAcyclic => CompiledConfig.EnforceObservedAcyclic;
-	public ImmutableArray<ConfigurationIssue> ConfigurationIssues => CompiledConfig.ConfigurationIssues;
-	public ImmutableArray<string> LayerNames => CompiledConfig.LayerNames;
-	public ImmutableArray<LayerNode> Layers => CompiledConfig.LayerCatalog.Roots;
-	public ImmutableArray<(string Name, string? Comment)> ForbiddenPatterns => CompiledConfig.ForbiddenPatterns;
-	public ProjectArchitectureConfig ProjectArchitecture => CompiledConfig.ProjectArchitecture;
-	public SolutionTopologyConfig SolutionTopology => CompiledConfig.SolutionTopology;
-	public GeneratedCodeAnalysisScope GeneratedCodeScope => CompiledConfig.GeneratedCodeScope;
-	public OperationContractCatalog OperationContracts => CompiledConfig.OperationContracts;
-	public AssemblyAttributePolicyCatalog AssemblyAttributePolicies => CompiledConfig.AssemblyAttributePolicies;
-	public ImmutableArray<ReturnValuePolicy> GlobalReturnValuePolicies => CompiledConfig.GlobalReturnValuePolicies;
-	public ImmutableArray<NamespaceHierarchyPolicy> NamespaceHierarchyPolicies => CompiledConfig.NamespaceHierarchyPolicies;
+    public CompiledArchitectureConfig CompiledConfig { get; } = compiledConfig;
+    public DependencyGraph Graph => CompiledConfig.Graph;
+    public OutputConfig Output => CompiledConfig.Output;
+    public ArchitectureDocumentation Documentation => CompiledConfig.Documentation;
+    public ImmutableHashSet<string> RequiredRecognizedDependencySites => CompiledConfig.RequiredRecognizedDependencySites;
+    public ImmutableDictionary<string, ImmutableHashSet<string>> LayerRequiredRecognizedDependencySites => CompiledConfig.LayerRequiredRecognizedDependencySites;
+    public ArchitectureExceptionPolicy ExceptionPolicy => CompiledConfig.ExceptionPolicy;
+    public ImmutableArray<ArchitectureExceptionDefinition> ExceptionDefinitions => CompiledConfig.ExceptionDefinitions;
+    public ImmutableArray<ArchitectureExceptionReview> ExceptionReviews => CompiledConfig.ExceptionReviews;
+    public bool EnforceAcyclic => CompiledConfig.EnforceAcyclic;
+    public bool EnforceObservedAcyclic => CompiledConfig.EnforceObservedAcyclic;
+    public ImmutableArray<ConfigurationIssue> ConfigurationIssues => CompiledConfig.ConfigurationIssues;
+    public ImmutableArray<string> LayerNames => CompiledConfig.LayerNames;
+    public ImmutableArray<LayerNode> Layers => CompiledConfig.LayerCatalog.Roots;
+    public ImmutableArray<(string Name, string? Comment)> ForbiddenPatterns => CompiledConfig.ForbiddenPatterns;
+    public ProjectArchitectureConfig ProjectArchitecture => CompiledConfig.ProjectArchitecture;
+    public SolutionTopologyConfig SolutionTopology => CompiledConfig.SolutionTopology;
+    public GeneratedCodeAnalysisScope GeneratedCodeScope => CompiledConfig.GeneratedCodeScope;
+    public OperationContractCatalog OperationContracts => CompiledConfig.OperationContracts;
+    public AssemblyAttributePolicyCatalog AssemblyAttributePolicies => CompiledConfig.AssemblyAttributePolicies;
+    public ImmutableArray<ReturnValuePolicy> GlobalReturnValuePolicies => CompiledConfig.GlobalReturnValuePolicies;
+    public ImmutableArray<NamespaceHierarchyPolicy> NamespaceHierarchyPolicies => CompiledConfig.NamespaceHierarchyPolicies;
 
-	public ImmutableHashSet<(string From, string To)> AllowedEdges => CompiledConfig.Graph.AllowedEdges;
-	public ImmutableHashSet<string> WildcardTargets => CompiledConfig.Graph.WildcardTargets;
-	public ImmutableHashSet<string> WildcardSources => CompiledConfig.Graph.WildcardSources;
-	public bool AllowAnyDependency => CompiledConfig.Graph.AllowAnyDependency;
-	public bool EnableReport => CompiledConfig.Output.EnableReport;
-	public string ReportPath => CompiledConfig.Output.ReportPath;
-	public bool EnableDocumentation => CompiledConfig.Output.EnableDocumentation;
-	public string DocumentationPath => CompiledConfig.Output.DocumentationPath;
+    public ImmutableHashSet<(string From, string To)> AllowedEdges => CompiledConfig.Graph.AllowedEdges;
+    public ImmutableHashSet<string> WildcardTargets => CompiledConfig.Graph.WildcardTargets;
+    public ImmutableHashSet<string> WildcardSources => CompiledConfig.Graph.WildcardSources;
+    public bool AllowAnyDependency => CompiledConfig.Graph.AllowAnyDependency;
+    public bool EnableReport => CompiledConfig.Output.EnableReport;
+    public string ReportPath => CompiledConfig.Output.ReportPath;
+    public bool EnableDocumentation => CompiledConfig.Output.EnableDocumentation;
+    public string DocumentationPath => CompiledConfig.Output.DocumentationPath;
 
-	public ArchitecturePolicyEngine Engine => _engine;
+    public ArchitecturePolicyEngine Engine => _engine;
 
-	public bool HasLayers => Engine.HasLayers;
-	public bool HasExceptionReviews => !ExceptionReviews.IsDefaultOrEmpty;
-	public bool HasProjectArchitecture => ProjectArchitecture.HasRules;
-	public bool HasSolutionTopology => SolutionTopology.HasRules;
-	public bool HasContractPolicies => Engine.HasContractPolicies;
-	public bool HasInheritancePolicies => Engine.HasInheritancePolicies;
-	public bool HasReturnValuePolicies => Engine.HasReturnValuePolicies;
-	public bool HasNamespaceHierarchyPolicies => Engine.HasNamespaceHierarchyPolicies;
-	public bool HasForbiddenOperationPolicies => Engine.HasForbiddenOperationPolicies;
-	public bool HasBehavioralOperationPolicies => Engine.HasBehavioralOperationPolicies;
-	public bool HasOperationContracts => OperationContracts.HasDefinitions;
-	public bool HasAssemblyAttributePolicies => AssemblyAttributePolicies.HasPolicies;
-	public bool HasVisibilityPolicies => Engine.HasVisibilityPolicies;
-	public bool HasApiSurfacePolicies => Engine.HasApiSurfacePolicies;
-	public bool HasConfiguredRules => HasLayers || HasProjectArchitecture || HasSolutionTopology || HasOperationContracts || HasAssemblyAttributePolicies || HasReturnValuePolicies || HasNamespaceHierarchyPolicies;
-	public bool HasEntryPointPolicies => Engine.HasEntryPointPolicies;
-	public bool HasSourceLocationPolicies => Engine.HasSourceLocationPolicies;
-	public bool HasIntraProceduralNameRules => Engine.HasIntraProceduralNameRules;
-	public bool HasConfigurationIssues => !ConfigurationIssues.IsDefaultOrEmpty;
+    public bool HasLayers => Engine.HasLayers;
+    public bool HasExceptionReviews => !ExceptionReviews.IsDefaultOrEmpty;
+    public bool HasProjectArchitecture => ProjectArchitecture.HasRules;
+    public bool HasSolutionTopology => SolutionTopology.HasRules;
+    public bool HasContractPolicies => Engine.HasContractPolicies;
+    public bool HasInheritancePolicies => Engine.HasInheritancePolicies;
+    public bool HasReturnValuePolicies => Engine.HasReturnValuePolicies;
+    public bool HasNamespaceHierarchyPolicies => Engine.HasNamespaceHierarchyPolicies;
+    public bool HasForbiddenOperationPolicies => Engine.HasForbiddenOperationPolicies;
+    public bool HasBehavioralOperationPolicies => Engine.HasBehavioralOperationPolicies;
+    public bool HasOperationContracts => OperationContracts.HasDefinitions;
+    public bool HasAssemblyAttributePolicies => AssemblyAttributePolicies.HasPolicies;
+    public bool HasVisibilityPolicies => Engine.HasVisibilityPolicies;
+    public bool HasApiSurfacePolicies => Engine.HasApiSurfacePolicies;
+    public bool HasConfiguredRules => HasLayers || HasProjectArchitecture || HasSolutionTopology || HasOperationContracts || HasAssemblyAttributePolicies || HasReturnValuePolicies || HasNamespaceHierarchyPolicies;
+    public bool HasEntryPointPolicies => Engine.HasEntryPointPolicies;
+    public bool HasSourceLocationPolicies => Engine.HasSourceLocationPolicies;
+    public bool HasIntraProceduralNameRules => Engine.HasIntraProceduralNameRules;
+    public bool HasConfigurationIssues => !ConfigurationIssues.IsDefaultOrEmpty;
 
-	public bool RequiresRecognizedDependencyAt(string site)
-	{
-		var result = RequiredRecognizedDependencySites.Contains(site);
+    public bool RequiresRecognizedDependencyAt(string site)
+    {
+        var result = RequiredRecognizedDependencySites.Contains(site);
 
-		return result;
-	}
+        return result;
+    }
 
-	public bool RequiresRecognizedDependencyAt(LayerMatch callerMatch, string site)
-	{
-		if (RequiresRecognizedDependencyAt(site))
-		{
-			return true;
-		}
+    public bool RequiresRecognizedDependencyAt(LayerMatch callerMatch, string site)
+    {
+        if (RequiresRecognizedDependencyAt(site))
+        {
+            return true;
+        }
 
-		foreach (var layer in callerMatch.Layers)
-		{
-			if (LayerRequiredRecognizedDependencySites.TryGetValue(layer.Name, out var sites) && sites.Contains(site))
-			{
-				return true;
-			}
-		}
+        foreach (var layer in callerMatch.Layers)
+        {
+            if (LayerRequiredRecognizedDependencySites.TryGetValue(layer.Name, out var sites) && sites.Contains(site))
+            {
+                return true;
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	public LayerMatch? FindLayer(string typeName, string namespaceName, ITypeSymbol? symbol = null)
-	{
-		var result = Engine.FindLayer(typeName, namespaceName, symbol);
+    public LayerMatch? FindLayer(string typeName, string namespaceName, ITypeSymbol? symbol = null)
+    {
+        var result = Engine.FindLayer(typeName, namespaceName, symbol);
 
-		return result;
-	}
+        return result;
+    }
 
-	public TypePolicyViolation? EvaluateTypePolicy(LayerMatch layerMatch, string typeName, string namespaceName, ITypeSymbol? symbol = null)
-	{
-		var result = Engine.EvaluateTypePolicy(layerMatch, typeName, namespaceName, symbol);
+    public TypePolicyViolation? EvaluateTypePolicy(LayerMatch layerMatch, string typeName, string namespaceName, ITypeSymbol? symbol = null)
+    {
+        var result = Engine.EvaluateTypePolicy(layerMatch, typeName, namespaceName, symbol);
 
-		return result;
-	}
+        return result;
+    }
 
-	public NameRuleViolation? EvaluateNameRules(LayerMatch layerMatch, NameRuleTrigger trigger, NameRuleSubject source, NameRuleSubject target, string site, NameRuleValueTrackingMode? valueTracking = null)
-	{
-		var result = Engine.EvaluateNameRules(layerMatch, trigger, source, target, site, valueTracking);
+    public NameRuleViolation? EvaluateNameRules(LayerMatch layerMatch, NameRuleTrigger trigger, NameRuleSubject source, NameRuleSubject target, string site, NameRuleValueTrackingMode? valueTracking = null)
+    {
+        var result = Engine.EvaluateNameRules(layerMatch, trigger, source, target, site, valueTracking);
 
-		return result;
-	}
+        return result;
+    }
 
-	public ContractPolicyEvaluation? EvaluateContractPolicies(LayerMatch layerMatch, ContractDeclarationShape shape)
-	{
-		var result = Engine.EvaluateContractPolicies(layerMatch, shape);
+    public ContractPolicyEvaluation? EvaluateContractPolicies(LayerMatch layerMatch, ContractDeclarationShape shape)
+    {
+        var result = Engine.EvaluateContractPolicies(layerMatch, shape);
 
-		return result;
-	}
+        return result;
+    }
 
-	public InheritancePolicyEvaluation? EvaluateInheritancePolicies(LayerMatch layerMatch, INamedTypeSymbol symbol)
-	{
-		var result = Engine.EvaluateInheritancePolicies(layerMatch, symbol);
+    public InheritancePolicyEvaluation? EvaluateInheritancePolicies(LayerMatch layerMatch, INamedTypeSymbol symbol)
+    {
+        var result = Engine.EvaluateInheritancePolicies(layerMatch, symbol);
 
-		return result;
-	}
+        return result;
+    }
 
-	public ReturnValuePolicyEvaluation? EvaluateReturnValuePolicies(LayerMatch? layerMatch, ExpressionSyntax expression, SemanticModel semanticModel, CancellationToken cancellationToken)
-	{
-		var result = Engine.EvaluateReturnValuePolicies(layerMatch, expression, semanticModel, cancellationToken);
+    public ReturnValuePolicyEvaluation? EvaluateReturnValuePolicies(LayerMatch? layerMatch, ExpressionSyntax expression, SemanticModel semanticModel, CancellationToken cancellationToken)
+    {
+        var result = Engine.EvaluateReturnValuePolicies(layerMatch, expression, semanticModel, cancellationToken);
 
-		return result;
-	}
+        return result;
+    }
 
-	public NamespaceHierarchyEvaluation? EvaluateNamespaceHierarchyPolicies(string callerNamespace, string dependencyNamespace, string site)
-	{
-		var result = Engine.EvaluateNamespaceHierarchyPolicies(callerNamespace, dependencyNamespace, site);
+    public NamespaceHierarchyEvaluation? EvaluateNamespaceHierarchyPolicies(string callerNamespace, string dependencyNamespace, string site)
+    {
+        var result = Engine.EvaluateNamespaceHierarchyPolicies(callerNamespace, dependencyNamespace, site);
 
-		return result;
-	}
+        return result;
+    }
 
-	public ForbiddenOperationPolicyEvaluation? EvaluateForbiddenOperationPolicies(LayerMatch layerMatch, SemanticOperation operation)
-	{
-		var result = Engine.EvaluateForbiddenOperationPolicies(layerMatch, operation);
+    public ForbiddenOperationPolicyEvaluation? EvaluateForbiddenOperationPolicies(LayerMatch layerMatch, SemanticOperation operation)
+    {
+        var result = Engine.EvaluateForbiddenOperationPolicies(layerMatch, operation);
 
-		return result;
-	}
+        return result;
+    }
 
-	public ImmutableArray<BehavioralOperationPolicyEvaluation> EvaluateBehavioralOperationPolicies(LayerMatch layerMatch, BehavioralOperationBodyAnalysis body)
-	{
-		var result = Engine.EvaluateBehavioralOperationPolicies(layerMatch, body);
+    public ImmutableArray<BehavioralOperationPolicyEvaluation> EvaluateBehavioralOperationPolicies(LayerMatch layerMatch, BehavioralOperationBodyAnalysis body)
+    {
+        var result = Engine.EvaluateBehavioralOperationPolicies(layerMatch, body);
 
-		return result;
-	}
+        return result;
+    }
 
-	public VisibilityPolicyEvaluation? EvaluateVisibilityPolicies(LayerMatch layerMatch, VisibilityPolicyTarget target, ArchitectureAccessibility accessibility)
-	{
-		var result = Engine.EvaluateVisibilityPolicies(layerMatch, target, accessibility);
+    public VisibilityPolicyEvaluation? EvaluateVisibilityPolicies(LayerMatch layerMatch, VisibilityPolicyTarget target, ArchitectureAccessibility accessibility)
+    {
+        var result = Engine.EvaluateVisibilityPolicies(layerMatch, target, accessibility);
 
-		return result;
-	}
+        return result;
+    }
 
-	public ApiSurfaceEvaluation? EvaluateApiSurfacePolicies(LayerMatch callerLayerMatch, LayerMatch? exposedLayerMatch, string exposedTypeName, string site, int exposureDepth = 0)
-	{
-		var result = Engine.EvaluateApiSurfacePolicies(callerLayerMatch, exposedLayerMatch, exposedTypeName, site, exposureDepth);
+    public ApiSurfaceEvaluation? EvaluateApiSurfacePolicies(LayerMatch callerLayerMatch, LayerMatch? exposedLayerMatch, string exposedTypeName, string site, int exposureDepth = 0)
+    {
+        var result = Engine.EvaluateApiSurfacePolicies(callerLayerMatch, exposedLayerMatch, exposedTypeName, site, exposureDepth);
 
-		return result;
-	}
+        return result;
+    }
 
-	public int GetTransitiveExposureMaxDepth(LayerMatch callerLayerMatch)
-	{
-		var result = Engine.GetTransitiveExposureMaxDepth(callerLayerMatch);
+    public int GetTransitiveExposureMaxDepth(LayerMatch callerLayerMatch)
+    {
+        var result = Engine.GetTransitiveExposureMaxDepth(callerLayerMatch);
 
-		return result;
-	}
+        return result;
+    }
 
-	public BoundaryEntryPointEvaluation EvaluateBoundaryEntryPoints(LayerMatch callerMatch, LayerMatch dependencyMatch, string dependencyTypeName, string dependencyNamespace, ITypeSymbol dependencyType, string site)
-	{
-		var result = Engine.EvaluateBoundaryEntryPoints(callerMatch, dependencyMatch, dependencyTypeName, dependencyNamespace, dependencyType, site);
+    public BoundaryEntryPointEvaluation EvaluateBoundaryEntryPoints(LayerMatch callerMatch, LayerMatch dependencyMatch, string dependencyTypeName, string dependencyNamespace, ITypeSymbol dependencyType, string site)
+    {
+        var result = Engine.EvaluateBoundaryEntryPoints(callerMatch, dependencyMatch, dependencyTypeName, dependencyNamespace, dependencyType, site);
 
-		return result;
-	}
+        return result;
+    }
 
-	public ImmutableArray<SourceLocationPolicy> GetSourceLocationPolicies(LayerMatch layerMatch)
-	{
-		var result = Engine.GetSourceLocationPolicies(layerMatch);
+    public ImmutableArray<SourceLocationPolicy> GetSourceLocationPolicies(LayerMatch layerMatch)
+    {
+        var result = Engine.GetSourceLocationPolicies(layerMatch);
 
-		return result;
-	}
+        return result;
+    }
 }

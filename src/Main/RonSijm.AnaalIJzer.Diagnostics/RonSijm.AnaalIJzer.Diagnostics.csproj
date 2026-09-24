@@ -7,7 +7,6 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
-        <EnableArchitecturalLevelAnalyzer>false</EnableArchitecturalLevelAnalyzer>
         <!-- Descriptor ownership lives here now, but release tracking still belongs to the
              analyzer package entrypoint project rather than this shared helper assembly. -->
         <NoWarn>$(NoWarn);RS2008</NoWarn>

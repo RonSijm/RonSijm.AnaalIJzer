@@ -14,9 +14,9 @@ internal sealed class ArchitectureQuickInfoSourceProvider(ArchitectureSnapshotPr
     : IAsyncQuickInfoSourceProvider
 {
     public IAsyncQuickInfoSource TryCreateQuickInfoSource(ITextBuffer textBuffer)
-	{
-		var result = textBuffer.Properties.GetOrCreateSingletonProperty(() => new ArchitectureQuickInfoSource(textBuffer, snapshotProvider));
+    {
+        var result = textBuffer.Properties.GetOrCreateSingletonProperty(() => new ArchitectureQuickInfoSource(textBuffer, snapshotProvider));
 
-		return result;
-	}
+        return result;
+    }
 }

@@ -21,6 +21,7 @@ public sealed class GitCommandRunner
 		}
 
 		using var process = Process.Start(startInfo) ?? throw new InvalidOperationException("Could not start the git executable.");
+		using var cancellationRegistration = cancellationToken.Register(() => TryKillProcessTree(process));
 		var outputTask = process.StandardOutput.ReadToEndAsync(cancellationToken);
 		var errorTask = process.StandardError.ReadToEndAsync(cancellationToken);
 		await process.WaitForExitAsync(cancellationToken);
@@ -40,5 +41,20 @@ public sealed class GitCommandRunner
 		var result = command.StandardOutput.Trim();
 
 		return result;
+	}
+
+	private static void TryKillProcessTree(Process process)
+	{
+		try
+		{
+			if (!process.HasExited)
+			{
+				process.Kill(entireProcessTree: true);
+			}
+		}
+		catch
+		{
+			// Cancellation cleanup is best effort. The original cancellation remains authoritative.
+		}
 	}
 }

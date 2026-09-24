@@ -11,194 +11,194 @@ namespace RonSijm.AnaalIJzer.VisualStudio.Editor.QuickInfo;
 
 internal sealed class ArchitectureQuickInfoSource : IAsyncQuickInfoSource
 {
-	private readonly ITextBuffer _buffer;
-	private readonly ArchitectureSnapshotProvider _snapshotProvider;
+    private readonly ITextBuffer _buffer;
+    private readonly ArchitectureSnapshotProvider _snapshotProvider;
 
-	public ArchitectureQuickInfoSource(ITextBuffer buffer, ArchitectureSnapshotProvider snapshotProvider)
-	{
-		this._buffer = buffer;
-		this._snapshotProvider = snapshotProvider;
-		ArchitectureVisualStudioLog.Info("ArchitectureQuickInfoSource created for content type '" + buffer.ContentType.TypeName + "'.");
-	}
+    public ArchitectureQuickInfoSource(ITextBuffer buffer, ArchitectureSnapshotProvider snapshotProvider)
+    {
+        this._buffer = buffer;
+        this._snapshotProvider = snapshotProvider;
+        ArchitectureVisualStudioLog.Info("ArchitectureQuickInfoSource created for content type '" + buffer.ContentType.TypeName + "'.");
+    }
 
-	public void Dispose()
-	{
-	}
+    public void Dispose()
+    {
+    }
 
-	public async Task<QuickInfoItem?> GetQuickInfoItemAsync(IAsyncQuickInfoSession session, CancellationToken cancellationToken)
-	{
-		var triggerPoint = session.GetTriggerPoint(_buffer.CurrentSnapshot);
-		if (!triggerPoint.HasValue)
-		{
-			ArchitectureVisualStudioLog.Info("QuickInfo requested without a trigger point.");
-			return null;
-		}
+    public async Task<QuickInfoItem?> GetQuickInfoItemAsync(IAsyncQuickInfoSession session, CancellationToken cancellationToken)
+    {
+        var triggerPoint = session.GetTriggerPoint(_buffer.CurrentSnapshot);
+        if (!triggerPoint.HasValue)
+        {
+            ArchitectureVisualStudioLog.Info("QuickInfo requested without a trigger point.");
+            return null;
+        }
 
-		var snapshot = await _snapshotProvider.CreateSnapshotAsync(_buffer, cancellationToken);
-		if (!snapshot.HasConfiguration || snapshot.HasConfigurationIssues)
-		{
-			ArchitectureVisualStudioLog.Info("QuickInfo suppressed because snapshot has no valid configuration.");
-			return null;
-		}
+        var snapshot = await _snapshotProvider.CreateSnapshotAsync(_buffer, cancellationToken);
+        if (!snapshot.HasConfiguration || snapshot.HasConfigurationIssues)
+        {
+            ArchitectureVisualStudioLog.Info("QuickInfo suppressed because snapshot has no valid configuration.");
+            return null;
+        }
 
-		var position = triggerPoint.Value.Position;
-		var item = TryCreateApiSurfaceQuickInfo(snapshot, _buffer.CurrentSnapshot, position)
-		           ?? TryCreateVisibilityPolicyQuickInfo(snapshot, _buffer.CurrentSnapshot, position)
-		           ?? TryCreateNameRuleQuickInfo(snapshot, _buffer.CurrentSnapshot, position)
-		           ?? TryCreateSiteQuickInfo(snapshot, _buffer.CurrentSnapshot, position)
-		           ?? TryCreateLayerQuickInfo(snapshot, _buffer.CurrentSnapshot, position);
-		ArchitectureVisualStudioLog.Info(item is null
-			? "QuickInfo found no AnaalIJzer item at position " + position + "."
-			: "QuickInfo created AnaalIJzer item at position " + position + ".");
+        var position = triggerPoint.Value.Position;
+        var item = TryCreateApiSurfaceQuickInfo(snapshot, _buffer.CurrentSnapshot, position)
+                   ?? TryCreateVisibilityPolicyQuickInfo(snapshot, _buffer.CurrentSnapshot, position)
+                   ?? TryCreateNameRuleQuickInfo(snapshot, _buffer.CurrentSnapshot, position)
+                   ?? TryCreateSiteQuickInfo(snapshot, _buffer.CurrentSnapshot, position)
+                   ?? TryCreateLayerQuickInfo(snapshot, _buffer.CurrentSnapshot, position);
+        ArchitectureVisualStudioLog.Info(item is null
+            ? "QuickInfo found no AnaalIJzer item at position " + position + "."
+            : "QuickInfo created AnaalIJzer item at position " + position + ".");
 
-		return item;
-	}
+        return item;
+    }
 
-	private static QuickInfoItem? TryCreateApiSurfaceQuickInfo(ArchitectureEditorSnapshot editorSnapshot, ITextSnapshot textSnapshot, int position)
-	{
-		foreach (var indicator in editorSnapshot.ApiSurfaceIndicators.OrderBy(indicator => indicator.Span.Length))
-		{
-			if (!ContainsPosition(indicator.Span, position) || !TryCreateTrackingSpan(textSnapshot, indicator.Span, out var trackingSpan))
-			{
-				continue;
-			}
+    private static QuickInfoItem? TryCreateApiSurfaceQuickInfo(ArchitectureEditorSnapshot editorSnapshot, ITextSnapshot textSnapshot, int position)
+    {
+        foreach (var indicator in editorSnapshot.ApiSurfaceIndicators.OrderBy(indicator => indicator.Span.Length))
+        {
+            if (!ContainsPosition(indicator.Span, position) || !TryCreateTrackingSpan(textSnapshot, indicator.Span, out var trackingSpan))
+            {
+                continue;
+            }
 
-			var content = ArchitectureQuickInfoContentBuilder.CreateApiSurfaceContent(indicator);
-			var result = new QuickInfoItem(trackingSpan, content.ToString());
+            var content = ArchitectureQuickInfoContentBuilder.CreateApiSurfaceContent(indicator);
+            var result = new QuickInfoItem(trackingSpan, content.ToString());
 
-			return result;
-		}
+            return result;
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	private static QuickInfoItem? TryCreateVisibilityPolicyQuickInfo(ArchitectureEditorSnapshot editorSnapshot, ITextSnapshot textSnapshot, int position)
-	{
-		foreach (var indicator in editorSnapshot.VisibilityPolicyIndicators.OrderBy(indicator => indicator.Span.Length))
-		{
-			if (!ContainsPosition(indicator.Span, position) || !TryCreateTrackingSpan(textSnapshot, indicator.Span, out var trackingSpan))
-			{
-				continue;
-			}
+    private static QuickInfoItem? TryCreateVisibilityPolicyQuickInfo(ArchitectureEditorSnapshot editorSnapshot, ITextSnapshot textSnapshot, int position)
+    {
+        foreach (var indicator in editorSnapshot.VisibilityPolicyIndicators.OrderBy(indicator => indicator.Span.Length))
+        {
+            if (!ContainsPosition(indicator.Span, position) || !TryCreateTrackingSpan(textSnapshot, indicator.Span, out var trackingSpan))
+            {
+                continue;
+            }
 
-			var content = ArchitectureQuickInfoContentBuilder.CreateVisibilityPolicyContent(indicator);
-			var result = new QuickInfoItem(trackingSpan, content.ToString());
+            var content = ArchitectureQuickInfoContentBuilder.CreateVisibilityPolicyContent(indicator);
+            var result = new QuickInfoItem(trackingSpan, content.ToString());
 
-			return result;
-		}
+            return result;
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	private static QuickInfoItem? TryCreateNameRuleQuickInfo(ArchitectureEditorSnapshot editorSnapshot, ITextSnapshot textSnapshot, int position)
-	{
-		foreach (var indicator in editorSnapshot.NameRuleIndicators.OrderBy(indicator => indicator.Span.Length))
-		{
-			if (!ContainsPosition(indicator.Span, position) || !TryCreateTrackingSpan(textSnapshot, indicator.Span, out var trackingSpan))
-			{
-				continue;
-			}
+    private static QuickInfoItem? TryCreateNameRuleQuickInfo(ArchitectureEditorSnapshot editorSnapshot, ITextSnapshot textSnapshot, int position)
+    {
+        foreach (var indicator in editorSnapshot.NameRuleIndicators.OrderBy(indicator => indicator.Span.Length))
+        {
+            if (!ContainsPosition(indicator.Span, position) || !TryCreateTrackingSpan(textSnapshot, indicator.Span, out var trackingSpan))
+            {
+                continue;
+            }
 
-			var content = ArchitectureQuickInfoContentBuilder.CreateNameRuleContent(indicator);
-			var result = new QuickInfoItem(trackingSpan, content.ToString());
+            var content = ArchitectureQuickInfoContentBuilder.CreateNameRuleContent(indicator);
+            var result = new QuickInfoItem(trackingSpan, content.ToString());
 
-			return result;
-		}
+            return result;
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	private static QuickInfoItem? TryCreateSiteQuickInfo(ArchitectureEditorSnapshot editorSnapshot, ITextSnapshot textSnapshot, int position)
-	{
-		var options = ArchitectureVisualStudioOptions.Current;
-		foreach (var indicator in editorSnapshot.SiteIndicators.OrderBy(indicator => indicator.Span.Length))
-		{
-			if (!CanShowSiteQuickInfo(options, indicator))
-			{
-				continue;
-			}
+    private static QuickInfoItem? TryCreateSiteQuickInfo(ArchitectureEditorSnapshot editorSnapshot, ITextSnapshot textSnapshot, int position)
+    {
+        var options = ArchitectureVisualStudioOptions.Current;
+        foreach (var indicator in editorSnapshot.SiteIndicators.OrderBy(indicator => indicator.Span.Length))
+        {
+            if (!CanShowSiteQuickInfo(options, indicator))
+            {
+                continue;
+            }
 
-			if (!ContainsPosition(indicator.Span, position) || !TryCreateTrackingSpan(textSnapshot, indicator.Span, out var trackingSpan))
-			{
-				continue;
-			}
+            if (!ContainsPosition(indicator.Span, position) || !TryCreateTrackingSpan(textSnapshot, indicator.Span, out var trackingSpan))
+            {
+                continue;
+            }
 
-			var content = ArchitectureQuickInfoContentBuilder.CreateSiteContent(indicator);
-			var result = new QuickInfoItem(trackingSpan, content.ToString());
+            var content = ArchitectureQuickInfoContentBuilder.CreateSiteContent(indicator);
+            var result = new QuickInfoItem(trackingSpan, content.ToString());
 
-			return result;
-		}
+            return result;
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	private static bool CanShowSiteQuickInfo(ArchitectureEditorOptions options, ArchitectureDependencySiteIndicator indicator)
-	{
-		var result = options.IsSiteDiagnosticEnabled(indicator.Site)
-		             || (options.IsSiteLayerInformationEnabled(indicator.Site)
-		                 && !string.IsNullOrWhiteSpace(indicator.DependencyLayerPath));
+    private static bool CanShowSiteQuickInfo(ArchitectureEditorOptions options, ArchitectureDependencySiteIndicator indicator)
+    {
+        var result = options.IsSiteDiagnosticEnabled(indicator.Site)
+                     || (options.IsSiteLayerInformationEnabled(indicator.Site)
+                         && !string.IsNullOrWhiteSpace(indicator.DependencyLayerPath));
 
-		return result;
-	}
+        return result;
+    }
 
-	private static QuickInfoItem? TryCreateLayerQuickInfo(ArchitectureEditorSnapshot editorSnapshot, ITextSnapshot textSnapshot, int position)
-	{
-		foreach (var indicator in EnumerateLayerQuickInfoIndicators(editorSnapshot).OrderBy(indicator => indicator.IdentifierSpan.Length))
-		{
-			if (!ContainsPosition(indicator.IdentifierSpan, position) && !ContainsPosition(indicator.DeclarationSpan, position))
-			{
-				continue;
-			}
+    private static QuickInfoItem? TryCreateLayerQuickInfo(ArchitectureEditorSnapshot editorSnapshot, ITextSnapshot textSnapshot, int position)
+    {
+        foreach (var indicator in EnumerateLayerQuickInfoIndicators(editorSnapshot).OrderBy(indicator => indicator.IdentifierSpan.Length))
+        {
+            if (!ContainsPosition(indicator.IdentifierSpan, position) && !ContainsPosition(indicator.DeclarationSpan, position))
+            {
+                continue;
+            }
 
-			if (!TryCreateTrackingSpan(textSnapshot, indicator.IdentifierSpan, out var trackingSpan))
-			{
-				continue;
-			}
+            if (!TryCreateTrackingSpan(textSnapshot, indicator.IdentifierSpan, out var trackingSpan))
+            {
+                continue;
+            }
 
-			var content = ArchitectureQuickInfoContentBuilder.CreateLayerContent(indicator, ArchitectureVisualStudioOptions.Current);
-			var result = new QuickInfoItem(trackingSpan, content.ToString());
+            var content = ArchitectureQuickInfoContentBuilder.CreateLayerContent(indicator, ArchitectureVisualStudioOptions.Current);
+            var result = new QuickInfoItem(trackingSpan, content.ToString());
 
-			return result;
-		}
+            return result;
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	private static IEnumerable<ArchitectureLayerIndicator> EnumerateLayerQuickInfoIndicators(ArchitectureEditorSnapshot editorSnapshot)
-	{
-		foreach (var indicator in editorSnapshot.LayerIndicators)
-		{
-			yield return indicator;
-		}
+    private static IEnumerable<ArchitectureLayerIndicator> EnumerateLayerQuickInfoIndicators(ArchitectureEditorSnapshot editorSnapshot)
+    {
+        foreach (var indicator in editorSnapshot.LayerIndicators)
+        {
+            yield return indicator;
+        }
 
-		if (!ArchitectureVisualStudioOptions.Current.ShowLayerBadgesWhenNotInLayer)
-		{
-			yield break;
-		}
+        if (!ArchitectureVisualStudioOptions.Current.ShowLayerBadgesWhenNotInLayer)
+        {
+            yield break;
+        }
 
-		foreach (var indicator in editorSnapshot.UnclassifiedTypeIndicators)
-		{
-			yield return indicator;
-		}
-	}
+        foreach (var indicator in editorSnapshot.UnclassifiedTypeIndicators)
+        {
+            yield return indicator;
+        }
+    }
 
-	private static bool ContainsPosition(Microsoft.CodeAnalysis.Text.TextSpan span, int position)
-	{
-		var result = position >= span.Start && position <= span.End;
+    private static bool ContainsPosition(Microsoft.CodeAnalysis.Text.TextSpan span, int position)
+    {
+        var result = position >= span.Start && position <= span.End;
 
-		return result;
-	}
+        return result;
+    }
 
-	private static bool TryCreateTrackingSpan(ITextSnapshot snapshot, Microsoft.CodeAnalysis.Text.TextSpan sourceSpan, out ITrackingSpan trackingSpan)
-	{
-		if (sourceSpan.Start < 0 || sourceSpan.End > snapshot.Length)
-		{
-			trackingSpan = null!;
-			return false;
-		}
+    private static bool TryCreateTrackingSpan(ITextSnapshot snapshot, Microsoft.CodeAnalysis.Text.TextSpan sourceSpan, out ITrackingSpan trackingSpan)
+    {
+        if (sourceSpan.Start < 0 || sourceSpan.End > snapshot.Length)
+        {
+            trackingSpan = null!;
+            return false;
+        }
 
-		var snapshotSpan = new SnapshotSpan(snapshot, sourceSpan.Start, Math.Max(0, sourceSpan.Length));
-		trackingSpan = snapshot.CreateTrackingSpan(snapshotSpan, SpanTrackingMode.EdgeInclusive);
-		return true;
-	}
+        var snapshotSpan = new SnapshotSpan(snapshot, sourceSpan.Start, Math.Max(0, sourceSpan.Length));
+        trackingSpan = snapshot.CreateTrackingSpan(snapshotSpan, SpanTrackingMode.EdgeInclusive);
+        return true;
+    }
 }

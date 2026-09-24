@@ -5,10 +5,10 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Diagnostics;
 
 public sealed class DependencyRuleCodeFixTests
 {
-	[Fact]
-	public async Task MissingAllowedDependency_AddsAllowedDependencyToConfiguration()
-	{
-		const string config = """
+    [Fact]
+    public async Task MissingAllowedDependency_AddsAllowedDependencyToConfiguration()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Waiter">
 			    <Class endsWith="Waiter" />
@@ -18,24 +18,24 @@ public sealed class DependencyRuleCodeFixTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			public sealed class PizzaChef { }
 			public sealed class OrderWaiter(PizzaChef chef) { }
 			""";
 
-		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
-			source,
-			config,
-			ArchitecturalDiagnosticIds.DependencyNotAllowed,
-			"Add allowed dependency 'Waiter' -> 'Chef'");
+        var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
+            source,
+            config,
+            ArchitecturalDiagnosticIds.DependencyNotAllowed,
+            "Add allowed dependency 'Waiter' -> 'Chef'");
 
-		updatedConfig.Should().Contain("<AllowedDependency from=\"Waiter\" to=\"Chef\" />");
-	}
+        updatedConfig.Should().Contain("<AllowedDependency from=\"Waiter\" to=\"Chef\" />");
+    }
 
-	[Fact]
-	public async Task AllowedSitesViolation_AppendsCurrentSiteToAllowedSites()
-	{
-		const string config = """
+    [Fact]
+    public async Task AllowedSitesViolation_AppendsCurrentSiteToAllowedSites()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Caller">
 			    <Class typeName="AllowedLocalSiteExample" />
@@ -46,7 +46,7 @@ public sealed class DependencyRuleCodeFixTests
 			  <AllowedDependency from="Caller" to="AllowedLocalDependency" allowedSites="Constructor" />
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			public sealed class AllowedLocalSweet { }
 			public sealed class AllowedLocalSiteExample
 			{
@@ -58,19 +58,19 @@ public sealed class DependencyRuleCodeFixTests
 			}
 			""";
 
-		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
-			source,
-			config,
-			ArchitecturalDiagnosticIds.DependencyNotAllowed,
-			"Add site 'Local' to allowedSites");
+        var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
+            source,
+            config,
+            ArchitecturalDiagnosticIds.DependencyNotAllowed,
+            "Add site 'Local' to allowedSites");
 
-		updatedConfig.Should().Contain("allowedSites=\"Constructor, Local\"");
-	}
+        updatedConfig.Should().Contain("allowedSites=\"Constructor, Local\"");
+    }
 
-	[Fact]
-	public async Task BlockedSitesViolation_RemovesCurrentSiteFromBlockedSites()
-	{
-		const string config = """
+    [Fact]
+    public async Task BlockedSitesViolation_RemovesCurrentSiteFromBlockedSites()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Caller">
 			    <Class typeName="BlockedFieldSiteExample" />
@@ -81,7 +81,7 @@ public sealed class DependencyRuleCodeFixTests
 			  <AllowedDependency from="Caller" to="BlockedFieldDependency" blockedSites="Field, Property" />
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			public sealed class BlockedFieldSweet { }
 			public sealed class BlockedFieldSiteExample
 			{
@@ -89,44 +89,44 @@ public sealed class DependencyRuleCodeFixTests
 			}
 			""";
 
-		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
-			source,
-			config,
-			ArchitecturalDiagnosticIds.DependencyNotAllowed,
-			"Remove site 'Field' from blockedSites");
+        var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
+            source,
+            config,
+            ArchitecturalDiagnosticIds.DependencyNotAllowed,
+            "Remove site 'Field' from blockedSites");
 
-		updatedConfig.Should().Contain("blockedSites=\"Property\"");
-		updatedConfig.Should().NotContain("blockedSites=\"Field, Property\"");
-	}
+        updatedConfig.Should().Contain("blockedSites=\"Property\"");
+        updatedConfig.Should().NotContain("blockedSites=\"Field, Property\"");
+    }
 
-	[Fact]
-	public async Task SameLayerDependency_OffersSiteLimitedSelfEdge()
-	{
-		const string config = """
+    [Fact]
+    public async Task SameLayerDependency_OffersSiteLimitedSelfEdge()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="DataAbstraction">
 			    <Class endsWith="Repository" />
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			public interface IExampleRepository { }
 			public class ExampleRepository : IExampleRepository { }
 			""";
 
-		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
-			source,
-			config,
-			ArchitecturalDiagnosticIds.DependencyPeerScope,
-			"Allow same-layer dependency 'DataAbstraction' -> 'DataAbstraction' at InterfaceImplementation");
+        var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
+            source,
+            config,
+            ArchitecturalDiagnosticIds.DependencyPeerScope,
+            "Allow same-layer dependency 'DataAbstraction' -> 'DataAbstraction' at InterfaceImplementation");
 
-		updatedConfig.Should().Contain("<AllowedDependency from=\"DataAbstraction\" to=\"DataAbstraction\" allowedSites=\"InterfaceImplementation\" />");
-	}
+        updatedConfig.Should().Contain("<AllowedDependency from=\"DataAbstraction\" to=\"DataAbstraction\" allowedSites=\"InterfaceImplementation\" />");
+    }
 
-	[Fact]
-	public async Task MissingAllowedDependency_InlineSettings_UpdatesAssemblyMetadata()
-	{
-		const string source = """"
+    [Fact]
+    public async Task MissingAllowedDependency_InlineSettings_UpdatesAssemblyMetadata()
+    {
+        const string source = """"
 			using System.Reflection;
 
 			[assembly: AssemblyMetadata("AnaalIJzerSettings", """
@@ -144,18 +144,18 @@ public sealed class DependencyRuleCodeFixTests
 			public sealed class OrderWaiter(PizzaChef chef) { }
 			"""";
 
-		var updatedSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
-			source,
-			ArchitecturalDiagnosticIds.DependencyNotAllowed,
-			"Add allowed dependency 'Waiter' -> 'Chef'");
+        var updatedSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
+            source,
+            ArchitecturalDiagnosticIds.DependencyNotAllowed,
+            "Add allowed dependency 'Waiter' -> 'Chef'");
 
-		updatedSource.Should().Contain("<AllowedDependency from=\"Waiter\" to=\"Chef\" />");
-	}
+        updatedSource.Should().Contain("<AllowedDependency from=\"Waiter\" to=\"Chef\" />");
+    }
 
-	[Fact]
-	public async Task WrongDirectionDependency_AddsForwardAllowedDependency()
-	{
-		const string config = """
+    [Fact]
+    public async Task WrongDirectionDependency_AddsForwardAllowedDependency()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Controller">
 			    <Class endsWith="Controller" />
@@ -166,24 +166,24 @@ public sealed class DependencyRuleCodeFixTests
 			  <AllowedDependency from="Application" to="Controller" />
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			public sealed class PizzaKitchen { }
 			public sealed class PizzaController(PizzaKitchen kitchen) { }
 			""";
 
-		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
-			source,
-			config,
-			ArchitecturalDiagnosticIds.DependencyReverseDirection,
-			"Add allowed dependency 'Controller' -> 'Application'");
+        var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
+            source,
+            config,
+            ArchitecturalDiagnosticIds.DependencyReverseDirection,
+            "Add allowed dependency 'Controller' -> 'Application'");
 
-		updatedConfig.Should().Contain("<AllowedDependency from=\"Controller\" to=\"Application\" />");
-	}
+        updatedConfig.Should().Contain("<AllowedDependency from=\"Controller\" to=\"Application\" />");
+    }
 
-	[Fact]
-	public async Task WrongDirectionDependency_OffersFlipConfiguredReverseDependency()
-	{
-		const string config = """
+    [Fact]
+    public async Task WrongDirectionDependency_OffersFlipConfiguredReverseDependency()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Controller">
 			    <Class endsWith="Controller" />
@@ -194,21 +194,21 @@ public sealed class DependencyRuleCodeFixTests
 			  <AllowedDependency from="Application" to="Controller" />
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			public sealed class PizzaKitchen { }
 			public sealed class PizzaController(PizzaKitchen kitchen) { }
 			""";
 
-		var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(source, config, ArchitecturalDiagnosticIds.DependencyReverseDirection);
+        var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(source, config, ArchitecturalDiagnosticIds.DependencyReverseDirection);
 
-		titles.Should().Contain("Add allowed dependency 'Controller' -> 'Application'");
-		titles.Should().Contain("Flip configured dependency 'Application' -> 'Controller' to 'Controller' -> 'Application'");
-	}
+        titles.Should().Contain("Add allowed dependency 'Controller' -> 'Application'");
+        titles.Should().Contain("Flip configured dependency 'Application' -> 'Controller' to 'Controller' -> 'Application'");
+    }
 
-	[Fact]
-	public async Task WrongDirectionDependency_FlipConfiguredReverseDependency_UpdatesExistingRule()
-	{
-		const string config = """
+    [Fact]
+    public async Task WrongDirectionDependency_FlipConfiguredReverseDependency_UpdatesExistingRule()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Controller">
 			    <Class endsWith="Controller" />
@@ -219,18 +219,18 @@ public sealed class DependencyRuleCodeFixTests
 			  <AllowedDependency from="Application" to="Controller" />
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			public sealed class PizzaKitchen { }
 			public sealed class PizzaController(PizzaKitchen kitchen) { }
 			""";
 
-		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
-			source,
-			config,
-			ArchitecturalDiagnosticIds.DependencyReverseDirection,
-			"Flip configured dependency 'Application' -> 'Controller' to 'Controller' -> 'Application'");
+        var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
+            source,
+            config,
+            ArchitecturalDiagnosticIds.DependencyReverseDirection,
+            "Flip configured dependency 'Application' -> 'Controller' to 'Controller' -> 'Application'");
 
-		updatedConfig.Should().Contain("<AllowedDependency from=\"Controller\" to=\"Application\" />");
-		updatedConfig.Should().NotContain("<AllowedDependency from=\"Application\" to=\"Controller\" />");
-	}
+        updatedConfig.Should().Contain("<AllowedDependency from=\"Controller\" to=\"Application\" />");
+        updatedConfig.Should().NotContain("<AllowedDependency from=\"Application\" to=\"Controller\" />");
+    }
 }

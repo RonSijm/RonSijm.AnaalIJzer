@@ -9,14 +9,14 @@ namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests.Controls;
 
 public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 {
-	[Fact]
-	public void ApiSurfacePath_PersistsXmlAndReloadsInspector()
-	{
-		RunOnStaThread(() =>
-		{
-			var path = WriteTempFile(
-				"Architecture.anl",
-				"""
+    [Fact]
+    public void ApiSurfacePath_PersistsXmlAndReloadsInspector()
+    {
+        RunOnStaThread(() =>
+        {
+            var path = WriteTempFile(
+                "Architecture.anl",
+                """
 				<ArchitecturalLevels>
 				  <Layer name="Application">
 				    <Class endsWith="Service" />
@@ -28,30 +28,30 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 				  <Layer name="Contracts"><Class endsWith="Projection" /></Layer>
 				</ArchitecturalLevels>
 				""");
-			var snapshot = ArchitectureGraphXmlSnapshotLoader.Load(path);
-			var control = CreateControl(snapshot, _ => ArchitectureGraphXmlSnapshotLoader.Load(path));
-			var application = snapshot.Layers.Single(layer => layer.Path == "Application");
-			control.Select(ArchitectureGraphSelection.ForLayer(application.EditHandle));
-			var policy = FindVisualDescendants<System.Windows.Controls.Expander>(control).Single(expander => GetText(expander.Header)?.StartsWith("<ApiSurface", StringComparison.Ordinal) == true);
-			policy.IsExpanded = true;
-			DrainDispatcher();
+            var snapshot = ArchitectureGraphXmlSnapshotLoader.Load(path);
+            var control = CreateControl(snapshot, _ => ArchitectureGraphXmlSnapshotLoader.Load(path));
+            var application = snapshot.Layers.Single(layer => layer.Path == "Application");
+            control.Select(ArchitectureGraphSelection.ForLayer(application.EditHandle));
+            var policy = FindVisualDescendants<System.Windows.Controls.Expander>(control).Single(expander => GetText(expander.Header)?.StartsWith("<ApiSurface", StringComparison.Ordinal) == true);
+            policy.IsExpanded = true;
+            DrainDispatcher();
 
-			var layerPath = FindTextBoxByText(control, "/QuerySurface");
-			layerPath.Text = "/Contracts";
-			layerPath.RaiseEvent(new RoutedEventArgs(UIElement.LostFocusEvent));
-			DrainDispatcher();
+            var layerPath = FindTextBoxByText(control, "/QuerySurface");
+            layerPath.Text = "/Contracts";
+            layerPath.RaiseEvent(new RoutedEventArgs(UIElement.LostFocusEvent));
+            DrainDispatcher();
 
-			File.ReadAllText(path).Should().Contain("<BlockedLayer path=\"/Contracts\" />");
-		});
-	}
+            File.ReadAllText(path).Should().Contain("<BlockedLayer path=\"/Contracts\" />");
+        });
+    }
 
-	[Fact]
-	public void ApiSurfaceRecognitionCheckbox_PersistsInlineMetadataAndPreservesInterpolation()
-	{
-		RunOnStaThread(() =>
-		{
-			var path = WriteInterpolatedInlineConfigurationFile(
-				"""
+    [Fact]
+    public void ApiSurfaceRecognitionCheckbox_PersistsInlineMetadataAndPreservesInterpolation()
+    {
+        RunOnStaThread(() =>
+        {
+            var path = WriteInterpolatedInlineConfigurationFile(
+                """
 				<ArchitecturalLevels>
 				  <Layer name="{nameof(CandyService)}">
 				    <Class typeName="{nameof(CandyService)}" />
@@ -64,32 +64,32 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 				  </Layer>
 				</ArchitecturalLevels>
 				""",
-				"public class CandyService { } public class LollyQueryable { }");
-			var snapshot = LoadInlineSnapshot(path);
-			var control = CreateControl(snapshot, _ => LoadInlineSnapshot(path));
-			var application = snapshot.Layers.Single(layer => layer.Path == "CandyService");
-			control.Select(ArchitectureGraphSelection.ForLayer(application.EditHandle));
-			var policy = FindVisualDescendants<System.Windows.Controls.Expander>(control).Single(expander => GetText(expander.Header)?.StartsWith("<ApiSurface", StringComparison.Ordinal) == true);
-			policy.IsExpanded = true;
-			DrainDispatcher();
+                "public class CandyService { } public class LollyQueryable { }");
+            var snapshot = LoadInlineSnapshot(path);
+            var control = CreateControl(snapshot, _ => LoadInlineSnapshot(path));
+            var application = snapshot.Layers.Single(layer => layer.Path == "CandyService");
+            control.Select(ArchitectureGraphSelection.ForLayer(application.EditHandle));
+            var policy = FindVisualDescendants<System.Windows.Controls.Expander>(control).Single(expander => GetText(expander.Header)?.StartsWith("<ApiSurface", StringComparison.Ordinal) == true);
+            policy.IsExpanded = true;
+            DrainDispatcher();
 
-			FindCheckBoxByContent(control, "Require exposed types to belong to a configured layer").IsChecked = true;
-			DrainDispatcher();
+            FindCheckBoxByContent(control, "Require exposed types to belong to a configured layer").IsChecked = true;
+            DrainDispatcher();
 
-			var content = File.ReadAllText(path);
-			content.Should().Contain("requireRecognizedTypes=\"true\"");
-			content.Should().Contain("{nameof(CandyService)}");
-			content.Should().Contain("{nameof(LollyQueryable)}");
-		});
-	}
+            var content = File.ReadAllText(path);
+            content.Should().Contain("requireRecognizedTypes=\"true\"");
+            content.Should().Contain("{nameof(CandyService)}");
+            content.Should().Contain("{nameof(LollyQueryable)}");
+        });
+    }
 
-	[Fact]
-	public void TransitiveExposureControls_AutoSaveInlineMetadataAndPreserveInterpolation()
-	{
-		RunOnStaThread(() =>
-		{
-			var path = WriteInterpolatedInlineConfigurationFile(
-				"""
+    [Fact]
+    public void TransitiveExposureControls_AutoSaveInlineMetadataAndPreserveInterpolation()
+    {
+        RunOnStaThread(() =>
+        {
+            var path = WriteInterpolatedInlineConfigurationFile(
+                """
 				<ArchitecturalLevels>
 				  <Layer name="{nameof(CandyService)}">
 				    <Class typeName="{nameof(CandyService)}" />
@@ -103,25 +103,25 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 				  </Layer>
 				</ArchitecturalLevels>
 				""",
-				"public class CandyService { } public class LollyQueryable { }");
-			var snapshot = LoadInlineSnapshot(path);
-			var control = CreateControl(snapshot, _ => LoadInlineSnapshot(path));
-			var application = snapshot.Layers.Single(layer => layer.Path == "CandyService");
-			control.Select(ArchitectureGraphSelection.ForLayer(application.EditHandle));
-			var policy = FindVisualDescendants<System.Windows.Controls.Expander>(control).Single(expander => GetText(expander.Header)?.StartsWith("<ApiSurface", StringComparison.Ordinal) == true);
-			policy.IsExpanded = true;
-			DrainDispatcher();
+                "public class CandyService { } public class LollyQueryable { }");
+            var snapshot = LoadInlineSnapshot(path);
+            var control = CreateControl(snapshot, _ => LoadInlineSnapshot(path));
+            var application = snapshot.Layers.Single(layer => layer.Path == "CandyService");
+            control.Select(ArchitectureGraphSelection.ForLayer(application.EditHandle));
+            var policy = FindVisualDescendants<System.Windows.Controls.Expander>(control).Single(expander => GetText(expander.Header)?.StartsWith("<ApiSurface", StringComparison.Ordinal) == true);
+            policy.IsExpanded = true;
+            DrainDispatcher();
 
-			FindCheckBoxByContent(control, "Inspect the public object graph of exposed types").IsChecked.Should().BeTrue();
-			var depth = FindTextBoxByText(control, "3");
-			depth.Text = "5";
-			depth.RaiseEvent(new RoutedEventArgs(UIElement.LostFocusEvent));
-			DrainDispatcher();
+            FindCheckBoxByContent(control, "Inspect the public object graph of exposed types").IsChecked.Should().BeTrue();
+            var depth = FindTextBoxByText(control, "3");
+            depth.Text = "5";
+            depth.RaiseEvent(new RoutedEventArgs(UIElement.LostFocusEvent));
+            DrainDispatcher();
 
-			var content = File.ReadAllText(path);
-			content.Should().Contain("<TransitiveExposure maxDepth=\"5\" />");
-			content.Should().Contain("{nameof(CandyService)}");
-			content.Should().Contain("{nameof(LollyQueryable)}");
-		});
-	}
+            var content = File.ReadAllText(path);
+            content.Should().Contain("<TransitiveExposure maxDepth=\"5\" />");
+            content.Should().Contain("{nameof(CandyService)}");
+            content.Should().Contain("{nameof(LollyQueryable)}");
+        });
+    }
 }

@@ -1,8 +1,6 @@
 <ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                      xsi:noNamespaceSchemaLocation="../../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd">
-  <ReturnValuePolicy description="Every kitchen names a return hand-off before serving it.">
-    <AllowedReturn description="A prepared pizza leaves through a bare named expression.">
-      <Identifier />
-    </AllowedReturn>
+  <ReturnValuePolicy description="The kitchen does not serve the result of an oven call directly.">
+    <Invocation description="Assign the oven result to a named value before serving it." />
   </ReturnValuePolicy>
 </ArchitecturalLevels>

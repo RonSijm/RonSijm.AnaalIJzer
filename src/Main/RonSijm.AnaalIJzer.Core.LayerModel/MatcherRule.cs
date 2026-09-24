@@ -10,23 +10,23 @@ namespace RonSijm.AnaalIJzer.Core.LayerModel;
 ///     the "Add to exceptions" code fix can locate the element in the additional file.
 /// </summary>
 public readonly struct MatcherRule(
-	LayerDefinition layer,
-	ImmutableArray<ExceptionMatcher> exceptions,
-	int xmlLineNumber,
-	int xmlLinePosition,
-	string xmlPath)
+    LayerDefinition layer,
+    ImmutableArray<ExceptionMatcher> exceptions,
+    int xmlLineNumber,
+    int xmlLinePosition,
+    string xmlPath)
 {
-	public LayerDefinition Layer { get; } = layer;
+    public LayerDefinition Layer { get; } = layer;
 
-	/// <summary>
-	///     Pattern matchers that, if any of them matches the dependency, cause this
-	///     rule to be skipped. <see langword="default" /> means no exceptions.
-	/// </summary>
-	public ImmutableArray<ExceptionMatcher> Exceptions { get; } = exceptions;
+    /// <summary>
+    ///     Pattern matchers that, if any of them matches the dependency, cause this
+    ///     rule to be skipped. <see langword="default" /> means no exceptions.
+    /// </summary>
+    public ImmutableArray<ExceptionMatcher> Exceptions { get; } = exceptions;
 
-	public int XmlLineNumber { get; } = xmlLineNumber;
+    public int XmlLineNumber { get; } = xmlLineNumber;
 
-	public int XmlLinePosition { get; } = xmlLinePosition;
+    public int XmlLinePosition { get; } = xmlLinePosition;
 
-	public string XmlPath { get; } = xmlPath;
+    public string XmlPath { get; } = xmlPath;
 }

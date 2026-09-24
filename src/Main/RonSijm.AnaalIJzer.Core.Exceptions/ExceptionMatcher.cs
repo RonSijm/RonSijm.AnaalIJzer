@@ -19,27 +19,27 @@ public sealed class ExceptionMatcher(ArchitectureExceptionDefinition definition,
     public ImmutableArray<ExceptionMatcher> Exceptions { get; } = exceptions;
 
     public int FindDeepestMatchingDepth(string typeName, string namespaceName, ITypeSymbol? symbol, int depth)
-	{
-		if (!Definition.IsActive)
-		{
-			return 0;
-		}
+    {
+        if (!Definition.IsActive)
+        {
+            return 0;
+        }
 
-		var deepest = Definition.Matcher.TryMatch(typeName, namespaceName, symbol) is null ? 0 : depth;
-		if (Exceptions.IsDefaultOrEmpty)
-		{
-			return deepest;
-		}
+        var deepest = Definition.Matcher.TryMatch(typeName, namespaceName, symbol) is null ? 0 : depth;
+        if (Exceptions.IsDefaultOrEmpty)
+        {
+            return deepest;
+        }
 
-		foreach (var exception in Exceptions)
-		{
-			var nestedDepth = exception.FindDeepestMatchingDepth(typeName, namespaceName, symbol, depth + 1);
-			if (nestedDepth > deepest)
-			{
-				deepest = nestedDepth;
-			}
-		}
+        foreach (var exception in Exceptions)
+        {
+            var nestedDepth = exception.FindDeepestMatchingDepth(typeName, namespaceName, symbol, depth + 1);
+            if (nestedDepth > deepest)
+            {
+                deepest = nestedDepth;
+            }
+        }
 
-		return deepest;
-	}
+        return deepest;
+    }
 }

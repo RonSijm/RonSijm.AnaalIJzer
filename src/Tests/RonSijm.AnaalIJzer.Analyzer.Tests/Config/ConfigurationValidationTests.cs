@@ -5,106 +5,136 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Config;
 
 public sealed class ConfigurationValidationTests
 {
-	[Fact]
-	public async Task MalformedXml_ReportsARCH_CONF_003()
-	{
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class CallerType { }", "<ArchitecturalLevels><Layer>");
+    [Fact]
+    public async Task MalformedXml_ReportsARCH_CONF_003()
+    {
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class CallerType { }", "<ArchitecturalLevels><Layer>");
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
-	}
+        diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
+    }
 
-	[Fact]
-	public async Task UnknownAllowedDependencyLayer_ReportsARCH_CONF_003()
-	{
-		const string config = """
+    [Fact]
+    public async Task UnknownAllowedDependencyLayer_ReportsARCH_CONF_003()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Layer name="Caller"><Class typeName="CallerType" /></Layer>
 		                        <AllowedDependency from="Caller" to="Missing" />
 		                      </ArchitecturalLevels>
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class CallerType { }", config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class CallerType { }", config);
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
-	}
+        diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
+    }
 
-	[Fact]
-	public async Task DuplicateLayer_ReportsARCH_CONF_003()
-	{
-		const string config = """
+    [Fact]
+    public async Task DuplicateLayer_ReportsARCH_CONF_003()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Layer name="Caller"><Class typeName="CallerType" /></Layer>
 		                        <Layer name="Caller"><Class typeName="OtherType" /></Layer>
 		                      </ArchitecturalLevels>
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class CallerType { }", config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class CallerType { }", config);
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
-	}
+        diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
+    }
 
-	[Fact]
-	public async Task InvalidRegex_ReportsARCH_CONF_003()
-	{
-		const string config = """
+    [Fact]
+    public async Task InvalidRegex_ReportsARCH_CONF_003()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Layer name="Caller"><Class regex="[" /></Layer>
 		                      </ArchitecturalLevels>
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class CallerType { }", config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class CallerType { }", config);
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
-	}
+        diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
+    }
 
-	[Fact]
-	public async Task MultipleMatcherAttributes_AreCombined()
-	{
-		const string config = """
+    [Fact]
+    public async Task MultipleMatcherAttributes_AreCombined()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Layer name="Caller"><Class startsWith="Caller" endsWith="Type" typeKind="Class" /></Layer>
 		                      </ArchitecturalLevels>
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class CallerType { }", config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class CallerType { }", config);
 
-		diagnostics.Should().BeEmpty();
-	}
+        diagnostics.Should().BeEmpty();
+    }
 
-	[Fact]
-	public async Task MissingInclude_ReportsARCH_CONF_003()
-	{
-		const string config = """
+    [Fact]
+    public async Task MissingInclude_ReportsARCH_CONF_003()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Include path="Missing.xml" />
 		                        <Layer name="Caller"><Class typeName="CallerType" /></Layer>
 		                      </ArchitecturalLevels>
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class CallerType { }", config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class CallerType { }", config);
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
-	}
+        diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
+    }
 
-	[Fact]
-	public async Task MissingWildcardInclude_ReportsARCH_CONF_003()
-	{
-		const string config = """
+    [Fact]
+    public async Task MissingWildcardInclude_ReportsARCH_CONF_003()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Include path="*.anl" />
 		                        <Layer name="Caller"><Class typeName="CallerType" /></Layer>
 		                      </ArchitecturalLevels>
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class CallerType { }", ("Architecture.anl", config));
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class CallerType { }", ("Architecture.anl", config));
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
-	}
+        diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
+    }
 
-	[Fact]
-	public async Task AcyclicEnforcement_ReportsARCH_CONF_006()
-	{
-		const string config = """
+    [Fact]
+    public async Task MissingWildcardInclude_IsAllowedWhenConfigured()
+    {
+        const string config = """
+		                      <ArchitecturalLevels>
+		                        <Include path="OptionalRules/*.anl" allowNoMatches="true" />
+		                        <Layer name="Caller"><Class typeName="CallerType" /></Layer>
+		                      </ArchitecturalLevels>
+		                      """;
+
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class CallerType { }", ("Architecture.anl", config));
+
+        diagnostics.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task MissingWildcardInclude_WithInvalidAllowNoMatches_ReportsARCH_CONF_003()
+    {
+        const string config = """
+		                      <ArchitecturalLevels>
+		                        <Include path="OptionalRules/*.anl" allowNoMatches="yes" />
+		                        <Layer name="Caller"><Class typeName="CallerType" /></Layer>
+		                      </ArchitecturalLevels>
+		                      """;
+
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class CallerType { }", ("Architecture.anl", config));
+
+        diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
+    }
+
+    [Fact]
+    public async Task AcyclicEnforcement_ReportsARCH_CONF_006()
+    {
+        const string config = """
 		                      <ArchitecturalLevels enforceAcyclic="true">
 		                        <Layer name="A"><Class typeName="AType" /></Layer>
 		                        <Layer name="B"><Class typeName="BType" /></Layer>
@@ -115,16 +145,16 @@ public sealed class ConfigurationValidationTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class AType { } public class BType { } public class CType { }", config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class AType { } public class BType { } public class CType { }", config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationCycle).Subject;
-		diagnostic.GetMessage().Should().Contain("A -> B -> C -> A");
-	}
+        var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationCycle).Subject;
+        diagnostic.GetMessage().Should().Contain("A -> B -> C -> A");
+    }
 
-	[Fact]
-	public async Task Cycle_IsAllowedWhenEnforcementIsDisabled()
-	{
-		const string config = """
+    [Fact]
+    public async Task Cycle_IsAllowedWhenEnforcementIsDisabled()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Layer name="A"><Class typeName="AType" /></Layer>
 		                        <Layer name="B"><Class typeName="BType" /></Layer>
@@ -133,17 +163,17 @@ public sealed class ConfigurationValidationTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class AType { } public class BType { }", config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class AType { } public class BType { }", config);
 
-		diagnostics.Should().BeEmpty();
-	}
+        diagnostics.Should().BeEmpty();
+    }
 
-	[Theory]
-	[InlineData("B", "A")]
-	[InlineData("*", "A")]
-	public async Task UnfilteredBlockedEdge_BreaksConfiguredCycle(string blockedFrom, string blockedTo)
-	{
-		var config = $$"""
+    [Theory]
+    [InlineData("B", "A")]
+    [InlineData("*", "A")]
+    public async Task UnfilteredBlockedEdge_BreaksConfiguredCycle(string blockedFrom, string blockedTo)
+    {
+        var config = $$"""
 		               <ArchitecturalLevels enforceAcyclic="true">
 		                 <Layer name="A"><Class typeName="AType" /></Layer>
 		                 <Layer name="B"><Class typeName="BType" /></Layer>
@@ -153,8 +183,8 @@ public sealed class ConfigurationValidationTests
 		               </ArchitecturalLevels>
 		               """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class AType { } public class BType { }", config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class AType { } public class BType { }", config);
 
-		diagnostics.Should().BeEmpty();
-	}
+        diagnostics.Should().BeEmpty();
+    }
 }

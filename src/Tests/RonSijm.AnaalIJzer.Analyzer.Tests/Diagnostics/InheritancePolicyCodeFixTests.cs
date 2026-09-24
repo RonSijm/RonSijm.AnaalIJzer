@@ -5,10 +5,10 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Diagnostics;
 
 public sealed class InheritancePolicyCodeFixTests
 {
-	[Fact]
-	public async Task MissingRequiredBaseType_AddsBaseType()
-	{
-		const string config = """
+    [Fact]
+    public async Task MissingRequiredBaseType_AddsBaseType()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="PersistenceEntities">
 			    <Namespace startsWith="Demo.Persistence" />
@@ -16,7 +16,7 @@ public sealed class InheritancePolicyCodeFixTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			namespace Demo.Framework
 			{
 				public abstract class Entity { }
@@ -28,19 +28,19 @@ public sealed class InheritancePolicyCodeFixTests
 			}
 			""";
 
-		var newSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
-			source,
-			config,
-			ArchitecturalDiagnosticIds.InheritanceNotAllowed,
-			"Add required base type 'Entity'");
+        var newSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
+            source,
+            config,
+            ArchitecturalDiagnosticIds.InheritanceNotAllowed,
+            "Add required base type 'Entity'");
 
-		newSource.Should().Contain("public class SyrupEntity : Entity");
-	}
+        newSource.Should().Contain("public class SyrupEntity : Entity");
+    }
 
-	[Fact]
-	public async Task MissingRequiredInterface_AddsInterface()
-	{
-		const string config = """
+    [Fact]
+    public async Task MissingRequiredInterface_AddsInterface()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Requests">
 			    <Class endsWith="Request" />
@@ -48,24 +48,24 @@ public sealed class InheritancePolicyCodeFixTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			public interface IPizzaProvider { }
 			public class GetPizzaRequest { }
 			""";
 
-		var newSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
-			source,
-			config,
-			ArchitecturalDiagnosticIds.InheritanceNotAllowed,
-			"Add required interface 'IPizzaProvider'");
+        var newSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
+            source,
+            config,
+            ArchitecturalDiagnosticIds.InheritanceNotAllowed,
+            "Add required interface 'IPizzaProvider'");
 
-		newSource.Should().Contain("public class GetPizzaRequest : IPizzaProvider");
-	}
+        newSource.Should().Contain("public class GetPizzaRequest : IPizzaProvider");
+    }
 
-	[Fact]
-	public async Task MultipleMissingInterfaces_DoNotOfferAmbiguousFix()
-	{
-		const string config = """
+    [Fact]
+    public async Task MultipleMissingInterfaces_DoNotOfferAmbiguousFix()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Requests">
 			    <Class endsWith="Request" />
@@ -73,14 +73,14 @@ public sealed class InheritancePolicyCodeFixTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			public interface IPizzaProvider { }
 			public interface ICustomerProvider { }
 			public class GetPizzaRequest { }
 			""";
 
-		var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(source, config, ArchitecturalDiagnosticIds.InheritanceNotAllowed);
+        var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(source, config, ArchitecturalDiagnosticIds.InheritanceNotAllowed);
 
-		titles.Should().BeEmpty();
-	}
+        titles.Should().BeEmpty();
+    }
 }

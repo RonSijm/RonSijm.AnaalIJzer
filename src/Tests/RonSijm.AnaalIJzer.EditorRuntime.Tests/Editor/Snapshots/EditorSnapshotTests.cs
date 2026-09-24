@@ -7,71 +7,71 @@ namespace RonSijm.AnaalIJzer.EditorRuntime.Tests.Editor.Snapshots;
 
 public sealed partial class EditorSnapshotTests
 {
-	private static readonly MetadataReference[] BasicReferences =
-		CreateBasicReferences();
+    private static readonly MetadataReference[] BasicReferences =
+        CreateBasicReferences();
 
-	[Fact]
-	public async Task SnapshotWithoutConfig_ReturnsEmptySnapshot()
-	{
-		var directory = Path.Combine(Path.GetTempPath(), "AnaalIJzerEditorSnapshotTests", Guid.NewGuid().ToString("N"));
-		var sourcePath = Path.Combine(directory, "Source", "PizzaController.cs");
-		var projectPath = Path.Combine(directory, "PizzaDemo.csproj");
-		const string source = "public class PizzaController { }";
+    [Fact]
+    public async Task SnapshotWithoutConfig_ReturnsEmptySnapshot()
+    {
+        var directory = Path.Combine(Path.GetTempPath(), "AnaalIJzerEditorSnapshotTests", Guid.NewGuid().ToString("N"));
+        var sourcePath = Path.Combine(directory, "Source", "PizzaController.cs");
+        var projectPath = Path.Combine(directory, "PizzaDemo.csproj");
+        const string source = "public class PizzaController { }";
 
-		var snapshot = await CreateSnapshotAsync(source, fileName: sourcePath, projectPath: projectPath);
+        var snapshot = await CreateSnapshotAsync(source, fileName: sourcePath, projectPath: projectPath);
 
-		snapshot.HasConfiguration.Should().BeFalse();
-		snapshot.HasConfigurationIssues.Should().BeFalse();
-		snapshot.LayerIndicators.Should().BeEmpty();
-		snapshot.SiteIndicators.Should().BeEmpty();
-		snapshot.GraphSnapshot.HasConfiguration.Should().BeFalse();
-		snapshot.GraphSnapshot.ConfigurationCreationTargets.Select(target => target.Title).Should().Equal("Project file", "Project folder");
-		snapshot.GraphSnapshot.ConfigurationCreationTargets.Select(target => target.Source.Path).Should().Equal(
-			Path.Combine(directory, "Architecture.anl"),
-			Path.Combine(directory, "Architecture.anl"));
-		snapshot.GraphSnapshot.ConfigurationCreationTargets.Select(target => target.RegistrationPath).Should().Equal(
-			projectPath,
-			Path.Combine(directory, "Directory.Build.props"));
-	}
+        snapshot.HasConfiguration.Should().BeFalse();
+        snapshot.HasConfigurationIssues.Should().BeFalse();
+        snapshot.LayerIndicators.Should().BeEmpty();
+        snapshot.SiteIndicators.Should().BeEmpty();
+        snapshot.GraphSnapshot.HasConfiguration.Should().BeFalse();
+        snapshot.GraphSnapshot.ConfigurationCreationTargets.Select(target => target.Title).Should().Equal("Project file", "Project folder");
+        snapshot.GraphSnapshot.ConfigurationCreationTargets.Select(target => target.Source.Path).Should().Equal(
+            Path.Combine(directory, "Architecture.anl"),
+            Path.Combine(directory, "Architecture.anl"));
+        snapshot.GraphSnapshot.ConfigurationCreationTargets.Select(target => target.RegistrationPath).Should().Equal(
+            projectPath,
+            Path.Combine(directory, "Directory.Build.props"));
+    }
 
-	[Fact]
-	public async Task SnapshotWithInvalidConfig_ReturnsConfigurationIssuesWithoutVisuals()
-	{
-		const string source = "public class PizzaController { }";
-		const string config = "<ArchitecturalLevels><Layer name=\"Broken\"><Class /></Layer></ArchitecturalLevels>";
+    [Fact]
+    public async Task SnapshotWithInvalidConfig_ReturnsConfigurationIssuesWithoutVisuals()
+    {
+        const string source = "public class PizzaController { }";
+        const string config = "<ArchitecturalLevels><Layer name=\"Broken\"><Class /></Layer></ArchitecturalLevels>";
 
-		var snapshot = await CreateSnapshotAsync(source, config);
+        var snapshot = await CreateSnapshotAsync(source, config);
 
-		snapshot.HasConfiguration.Should().BeTrue();
-		snapshot.HasConfigurationIssues.Should().BeTrue();
-		snapshot.LayerIndicators.Should().BeEmpty();
-		snapshot.SiteIndicators.Should().BeEmpty();
-		snapshot.ConfigurationIssueMessages.Should().NotBeEmpty();
-	}
+        snapshot.HasConfiguration.Should().BeTrue();
+        snapshot.HasConfigurationIssues.Should().BeTrue();
+        snapshot.LayerIndicators.Should().BeEmpty();
+        snapshot.SiteIndicators.Should().BeEmpty();
+        snapshot.ConfigurationIssueMessages.Should().NotBeEmpty();
+    }
 
-	[Fact]
-	public async Task SnapshotWithPartiallyParsedInvalidConfig_ReturnsNoVisuals()
-	{
-		const string source = "public class PizzaController { }";
-		const string config = """
+    [Fact]
+    public async Task SnapshotWithPartiallyParsedInvalidConfig_ReturnsNoVisuals()
+    {
+        const string source = "public class PizzaController { }";
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Layer name="Controller"><Class endsWith="Controller" /></Layer>
 		                        <Layer name="Broken"><Class /></Layer>
 		                      </ArchitecturalLevels>
 		                      """;
 
-		var snapshot = await CreateSnapshotAsync(source, config);
+        var snapshot = await CreateSnapshotAsync(source, config);
 
-		snapshot.HasConfiguration.Should().BeTrue();
-		snapshot.HasConfigurationIssues.Should().BeTrue();
-		snapshot.LayerIndicators.Should().BeEmpty();
-		snapshot.SiteIndicators.Should().BeEmpty();
-	}
+        snapshot.HasConfiguration.Should().BeTrue();
+        snapshot.HasConfigurationIssues.Should().BeTrue();
+        snapshot.LayerIndicators.Should().BeEmpty();
+        snapshot.SiteIndicators.Should().BeEmpty();
+    }
 
-	[Fact]
-	public async Task OperationContracts_RenderMethodViolationWithoutLayerBadges()
-	{
-		const string source = """
+    [Fact]
+    public async Task OperationContracts_RenderMethodViolationWithoutLayerBadges()
+    {
+        const string source = """
 			public sealed class PizzaOrderController
 			{
 				public PlacePizzaOrderResponse PlacePizzaOrder(PlacePizzaOrderRequest request) => new();
@@ -85,7 +85,7 @@ public sealed partial class EditorSnapshotTests
 			public sealed class PlacePizzaOrderRequest { }
 			public sealed class PlacePizzaOrderResponse { }
 			""";
-		const string config = """
+        const string config = """
 			<ArchitecturalLevels>
 			  <Operations>
 			    <Operation name="PlacePizzaOrder">
@@ -106,22 +106,22 @@ public sealed partial class EditorSnapshotTests
 			</ArchitecturalLevels>
 			""";
 
-		var snapshot = await CreateSnapshotAsync(source, config);
+        var snapshot = await CreateSnapshotAsync(source, config);
 
-		snapshot.HasConfiguration.Should().BeTrue();
-		snapshot.HasConfigurationIssues.Should().BeFalse();
-		snapshot.LayerIndicators.Should().BeEmpty();
-		var indicator = snapshot.SiteIndicators.Should().ContainSingle(item => item.DiagnosticId == ArchitecturalDiagnosticIds.OperationContractRequiredMissing).Subject;
-		indicator.Site.Should().Be(ArchitectureDependencySites.Method);
-		indicator.CallerLayerPath.Should().Be("Unclassified");
-		indicator.DependencyTypeName.Should().Be("PlacePizzaOrder");
-	}
+        snapshot.HasConfiguration.Should().BeTrue();
+        snapshot.HasConfigurationIssues.Should().BeFalse();
+        snapshot.LayerIndicators.Should().BeEmpty();
+        var indicator = snapshot.SiteIndicators.Should().ContainSingle(item => item.DiagnosticId == ArchitecturalDiagnosticIds.OperationContractRequiredMissing).Subject;
+        indicator.Site.Should().Be(ArchitectureDependencySites.Method);
+        indicator.CallerLayerPath.Should().Be("Unclassified");
+        indicator.DependencyTypeName.Should().Be("PlacePizzaOrder");
+    }
 
-	[Fact]
-	public async Task XmlConfig_RendersLayerIndicator()
-	{
-		const string source = "namespace Demo; public class PizzaController { }";
-		const string config = """
+    [Fact]
+    public async Task XmlConfig_RendersLayerIndicator()
+    {
+        const string source = "namespace Demo; public class PizzaController { }";
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Layer name="Controller" description="Talks to the application layer.">
 		                          <Class endsWith="Controller" />
@@ -129,25 +129,25 @@ public sealed partial class EditorSnapshotTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		var snapshot = await CreateSnapshotAsync(source, config);
-		var indicator = snapshot.LayerIndicators.Should().ContainSingle().Subject;
+        var snapshot = await CreateSnapshotAsync(source, config);
+        var indicator = snapshot.LayerIndicators.Should().ContainSingle().Subject;
 
-		indicator.TypeName.Should().Be("PizzaController");
-		indicator.LayerPath.Should().Be("Controller");
-		indicator.LayerAncestry.Should().Equal("Controller");
-		indicator.Description.Should().Be("Talks to the application layer.");
-		indicator.PaletteSlot.Should().Be(1);
-	}
+        indicator.TypeName.Should().Be("PizzaController");
+        indicator.LayerPath.Should().Be("Controller");
+        indicator.LayerAncestry.Should().Equal("Controller");
+        indicator.Description.Should().Be("Talks to the application layer.");
+        indicator.PaletteSlot.Should().Be(1);
+    }
 
-	[Fact]
-	public async Task XmlConfig_RendersDependencyGraphSnapshot()
-	{
-		const string source = """
+    [Fact]
+    public async Task XmlConfig_RendersDependencyGraphSnapshot()
+    {
+        const string source = """
 		                      public class CustomerType { }
 		                      public class WaiterType { }
 		                      public class ChefType { }
 		                      """;
-		const string config = """
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Layer name="Customer" description="Orders food."><Class typeName="CustomerType" /></Layer>
 		                        <Layer name="Waiter" description="Talks to customers."><Class typeName="WaiterType" /></Layer>
@@ -158,21 +158,21 @@ public sealed partial class EditorSnapshotTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		var snapshot = await CreateSnapshotAsync(source, config);
+        var snapshot = await CreateSnapshotAsync(source, config);
 
-		snapshot.GraphSnapshot.HasConfiguration.Should().BeTrue();
-		snapshot.GraphSnapshot.Layers.Select(layer => layer.Path).Should().Equal("Customer", "Waiter", "Chef");
-		snapshot.GraphSnapshot.Layers[0].Description.Should().Be("Orders food.");
-		snapshot.GraphSnapshot.ActiveLayerPaths.Should().Equal("Customer", "Waiter", "Chef");
-		snapshot.GraphSnapshot.Rules.Should().HaveCount(3);
-		snapshot.GraphSnapshot.Rules.Should().Contain(rule => rule.From == "Waiter" && rule.To == "Chef" && rule.SiteText == "allowed sites: Constructor" && rule.AppliesToDescendants);
-		snapshot.GraphSnapshot.Rules.Should().Contain(rule => rule.Kind == "BlockedDependency" && rule.SiteText == "blocked sites: Method");
-	}
+        snapshot.GraphSnapshot.HasConfiguration.Should().BeTrue();
+        snapshot.GraphSnapshot.Layers.Select(layer => layer.Path).Should().Equal("Customer", "Waiter", "Chef");
+        snapshot.GraphSnapshot.Layers[0].Description.Should().Be("Orders food.");
+        snapshot.GraphSnapshot.ActiveLayerPaths.Should().Equal("Customer", "Waiter", "Chef");
+        snapshot.GraphSnapshot.Rules.Should().HaveCount(3);
+        snapshot.GraphSnapshot.Rules.Should().Contain(rule => rule.From == "Waiter" && rule.To == "Chef" && rule.SiteText == "allowed sites: Constructor" && rule.AppliesToDescendants);
+        snapshot.GraphSnapshot.Rules.Should().Contain(rule => rule.Kind == "BlockedDependency" && rule.SiteText == "blocked sites: Method");
+    }
 
-	[Fact]
-	public async Task ProjectEvidence_AddsTypesAndObservedDependencyViolationsToGraphSnapshot()
-	{
-		const string source = """
+    [Fact]
+    public async Task ProjectEvidence_AddsTypesAndObservedDependencyViolationsToGraphSnapshot()
+    {
+        const string source = """
 		                      public class CustomerType
 		                      {
 		                          public CustomerType(WaiterType waiter, ChefType chef) { }
@@ -181,7 +181,7 @@ public sealed partial class EditorSnapshotTests
 		                      public class WaiterType { }
 		                      public class ChefType { }
 		                      """;
-		const string config = """
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Layer name="Customer"><Class typeName="CustomerType" /></Layer>
 		                        <Layer name="Waiter"><Class typeName="WaiterType" /></Layer>
@@ -190,23 +190,23 @@ public sealed partial class EditorSnapshotTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		var snapshot = await CreateSnapshotAsync(source, config, includeProjectEvidence: true);
+        var snapshot = await CreateSnapshotAsync(source, config, includeProjectEvidence: true);
 
-		snapshot.GraphSnapshot.Evidence.Types.Select(type => type.LayerPath).Should().Equal("Customer", "Waiter", "Chef");
-		snapshot.GraphSnapshot.Evidence.Dependencies.Should().Contain(dependency =>
-			dependency.CallerLayerPath == "Customer"
-			&& dependency.DependencyLayerPath == "Waiter"
-			&& dependency.DiagnosticId == null);
-		snapshot.GraphSnapshot.Evidence.Dependencies.Should().Contain(dependency =>
-			dependency.CallerLayerPath == "Customer"
-			&& dependency.DependencyLayerPath == "Chef"
-			&& dependency.DiagnosticId == ArchitecturalDiagnosticIds.DependencyNotAllowed);
-	}
+        snapshot.GraphSnapshot.Evidence.Types.Select(type => type.LayerPath).Should().Equal("Customer", "Waiter", "Chef");
+        snapshot.GraphSnapshot.Evidence.Dependencies.Should().Contain(dependency =>
+            dependency.CallerLayerPath == "Customer"
+            && dependency.DependencyLayerPath == "Waiter"
+            && dependency.DiagnosticId == null);
+        snapshot.GraphSnapshot.Evidence.Dependencies.Should().Contain(dependency =>
+            dependency.CallerLayerPath == "Customer"
+            && dependency.DependencyLayerPath == "Chef"
+            && dependency.DiagnosticId == ArchitecturalDiagnosticIds.DependencyNotAllowed);
+    }
 
-	[Fact]
-	public async Task InlineMetadataConfig_RendersLayerIndicator()
-	{
-		const string source = """"
+    [Fact]
+    public async Task InlineMetadataConfig_RendersLayerIndicator()
+    {
+        const string source = """"
 		                      using System.Reflection;
 
 		                      [assembly: AssemblyMetadata("AnaalIJzerSettings", $"""
@@ -220,17 +220,17 @@ public sealed partial class EditorSnapshotTests
 		                      public class PizzaController { }
 		                      """";
 
-		var snapshot = await CreateSnapshotAsync(source);
+        var snapshot = await CreateSnapshotAsync(source);
 
-		snapshot.HasConfiguration.Should().BeTrue();
-		snapshot.LayerIndicators.Should().ContainSingle()
-			.Which.LayerPath.Should().Be("Controller");
-	}
+        snapshot.HasConfiguration.Should().BeTrue();
+        snapshot.LayerIndicators.Should().ContainSingle()
+            .Which.LayerPath.Should().Be("Controller");
+    }
 
-	[Fact]
-	public async Task FileConfig_TakesPrecedenceOverInlineMetadataConfig()
-	{
-		const string source = """"
+    [Fact]
+    public async Task FileConfig_TakesPrecedenceOverInlineMetadataConfig()
+    {
+        const string source = """"
 		                      using System.Reflection;
 
 		                      [assembly: AssemblyMetadata("AnaalIJzerSettings", $"""
@@ -243,7 +243,7 @@ public sealed partial class EditorSnapshotTests
 
 		                      public class PizzaController { }
 		                      """";
-		const string config = """
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Layer name="FileController">
 		                          <Class endsWith="Controller" />
@@ -251,55 +251,55 @@ public sealed partial class EditorSnapshotTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		var snapshot = await CreateSnapshotAsync(source, config);
+        var snapshot = await CreateSnapshotAsync(source, config);
 
-		snapshot.LayerIndicators.Should().ContainSingle()
-			.Which.LayerPath.Should().Be("FileController");
-	}
+        snapshot.LayerIndicators.Should().ContainSingle()
+            .Which.LayerPath.Should().Be("FileController");
+    }
 
-	[Fact]
-	public async Task GeneratedFile_ReturnsEmptySnapshotByDefault()
-	{
-		const string source = "public class PizzaController { }";
-		const string config = """
+    [Fact]
+    public async Task GeneratedFile_ReturnsEmptySnapshotByDefault()
+    {
+        const string source = "public class PizzaController { }";
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Layer name="Controller"><Class endsWith="Controller" /></Layer>
 		                      </ArchitecturalLevels>
 		                      """;
 
-		var snapshot = await CreateSnapshotAsync(source, config, "PizzaController.g.cs");
+        var snapshot = await CreateSnapshotAsync(source, config, "PizzaController.g.cs");
 
-		snapshot.Should().BeSameAs(ArchitectureEditorSnapshot.Empty);
-	}
+        snapshot.Should().BeSameAs(ArchitectureEditorSnapshot.Empty);
+    }
 
-	[Fact]
-	public async Task GeneratedFile_RendersLayerIndicatorsWhenIncludeAllIsConfigured()
-	{
-		const string source = "public class PizzaController { }";
-		const string config = """
+    [Fact]
+    public async Task GeneratedFile_RendersLayerIndicatorsWhenIncludeAllIsConfigured()
+    {
+        const string source = "public class PizzaController { }";
+        const string config = """
 			<ArchitecturalLevels>
 			  <GeneratedCode mode="IncludeAll" />
 			  <Layer name="Controller"><Class endsWith="Controller" /></Layer>
 			</ArchitecturalLevels>
 			""";
 
-		var snapshot = await CreateSnapshotAsync(source, config, "PizzaController.g.cs");
+        var snapshot = await CreateSnapshotAsync(source, config, "PizzaController.g.cs");
 
-		snapshot.HasConfiguration.Should().BeTrue();
-		snapshot.LayerIndicators.Should().ContainSingle()
-			.Which.LayerPath.Should().Be("Controller");
-	}
+        snapshot.HasConfiguration.Should().BeTrue();
+        snapshot.LayerIndicators.Should().ContainSingle()
+            .Which.LayerPath.Should().Be("Controller");
+    }
 
-	[Fact]
-	public async Task NestedLayers_UseCanonicalPathAndDeterministicPaletteSlot()
-	{
-		const string source = """
+    [Fact]
+    public async Task NestedLayers_UseCanonicalPathAndDeterministicPaletteSlot()
+    {
+        const string source = """
 		                      namespace Restaurant.Ordering;
 
 		                      public class PizzaOrderService { }
 		                      public class PizzaOrderRepository { }
 		                      """;
-		const string config = """
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Layer name="Ordering">
 		                          <Namespace startsWith="Restaurant.Ordering" />
@@ -313,17 +313,17 @@ public sealed partial class EditorSnapshotTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		var snapshot = await CreateSnapshotAsync(source, config);
+        var snapshot = await CreateSnapshotAsync(source, config);
 
-		snapshot.LayerIndicators.Select(indicator => indicator.LayerPath).Should().Equal("Ordering/Application", "Ordering/Repository");
-		snapshot.LayerIndicators.Select(indicator => indicator.PaletteSlot).Should().Equal(2, 3);
-		snapshot.LayerIndicators[0].LayerAncestry.Should().Equal("Ordering", "Ordering/Application");
-	}
+        snapshot.LayerIndicators.Select(indicator => indicator.LayerPath).Should().Equal("Ordering/Application", "Ordering/Repository");
+        snapshot.LayerIndicators.Select(indicator => indicator.PaletteSlot).Should().Equal(2, 3);
+        snapshot.LayerIndicators[0].LayerAncestry.Should().Equal("Ordering", "Ordering/Application");
+    }
 
-	[Fact]
-	public async Task RepeatedChildNames_KeepDistinctCanonicalPaletteSlots()
-	{
-		const string source = """
+    [Fact]
+    public async Task RepeatedChildNames_KeepDistinctCanonicalPaletteSlots()
+    {
+        const string source = """
 		                      namespace Restaurant.Ordering
 		                      {
 		                          public class OrderingService { }
@@ -334,7 +334,7 @@ public sealed partial class EditorSnapshotTests
 		                          public class BillingService { }
 		                      }
 		                      """;
-		const string config = """
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Layer name="Ordering">
 		                          <Namespace startsWith="Restaurant.Ordering" />
@@ -347,20 +347,20 @@ public sealed partial class EditorSnapshotTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		var snapshot = await CreateSnapshotAsync(source, config);
+        var snapshot = await CreateSnapshotAsync(source, config);
 
-		snapshot.LayerIndicators.Select(indicator => indicator.LayerPath).Should().Equal("Ordering/Application", "Billing/Application");
-		snapshot.LayerIndicators.Select(indicator => indicator.PaletteSlot).Should().Equal(2, 4);
-	}
+        snapshot.LayerIndicators.Select(indicator => indicator.LayerPath).Should().Equal("Ordering/Application", "Billing/Application");
+        snapshot.LayerIndicators.Select(indicator => indicator.PaletteSlot).Should().Equal(2, 4);
+    }
 
-	[Fact]
-	public async Task CompositeTypeKindMatchers_ClassifyInterfaceAndImplementationSeparately()
-	{
-		const string source = """
+    [Fact]
+    public async Task CompositeTypeKindMatchers_ClassifyInterfaceAndImplementationSeparately()
+    {
+        const string source = """
 		                      public interface IExampleRepository { }
 		                      public class ExampleRepository : IExampleRepository { }
 		                      """;
-		const string config = """
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Layer name="DataContracts">
 		                          <Class startsWith="I" endsWith="Repository" typeKind="Interface" />
@@ -372,30 +372,30 @@ public sealed partial class EditorSnapshotTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		var snapshot = await CreateSnapshotAsync(source, config);
+        var snapshot = await CreateSnapshotAsync(source, config);
 
-		snapshot.LayerIndicators.Select(indicator => indicator.LayerPath).Should().Equal("DataContracts", "DataImplementation");
-		snapshot.SiteIndicators.Should().ContainSingle(indicator => indicator.Site == ArchitectureDependencySites.InterfaceImplementation)
-			.Which.Status.Should().Be(ArchitectureDependencySiteStatus.Allowed);
-	}
+        snapshot.LayerIndicators.Select(indicator => indicator.LayerPath).Should().Equal("DataContracts", "DataImplementation");
+        snapshot.SiteIndicators.Should().ContainSingle(indicator => indicator.Site == ArchitectureDependencySites.InterfaceImplementation)
+            .Which.Status.Should().Be(ArchitectureDependencySiteStatus.Allowed);
+    }
 
-	[Fact]
-	public async Task PartialTypes_RenderOneLayerIndicatorPerDeclaration()
-	{
-		const string source = """
+    [Fact]
+    public async Task PartialTypes_RenderOneLayerIndicatorPerDeclaration()
+    {
+        const string source = """
 		                      public partial class PizzaController { }
 		                      public partial class PizzaController { }
 		                      """;
-		const string config = """
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Layer name="Controller"><Class typeName="PizzaController" /></Layer>
 		                      </ArchitecturalLevels>
 		                      """;
 
-		var snapshot = await CreateSnapshotAsync(source, config);
+        var snapshot = await CreateSnapshotAsync(source, config);
 
-		snapshot.LayerIndicators.Should().HaveCount(2);
-		snapshot.LayerIndicators.Should().OnlyContain(indicator => indicator.LayerPath == "Controller");
-	}
+        snapshot.LayerIndicators.Should().HaveCount(2);
+        snapshot.LayerIndicators.Should().OnlyContain(indicator => indicator.LayerPath == "Controller");
+    }
 
 }

@@ -8,14 +8,14 @@ namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests.Controls;
 
 public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 {
-	[Fact]
-	public void RootInspector_ShowsAndPersistsAssemblyAttributePolicies()
-	{
-		RunOnStaThread(() =>
-		{
-			var path = WriteTempFile(
-				"Architecture.anl",
-				"""
+    [Fact]
+    public void RootInspector_ShowsAndPersistsAssemblyAttributePolicies()
+    {
+        RunOnStaThread(() =>
+        {
+            var path = WriteTempFile(
+                "Architecture.anl",
+                """
 				<ArchitecturalLevels>
 				  <AssemblyAttributePolicy description="Friend access stays reviewed.">
 				    <Forbidden>
@@ -26,19 +26,19 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 				  </AssemblyAttributePolicy>
 				</ArchitecturalLevels>
 				""");
-			var control = CreateControl(ArchitectureGraphXmlSnapshotLoader.Load(path), _ => ArchitectureGraphXmlSnapshotLoader.Load(path));
+            var control = CreateControl(ArchitectureGraphXmlSnapshotLoader.Load(path), _ => ArchitectureGraphXmlSnapshotLoader.Load(path));
 
-			GetVisualText(control).Should().Contain("Assembly attribute policies");
-			var policy = FindExpanderByHeader(control, "<AssemblyAttributePolicy description=\"Friend access stays reviewed.\" />");
-			policy.IsExpanded = true;
-			DrainDispatcher();
-			var description = FindTextBoxByText(control, "Friend access stays reviewed.");
+            GetVisualText(control).Should().Contain("Assembly attribute policies");
+            var policy = FindExpanderByHeader(control, "<AssemblyAttributePolicy description=\"Friend access stays reviewed.\" />");
+            policy.IsExpanded = true;
+            DrainDispatcher();
+            var description = FindTextBoxByText(control, "Friend access stays reviewed.");
 
-			description.Text = "Friend access requires review.";
-			description.RaiseEvent(new RoutedEventArgs(UIElement.LostFocusEvent));
-			DrainDispatcher();
+            description.Text = "Friend access requires review.";
+            description.RaiseEvent(new RoutedEventArgs(UIElement.LostFocusEvent));
+            DrainDispatcher();
 
-			File.ReadAllText(path).Should().Contain("description=\"Friend access requires review.\"");
-		});
-	}
+            File.ReadAllText(path).Should().Contain("description=\"Friend access requires review.\"");
+        });
+    }
 }

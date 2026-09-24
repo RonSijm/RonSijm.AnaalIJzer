@@ -42,64 +42,64 @@ public sealed class ArchitectureSiteLayerInformationOptions(
     public bool ShowStaticMemberLayerInformation { get; } = showStaticMemberLayerInformation;
 
     public bool AnyEnabled
-	{
-		get
-		{
-			var result = ShowConstructorLayerInformation
-			             || ShowMethodLayerInformation
-			             || ShowMethodReturnLayerInformation
-			             || ShowFieldLayerInformation
-			             || ShowPropertyLayerInformation
-			             || ShowLocalLayerInformation
-			             || ShowNewLayerInformation
-			             || ShowGenericInvocationLayerInformation
-			             || ShowGenericArgumentLayerInformation
-			             || ShowInheritanceLayerInformation
-			             || ShowInterfaceImplementationLayerInformation
-			             || ShowAttributeLayerInformation
-			             || ShowStaticMemberLayerInformation;
+    {
+        get
+        {
+            var result = ShowConstructorLayerInformation
+                         || ShowMethodLayerInformation
+                         || ShowMethodReturnLayerInformation
+                         || ShowFieldLayerInformation
+                         || ShowPropertyLayerInformation
+                         || ShowLocalLayerInformation
+                         || ShowNewLayerInformation
+                         || ShowGenericInvocationLayerInformation
+                         || ShowGenericArgumentLayerInformation
+                         || ShowInheritanceLayerInformation
+                         || ShowInterfaceImplementationLayerInformation
+                         || ShowAttributeLayerInformation
+                         || ShowStaticMemberLayerInformation;
 
-			return result;
-		}
-	}
+            return result;
+        }
+    }
 
-	public static ArchitectureSiteLayerInformationOptions None { get; } = new();
+    public static ArchitectureSiteLayerInformationOptions None { get; } = new();
 
-	public static ArchitectureSiteLayerInformationOptions All { get; } = new(
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true);
+    public static ArchitectureSiteLayerInformationOptions All { get; } = new(
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true);
 
-	public bool IsEnabled(string site)
-	{
-		var result = site switch
-		{
-			ArchitectureDependencySites.Constructor => ShowConstructorLayerInformation,
-			ArchitectureDependencySites.Method => ShowMethodLayerInformation,
-			ArchitectureDependencySites.MethodReturn => ShowMethodReturnLayerInformation,
-			ArchitectureDependencySites.Field => ShowFieldLayerInformation,
-			ArchitectureDependencySites.Property => ShowPropertyLayerInformation,
-			ArchitectureDependencySites.Local => ShowLocalLayerInformation,
-			ArchitectureDependencySites.New => ShowNewLayerInformation,
-			ArchitectureDependencySites.GenericInvocation => ShowGenericInvocationLayerInformation,
-			ArchitectureDependencySites.GenericArgument => ShowGenericArgumentLayerInformation,
-			ArchitectureDependencySites.Inheritance => ShowInheritanceLayerInformation,
-			ArchitectureDependencySites.InterfaceImplementation => ShowInterfaceImplementationLayerInformation,
-			ArchitectureDependencySites.Attribute => ShowAttributeLayerInformation,
-			ArchitectureDependencySites.StaticMember => ShowStaticMemberLayerInformation,
-			_ => false
-		};
+    public bool IsEnabled(string site)
+    {
+        var result = site switch
+        {
+            ArchitectureDependencySites.Constructor => ShowConstructorLayerInformation,
+            ArchitectureDependencySites.Method => ShowMethodLayerInformation,
+            ArchitectureDependencySites.MethodReturn => ShowMethodReturnLayerInformation,
+            ArchitectureDependencySites.Field => ShowFieldLayerInformation,
+            ArchitectureDependencySites.Property => ShowPropertyLayerInformation,
+            ArchitectureDependencySites.Local => ShowLocalLayerInformation,
+            ArchitectureDependencySites.New => ShowNewLayerInformation,
+            ArchitectureDependencySites.GenericInvocation => ShowGenericInvocationLayerInformation,
+            ArchitectureDependencySites.GenericArgument => ShowGenericArgumentLayerInformation,
+            ArchitectureDependencySites.Inheritance => ShowInheritanceLayerInformation,
+            ArchitectureDependencySites.InterfaceImplementation => ShowInterfaceImplementationLayerInformation,
+            ArchitectureDependencySites.Attribute => ShowAttributeLayerInformation,
+            ArchitectureDependencySites.StaticMember => ShowStaticMemberLayerInformation,
+            _ => false
+        };
 
-		return result;
-	}
+        return result;
+    }
 }

@@ -2,9 +2,19 @@
 <ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                      xsi:noNamespaceSchemaLocation="src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
                      description="Helpful solution baseline for RonSijm.AnaalIJzer. This configuration groups assemblies by responsibility instead of mirroring every individual project reference, so it stays readable and useful as an architectural example.">
+  <Layer name="Tests"
+         description="Test projects may probe any layer and are kept outside the production dependency flow.">
+    <Assembly endsWith=".Tests" />
+    <Assembly exactName="RonSijm.AnaalIJzer.IntegrationTests" />
+  </Layer>
+
   <Layer name="Foundation"
          description="Shared architectural vocabulary, matcher logic, findings, policies, and configuration primitives.">
-    <Assembly startsWith="RonSijm.AnaalIJzer.Core." />
+    <Assembly startsWith="RonSijm.AnaalIJzer.Core.">
+      <Exceptions>
+        <Assembly exactName="RonSijm.AnaalIJzer.Core.Editor" />
+      </Exceptions>
+    </Assembly>
   </Layer>
 
   <Layer name="AnalysisPlatform"
@@ -19,12 +29,13 @@
          description="Workspace loading, runtime orchestration, editor/runtime bridges, and configuration editing.">
     <Assembly exactName="RonSijm.AnaalIJzer.Application" />
     <Assembly exactName="RonSijm.AnaalIJzer.Workspace" />
-    <Assembly exactName="RonSijm.AnaalIJzer.EditorRuntime" />
     <Assembly exactName="RonSijm.AnaalIJzer.ConfigurationEditing" />
   </Layer>
 
   <Layer name="Graphing"
          description="Graph models, graph layout, graph workspace analysis, and graph editing surfaces.">
+    <Assembly exactName="RonSijm.AnaalIJzer.Core.Editor" />
+    <Assembly exactName="RonSijm.AnaalIJzer.EditorRuntime" />
     <Assembly startsWith="RonSijm.AnaalIJzer.Graph" />
   </Layer>
 
@@ -35,12 +46,6 @@
     <Assembly exactName="RonSijm.AnaalIJzer.VisualStudio" />
   </Layer>
 
-  <Layer name="Tests"
-         description="Test projects may probe any layer and are kept outside the production dependency flow.">
-    <Assembly endsWith=".Tests" />
-    <Assembly exactName="RonSijm.AnaalIJzer.IntegrationTests" />
-  </Layer>
-
   <AllowedDependency from="*" to="Foundation" appliesToDescendants="true"
                      description="Everything may rely on the shared architectural vocabulary and runtime/configuration primitives." />
 
@@ -49,6 +54,8 @@
 
   <AllowedDependency from="AnalysisPlatform" to="AnalysisPlatform"
                      description="Analyzer components collaborate with each other." />
+  <AllowedDependency from="AnalysisPlatform" to="Graphing"
+                     description="Output services render and export graph snapshots from the graph model." />
 
   <AllowedDependency from="ApplicationServices" to="AnalysisPlatform"
                      description="Application services execute analysis and reporting workflows." />

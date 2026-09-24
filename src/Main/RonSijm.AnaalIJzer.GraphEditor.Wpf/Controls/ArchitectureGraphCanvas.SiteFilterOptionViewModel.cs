@@ -5,30 +5,30 @@ namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
 
 internal sealed partial class ArchitectureGraphCanvas
 {
-	private sealed class NodifySiteFilterOptionViewModel(string site, bool isChecked, ICommand command)
-		: INotifyPropertyChanged
-	{
-		private bool _isChecked = isChecked;
+    private sealed class NodifySiteFilterOptionViewModel(string site, bool isChecked, ICommand command)
+        : INotifyPropertyChanged
+    {
+        private bool _isChecked = isChecked;
 
-		public event PropertyChangedEventHandler? PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-		public string Site { get; } = site;
+        public string Site { get; } = site;
 
-		public bool IsChecked
-		{
-			get => _isChecked;
-			set
-			{
-				if (_isChecked == value)
-				{
-					return;
-				}
+        public bool IsChecked
+        {
+            get => _isChecked;
+            set
+            {
+                if (_isChecked == value)
+                {
+                    return;
+                }
 
-				_isChecked = value;
-				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsChecked)));
-			}
-		}
+                _isChecked = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsChecked)));
+            }
+        }
 
-		public ICommand Command { get; } = command;
-	}
+        public ICommand Command { get; } = command;
+    }
 }

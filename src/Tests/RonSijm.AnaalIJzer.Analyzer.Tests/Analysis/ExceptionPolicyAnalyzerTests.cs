@@ -7,12 +7,12 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Analysis;
 [Collection(ArchitectureClockTestCollection.Name)]
 public sealed class ExceptionPolicyAnalyzerTests
 {
-	[Fact]
-	public async Task ExceptionPolicy_WhenMissingOwner_ReportsArch017()
-	{
-		using var _ = ArchitectureClock.Freeze(new DateTime(2026, 7, 26, 0, 0, 0, DateTimeKind.Utc));
+    [Fact]
+    public async Task ExceptionPolicy_WhenMissingOwner_ReportsArch017()
+    {
+        using var _ = ArchitectureClock.Freeze(new DateTime(2026, 7, 26, 0, 0, 0, DateTimeKind.Utc));
 
-		const string config = """
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <ExceptionPolicy requireOwner="true" />
 		                        <Layer name="Application">
@@ -25,21 +25,21 @@ public sealed class ExceptionPolicyAnalyzerTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = "public class LegacyManager { }";
+        const string source = "public class LegacyManager { }";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ExceptionReviewLifecycle).Subject;
-		diagnostic.GetMessage().Should().Contain("missing required owner metadata");
-		diagnostic.Properties[ArchitecturalDiagnostics.PropertyExceptionStatus].Should().Be(nameof(ArchitectureExceptionStatus.Invalid));
-	}
+        var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ExceptionReviewLifecycle).Subject;
+        diagnostic.GetMessage().Should().Contain("missing required owner metadata");
+        diagnostic.Properties[ArchitecturalDiagnostics.PropertyExceptionStatus].Should().Be(nameof(ArchitectureExceptionStatus.Invalid));
+    }
 
-	[Fact]
-	public async Task ExceptionPolicy_WhenExpired_ExceptionFailsClosedAndUnderlyingViolationReturns()
-	{
-		using var _ = ArchitectureClock.Freeze(new DateTime(2026, 7, 26, 0, 0, 0, DateTimeKind.Utc));
+    [Fact]
+    public async Task ExceptionPolicy_WhenExpired_ExceptionFailsClosedAndUnderlyingViolationReturns()
+    {
+        using var _ = ArchitectureClock.Freeze(new DateTime(2026, 7, 26, 0, 0, 0, DateTimeKind.Utc));
 
-		const string config = """
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <ExceptionPolicy requireExpiresOn="true" />
 		                        <Layer name="Controller">
@@ -56,23 +56,23 @@ public sealed class ExceptionPolicyAnalyzerTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public interface ICheeseRepository { }
 		                      public class PizzaController(ICheeseRepository cheeseRepository) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.ExceptionReviewLifecycle && item.GetMessage().Contains("has expired on 2026-06-30", StringComparison.Ordinal));
-		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed);
-	}
+        diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.ExceptionReviewLifecycle && item.GetMessage(null).Contains("has expired on 2026-06-30", StringComparison.Ordinal));
+        diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed);
+    }
 
-	[Fact]
-	public async Task ExceptionPolicy_WhenExpiringSoon_WarnsButExceptionStaysActive()
-	{
-		using var _ = ArchitectureClock.Freeze(new DateTime(2026, 7, 26, 0, 0, 0, DateTimeKind.Utc));
+    [Fact]
+    public async Task ExceptionPolicy_WhenExpiringSoon_WarnsButExceptionStaysActive()
+    {
+        using var _ = ArchitectureClock.Freeze(new DateTime(2026, 7, 26, 0, 0, 0, DateTimeKind.Utc));
 
-		const string config = """
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <ExceptionPolicy requireExpiresOn="true"
 		                                         warnBeforeDays="14" />
@@ -90,21 +90,21 @@ public sealed class ExceptionPolicyAnalyzerTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public interface ICheeseRepository { }
 		                      public class PizzaController(ICheeseRepository cheeseRepository) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.ExceptionReviewLifecycle && item.GetMessage().Contains("expires in 6 days on 2026-08-01", StringComparison.Ordinal));
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed);
-	}
+        diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.ExceptionReviewLifecycle && item.GetMessage(null).Contains("expires in 6 days on 2026-08-01", StringComparison.Ordinal));
+        diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed);
+    }
 
-	[Fact]
-	public async Task ExceptionPolicy_WhenOmitted_PreservesExistingExceptionBehavior()
-	{
-		const string config = """
+    [Fact]
+    public async Task ExceptionPolicy_WhenOmitted_PreservesExistingExceptionBehavior()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Layer name="Controller">
 		                          <Class endsWith="Controller" />
@@ -119,14 +119,14 @@ public sealed class ExceptionPolicyAnalyzerTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public interface ICheeseRepository { }
 		                      public class PizzaController(ICheeseRepository cheeseRepository) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ExceptionReviewLifecycle);
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed);
-	}
+        diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ExceptionReviewLifecycle);
+        diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed);
+    }
 }

@@ -2,7 +2,7 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Testing;
 
 public static class TestConfigs
 {
-	public const string DefaultConfig = """
+    public const string DefaultConfig = """
 <ArchitecturalLevels>
     <Layer name="Controller">
         <Class endsWith="Controller" />
@@ -18,7 +18,7 @@ public static class TestConfigs
 </ArchitecturalLevels>
 """;
 
-	public const string RequireRecognizedDependenciesConfig = """
+    public const string RequireRecognizedDependenciesConfig = """
 <ArchitecturalLevels requireRecognizedDependencies="Constructor">
     <Layer name="Manager">
         <Class endsWith="Manager" />

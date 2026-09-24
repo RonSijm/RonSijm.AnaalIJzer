@@ -59,7 +59,7 @@ if (-not $writesFlatOutput) {
 $projectPath = Join-Path $repositoryRoot "src\Tools\RonSijm.AnaalIJzer.GraphEditor.Standalone\RonSijm.AnaalIJzer.GraphEditor.Standalone.csproj"
 if (-not $NoBuild) {
 	Write-Host "Building AnaalIJzer Graph Editor..."
-	dotnet build $projectPath --configuration $Configuration
+	dotnet build $projectPath --configuration $Configuration --disable-build-servers -m:1 -p:UseSharedCompilation=false
 	if ($LASTEXITCODE -ne 0) {
 		exit $LASTEXITCODE
 	}

@@ -2,6 +2,27 @@
 
   <PropertyGroup>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
+    <!--
+      The repository dogfoods the latest published analyzer. Using the NuGet package here keeps
+      Roslyn diagnostics identical in command-line and Visual Studio builds without introducing
+      a project-reference cycle back into the analyzer currently being compiled.
+
+      This version deliberately trails source development until a package has been published.
+    -->
+    <AnaalIJzerBootstrapVersion Condition="'$(AnaalIJzerBootstrapVersion)' == ''">0.3.5</AnaalIJzerBootstrapVersion>
+    <EnableArchitecturalLevelAnalyzer Condition="'$(EnableArchitecturalLevelAnalyzer)' == ''">true</EnableArchitecturalLevelAnalyzer>
+    <AnaalIJzerRepositoryBootstrapEnabled>true</AnaalIJzerRepositoryBootstrapEnabled>
   </PropertyGroup>
+
+  <!-- PackageDownload avoids a NuGet dependency cycle while this repository builds the same
+       analyzer package. Directory.Build.targets exposes the downloaded DLLs to Roslyn. -->
+  <ItemGroup Condition="'$(EnableArchitecturalLevelAnalyzer)' == 'true'">
+    <PackageDownload Include="RonSijm.AnaalIJzer"
+                     Version="[$(AnaalIJzerBootstrapVersion)]" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(EnableArchitecturalLevelAnalyzer)' == 'true'">
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)*.anl" />
+  </ItemGroup>
 
 </Project>

@@ -8,31 +8,31 @@ namespace RonSijm.AnaalIJzer.Workspace.Analysis;
 
 internal sealed partial class ProjectAnalysisHost
 {
-	private static (string? Xml, string? Path) ReadConfigInput(ImmutableArray<AdditionalText> additionalFiles, ArchitectureConfigurationTextDocument? inlineDocument, CancellationToken cancellationToken)
-	{
-		var configFile = ArchitectureConfigurationDocumentLoader.FindConfigurationFile(additionalFiles);
-		if (configFile is not null)
-		{
-			return (configFile.GetText(cancellationToken)?.ToString(), configFile.Path);
-		}
+    private static (string? Xml, string? Path) ReadConfigInput(ImmutableArray<AdditionalText> additionalFiles, ArchitectureConfigurationTextDocument? inlineDocument, CancellationToken cancellationToken)
+    {
+        var configFile = ArchitectureConfigurationDocumentLoader.FindConfigurationFile(additionalFiles);
+        if (configFile is not null)
+        {
+            return (configFile.GetText(cancellationToken)?.ToString(), configFile.Path);
+        }
 
-		var result = inlineDocument is null
-			? (null, null)
-			: (inlineDocument.Content, inlineDocument.Path);
+        var result = inlineDocument is null
+            ? (null, null)
+            : (inlineDocument.Content, inlineDocument.Path);
 
-		return result;
-	}
+        return result;
+    }
 
-	private static AdditionalText? FindSolutionConfigFile(string solutionPath, CancellationToken cancellationToken)
-	{
-		var configPath = ArchitectureConfigurationSourceDiscovery.FindNearestConfigurationFilePath(solutionPath);
-		if (string.IsNullOrWhiteSpace(configPath))
-		{
-			return null;
-		}
+    private static AdditionalText? FindSolutionConfigFile(string solutionPath, CancellationToken cancellationToken)
+    {
+        var configPath = ArchitectureConfigurationSourceDiscovery.FindNearestConfigurationFilePath(solutionPath);
+        if (string.IsNullOrWhiteSpace(configPath))
+        {
+            return null;
+        }
 
-		var result = WorkspaceAdditionalText.FromFile(configPath, cancellationToken);
+        var result = WorkspaceAdditionalText.FromFile(configPath, cancellationToken);
 
-		return result;
-	}
+        return result;
+    }
 }

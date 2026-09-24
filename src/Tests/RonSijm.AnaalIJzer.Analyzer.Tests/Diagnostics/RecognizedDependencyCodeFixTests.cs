@@ -5,10 +5,10 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Diagnostics;
 
 public sealed class RecognizedDependencyCodeFixTests
 {
-	[Fact]
-	public async Task ClassifyUnknownDependency_AddsClassMatcherToSelectedLayer()
-	{
-		const string config = """
+    [Fact]
+    public async Task ClassifyUnknownDependency_AddsClassMatcherToSelectedLayer()
+    {
+        const string config = """
 			<ArchitecturalLevels requireRecognizedDependencies="Constructor">
 			  <Layer name="Caller">
 			    <Class typeName="PizzaWaiter" />
@@ -18,74 +18,74 @@ public sealed class RecognizedDependencyCodeFixTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			public class MysteryIngredient { }
 			public class KnownMystery { }
 			public class PizzaWaiter(MysteryIngredient ingredient) { }
 			""";
 
-		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
-			source,
-			config,
-			ArchitecturalDiagnosticIds.DependencyRequiredMissing,
-			"Classify 'MysteryIngredient' into layer 'Mystery'");
+        var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
+            source,
+            config,
+            ArchitecturalDiagnosticIds.DependencyRequiredMissing,
+            "Classify 'MysteryIngredient' into layer 'Mystery'");
 
-		updatedConfig.Should().Contain("<Class typeName=\"MysteryIngredient\" />");
-	}
+        updatedConfig.Should().Contain("<Class typeName=\"MysteryIngredient\" />");
+    }
 
-	[Fact]
-	public async Task StopRequiringRecognizedDependencyGlobally_RemovesCurrentSite()
-	{
-		const string config = """
+    [Fact]
+    public async Task StopRequiringRecognizedDependencyGlobally_RemovesCurrentSite()
+    {
+        const string config = """
 			<ArchitecturalLevels requireRecognizedDependencies="Constructor, Local">
 			  <Layer name="Caller">
 			    <Class typeName="PizzaWaiter" />
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			public class MysteryIngredient { }
 			public class PizzaWaiter(MysteryIngredient ingredient) { }
 			""";
 
-		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
-			source,
-			config,
-			ArchitecturalDiagnosticIds.DependencyRequiredMissing,
-			"Stop requiring recognized dependencies at Constructor globally");
+        var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
+            source,
+            config,
+            ArchitecturalDiagnosticIds.DependencyRequiredMissing,
+            "Stop requiring recognized dependencies at Constructor globally");
 
-		updatedConfig.Should().Contain("requireRecognizedDependencies=\"Local\"");
-		updatedConfig.Should().NotContain("requireRecognizedDependencies=\"Constructor, Local\"");
-	}
+        updatedConfig.Should().Contain("requireRecognizedDependencies=\"Local\"");
+        updatedConfig.Should().NotContain("requireRecognizedDependencies=\"Constructor, Local\"");
+    }
 
-	[Fact]
-	public async Task StopRequiringRecognizedDependencyForLayer_RemovesCurrentSite()
-	{
-		const string config = """
+    [Fact]
+    public async Task StopRequiringRecognizedDependencyForLayer_RemovesCurrentSite()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Caller" requireRecognizedDependencies="Constructor, Local">
 			    <Class typeName="PizzaWaiter" />
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			public class MysteryIngredient { }
 			public class PizzaWaiter(MysteryIngredient ingredient) { }
 			""";
 
-		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
-			source,
-			config,
-			ArchitecturalDiagnosticIds.DependencyRequiredMissing,
-			"Stop requiring recognized dependencies at Constructor for layer 'Caller'");
+        var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
+            source,
+            config,
+            ArchitecturalDiagnosticIds.DependencyRequiredMissing,
+            "Stop requiring recognized dependencies at Constructor for layer 'Caller'");
 
-		updatedConfig.Should().Contain("requireRecognizedDependencies=\"Local\"");
-	}
+        updatedConfig.Should().Contain("requireRecognizedDependencies=\"Local\"");
+    }
 
-	[Fact]
-	public async Task ClassifyUnknownDependency_InlineSettings_UpdatesAssemblyMetadata()
-	{
-		const string source = """"
+    [Fact]
+    public async Task ClassifyUnknownDependency_InlineSettings_UpdatesAssemblyMetadata()
+    {
+        const string source = """"
 			using System.Reflection;
 
 			[assembly: AssemblyMetadata("AnaalIJzerSettings", """
@@ -104,11 +104,11 @@ public sealed class RecognizedDependencyCodeFixTests
 			public class PizzaWaiter(MysteryIngredient ingredient) { }
 			"""";
 
-		var updatedSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
-			source,
-			ArchitecturalDiagnosticIds.DependencyRequiredMissing,
-			"Classify 'MysteryIngredient' into layer 'Mystery'");
+        var updatedSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
+            source,
+            ArchitecturalDiagnosticIds.DependencyRequiredMissing,
+            "Classify 'MysteryIngredient' into layer 'Mystery'");
 
-		updatedSource.Should().Contain("<Class typeName=\"MysteryIngredient\" />");
-	}
+        updatedSource.Should().Contain("<Class typeName=\"MysteryIngredient\" />");
+    }
 }

@@ -43,10 +43,10 @@ jobs:
           global-json-file: global.json
 
       - name: Restore Arse
-        run: dotnet restore src/Tools/RonSijm.AnaalIJzer.Arse/RonSijm.AnaalIJzer.Arse.csproj
+        run: dotnet restore src/Tools/RonSijm.AnaalIJzer.Arse/RonSijm.AnaalIJzer.Arse.csproj --disable-parallel --disable-build-servers -m:1 -p:UseSharedCompilation=false
 
       - name: Build Arse
-        run: dotnet build src/Tools/RonSijm.AnaalIJzer.Arse/RonSijm.AnaalIJzer.Arse.csproj --no-restore --configuration "$BUILD_CONFIGURATION"
+        run: dotnet build src/Tools/RonSijm.AnaalIJzer.Arse/RonSijm.AnaalIJzer.Arse.csproj --no-restore --configuration "$BUILD_CONFIGURATION" --disable-build-servers -m:1 -p:UseSharedCompilation=false
 
       - name: Inspect solution topology as Markdown
         id: inspect_markdown

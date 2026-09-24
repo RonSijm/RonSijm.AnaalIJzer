@@ -7,29 +7,29 @@ namespace RonSijm.AnaalIJzer.ConfigurationEditing.Editing.Layers;
 
 internal static class ArchitectureLayerMutationExecutor
 {
-	internal static ArchitectureConfigurationDocumentOperationResult EditLayer(ArchitectureLayerEditHandle handle, Func<XDocument, XElement, ArchitectureConfigurationDocumentOperationResult> mutation)
-	{
-		if (!handle.CanEdit)
-		{
-			return ArchitectureConfigurationDocumentOperationResult.Failure("This layer does not have an editable configuration origin.");
-		}
+    internal static ArchitectureConfigurationDocumentOperationResult EditLayer(ArchitectureLayerEditHandle handle, Func<XDocument, XElement, ArchitectureConfigurationDocumentOperationResult> mutation)
+    {
+        if (!handle.CanEdit)
+        {
+            return ArchitectureConfigurationDocumentOperationResult.Failure("This layer does not have an editable configuration origin.");
+        }
 
-		var result = ArchitectureConfigurationEditExecution.EditConfiguration(
-			handle.SourceKind,
-			handle.SourcePath,
-			document =>
-			{
-				var layer = ArchitectureConfigurationXmlNavigator.FindLayerElement(document, handle);
-				if (layer is null)
-				{
-					return ArchitectureConfigurationDocumentOperationResult.Failure("Could not find layer '" + handle.LayerPath + "' in " + handle.SourcePath + ".");
-				}
+        var result = ArchitectureConfigurationEditExecution.EditConfiguration(
+            handle.SourceKind,
+            handle.SourcePath,
+            document =>
+            {
+                var layer = ArchitectureConfigurationXmlNavigator.FindLayerElement(document, handle);
+                if (layer is null)
+                {
+                    return ArchitectureConfigurationDocumentOperationResult.Failure("Could not find layer '" + handle.LayerPath + "' in " + handle.SourcePath + ".");
+                }
 
-				var mutationResult = mutation(document, layer);
+                var mutationResult = mutation(document, layer);
 
-				return mutationResult;
-			});
+                return mutationResult;
+            });
 
-		return result;
-	}
+        return result;
+    }
 }

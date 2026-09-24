@@ -2,43 +2,43 @@ namespace RonSijm.AnaalIJzer.Core.Exceptions;
 
 public static class ArchitectureClock
 {
-	private static Func<DateTime> _utcNowProvider = () => DateTime.UtcNow;
+    private static Func<DateTime> _utcNowProvider = () => DateTime.UtcNow;
 
-	public static DateTime UtcNow
-	{
-		get
-		{
-			var result = _utcNowProvider();
+    public static DateTime UtcNow
+    {
+        get
+        {
+            var result = _utcNowProvider();
 
-			return result;
-		}
-	}
+            return result;
+        }
+    }
 
-	public static DateTime UtcToday
-	{
-		get
-		{
-			var result = UtcNow.Date;
+    public static DateTime UtcToday
+    {
+        get
+        {
+            var result = UtcNow.Date;
 
-			return result;
-		}
-	}
+            return result;
+        }
+    }
 
-	public static IDisposable Freeze(DateTime utcNow)
-	{
-		var previous = _utcNowProvider;
-		_utcNowProvider = () => utcNow;
+    public static IDisposable Freeze(DateTime utcNow)
+    {
+        var previous = _utcNowProvider;
+        _utcNowProvider = () => utcNow;
 
-		var result = new FrozenClock(() => _utcNowProvider = previous);
+        var result = new FrozenClock(() => _utcNowProvider = previous);
 
-		return result;
-	}
+        return result;
+    }
 
-	private sealed class FrozenClock(Action restore) : IDisposable
-	{
-		public void Dispose()
-		{
-			restore();
-		}
-	}
+    private sealed class FrozenClock(Action restore) : IDisposable
+    {
+        public void Dispose()
+        {
+            restore();
+        }
+    }
 }

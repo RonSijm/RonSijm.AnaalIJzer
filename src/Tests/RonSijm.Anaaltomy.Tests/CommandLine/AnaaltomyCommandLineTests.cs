@@ -8,6 +8,21 @@ namespace RonSijm.Anaaltomy.Tests.CommandLine;
 public sealed class AnaaltomyCommandLineTests
 {
 	[Fact]
+	public async Task RunAsync_CancelledScan_PropagatesCancellation()
+	{
+		var projectPath = Path.Combine(GetRepositoryRoot(), "src", "Main", "RonSijm.AnaalIJzer.Core.Statistics", "RonSijm.AnaalIJzer.Core.Statistics.csproj");
+		var databasePath = Path.Combine(Path.GetTempPath(), "Anaaltomy", Guid.NewGuid().ToString("N"), "statistics.db");
+		using var output = new StringWriter();
+		using var error = new StringWriter();
+		using var cancellation = new CancellationTokenSource();
+		cancellation.Cancel();
+
+		var action = () => AnaaltomyCommandLine.RunAsync(["scan", "--project", projectPath, "--database", databasePath, "--restore-mode", "never"], output, error, cancellation.Token);
+
+		await action.Should().ThrowAsync<OperationCanceledException>();
+	}
+
+	[Fact]
 	public async Task RunAsync_HelpWritesCommandReference()
 	{
 		using var output = new StringWriter();

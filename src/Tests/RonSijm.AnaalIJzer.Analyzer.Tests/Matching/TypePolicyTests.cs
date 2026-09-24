@@ -5,10 +5,10 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Matching;
 
 public sealed class TypePolicyTests
 {
-	[Fact]
-	public async Task GlobalAllowed_ReportsOnlyDependenciesOutsideTheWhitelist()
-	{
-		const string config = """
+    [Fact]
+    public async Task GlobalAllowed_ReportsOnlyDependenciesOutsideTheWhitelist()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Layer name="Application"><Class endsWith="Service" /></Layer>
 		                        <Layer name="Command"><Class endsWith="Command" /></Layer>
@@ -19,22 +19,22 @@ public sealed class TypePolicyTests
 		                        <AllowedDependency from="Application" to="Command" />
 		                      </ArchitecturalLevels>
 		                      """;
-		const string source = """
+        const string source = """
 		                      public class CreateOrderCommand { }
 		                      public class CancelOrderCommand { }
 		                      public class ProcessOrderCommand { }
 		                      public class OrderService(CreateOrderCommand create, CancelOrderCommand cancel, ProcessOrderCommand process) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.TypeNotAllowed).Subject;
-		diagnostic.GetMessage(CultureInfo.InvariantCulture).Should().Contain("global <Allowed>").And.Contain("ProcessOrderCommand");
-	}
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.TypeNotAllowed).Subject;
+        diagnostic.GetMessage(CultureInfo.InvariantCulture).Should().Contain("global <Allowed>").And.Contain("ProcessOrderCommand");
+    }
 
-	[Fact]
-	public async Task ScopedAllowed_AppliesOnlyToItsLayer()
-	{
-		const string config = """
+    [Fact]
+    public async Task ScopedAllowed_AppliesOnlyToItsLayer()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Layer name="Application"><Class endsWith="Service" /></Layer>
 		                        <Layer name="Command">
@@ -46,22 +46,22 @@ public sealed class TypePolicyTests
 		                        <AllowedDependency from="Application" to="Query" />
 		                      </ArchitecturalLevels>
 		                      """;
-		const string source = """
+        const string source = """
 		                      public class CreateOrderCommand { }
 		                      public class ProcessOrderCommand { }
 		                      public class ProcessOrderQuery { }
 		                      public class OrderService(CreateOrderCommand allowedCommand, ProcessOrderCommand deniedCommand, ProcessOrderQuery unaffectedQuery) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.TypeNotAllowed).Subject;
-		diagnostic.GetMessage(CultureInfo.InvariantCulture).Should().Contain("layer 'Command'").And.Contain("ProcessOrderCommand");
-	}
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.TypeNotAllowed).Subject;
+        diagnostic.GetMessage(CultureInfo.InvariantCulture).Should().Contain("layer 'Command'").And.Contain("ProcessOrderCommand");
+    }
 
-	[Fact]
-	public async Task ScopedForbidden_AppliesOnlyToItsLayer()
-	{
-		const string config = """
+    [Fact]
+    public async Task ScopedForbidden_AppliesOnlyToItsLayer()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Layer name="Application"><Class endsWith="Service" /></Layer>
 		                        <Layer name="Query">
@@ -73,22 +73,22 @@ public sealed class TypePolicyTests
 		                        <AllowedDependency from="Application" to="Audit" />
 		                      </ArchitecturalLevels>
 		                      """;
-		const string source = """
+        const string source = """
 		                      public class FindOrderQuery { }
 		                      public class DeleteOrderQuery { }
 		                      public class DeleteOrderAuditRecord { }
 		                      public class OrderService(FindOrderQuery allowedQuery, DeleteOrderQuery deniedQuery, DeleteOrderAuditRecord unaffectedAuditRecord) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.TypeNotAllowed).Subject;
-		diagnostic.GetMessage(CultureInfo.InvariantCulture).Should().Contain("<Forbidden>").And.Contain("layer 'Query'").And.Contain("DeleteOrderQuery");
-	}
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.TypeNotAllowed).Subject;
+        diagnostic.GetMessage(CultureInfo.InvariantCulture).Should().Contain("<Forbidden>").And.Contain("layer 'Query'").And.Contain("DeleteOrderQuery");
+    }
 
-	[Fact]
-	public async Task NestedAllowed_RequiresEveryAncestorWhitelistToPass()
-	{
-		const string config = """
+    [Fact]
+    public async Task NestedAllowed_RequiresEveryAncestorWhitelistToPass()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Layer name="Application"><Class endsWith="Service" /></Layer>
 		                        <Layer name="Ordering">
@@ -102,7 +102,7 @@ public sealed class TypePolicyTests
 		                        <AllowedDependency from="Application" to="Ordering" />
 		                      </ArchitecturalLevels>
 		                      """;
-		const string source = """
+        const string source = """
 		                      namespace Company.Ordering
 		                      {
 		                          public class CreateOrderCommand { }
@@ -112,15 +112,15 @@ public sealed class TypePolicyTests
 		                      public class CheckoutService(Company.Ordering.CreateOrderCommand allowed, Company.Ordering.CreateCustomerCommand denied) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.TypeNotAllowed).Subject;
-		diagnostic.GetMessage(CultureInfo.InvariantCulture).Should().Contain("Ordering/Command").And.Contain("CreateCustomerCommand");
-	}
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.TypeNotAllowed).Subject;
+        diagnostic.GetMessage(CultureInfo.InvariantCulture).Should().Contain("Ordering/Command").And.Contain("CreateCustomerCommand");
+    }
 
-	[Fact]
-	public async Task NestedForbidden_IsInheritedByDescendantLayers()
-	{
-		const string config = """
+    [Fact]
+    public async Task NestedForbidden_IsInheritedByDescendantLayers()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Layer name="Application"><Class endsWith="Service" /></Layer>
 		                        <Layer name="Ordering">
@@ -131,7 +131,7 @@ public sealed class TypePolicyTests
 		                        <AllowedDependency from="Application" to="Ordering" />
 		                      </ArchitecturalLevels>
 		                      """;
-		const string source = """
+        const string source = """
 		                      namespace Company.Ordering
 		                      {
 		                          public class CreateOrderCommand { }
@@ -141,15 +141,15 @@ public sealed class TypePolicyTests
 		                      public class CheckoutService(Company.Ordering.CreateOrderCommand allowed, Company.Ordering.DeleteOrderCommand denied) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.TypeNotAllowed).Subject;
-		diagnostic.GetMessage(CultureInfo.InvariantCulture).Should().Contain("layer 'Ordering'").And.Contain("DeleteOrderCommand");
-	}
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.TypeNotAllowed).Subject;
+        diagnostic.GetMessage(CultureInfo.InvariantCulture).Should().Contain("layer 'Ordering'").And.Contain("DeleteOrderCommand");
+    }
 
-	[Fact]
-	public async Task Forbidden_WinsWhenAllowedAlsoMatches()
-	{
-		const string config = """
+    [Fact]
+    public async Task Forbidden_WinsWhenAllowedAlsoMatches()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Layer name="Application"><Class endsWith="Service" /></Layer>
 		                        <Layer name="Command">
@@ -160,21 +160,21 @@ public sealed class TypePolicyTests
 		                        <AllowedDependency from="Application" to="Command" />
 		                      </ArchitecturalLevels>
 		                      """;
-		const string source = """
+        const string source = """
 		                      public class CreateOrderCommand { }
 		                      public class CreateAdminCommand { }
 		                      public class OrderService(CreateOrderCommand allowed, CreateAdminCommand denied) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.TypeNotAllowed).Subject;
-		diagnostic.GetMessage(CultureInfo.InvariantCulture).Should().Contain("<Forbidden>").And.Contain("CreateAdminCommand");
-	}
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.TypeNotAllowed).Subject;
+        diagnostic.GetMessage(CultureInfo.InvariantCulture).Should().Contain("<Forbidden>").And.Contain("CreateAdminCommand");
+    }
 
-	[Fact]
-	public async Task ScopedForbidden_RespectsExceptions()
-	{
-		const string config = """
+    [Fact]
+    public async Task ScopedForbidden_RespectsExceptions()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Layer name="Application"><Class endsWith="Service" /></Layer>
 		                        <Layer name="Command">
@@ -188,21 +188,21 @@ public sealed class TypePolicyTests
 		                        <AllowedDependency from="Application" to="Command" />
 		                      </ArchitecturalLevels>
 		                      """;
-		const string source = """
+        const string source = """
 		                      public class DeleteDraftCommand { }
 		                      public class DeleteOrderCommand { }
 		                      public class OrderService(DeleteDraftCommand allowed, DeleteOrderCommand denied) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
-			.Which.GetMessage(CultureInfo.InvariantCulture).Should().Contain("DeleteOrderCommand");
-	}
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
+            .Which.GetMessage(CultureInfo.InvariantCulture).Should().Contain("DeleteOrderCommand");
+    }
 
-	[Fact]
-	public async Task GlobalForbidden_AppliesWhenTheTypeAlsoMatchesALayer()
-	{
-		const string config = """
+    [Fact]
+    public async Task GlobalForbidden_AppliesWhenTheTypeAlsoMatchesALayer()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Layer name="Application"><Class endsWith="Service" /></Layer>
 		                        <Layer name="Command"><Class endsWith="Command" /></Layer>
@@ -210,14 +210,14 @@ public sealed class TypePolicyTests
 		                        <AllowedDependency from="Application" to="Command" />
 		                      </ArchitecturalLevels>
 		                      """;
-		const string source = """
+        const string source = """
 		                      public class CreateOrderCommand { }
 		                      public class DeleteOrderCommand { }
 		                      public class OrderService(CreateOrderCommand allowed, DeleteOrderCommand denied) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.TypeNotAllowed).Subject;
-		diagnostic.GetMessage(CultureInfo.InvariantCulture).Should().Contain("global <Forbidden>").And.Contain("DeleteOrderCommand");
-	}
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.TypeNotAllowed).Subject;
+        diagnostic.GetMessage(CultureInfo.InvariantCulture).Should().Contain("global <Forbidden>").And.Contain("DeleteOrderCommand");
+    }
 }

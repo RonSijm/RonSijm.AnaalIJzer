@@ -1,6 +1,6 @@
 ## Design note: why generated files live in the tools
 
-The analyzer reports `ARCH00X` diagnostics and deliberately does not write files during compilation. Roslyn analyzers run in IDEs, build servers and design-time builds, so keeping them free of filesystem side effects avoids surprising writes and keeps them closer to Roslyn's analyzer guidance.
+The analyzer reports `ARCH_<CONCERN>_<REASON>` diagnostics and deliberately does not write files during compilation. Roslyn analyzers run in IDEs, build servers, and design-time builds, so keeping them free of filesystem side effects avoids surprising writes and follows Roslyn's analyzer guidance.
 
 The shared tooling engine is the explicit generation host used by both Arse modes. It can load a project with `MSBuildWorkspace` or read an XML settings file directly for documentation. For project-backed operations it reads the same `Architecture.anl` / `AssemblyMetadata("AnaalIJzerSettings", ...)` config as the analyzer and runs the analyzer in-process when a violation report is needed:
 

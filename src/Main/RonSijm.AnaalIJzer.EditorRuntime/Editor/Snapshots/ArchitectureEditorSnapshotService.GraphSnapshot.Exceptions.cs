@@ -9,79 +9,79 @@ namespace RonSijm.AnaalIJzer.EditorRuntime.Editor.Snapshots;
 
 public static partial class ArchitectureEditorSnapshotService
 {
-	private static ImmutableArray<ArchitectureGraphExceptionReview> CreateGraphExceptionReviews(ProjectAnalyzerConfig config, Compilation compilation, CancellationToken cancellationToken)
-	{
-		var reviews = ImmutableArray.CreateBuilder<ArchitectureGraphExceptionReview>();
-		foreach (var review in config.ExceptionReviews)
-		{
-			reviews.Add(new ArchitectureGraphExceptionReview(
-				review.OwnerLayerPath,
-				review.MatcherKind,
-				review.MatcherLabel,
-				review.Status.ToString(),
-				review.Message,
-				review.Metadata.Reason,
-				review.Metadata.Owner,
-				review.Metadata.ExpiresOnText,
-				review.XmlPath,
-				review.XmlLineNumber,
-				review.XmlLinePosition));
-		}
+    private static ImmutableArray<ArchitectureGraphExceptionReview> CreateGraphExceptionReviews(ProjectAnalyzerConfig config, Compilation compilation, CancellationToken cancellationToken)
+    {
+        var reviews = ImmutableArray.CreateBuilder<ArchitectureGraphExceptionReview>();
+        foreach (var review in config.ExceptionReviews)
+        {
+            reviews.Add(new ArchitectureGraphExceptionReview(
+                review.OwnerLayerPath,
+                review.MatcherKind,
+                review.MatcherLabel,
+                review.Status.ToString(),
+                review.Message,
+                review.Metadata.Reason,
+                review.Metadata.Owner,
+                review.Metadata.ExpiresOnText,
+                review.XmlPath,
+                review.XmlLineNumber,
+                review.XmlLinePosition));
+        }
 
-		var seenStaleKeys = new HashSet<string>(StringComparer.Ordinal);
-		var types = GetProjectTypes(compilation, config.GeneratedCodeScope, cancellationToken);
-		foreach (var definition in config.ExceptionDefinitions)
-		{
-			if (!definition.IsActive)
-			{
-				continue;
-			}
+        var seenStaleKeys = new HashSet<string>(StringComparer.Ordinal);
+        var types = GetProjectTypes(compilation, config.GeneratedCodeScope, cancellationToken);
+        foreach (var definition in config.ExceptionDefinitions)
+        {
+            if (!definition.IsActive)
+            {
+                continue;
+            }
 
-			if (types.Any(type => definition.Matcher.TryMatch(type.Name, GetNamespace(type), type) is not null))
-			{
-				continue;
-			}
+            if (types.Any(type => definition.Matcher.TryMatch(type.Name, GetNamespace(type), type) is not null))
+            {
+                continue;
+            }
 
-			var staleKey = definition.XmlPath + "|" + definition.XmlLineNumber.ToString(System.Globalization.CultureInfo.InvariantCulture);
-			if (!seenStaleKeys.Add(staleKey))
-			{
-				continue;
-			}
+            var staleKey = definition.XmlPath + "|" + definition.XmlLineNumber.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            if (!seenStaleKeys.Add(staleKey))
+            {
+                continue;
+            }
 
-			reviews.Add(new ArchitectureGraphExceptionReview(
-				definition.OwnerLayerPath,
-				definition.MatcherKind,
-				definition.MatcherLabel,
-				ArchitectureExceptionStatus.Stale.ToString(),
-				ArchitectureExceptionEvaluator.CreateStaleMessage(definition, "project"),
-				definition.Metadata.Reason,
-				definition.Metadata.Owner,
-				definition.Metadata.ExpiresOnText,
-				definition.XmlPath,
-				definition.XmlLineNumber,
-				definition.XmlLinePosition));
-		}
+            reviews.Add(new ArchitectureGraphExceptionReview(
+                definition.OwnerLayerPath,
+                definition.MatcherKind,
+                definition.MatcherLabel,
+                ArchitectureExceptionStatus.Stale.ToString(),
+                ArchitectureExceptionEvaluator.CreateStaleMessage(definition, "project"),
+                definition.Metadata.Reason,
+                definition.Metadata.Owner,
+                definition.Metadata.ExpiresOnText,
+                definition.XmlPath,
+                definition.XmlLineNumber,
+                definition.XmlLinePosition));
+        }
 
-		var result = reviews
-			.OrderBy(review => review.SourcePath, StringComparer.OrdinalIgnoreCase)
-			.ThenBy(review => review.XmlLineNumber)
-			.ThenBy(review => review.MatcherLabel, StringComparer.Ordinal)
-			.ToImmutableArray();
+        var result = reviews
+            .OrderBy(review => review.SourcePath, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(review => review.XmlLineNumber)
+            .ThenBy(review => review.MatcherLabel, StringComparer.Ordinal)
+            .ToImmutableArray();
 
-		return result;
-	}
+        return result;
+    }
 
-	private static ImmutableArray<INamedTypeSymbol> GetProjectTypes(Compilation compilation, GeneratedCodeAnalysisScope generatedCodeScope, CancellationToken cancellationToken)
-	{
-		var result = CompilationTypeCollector.GetProjectTypes(compilation, generatedCodeScope, cancellationToken).ToImmutableArray();
+    private static ImmutableArray<INamedTypeSymbol> GetProjectTypes(Compilation compilation, GeneratedCodeAnalysisScope generatedCodeScope, CancellationToken cancellationToken)
+    {
+        var result = CompilationTypeCollector.GetProjectTypes(compilation, generatedCodeScope, cancellationToken).ToImmutableArray();
 
-		return result;
-	}
+        return result;
+    }
 
-	private static string GetNamespace(INamedTypeSymbol type)
-	{
-		var result = type.ContainingNamespace.IsGlobalNamespace ? string.Empty : type.ContainingNamespace.ToDisplayString();
+    private static string GetNamespace(INamedTypeSymbol type)
+    {
+        var result = type.ContainingNamespace.IsGlobalNamespace ? string.Empty : type.ContainingNamespace.ToDisplayString();
 
-		return result;
-	}
+        return result;
+    }
 }

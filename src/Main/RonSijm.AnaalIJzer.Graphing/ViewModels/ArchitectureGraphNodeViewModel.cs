@@ -12,17 +12,17 @@ internal sealed class ArchitectureGraphNodeViewModel(
     int paletteSlot,
     bool isActive,
     double x,
-	double y,
-	ArchitectureLayerEditHandle? editHandle = null,
-	ImmutableArray<ArchitectureGraphTypeEvidence> typeEvidence = default,
+    double y,
+    ArchitectureLayerEditHandle? editHandle = null,
+    ImmutableArray<ArchitectureGraphTypeEvidence> typeEvidence = default,
     int incomingDependencyCount = 0,
     int outgoingDependencyCount = 0,
     int incomingViolationCount = 0,
-	int outgoingViolationCount = 0,
-	int exceptionReviewCount = 0,
-	ImmutableArray<string> exceptionReviewSummaries = default,
-	ArchitectureGraphNodeKind kind = ArchitectureGraphNodeKind.Layer,
-	string? readOnlyDetails = null)
+    int outgoingViolationCount = 0,
+    int exceptionReviewCount = 0,
+    ImmutableArray<string> exceptionReviewSummaries = default,
+    ArchitectureGraphNodeKind kind = ArchitectureGraphNodeKind.Layer,
+    string? readOnlyDetails = null)
 {
     public string Path { get; } = path;
 
@@ -64,9 +64,9 @@ internal sealed class ArchitectureGraphNodeViewModel(
 
     public int ExceptionReviewCount { get; } = exceptionReviewCount;
 
-	public ImmutableArray<string> ExceptionReviewSummaries { get; } = exceptionReviewSummaries.IsDefault ? ImmutableArray<string>.Empty : exceptionReviewSummaries;
+    public ImmutableArray<string> ExceptionReviewSummaries { get; } = exceptionReviewSummaries.IsDefault ? ImmutableArray<string>.Empty : exceptionReviewSummaries;
 
-	public ArchitectureGraphNodeKind Kind { get; } = kind;
+    public ArchitectureGraphNodeKind Kind { get; } = kind;
 
-	public string? ReadOnlyDetails { get; } = readOnlyDetails;
+    public string? ReadOnlyDetails { get; } = readOnlyDetails;
 }

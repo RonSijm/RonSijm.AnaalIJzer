@@ -4,15 +4,15 @@ namespace RonSijm.AnaalIJzer.Outputs.Tests.Configuration;
 
 public sealed class ArchitectureConfigurationExplainerTests
 {
-	[Fact]
-	public void Explainer_ExplainsVisibilityAllowAndBlockLists()
-	{
-		var path = Path.Combine(Path.GetTempPath(), "AnaalIJzer-" + Guid.NewGuid().ToString("N") + ".anl");
-		try
-		{
-			File.WriteAllText(
-				path,
-				"""
+    [Fact]
+    public void Explainer_ExplainsVisibilityAllowAndBlockLists()
+    {
+        var path = Path.Combine(Path.GetTempPath(), "AnaalIJzer-" + Guid.NewGuid().ToString("N") + ".anl");
+        try
+        {
+            File.WriteAllText(
+                path,
+                """
 				<ArchitecturalLevels>
 				  <Layer name="QuerySurface">
 				    <Class endsWith="Queryable" />
@@ -22,30 +22,30 @@ public sealed class ArchitectureConfigurationExplainerTests
 				</ArchitecturalLevels>
 				""");
 
-			var markdown = ArchitectureConfigurationExplainer.GenerateMarkdown(path);
+            var markdown = ArchitectureConfigurationExplainer.GenerateMarkdown(path);
 
-			markdown.Should().Contain("Visibility policy for `Type` allows only `Internal, File`");
-			markdown.Should().Contain("Visibility policy for `Property` blocks `Public`");
-			markdown.Should().Contain("Keep query surfaces internal");
-		}
-		finally
-		{
-			if (File.Exists(path))
-			{
-				File.Delete(path);
-			}
-		}
-	}
+            markdown.Should().Contain("Visibility policy for `Type` allows only `Internal, File`");
+            markdown.Should().Contain("Visibility policy for `Property` blocks `Public`");
+            markdown.Should().Contain("Keep query surfaces internal");
+        }
+        finally
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
+    }
 
-	[Fact]
-	public void Explainer_SeparatesApiExposureFromInternalUse()
-	{
-		var path = Path.Combine(Path.GetTempPath(), "AnaalIJzer-" + Guid.NewGuid().ToString("N") + ".anl");
-		try
-		{
-			File.WriteAllText(
-				path,
-				"""
+    [Fact]
+    public void Explainer_SeparatesApiExposureFromInternalUse()
+    {
+        var path = Path.Combine(Path.GetTempPath(), "AnaalIJzer-" + Guid.NewGuid().ToString("N") + ".anl");
+        try
+        {
+            File.WriteAllText(
+                path,
+                """
 				<ArchitecturalLevels>
 				  <Layer name="Application">
 				    <Class endsWith="Service" />
@@ -60,35 +60,35 @@ public sealed class ArchitectureConfigurationExplainerTests
 				</ArchitecturalLevels>
 				""");
 
-			var markdown = ArchitectureConfigurationExplainer.GenerateMarkdown(path);
+            var markdown = ArchitectureConfigurationExplainer.GenerateMarkdown(path);
 
-			markdown.Should().Contain("API surface policy controls externally visible signatures");
-			markdown.Should().Contain("This does not control whether the layer may use a type internally");
-			markdown.Should().Contain("Unclassified exposed types are rejected");
-			markdown.Should().Contain("allows exposure of `/Contracts` (allowedSites=\"MethodReturn\")");
-			markdown.Should().Contain("blocks exposure of `/QuerySurface`");
-			markdown.Should().Contain("maximum depth of `4`");
-			markdown.Should().Contain("bounded, cached, cycle-safe");
-			markdown.Should().Contain("Description: Inspect public contracts.");
-		}
-		finally
-		{
-			if (File.Exists(path))
-			{
-				File.Delete(path);
-			}
-		}
-	}
+            markdown.Should().Contain("API surface policy controls externally visible signatures");
+            markdown.Should().Contain("This does not control whether the layer may use a type internally");
+            markdown.Should().Contain("Unclassified exposed types are rejected");
+            markdown.Should().Contain("allows exposure of `/Contracts` (allowedSites=\"MethodReturn\")");
+            markdown.Should().Contain("blocks exposure of `/QuerySurface`");
+            markdown.Should().Contain("maximum depth of `4`");
+            markdown.Should().Contain("bounded, cached, cycle-safe");
+            markdown.Should().Contain("Description: Inspect public contracts.");
+        }
+        finally
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
+    }
 
-	[Fact]
-	public void Explainer_ExplainsBothNameRuleKinds()
-	{
-		var path = Path.Combine(Path.GetTempPath(), "AnaalIJzer-" + Guid.NewGuid().ToString("N") + ".anl");
-		try
-		{
-			File.WriteAllText(
-				path,
-				"""
+    [Fact]
+    public void Explainer_ExplainsBothNameRuleKinds()
+    {
+        var path = Path.Combine(Path.GetTempPath(), "AnaalIJzer-" + Guid.NewGuid().ToString("N") + ".anl");
+        try
+        {
+            File.WriteAllText(
+                path,
+                """
 				<ArchitecturalLevels>
 				  <Layer name="Application">
 				    <Class endsWith="Service" />
@@ -102,31 +102,31 @@ public sealed class ArchitectureConfigurationExplainerTests
 				</ArchitecturalLevels>
 				""");
 
-			var markdown = ArchitectureConfigurationExplainer.GenerateMarkdown(path);
+            var markdown = ArchitectureConfigurationExplainer.GenerateMarkdown(path);
 
-			markdown.Should().Contain("Require matching value names");
-			markdown.Should().Contain("valueTracking=\"IntraProcedural\"");
-			markdown.Should().Contain("Require declaration name to match its type");
-			markdown.Should().Contain("Type endsWith=\"Id\"");
-		}
-		finally
-		{
-			if (File.Exists(path))
-			{
-				File.Delete(path);
-			}
-		}
-	}
+            markdown.Should().Contain("Require matching value names");
+            markdown.Should().Contain("valueTracking=\"IntraProcedural\"");
+            markdown.Should().Contain("Require declaration name to match its type");
+            markdown.Should().Contain("Type endsWith=\"Id\"");
+        }
+        finally
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
+    }
 
-	[Fact]
-	public void Explainer_ExplainsInheritancePolicy()
-	{
-		var path = Path.Combine(Path.GetTempPath(), "AnaalIJzer-" + Guid.NewGuid().ToString("N") + ".anl");
-		try
-		{
-			File.WriteAllText(
-				path,
-				"""
+    [Fact]
+    public void Explainer_ExplainsInheritancePolicy()
+    {
+        var path = Path.Combine(Path.GetTempPath(), "AnaalIJzer-" + Guid.NewGuid().ToString("N") + ".anl");
+        try
+        {
+            File.WriteAllText(
+                path,
+                """
 				<ArchitecturalLevels>
 				  <Layer name="PersistenceEntities">
 				    <Namespace startsWith="Shop.Persistence" />
@@ -139,29 +139,29 @@ public sealed class ArchitectureConfigurationExplainerTests
 				</ArchitecturalLevels>
 				""");
 
-			var markdown = ArchitectureConfigurationExplainer.GenerateMarkdown(path);
+            var markdown = ArchitectureConfigurationExplainer.GenerateMarkdown(path);
 
-			markdown.Should().Contain("Inheritance policy requires `Class` declarations to inherit `Entity` and implement `IAuditedEntity`");
-			markdown.Should().Contain("Persistence entities use the shared entity contract.");
-		}
-		finally
-		{
-			if (File.Exists(path))
-			{
-				File.Delete(path);
-			}
-		}
-	}
+            markdown.Should().Contain("Inheritance policy requires `Class` declarations to inherit `Entity` and implement `IAuditedEntity`");
+            markdown.Should().Contain("Persistence entities use the shared entity contract.");
+        }
+        finally
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
+    }
 
-	[Fact]
-	public void Explainer_ExplainsGenericReturnValueMatchers()
-	{
-		var path = Path.Combine(Path.GetTempPath(), "AnaalIJzer-" + Guid.NewGuid().ToString("N") + ".anl");
-		try
-		{
-			File.WriteAllText(
-				path,
-				"""
+    [Fact]
+    public void Explainer_ExplainsGenericReturnValueMatchers()
+    {
+        var path = Path.Combine(Path.GetTempPath(), "AnaalIJzer-" + Guid.NewGuid().ToString("N") + ".anl");
+        try
+        {
+            File.WriteAllText(
+                path,
+                """
 				<ArchitecturalLevels>
 				  <Layer name="Kitchen">
 				    <Class endsWith="Kitchen" />
@@ -177,34 +177,34 @@ public sealed class ArchitectureConfigurationExplainerTests
 				</ArchitecturalLevels>
 				""");
 
-			var markdown = ArchitectureConfigurationExplainer.GenerateMarkdown(path);
+            var markdown = ArchitectureConfigurationExplainer.GenerateMarkdown(path);
 
-			markdown.Should().Contain("Return-value policy forbids configured direct returned expressions");
-			markdown.Should().Contain("Forbids returned literal value=\"null\"");
-			markdown.Should().Contain("Forbids returned invocation withAttribute=\"JetBrains.Annotations.CanBeNullAttribute\"");
-			markdown.Should().Contain("Allows only returned expressions matching one of these alternatives.");
-			markdown.Should().Contain("Allows returned identifier");
-			markdown.Should().Contain("Serve a named result once the kitchen has decided.");
-			markdown.Should().Contain("No sentinel meals.");
-		}
-		finally
-		{
-			if (File.Exists(path))
-			{
-				File.Delete(path);
-			}
-		}
-	}
+            markdown.Should().Contain("Return-value policy forbids configured direct returned expressions");
+            markdown.Should().Contain("Forbids returned literal value=\"null\"");
+            markdown.Should().Contain("Forbids returned invocation withAttribute=\"JetBrains.Annotations.CanBeNullAttribute\"");
+            markdown.Should().Contain("Allows only returned expressions matching one of these alternatives.");
+            markdown.Should().Contain("Allows returned identifier");
+            markdown.Should().Contain("Serve a named result once the kitchen has decided.");
+            markdown.Should().Contain("No sentinel meals.");
+        }
+        finally
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
+    }
 
-	[Fact]
-	public void Explainer_ExplainsGlobalReturnValuePolicy()
-	{
-		var path = Path.Combine(Path.GetTempPath(), "AnaalIJzer-" + Guid.NewGuid().ToString("N") + ".anl");
-		try
-		{
-			File.WriteAllText(
-				path,
-				"""
+    [Fact]
+    public void Explainer_ExplainsGlobalReturnValuePolicy()
+    {
+        var path = Path.Combine(Path.GetTempPath(), "AnaalIJzer-" + Guid.NewGuid().ToString("N") + ".anl");
+        try
+        {
+            File.WriteAllText(
+                path,
+                """
 				<ArchitecturalLevels>
 				  <ReturnValuePolicy description="Every meal uses a named hand-off.">
 				    <AllowedReturn>
@@ -214,29 +214,29 @@ public sealed class ArchitectureConfigurationExplainerTests
 				</ArchitecturalLevels>
 				""");
 
-			var markdown = ArchitectureConfigurationExplainer.GenerateMarkdown(path);
+            var markdown = ArchitectureConfigurationExplainer.GenerateMarkdown(path);
 
-			markdown.Should().Contain("Global return-value policy forbids configured direct returned expressions across every analyzed method");
-			markdown.Should().Contain("Every meal uses a named hand-off.");
-		}
-		finally
-		{
-			if (File.Exists(path))
-			{
-				File.Delete(path);
-			}
-		}
-	}
+            markdown.Should().Contain("Global return-value policy forbids configured direct returned expressions across every analyzed method");
+            markdown.Should().Contain("Every meal uses a named hand-off.");
+        }
+        finally
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
+    }
 
-	[Fact]
-	public void Explainer_ExplainsForbiddenOperationPolicies()
-	{
-		var path = Path.Combine(Path.GetTempPath(), "AnaalIJzer-" + Guid.NewGuid().ToString("N") + ".anl");
-		try
-		{
-			File.WriteAllText(
-				path,
-				"""
+    [Fact]
+    public void Explainer_ExplainsForbiddenOperationPolicies()
+    {
+        var path = Path.Combine(Path.GetTempPath(), "AnaalIJzer-" + Guid.NewGuid().ToString("N") + ".anl");
+        try
+        {
+            File.WriteAllText(
+                path,
+                """
 				<ArchitecturalLevels>
 				  <Layer name="Kitchen">
 				    <Class endsWith="Kitchen" />
@@ -252,32 +252,32 @@ public sealed class ArchitectureConfigurationExplainerTests
 				</ArchitecturalLevels>
 				""");
 
-			var markdown = ArchitectureConfigurationExplainer.GenerateMarkdown(path);
+            var markdown = ArchitectureConfigurationExplainer.GenerateMarkdown(path);
 
-			markdown.Should().Contain("Forbidden-operation policy blocks selected resolved members");
-			markdown.Should().Contain("Blocks a selected operation (allowedSites=\"StaticMember\")");
-			markdown.Should().Contain("ContainingType exactFullName=\"System.DateTime\"");
-			markdown.Should().Contain("Member exactName=\"UtcNow\" memberKind=\"Property\"");
-			markdown.Should().Contain("Kitchens use a shared clock.");
-		}
-		finally
-		{
-			if (File.Exists(path))
-			{
-				File.Delete(path);
-			}
-		}
-	}
+            markdown.Should().Contain("Forbidden-operation policy blocks selected resolved members");
+            markdown.Should().Contain("Blocks a selected operation (allowedSites=\"StaticMember\")");
+            markdown.Should().Contain("ContainingType exactFullName=\"System.DateTime\"");
+            markdown.Should().Contain("Member exactName=\"UtcNow\" memberKind=\"Property\"");
+            markdown.Should().Contain("Kitchens use a shared clock.");
+        }
+        finally
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
+    }
 
-	[Fact]
-	public void Explainer_ExplainsBehavioralOperationPolicies()
-	{
-		var path = Path.Combine(Path.GetTempPath(), "AnaalIJzer-" + Guid.NewGuid().ToString("N") + ".anl");
-		try
-		{
-			File.WriteAllText(
-				path,
-				"""
+    [Fact]
+    public void Explainer_ExplainsBehavioralOperationPolicies()
+    {
+        var path = Path.Combine(Path.GetTempPath(), "AnaalIJzer-" + Guid.NewGuid().ToString("N") + ".anl");
+        try
+        {
+            File.WriteAllText(
+                path,
+                """
 				<ArchitecturalLevels>
 				  <Layer name="Kitchen">
 				    <Class endsWith="Kitchen" />
@@ -300,32 +300,32 @@ public sealed class ArchitectureConfigurationExplainerTests
 				</ArchitecturalLevels>
 				""");
 
-			var markdown = ArchitectureConfigurationExplainer.GenerateMarkdown(path);
+            var markdown = ArchitectureConfigurationExplainer.GenerateMarkdown(path);
 
-			markdown.Should().Contain("Behavioral-operation policies prove configured operation presence, ordering, or count facts");
-			markdown.Should().Contain("Requires an operation before another operation (ordering=\"Dominance\", allowedSites=\"Method\")");
-			markdown.Should().Contain("Applies to declarations selected by:");
-			markdown.Should().Contain("Must happen before:");
-			markdown.Should().Contain("Validate before saving.");
-		}
-		finally
-		{
-			if (File.Exists(path))
-			{
-				File.Delete(path);
-			}
-		}
-	}
+            markdown.Should().Contain("Behavioral-operation policies prove configured operation presence, ordering, or count facts");
+            markdown.Should().Contain("Requires an operation before another operation (ordering=\"Dominance\", allowedSites=\"Method\")");
+            markdown.Should().Contain("Applies to declarations selected by:");
+            markdown.Should().Contain("Must happen before:");
+            markdown.Should().Contain("Validate before saving.");
+        }
+        finally
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
+    }
 
-	[Fact]
-	public void Explainer_ExplainsExplicitOperationContracts()
-	{
-		var path = Path.Combine(Path.GetTempPath(), "AnaalIJzer-" + Guid.NewGuid().ToString("N") + ".anl");
-		try
-		{
-			File.WriteAllText(
-				path,
-				"""
+    [Fact]
+    public void Explainer_ExplainsExplicitOperationContracts()
+    {
+        var path = Path.Combine(Path.GetTempPath(), "AnaalIJzer-" + Guid.NewGuid().ToString("N") + ".anl");
+        try
+        {
+            File.WriteAllText(
+                path,
+                """
 				<ArchitecturalLevels>
 				  <Operations description="Named restaurant work.">
 				    <Operation name="PlacePizzaOrder" allowedOwnerLayers="Application" allowedEntryPointLayers="Controller" description="The waiter sends an order to the kitchen.">
@@ -344,32 +344,32 @@ public sealed class ArchitectureConfigurationExplainerTests
 				</ArchitecturalLevels>
 				""");
 
-			var markdown = ArchitectureConfigurationExplainer.GenerateMarkdown(path);
+            var markdown = ArchitectureConfigurationExplainer.GenerateMarkdown(path);
 
-			markdown.Should().Contain("Explicit operation contracts connect selected owner methods");
-			markdown.Should().Contain("Operation `PlacePizzaOrder`");
-			markdown.Should().Contain("allowedOwnerLayers=\"Application\"");
-			markdown.Should().Contain("Owner declaration:");
-			markdown.Should().Contain("Request type: Class exactName=\"PlacePizzaOrderRequest\"");
-		}
-		finally
-		{
-			if (File.Exists(path))
-			{
-				File.Delete(path);
-			}
-		}
-	}
+            markdown.Should().Contain("Explicit operation contracts connect selected owner methods");
+            markdown.Should().Contain("Operation `PlacePizzaOrder`");
+            markdown.Should().Contain("allowedOwnerLayers=\"Application\"");
+            markdown.Should().Contain("Owner declaration:");
+            markdown.Should().Contain("Request type: Class exactName=\"PlacePizzaOrderRequest\"");
+        }
+        finally
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
+    }
 
-	[Fact]
-	public void Explainer_ExplainsAssemblyAttributePolicies()
-	{
-		var path = Path.Combine(Path.GetTempPath(), "AnaalIJzer-" + Guid.NewGuid().ToString("N") + ".anl");
-		try
-		{
-			File.WriteAllText(
-				path,
-				"""
+    [Fact]
+    public void Explainer_ExplainsAssemblyAttributePolicies()
+    {
+        var path = Path.Combine(Path.GetTempPath(), "AnaalIJzer-" + Guid.NewGuid().ToString("N") + ".anl");
+        try
+        {
+            File.WriteAllText(
+                path,
+                """
 				<ArchitecturalLevels>
 				  <AssemblyAttributePolicy description="Friend access stays reviewed.">
 				    <Forbidden>
@@ -381,20 +381,20 @@ public sealed class ArchitectureConfigurationExplainerTests
 				</ArchitecturalLevels>
 				""");
 
-			var markdown = ArchitectureConfigurationExplainer.GenerateMarkdown(path);
+            var markdown = ArchitectureConfigurationExplainer.GenerateMarkdown(path);
 
-			markdown.Should().Contain("Assembly-attribute policy checks semantic attributes emitted for the compiled assembly");
-			markdown.Should().Contain("blocks matching selected assembly attributes");
-			markdown.Should().Contain("System.Runtime.CompilerServices.InternalsVisibleToAttribute");
-			markdown.Should().Contain("argument #0");
-			markdown.Should().Contain("NotAllowedExample");
-		}
-		finally
-		{
-			if (File.Exists(path))
-			{
-				File.Delete(path);
-			}
-		}
-	}
+            markdown.Should().Contain("Assembly-attribute policy checks semantic attributes emitted for the compiled assembly");
+            markdown.Should().Contain("blocks matching selected assembly attributes");
+            markdown.Should().Contain("System.Runtime.CompilerServices.InternalsVisibleToAttribute");
+            markdown.Should().Contain("argument #0");
+            markdown.Should().Contain("NotAllowedExample");
+        }
+        finally
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
+    }
 }

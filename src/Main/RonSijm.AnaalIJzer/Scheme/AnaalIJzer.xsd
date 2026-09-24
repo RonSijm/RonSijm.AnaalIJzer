@@ -108,6 +108,14 @@
         <xs:documentation>Relative or absolute path to another ArchitecturalLevels XML file.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="allowNoMatches" type="xs:boolean" default="false">
+      <xs:annotation>
+        <xs:documentation>
+          Allows a wildcard path to match no files without reporting ARCH_CONF_003. This does not
+          suppress a missing exact file include.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attributeGroup ref="DocumentationAttributes" />
   </xs:complexType>
 

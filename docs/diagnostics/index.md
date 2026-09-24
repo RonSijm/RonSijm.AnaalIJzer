@@ -34,6 +34,6 @@ The analyzer ships with twenty-nine compiler diagnostic IDs. IDs follow `ARCH_<C
 | ARCH_ASSM_001 | A compiled assembly attribute violates an `AssemblyAttributePolicy` |
 | ARCH_NS_007 | A source namespace relationship violates a `NamespaceHierarchyPolicy` |
 
-The example projects referenced inline below are self-contained and deliberately broken so Visual Studio, Rider and `dotnet build` show the corresponding `ARCH_<CONCERN>_<REASON>` error. They fail on purpose; the repository is not having a bad day.
+The example projects referenced below are self-contained and deliberately broken so Visual Studio, Rider, and `dotnet build` show the corresponding `ARCH_<CONCERN>_<REASON>` error. They fail on purpose; the repository is not having a bad day.
 
 ![Examples in Visual Studio](../../Examples/Assets/Examples-VS-Result.png)

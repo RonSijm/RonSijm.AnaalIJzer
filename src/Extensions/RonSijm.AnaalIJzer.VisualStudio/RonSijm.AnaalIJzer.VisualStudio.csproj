@@ -17,7 +17,6 @@
         <GeneratePkgDefFile>true</GeneratePkgDefFile>
         <IncludeAssemblyInVSIXContainer>true</IncludeAssemblyInVSIXContainer>
         <IncludeDebugSymbolsInVSIXContainer>false</IncludeDebugSymbolsInVSIXContainer>
-        <EnableArchitecturalLevelAnalyzer>false</EnableArchitecturalLevelAnalyzer>
         <AnaalIJzerVsixVersion Condition="'$(AnaalIJzerVsixVersion)' == ''">1.$([System.DateTime]::UtcNow.ToString('yy')).$([System.DateTime]::UtcNow.ToString('MMdd')).$([System.DateTime]::UtcNow.ToString('HHmmss'))</AnaalIJzerVsixVersion>
         <CreateVsixContainerDependsOn>$(CreateVsixContainerDependsOn);StampAnaalIJzerVsixManifestVersion</CreateVsixContainerDependsOn>
         <CopyVsixManifestFileDependsOn>$(CopyVsixManifestFileDependsOn);StampAnaalIJzerVsixManifestVersion</CopyVsixManifestFileDependsOn>

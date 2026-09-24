@@ -6,57 +6,57 @@ namespace RonSijm.AnaalIJzer.ConfigurationEditing.Tests.Editing;
 
 public sealed partial class ArchitectureConfigurationEditServiceTests
 {
-	[Fact]
-	public void AddLayer_AppendsRootAndChildLayers()
-	{
-		using var directory = new TemporaryDirectory();
-		var path = directory.WriteFile(
-			"Architecture.anl",
-			"""
+    [Fact]
+    public void AddLayer_AppendsRootAndChildLayers()
+    {
+        using var directory = new TemporaryDirectory();
+        var path = directory.WriteFile(
+            "Architecture.anl",
+            """
 			<ArchitecturalLevels>
 			  <Layer name="DiningRoom"><Class endsWith="DiningRoom" /></Layer>
 			</ArchitecturalLevels>
 			""");
-		var source = new ArchitectureConfigurationSource(ArchitectureConfigurationSourceKind.XmlFile, path);
+        var source = new ArchitectureConfigurationSource(ArchitectureConfigurationSourceKind.XmlFile, path);
 
-		ArchitectureConfigurationEditService.AddLayer(source, string.Empty, "Kitchen", "Class", Attributes(("endsWith", "Kitchen"))).Succeeded.Should().BeTrue();
-		ArchitectureConfigurationEditService.AddLayer(source, "Kitchen", "Chef", "Class", Attributes(("endsWith", "Chef"))).Succeeded.Should().BeTrue();
+        ArchitectureConfigurationEditService.AddLayer(source, string.Empty, "Kitchen", "Class", Attributes(("endsWith", "Kitchen"))).Succeeded.Should().BeTrue();
+        ArchitectureConfigurationEditService.AddLayer(source, "Kitchen", "Chef", "Class", Attributes(("endsWith", "Chef"))).Succeeded.Should().BeTrue();
 
-		var content = File.ReadAllText(path);
-		content.Should().Contain("<Layer name=\"Kitchen\">");
-		content.Should().Contain("<Layer name=\"Chef\">");
-		content.Should().Contain("<Class endsWith=\"Chef\" />");
-	}
+        var content = File.ReadAllText(path);
+        content.Should().Contain("<Layer name=\"Kitchen\">");
+        content.Should().Contain("<Layer name=\"Chef\">");
+        content.Should().Contain("<Class endsWith=\"Chef\" />");
+    }
 
-	[Fact]
-	public void MoveLayer_MovesLayerToNewParent()
-	{
-		using var directory = new TemporaryDirectory();
-		var path = directory.WriteFile(
-			"Architecture.anl",
-			"""
+    [Fact]
+    public void MoveLayer_MovesLayerToNewParent()
+    {
+        using var directory = new TemporaryDirectory();
+        var path = directory.WriteFile(
+            "Architecture.anl",
+            """
 			<ArchitecturalLevels>
 			  <Layer name="DiningRoom"><Class endsWith="DiningRoom" /></Layer>
 			  <Layer name="Kitchen"><Class endsWith="Kitchen" /></Layer>
 			  <Layer name="Chef"><Class endsWith="Chef" /></Layer>
 			</ArchitecturalLevels>
 			""");
-		var handle = new ArchitectureLayerEditHandle(ArchitectureConfigurationSourceKind.XmlFile, path, 0, "Chef", "Chef", string.Empty, null);
+        var handle = new ArchitectureLayerEditHandle(ArchitectureConfigurationSourceKind.XmlFile, path, 0, "Chef", "Chef", string.Empty, null);
 
-		var result = ArchitectureConfigurationEditService.MoveLayer(handle, "Kitchen");
+        var result = ArchitectureConfigurationEditService.MoveLayer(handle, "Kitchen");
 
-		result.Succeeded.Should().BeTrue(result.Message);
-		File.ReadAllText(path).Should().Contain("<Layer name=\"Kitchen\">");
-		ArchitectureConfigurationEditService.GetLayerDetails(new ArchitectureLayerEditHandle(ArchitectureConfigurationSourceKind.XmlFile, path, 0, "Kitchen/Chef", "Chef", "Kitchen", null)).Succeeded.Should().BeTrue();
-	}
+        result.Succeeded.Should().BeTrue(result.Message);
+        File.ReadAllText(path).Should().Contain("<Layer name=\"Kitchen\">");
+        ArchitectureConfigurationEditService.GetLayerDetails(new ArchitectureLayerEditHandle(ArchitectureConfigurationSourceKind.XmlFile, path, 0, "Kitchen/Chef", "Chef", "Kitchen", null)).Succeeded.Should().BeTrue();
+    }
 
-	[Fact]
-	public void RemoveLayer_RemovesLayerSubtree()
-	{
-		using var directory = new TemporaryDirectory();
-		var path = directory.WriteFile(
-			"Architecture.anl",
-			"""
+    [Fact]
+    public void RemoveLayer_RemovesLayerSubtree()
+    {
+        using var directory = new TemporaryDirectory();
+        var path = directory.WriteFile(
+            "Architecture.anl",
+            """
 			<ArchitecturalLevels>
 			  <Layer name="Kitchen">
 			    <Class endsWith="Kitchen" />
@@ -64,23 +64,23 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""");
-		var handle = new ArchitectureLayerEditHandle(ArchitectureConfigurationSourceKind.XmlFile, path, 0, "Kitchen", "Kitchen", string.Empty, null);
+        var handle = new ArchitectureLayerEditHandle(ArchitectureConfigurationSourceKind.XmlFile, path, 0, "Kitchen", "Kitchen", string.Empty, null);
 
-		var result = ArchitectureConfigurationEditService.RemoveLayer(handle);
+        var result = ArchitectureConfigurationEditService.RemoveLayer(handle);
 
-		result.Succeeded.Should().BeTrue(result.Message);
-		var content = File.ReadAllText(path);
-		content.Should().NotContain("Kitchen");
-		content.Should().NotContain("Chef");
-	}
+        result.Succeeded.Should().BeTrue(result.Message);
+        var content = File.ReadAllText(path);
+        content.Should().NotContain("Kitchen");
+        content.Should().NotContain("Chef");
+    }
 
-	[Fact]
-	public void SetDependencySites_EditsInlineAssemblyMetadataLiteral()
-	{
-		using var directory = new TemporaryDirectory();
-		var path = directory.WriteFile(
-			"AnaalIJzerSettings.cs",
-			""""
+    [Fact]
+    public void SetDependencySites_EditsInlineAssemblyMetadataLiteral()
+    {
+        using var directory = new TemporaryDirectory();
+        var path = directory.WriteFile(
+            "AnaalIJzerSettings.cs",
+            """"
 			using System.Reflection;
 
 			[assembly: AssemblyMetadata("AnaalIJzerSettings", """
@@ -91,24 +91,24 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 			</ArchitecturalLevels>
 			""")]
 			"""");
-		var handle = CreateHandle(path, "AllowedDependency", "Customer", "Waiter", ArchitectureConfigurationSourceKind.InlineAssemblyMetadata);
+        var handle = CreateHandle(path, "AllowedDependency", "Customer", "Waiter", ArchitectureConfigurationSourceKind.InlineAssemblyMetadata);
 
-		var result = ArchitectureConfigurationEditService.SetDependencySites(
-			handle,
-			ArchitectureSiteFilterEditMode.BlockedSites,
-			[ArchitectureDependencySiteNames.Local]);
+        var result = ArchitectureConfigurationEditService.SetDependencySites(
+            handle,
+            ArchitectureSiteFilterEditMode.BlockedSites,
+            [ArchitectureDependencySiteNames.Local]);
 
-		result.Succeeded.Should().BeTrue(result.Message);
-		File.ReadAllText(path).Should().Contain("blockedSites=\"Local\"");
-	}
+        result.Succeeded.Should().BeTrue(result.Message);
+        File.ReadAllText(path).Should().Contain("blockedSites=\"Local\"");
+    }
 
-	[Fact]
-	public void SetDependencySites_PreservesNameofInterpolationInInlineAssemblyMetadata()
-	{
-		using var directory = new TemporaryDirectory();
-		var path = directory.WriteFile(
-			"AnaalIJzerSettings.cs",
-			""""
+    [Fact]
+    public void SetDependencySites_PreservesNameofInterpolationInInlineAssemblyMetadata()
+    {
+        using var directory = new TemporaryDirectory();
+        var path = directory.WriteFile(
+            "AnaalIJzerSettings.cs",
+            """"
 			using System.Reflection;
 
 			[assembly: AssemblyMetadata("AnaalIJzerSettings", $"""
@@ -120,26 +120,26 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 			""")]
 			public class Customer { }
 			"""");
-		var handle = CreateHandle(path, "AllowedDependency", "Customer", "Waiter", ArchitectureConfigurationSourceKind.InlineAssemblyMetadata);
+        var handle = CreateHandle(path, "AllowedDependency", "Customer", "Waiter", ArchitectureConfigurationSourceKind.InlineAssemblyMetadata);
 
-		var result = ArchitectureConfigurationEditService.SetDependencySites(
-			handle,
-			ArchitectureSiteFilterEditMode.BlockedSites,
-			[ArchitectureDependencySiteNames.Local]);
+        var result = ArchitectureConfigurationEditService.SetDependencySites(
+            handle,
+            ArchitectureSiteFilterEditMode.BlockedSites,
+            [ArchitectureDependencySiteNames.Local]);
 
-		result.Succeeded.Should().BeTrue(result.Message);
-		var content = File.ReadAllText(path);
-		content.Should().Contain("from=\"{nameof(Customer)}\"");
-		content.Should().Contain("blockedSites=\"Local\"");
-	}
+        result.Succeeded.Should().BeTrue(result.Message);
+        var content = File.ReadAllText(path);
+        content.Should().Contain("from=\"{nameof(Customer)}\"");
+        content.Should().Contain("blockedSites=\"Local\"");
+    }
 
-	[Fact]
-	public void AddConfigurationElement_PreservesNameofInterpolationInInlineAssemblyMetadata()
-	{
-		using var directory = new TemporaryDirectory();
-		var path = directory.WriteFile(
-			"AnaalIJzerSettings.cs",
-			""""
+    [Fact]
+    public void AddConfigurationElement_PreservesNameofInterpolationInInlineAssemblyMetadata()
+    {
+        using var directory = new TemporaryDirectory();
+        var path = directory.WriteFile(
+            "AnaalIJzerSettings.cs",
+            """"
 			using System.Reflection;
 
 			[assembly: AssemblyMetadata("AnaalIJzerSettings", $"""
@@ -152,14 +152,14 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 			public class Chef { }
 			public class SauceChef { }
 			"""");
-		var handle = new ArchitectureLayerEditHandle(ArchitectureConfigurationSourceKind.InlineAssemblyMetadata, path, 0, "Chef", "Chef", string.Empty, null);
+        var handle = new ArchitectureLayerEditHandle(ArchitectureConfigurationSourceKind.InlineAssemblyMetadata, path, 0, "Chef", "Chef", string.Empty, null);
 
-		var result = ArchitectureConfigurationEditService.AddLayerMatcher(handle, "Class", Attributes(("typeName", "SauceChef")));
+        var result = ArchitectureConfigurationEditService.AddLayerMatcher(handle, "Class", Attributes(("typeName", "SauceChef")));
 
-		result.Succeeded.Should().BeTrue(result.Message);
-		var content = File.ReadAllText(path);
-		content.Should().Contain("name=\"{nameof(Chef)}\"");
-		content.Should().Contain("typeName=\"{nameof(Chef)}\"");
-		content.Should().Contain("<Class typeName=\"SauceChef\" />");
-	}
+        result.Succeeded.Should().BeTrue(result.Message);
+        var content = File.ReadAllText(path);
+        content.Should().Contain("name=\"{nameof(Chef)}\"");
+        content.Should().Contain("typeName=\"{nameof(Chef)}\"");
+        content.Should().Contain("<Class typeName=\"SauceChef\" />");
+    }
 }

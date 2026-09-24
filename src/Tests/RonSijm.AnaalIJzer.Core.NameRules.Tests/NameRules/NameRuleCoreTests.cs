@@ -11,71 +11,71 @@ namespace RonSijm.AnaalIJzer.Core.NameRules.Tests.NameRules;
 
 public sealed class NameRuleCoreTests
 {
-	[Fact]
-	public void Normalize_StripsVerbPrefixesSeparatorsAndThisSegments()
-	{
-		var result = NameRuleNameNormalizer.Normalize("this.GetPatient_Id");
+    [Fact]
+    public void Normalize_StripsVerbPrefixesSeparatorsAndThisSegments()
+    {
+        var result = NameRuleNameNormalizer.Normalize("this.GetPatient_Id");
 
-		result.Should().Be("patient.id");
-	}
+        result.Should().Be("patient.id");
+    }
 
-	[Fact]
-	public void MatchingRule_Evaluate_ReturnsViolationForNormalizedMismatch()
-	{
-		var rule = CreateRule();
-		var source = CreateValueSubject("patientId");
-		var target = CreateValueSubject("doctorId");
+    [Fact]
+    public void MatchingRule_Evaluate_ReturnsViolationForNormalizedMismatch()
+    {
+        var rule = CreateRule();
+        var source = CreateValueSubject("patientId");
+        var target = CreateValueSubject("doctorId");
 
-		var result = rule.Evaluate(source, target, DependencySites.Method);
+        var result = rule.Evaluate(source, target, DependencySites.Method);
 
-		result.Should().NotBeNull();
-		var violation = result.Value;
-		violation.RuleKind.Should().Be(NameRuleKind.RequireMatchingNames);
-		violation.Reason.Should().Contain("source 'patientId' normalizes to 'patient.id'");
-		violation.Reason.Should().Contain("target 'doctorId' normalizes to 'doctor.id'");
-	}
+        result.Should().NotBeNull();
+        var violation = result.Value;
+        violation.RuleKind.Should().Be(NameRuleKind.RequireMatchingNames);
+        violation.Reason.Should().Contain("source 'patientId' normalizes to 'patient.id'");
+        violation.Reason.Should().Contain("target 'doctorId' normalizes to 'doctor.id'");
+    }
 
-	[Fact]
-	public void MatchingRule_Evaluate_AllowsMatchingAllowMappingOnAllowedSite()
-	{
-		var allowMapping = new NameRuleAllowMapping(
-			[ExactName("patientId")],
-			[ExactName("doctorId")],
-			new DependencySiteFilter(ImmutableHashSet.Create(StringComparer.Ordinal, DependencySites.Method), ImmutableHashSet<string>.Empty),
-			null);
-		var rule = CreateRule(allowMappings: [allowMapping]);
-		var source = CreateValueSubject("patientId");
-		var target = CreateValueSubject("doctorId");
+    [Fact]
+    public void MatchingRule_Evaluate_AllowsMatchingAllowMappingOnAllowedSite()
+    {
+        var allowMapping = new NameRuleAllowMapping(
+            [ExactName("patientId")],
+            [ExactName("doctorId")],
+            new DependencySiteFilter(ImmutableHashSet.Create(StringComparer.Ordinal, DependencySites.Method), ImmutableHashSet<string>.Empty),
+            null);
+        var rule = CreateRule(allowMappings: [allowMapping]);
+        var source = CreateValueSubject("patientId");
+        var target = CreateValueSubject("doctorId");
 
-		var result = rule.Evaluate(source, target, DependencySites.Method);
+        var result = rule.Evaluate(source, target, DependencySites.Method);
 
-		result.Should().BeNull();
-	}
+        result.Should().BeNull();
+    }
 
-	[Fact]
-	public void MatchingRule_Evaluate_ExplainsWhenAllowMappingMatchesButSiteIsBlocked()
-	{
-		var allowMapping = new NameRuleAllowMapping(
-			[ExactName("patientId")],
-			[ExactName("doctorId")],
-			new DependencySiteFilter(ImmutableHashSet.Create(StringComparer.Ordinal, DependencySites.Method), ImmutableHashSet<string>.Empty),
-			null);
-		var rule = CreateRule(allowMappings: [allowMapping]);
-		var source = CreateValueSubject("patientId");
-		var target = CreateValueSubject("doctorId");
+    [Fact]
+    public void MatchingRule_Evaluate_ExplainsWhenAllowMappingMatchesButSiteIsBlocked()
+    {
+        var allowMapping = new NameRuleAllowMapping(
+            [ExactName("patientId")],
+            [ExactName("doctorId")],
+            new DependencySiteFilter(ImmutableHashSet.Create(StringComparer.Ordinal, DependencySites.Method), ImmutableHashSet<string>.Empty),
+            null);
+        var rule = CreateRule(allowMappings: [allowMapping]);
+        var source = CreateValueSubject("patientId");
+        var target = CreateValueSubject("doctorId");
 
-		var result = rule.Evaluate(source, target, DependencySites.Constructor);
+        var result = rule.Evaluate(source, target, DependencySites.Constructor);
 
-		result.Should().NotBeNull();
-		var violation = result.Value;
-		violation.Reason.Should().Contain("a matching <Allow> mapping is configured");
-		violation.Reason.Should().Contain("allowedSites does not include Constructor");
-	}
+        result.Should().NotBeNull();
+        var violation = result.Value;
+        violation.Reason.Should().Contain("a matching <Allow> mapping is configured");
+        violation.Reason.Should().Contain("allowedSites does not include Constructor");
+    }
 
-	[Fact]
-	public void SubjectFactory_CreateType_UnwrapsNullableAndPreservesArrayDisplay()
-	{
-		var compilation = CreateCompilation("""
+    [Fact]
+    public void SubjectFactory_CreateType_UnwrapsNullableAndPreservesArrayDisplay()
+    {
+        var compilation = CreateCompilation("""
 			namespace Demo;
 			public sealed class PatientId { }
 			public sealed class Holder
@@ -84,23 +84,23 @@ public sealed class NameRuleCoreTests
 				public int? OptionalCount { get; set; }
 			}
 			""");
-		var holder = compilation.GetTypeByMetadataName("Demo.Holder")!;
-		var patientsType = ((IPropertySymbol)holder.GetMembers("Patients").Single()).Type;
-		var optionalCountType = ((IPropertySymbol)holder.GetMembers("OptionalCount").Single()).Type;
+        var holder = compilation.GetTypeByMetadataName("Demo.Holder")!;
+        var patientsType = ((IPropertySymbol)holder.GetMembers("Patients").Single()).Type;
+        var optionalCountType = ((IPropertySymbol)holder.GetMembers("OptionalCount").Single()).Type;
 
-		var patientsResult = NameRuleSubjectFactory.CreateType(patientsType);
-		var optionalCountResult = NameRuleSubjectFactory.CreateType(optionalCountType);
+        var patientsResult = NameRuleSubjectFactory.CreateType(patientsType);
+        var optionalCountResult = NameRuleSubjectFactory.CreateType(optionalCountType);
 
-		patientsResult.Should().NotBeNull();
-		patientsResult.Value.DisplayName.Should().Be("PatientId[]");
-		optionalCountResult.Should().NotBeNull();
-		optionalCountResult.Value.DisplayName.Should().Be("Int32");
-	}
+        patientsResult.Should().NotBeNull();
+        patientsResult.Value.DisplayName.Should().Be("PatientId[]");
+        optionalCountResult.Should().NotBeNull();
+        optionalCountResult.Value.DisplayName.Should().Be("Int32");
+    }
 
-	[Fact]
-	public void SemanticResolver_CreateExpressionSubject_PrefersContainingTypeForMemberAccess()
-	{
-		var (model, memberAccess) = GetSingleNode<MemberAccessExpressionSyntax>("""
+    [Fact]
+    public void SemanticResolver_CreateExpressionSubject_PrefersContainingTypeForMemberAccess()
+    {
+        var (model, memberAccess) = GetSingleNode<MemberAccessExpressionSyntax>("""
 			namespace Demo;
 			public sealed class Request
 			{
@@ -118,19 +118,19 @@ public sealed class NameRuleCoreTests
 			}
 			""");
 
-		var result = NameRuleSemanticSubjectResolver.CreateExpressionSubject(memberAccess, model, CancellationToken.None);
+        var result = NameRuleSemanticSubjectResolver.CreateExpressionSubject(memberAccess, model, CancellationToken.None);
 
-		result.Should().NotBeNull();
-		var subject = result.Value;
-		subject.DisplayName.Should().Be("Request.PatientId");
-		subject.CandidateNames.Should().Contain("PatientId");
-		subject.CandidateNames.Should().Contain("request.PatientId");
-	}
+        result.Should().NotBeNull();
+        var subject = result.Value;
+        subject.DisplayName.Should().Be("Request.PatientId");
+        subject.CandidateNames.Should().Contain("PatientId");
+        subject.CandidateNames.Should().Contain("request.PatientId");
+    }
 
-	[Fact]
-	public void SemanticResolver_GetAssignmentSite_UsesPropertyAndLocalSites()
-	{
-		var (propertyModel, propertyAssignment) = GetSingleNode<AssignmentExpressionSyntax>("""
+    [Fact]
+    public void SemanticResolver_GetAssignmentSite_UsesPropertyAndLocalSites()
+    {
+        var (propertyModel, propertyAssignment) = GetSingleNode<AssignmentExpressionSyntax>("""
 			namespace Demo;
 			public sealed class Holder
 			{
@@ -142,7 +142,7 @@ public sealed class NameRuleCoreTests
 				}
 			}
 			""", "PatientId = 42");
-		var (localModel, localAssignment) = GetSingleNode<AssignmentExpressionSyntax>("""
+        var (localModel, localAssignment) = GetSingleNode<AssignmentExpressionSyntax>("""
 			namespace Demo;
 			public sealed class Holder
 			{
@@ -153,76 +153,76 @@ public sealed class NameRuleCoreTests
 				}
 			}
 			""", "patientId = 42");
-		var propertyTarget = propertyAssignment.Left;
-		var localTarget = localAssignment.Left;
+        var propertyTarget = propertyAssignment.Left;
+        var localTarget = localAssignment.Left;
 
-		var propertyResult = NameRuleSemanticSubjectResolver.GetAssignmentSite(propertyTarget, propertyModel, CancellationToken.None);
-		var localResult = NameRuleSemanticSubjectResolver.GetAssignmentSite(localTarget, localModel, CancellationToken.None);
+        var propertyResult = NameRuleSemanticSubjectResolver.GetAssignmentSite(propertyTarget, propertyModel, CancellationToken.None);
+        var localResult = NameRuleSemanticSubjectResolver.GetAssignmentSite(localTarget, localModel, CancellationToken.None);
 
-		propertyResult.Should().Be(DependencySites.Property);
-		localResult.Should().Be(DependencySites.Local);
-	}
+        propertyResult.Should().Be(DependencySites.Property);
+        localResult.Should().Be(DependencySites.Local);
+    }
 
-	private static NameMatchingRule CreateRule(ImmutableArray<NameRuleAllowMapping> allowMappings = default)
-	{
-		var result = new NameMatchingRule(
-			NameRuleKind.RequireMatchingNames,
-			NameRuleTrigger.ValueMovement,
-			ImmutableArray<PatternMatcher>.Empty,
-			ImmutableArray<PatternMatcher>.Empty,
-			ImmutableArray<PatternMatcher>.Empty,
-			allowMappings.IsDefault ? ImmutableArray<NameRuleAllowMapping>.Empty : allowMappings,
-			DependencySiteFilter.All,
-			"Application",
-			null,
-			"Architecture.anl",
-			12,
-			3);
+    private static NameMatchingRule CreateRule(ImmutableArray<NameRuleAllowMapping> allowMappings = default)
+    {
+        var result = new NameMatchingRule(
+            NameRuleKind.RequireMatchingNames,
+            NameRuleTrigger.ValueMovement,
+            ImmutableArray<PatternMatcher>.Empty,
+            ImmutableArray<PatternMatcher>.Empty,
+            ImmutableArray<PatternMatcher>.Empty,
+            allowMappings.IsDefault ? ImmutableArray<NameRuleAllowMapping>.Empty : allowMappings,
+            DependencySiteFilter.All,
+            "Application",
+            null,
+            "Architecture.anl",
+            12,
+            3);
 
-		return result;
-	}
+        return result;
+    }
 
-	private static NameRuleSubject CreateValueSubject(string name)
-	{
-		var result = new NameRuleSubject(name, [name], symbol: null);
+    private static NameRuleSubject CreateValueSubject(string name)
+    {
+        var result = new NameRuleSubject(name, [name], symbol: null);
 
-		return result;
-	}
+        return result;
+    }
 
-	private static PatternMatcher ExactName(string value)
-	{
-		var result = new PatternMatcher(MatchTarget.TypeName, MatchKind.Equals, value);
+    private static PatternMatcher ExactName(string value)
+    {
+        var result = new PatternMatcher(MatchTarget.TypeName, MatchKind.Equals, value);
 
-		return result;
-	}
+        return result;
+    }
 
-	private static CSharpCompilation CreateCompilation(string source)
-	{
-		var tree = CSharpSyntaxTree.ParseText(source, cancellationToken: CancellationToken.None);
-		var result = CSharpCompilation.Create(
-			"Demo",
-			[tree],
-			[
-				MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-				MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
-				MetadataReference.CreateFromFile(typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location)
-			]);
+    private static CSharpCompilation CreateCompilation(string source)
+    {
+        var tree = CSharpSyntaxTree.ParseText(source, cancellationToken: CancellationToken.None);
+        var result = CSharpCompilation.Create(
+            "Demo",
+            [tree],
+            [
+                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location)
+            ]);
 
-		return result;
-	}
+        return result;
+    }
 
-	private static (SemanticModel Model, TNode Node) GetSingleNode<TNode>(string source, string? containingText = null)
-		where TNode : SyntaxNode
-	{
-		var compilation = CreateCompilation(source);
-		var tree = compilation.SyntaxTrees.Single();
-		var model = compilation.GetSemanticModel(tree);
-		var root = tree.GetRoot(CancellationToken.None);
-		var node = containingText is null
-			? root.DescendantNodes().OfType<TNode>().Single()
-			: root.DescendantNodes().OfType<TNode>().Single(candidate => candidate.ToString().Contains(containingText, StringComparison.Ordinal));
-		var result = (model, node);
+    private static (SemanticModel Model, TNode Node) GetSingleNode<TNode>(string source, string? containingText = null)
+        where TNode : SyntaxNode
+    {
+        var compilation = CreateCompilation(source);
+        var tree = compilation.SyntaxTrees.Single();
+        var model = compilation.GetSemanticModel(tree);
+        var root = tree.GetRoot(CancellationToken.None);
+        var node = containingText is null
+            ? root.DescendantNodes().OfType<TNode>().Single()
+            : root.DescendantNodes().OfType<TNode>().Single(candidate => candidate.ToString().Contains(containingText, StringComparison.Ordinal));
+        var result = (model, node);
 
-		return result;
-	}
+        return result;
+    }
 }

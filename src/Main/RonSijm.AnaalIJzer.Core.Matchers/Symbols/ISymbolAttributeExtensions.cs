@@ -4,27 +4,27 @@ namespace RonSijm.AnaalIJzer.Core.Matchers.Symbols;
 
 public static class SymbolAttributeExtensions
 {
-	public static bool HasAttribute(this ISymbol symbol, string value)
-	{
-		var normalised = value.EndsWith("Attribute", StringComparison.Ordinal) ? value : value + "Attribute";
-		var result = false;
-		foreach (var attr in symbol.GetAttributes())
-		{
-			var cls = attr.AttributeClass;
-			if (cls is null)
-			{
-				continue;
-			}
+    public static bool HasAttribute(this ISymbol symbol, string value)
+    {
+        var normalised = value.EndsWith("Attribute", StringComparison.Ordinal) ? value : value + "Attribute";
+        var result = false;
+        foreach (var attr in symbol.GetAttributes())
+        {
+            var cls = attr.AttributeClass;
+            if (cls is null)
+            {
+                continue;
+            }
 
-			if (string.Equals(cls.Name, normalised, StringComparison.Ordinal)
-			    || string.Equals(cls.Name, value, StringComparison.Ordinal)
-			    || string.Equals(cls.ToDisplayString(), value, StringComparison.Ordinal))
-			{
-				result = true;
-				break;
-			}
-		}
+            if (string.Equals(cls.Name, normalised, StringComparison.Ordinal)
+                || string.Equals(cls.Name, value, StringComparison.Ordinal)
+                || string.Equals(cls.ToDisplayString(), value, StringComparison.Ordinal))
+            {
+                result = true;
+                break;
+            }
+        }
 
-		return result;
-	}
+        return result;
+    }
 }

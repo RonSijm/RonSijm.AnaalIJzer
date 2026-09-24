@@ -1,8 +1,15 @@
 ### `<Exceptions>`
 
-Every `<Class>` and `<Namespace>` matcher (including matchers inside `<Layer>`, `<Allowed>` and `<Forbidden>`) accepts a nested `<Exceptions>` block listing types that should be exempt from the rule. Exceptions support the full matcher attribute set documented in [Matcher types](#matcher-types) above, including conjunctive matcher attributes, `typeKind`, semantic matchers (`inherits`, `implements`, `withAttribute`, `withAccessModifier`), and `regex`.
+Every `<Class>` and `<Namespace>` matcher can have a nested `<Exceptions>` block. That includes matchers inside `<Layer>`, `<Allowed>`, and `<Forbidden>`.
 
-When a dependency matches a rule **and** matches any of that rule's exceptions, the rule is skipped and evaluation continues with the next rule in document order. The rename code-fix is also suppressed for excepted types — if a type is allowed, the IDE will not nag with a rename suggestion.
+An exception can use the same matcher vocabulary as the rule it narrows:
+
+- several attributes on one matcher, combined with AND;
+- `typeKind`;
+- `inherits`, `implements`, `withAttribute`, and `withAccessModifier`;
+- `regex` and the normal text matchers.
+
+When a dependency matches a rule **and** matches any of that rule's exceptions, the rule is skipped and evaluation continues with the next rule in document order. The rename code fix is also suppressed for excepted types - if a type is allowed, the IDE will not nag it with a rename suggestion.
 
 ```xml
 <Forbidden>
@@ -26,7 +33,13 @@ When a dependency matches a rule **and** matches any of that rule's exceptions, 
 </Layer>
 ```
 
-The intent is the **ratchet pattern**: lock in current violations as a baseline so the rule blocks *new* offenders without forcing a flag-day rewrite. This mechanism is deliberately simple: it does not track when an exception was added, expire it, or report on it. If you want expiry dates and reminders, that is what [`<ExceptionPolicy>`](exception-policy.md) is for.
+The intent is the **ratchet pattern**:
+
+- lock current violations into a named baseline;
+- block new offenders immediately;
+- remove the old exceptions at whatever pace the codebase permits.
+
+Plain exceptions do not track when they were added, expire themselves, or report reminders. If you need that, use [`<ExceptionPolicy>`](exception-policy.md). A carve-out can be simple or accountable; it should not pretend to be both.
 
 **Example project:** [`Example.Exceptions`](../../Examples/Features/Example.Exceptions)
 
@@ -70,13 +83,13 @@ public class OrderManager(OrderStore store) { }
 
 #### When to reach for `<Exceptions>`
 
-- **Legacy migration / introducing the analyzer to an existing codebase.** Turn the analyzer on with complete rules from day one and add every current offender to `<Exceptions>` (the IDE code-fix does this in one keystroke). The build stays green, but every *new* violation now fails CI. Burn the list down at whatever pace fits the team - there is no migration milestone you have to hit, although a list that has not shrunk in a year is making a statement about priorities all by itself.
+- **Introducing the analyzer to an existing codebase.** Enable the complete rules and add current offenders to `<Exceptions>` with the IDE code fix. The build stays green, but every new violation fails CI. Burn the list down at whatever pace fits the team. There is no migration milestone you have to hit, although a list that has not shrunk in a year is making a statement about priorities all by itself.
 - **Intentional architectural carve-outs.** One diagnostics or bootstrap module legitimately needs to see a type the rest of the codebase shouldn't. Excepting it scoped to *that one type* keeps the rule active everywhere else.
-- **Third-party / vendor types** you can't rename, generated code, framework conventions, test doubles (`InMemoryFakeOrderRepository` looks like a Repository but isn't one), and any other case where the type name happens to match a pattern it doesn't semantically belong to.
+- **Types that only look like a match.** This includes third-party types you cannot rename, generated code, framework conventions, and test doubles (`InMemoryFakeOrderRepository` looks like a Repository but is not one).
 
 #### Why `<Exceptions>` and not something like `<Baseline>`?
 
-`<Baseline>` would presuppose the *reason* ("this is legacy debt we're grandfathering in") and invite feature creep — baseline freshness warnings, expiry dates, "ratchet down" reports, and so on. In practice exceptions get added for several different reasons (the list above), and a config file is the wrong place to assert intent. `<Exceptions>` is neutral about *why* something is excepted and leaves the policy ("when do we shrink this list?") to the team. Use an XML comment next to the entry if you want to record the reason.
+`<Baseline>` would imply that every exemption represents legacy debt. In practice exceptions are also used for vendor types, framework conventions, generated code, and intentional carve-outs. `<Exceptions>` is neutral about why something is excepted and leaves the policy to the team. Use an XML comment to record the reason, or `<ExceptionPolicy>` when ownership and expiry must be enforced.
 
 #### Code fix
 

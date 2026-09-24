@@ -7,7 +7,6 @@
         <Nullable>enable</Nullable>
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <NoWarn>$(NoWarn);RS2002;RS2003</NoWarn>
-        <EnableArchitecturalLevelAnalyzer>false</EnableArchitecturalLevelAnalyzer>
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
         <IsPackable>false</IsPackable>
     </PropertyGroup>

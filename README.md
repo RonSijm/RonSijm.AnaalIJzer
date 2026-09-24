@@ -10,11 +10,15 @@ An **A**nalyzer for **N**-dimensional **A**dvanced **A**rchitectural **L**ayerin
 
 ## Introduction
 
-A Roslyn analyzer that enforces architectural layering rules in your codebase. You define named layers and explicit allowed dependency edges in an XML file, and the analyzer ensures each type only depends on types in permitted layers - catching illegal dependencies at compile time.
+I built Anaal IJzer to turn architecture rules from review comments into compiler diagnostics. You define named layers and explicit allowed dependency edges in an XML file, and the analyzer checks that types only depend on permitted layers. That is mostly it. The rest of the project is what happened after "just check a few layers" acquired tooling, diagrams, fixers, and quite a lot more XML.
 
-## Readme Meta
+## How this README is built
 
-This README is composed from the standalone notes in [`docs/`](docs/). The generated README is generated as one full document - also because to embed this in the NuGet package and the Visual Studio landing page.
+I keep the documentation as standalone notes in [`docs/`](docs/) and assemble them into this README. That gives me:
+
+- one place to edit each subject;
+- the same document on GitHub, NuGet, and the Visual Studio landing page;
+- no three-way contest over which almost-identical copy is currently the real one.
 
 The compose order is defined in [`docs/_readme-order.txt`](docs/_readme-order.txt). After changing the individual notes, run [`docs/build-readme.ps1`](docs/build-readme.ps1) to regenerate this readme.
 ## Legend
@@ -44,29 +48,24 @@ The compose order is defined in [`docs/_readme-order.txt`](docs/_readme-order.tx
 
 ## Naming
 
-"IJzer" is the Dutch word for Iron. I - Ron, the creator (of this project) - have therefore decided to name this project "IJzer".
-
-Consider: a "layered" architecture is usually drawn as a stack of horizontal bands - Controller on top, Repository at the bottom, gravity in between. This is a 1-dimensional projection, and already something of a lie. The moment you add a second axis - deployment tier, bounded context, tenant, feature module - you have a grid. Add a third and the whiteboard contains a cube. Add a fourth and you are now reasoning about a **tesseract**: 16 vertices, 32 edges, no faithful embedding in 3-space, and absolutely no chance of fitting next to the standup-room coffee machine.
-
-A penteract has 32 vertices and 80 edges. A hexeract has 64 and 192. By the 23rd dimension you have stopped doing software architecture and started doing something closer to differential topology, or possibly mysticism - the distinction is left as an exercise for the reader.
-
-The point, such as there is one, is that the XML config does not care about your visual limitations. It cheerfully encodes whatever lower-dimensional projection of the underlying hypercube you have conveniently decided to enforce this time, this sprint. The generated documentation shows you that projection with Mermaid diagrams and rule descriptions. This should not be mistaken for understanding. The other dimensions you forgot to project are still there, watching, waiting, occasionally producing an ARCH00X at 4:47 PM on a Friday.
-
-ANAAL IJzer forges the shadow. The hypercube compiles in silent apathy.
-
----
-
-Ok maybe not.
+"IJzer" is the Dutch word for iron. I - Ron, the creator of this project - have therefore decided to name it "IJzer".
 
 ---
 
 ## The problem it solves
 
-### Meta: Why a restaurant?
+### Meta - The Examples - Why a restaurant?
 
-Architecture terms such as `Controller`, `ViewModel`, `Handler`, or `Slice` come with prior knowledge and expectations about MVC, MVVM, vertical slices, and other specific styles. Using them in the introductory examples could make an incidental name look like a rule or imply that Anaal IJzer prefers one of those architectures.
+Before explaining the problem, let me explain how I'm explaining the problems. In a lot of cases I'm using 'A restaurant' as an example.
 
-The restaurant is therefore a deliberately opinionated **example domain**, not a prescribed software architecture. Its roles are familiar enough to discuss boundaries without framework knowledge: a Customer depends on a Waiter, a Waiter depends on a Chef, and a Chef depends on the Pantry. In these examples the roles are simply layer names, and an arrow always means **“may depend on.”** Your own configuration can use whatever layers and architectural style fit your application.
+This is because architecture terms such as `Controller`, `ViewModel`, `Handler`, or `Slice` come with prior knowledge and expectations about MVC, MVVM, vertical slices, and other specific styles. Using them in the introductory examples could make an incidental name look like a rule or imply that Anaal IJzer prefers one of those architectures.
+
+I use a restaurant as the deliberately opinionated **example domain**, not as a prescribed software architecture.
+
+- The roles are familiar without requiring MVC, MVVM, or vertical-slice knowledge.
+- `Customer`, `Waiter`, `Chef`, and `Pantry` are only layer names.
+- An arrow always means **“may depend on.”** It does not describe runtime request or data flow.
+- Your own configuration can use whichever layers and architectural style fit your application.
 
 Imagine a restaurant with four roles:
 
@@ -75,15 +74,26 @@ Imagine a restaurant with four roles:
 - A **Chef** may use the **Pantry**
 - Peers in the same role should not command each other unless that role explicitly allows it
 
-Without tooling, these rules live only in code-review comments and tribal knowledge. Tribal knowledge has a habit of accepting an offer elsewhere and leaving with all of the reasoning and none of the documentation. This analyzer turns them into compile errors.
+Without tooling, these rules live only in code-review comments and tribal knowledge. Tribal knowledge has a habit of accepting an offer elsewhere and leaving with all of the reasoning and none of the documentation. This analyzer turns the rules into compile errors.
 
-How this is usually solved without this project is by creating a separate unit or integration test project to verify these concerns. This analyzer removes that need entirely - violations are reported inline as you type.
+Architecture test projects can verify some of these concerns after a test run. Anaal IJzer reports configured violations in the editor and during compilation. Architecture tests remain useful for checks over built assemblies and external binaries.
 
 ---
 
 ## How it works
 
-You define named layers and the edges between them in an XML file. The analyzer reads that file and checks every dependency a class, record, struct, or interface introduces - constructor and method parameters, method return types, fields, properties, local variables, inheritance, attributes, static member access, `new` expressions, and generic service-locator invocations. When a type in layer A introduces a dependency on a type whose layer is not permitted for A, an error is reported on the offending syntax.
+You define named layers and the edges between them in an XML file. The analyzer then checks the places where a class, record, struct, or interface can introduce another type:
+
+- **Declarations**
+  - inheritance, interface implementation, and attributes;
+- **Signatures**
+  - constructors, method parameters, and method returns;
+- **Stored or temporary values**
+  - fields, properties, and local variables;
+- **Operations**
+  - object creation, static member access, generic arguments, and generic service-locator calls.
+
+When layer A introduces a dependency that its rules do not permit, the error appears on that syntax. You do not have to reconstruct it from a failed architecture test in another project.
 
 ```
 Customer ──► Waiter    ✅ allowed
@@ -110,7 +120,7 @@ flowchart LR
     Syntax --> Semantics["SemanticModel and ITypeSymbol resolution"]
     Config --> Rules["Layer and dependency graph"]
     Semantics --> Rules
-    Rules --> Diagnostics["ARCH00X diagnostics at source locations"]
+    Rules --> Diagnostics["ARCH_* diagnostics at source locations"]
 ```
 
 The integration points are:
@@ -127,7 +137,7 @@ Because the same analyzer participates in design-time and command-line compilati
 ---
 ## Why compiler-level enforcement matters
 
-Anaal IJzer is a compile-time architecture and structural-policy guard for .NET. It overlaps with test-runner architecture checks such as NetArchTest and ArchUnitNET, heavyweight static-analysis platforms such as NDepend, and the old Visual Studio layer-diagram validation. It is not merely another way to write the same tests.
+Anaal IJzer is a compile-time architecture and structural-policy guard for .NET. It overlaps with test-runner architecture checks such as NetArchTest and ArchUnitNET, static-analysis platforms such as NDepend, and the old Visual Studio layer-diagram validation. Its compiler integration also supports policies that ordinary runtime tests do not inspect.
 
 ### Architecture tests are useful, but solve a different problem
 
@@ -149,7 +159,7 @@ public void Presentation_Should_Not_Depend_On_Persistence()
 
 That is valuable for broad assertions about an assembly or a set of published types. It is not equivalent to compiler-level enforcement:
 
-1. **Feedback and location are different.** A test reports from the test project after somebody runs it. Anaal IJzer reports on the exact source construct during design-time analysis and compilation, so the editor squiggle and CI error point to the same dependency, return expression, or declaration.
+1. **Feedback and location are different.** A test reports from the test project when the test suite runs. Anaal IJzer reports on the exact source construct during design-time analysis and compilation, so the editor squiggle and CI error point to the same dependency, return expression, or declaration.
 
 2. **Behavioural tests only see executed paths.** A `return null`, a sentinel return value, or a `throw` deep in a branch can remain invisible until a test happens to execute that path. Static type-level architecture tests can assert a relationship between types, but they do not automatically inspect every method body and every relevant syntax site.
 
@@ -161,11 +171,20 @@ That is valuable for broad assertions about an assembly or a set of published ty
 
 ### What Anaal IJzer adds
 
-Anaal IJzer uses Roslyn's semantic model while the compiler still knows the real symbols behind the source. This makes rules about aliases, inferred locals, generic arguments, implemented interfaces, attributes, and nested boundaries dependable rather than text-based guesses.
+Anaal IJzer uses Roslyn's semantic model to resolve the symbols behind the source. That gives the rules a few useful properties:
 
-It can also enforce configured policies inside a method body. A [`ReturnValuePolicy`](docs/configuration/return-value-policies.md) can reject a direct `return null`, an empty string, an enum-zero sentinel, or the unchanged result of a method annotated as optional. A [`ForbiddenOperations` policy](docs/configuration/forbidden-operation-policies.md) can reject one resolved API member, such as `DateTime.UtcNow` or `Task.Wait()`, while leaving other members of the same framework type available. The analyzer reports each matching source operation even when the method is never exercised by a test.
+- aliases and fully qualified names resolve to the same symbol;
+- inferred locals still have a real type;
+- generic arguments, implemented interfaces, and attributes are inspected semantically;
+- nested boundaries are evaluated from their actual configured layer paths;
+- method-body policies apply even when no test happens to execute that branch.
 
-For a rule that must hold at every relevant source site, runtime coverage cannot prove compliance unless it executes every possible path. A test can approximate that guarantee only by adding an equivalent static inspection. That is why compiler-level analysis is not a substitute for an architecture test: it is the direct enforcement mechanism for a different class of policy.
+For example:
+
+- A [`ReturnValuePolicy`](docs/configuration/return-value-policies.md) can reject a direct `return null`, an empty string, an enum-zero sentinel, or the unchanged result of a method annotated as optional.
+- A [`ForbiddenOperations` policy](docs/configuration/forbidden-operation-policies.md) can reject `DateTime.UtcNow` or `Task.Wait()` while leaving other members of the same framework type available.
+
+Runtime coverage cannot prove a source-site rule unless it executes every relevant path. Equivalent coverage requires static inspection. Compiler analysis therefore addresses a different class of policy from architecture tests over built assemblies.
 
 ### Complementary tools
 
@@ -185,7 +204,7 @@ Or add the package reference directly to your `.csproj`:
 
 ```xml
 <ItemGroup>
-    <PackageReference Include="RonSijm.AnaalIJzer" Version="0.4.0" PrivateAssets="all" />
+    <PackageReference Include="RonSijm.AnaalIJzer" Version="0.3.5" PrivateAssets="all" />
 </ItemGroup>
 ```
 
@@ -220,9 +239,15 @@ Add a file called `Architecture.anl` to the **root of the project you want to an
 
 ### Why `.anl` instead of `.xml`?
 
-`Architecture.anl` is an XML document. The format originally used the ordinary `.xml` extension, and the XML syntax has not changed: settings still use the `<ArchitecturalLevels>` root, standard XML tooling, and the AnaalIJzer XSD schema.
+`Architecture.anl` is an XML document. I originally used the ordinary `.xml` extension and later changed only the extension, not the format. Settings still use the `<ArchitecturalLevels>` root, standard XML tooling, and the AnaalIJzer XSD schema.
 
-The custom `.anl` extension gives the settings file an architectural identity instead of making it look like unrelated application data - a generic `Architecture.xml` tends to get filed under "legacy config of uncertain ownership" and removed during a tidy-up sprint. It also gives tools a stable file type to recognize and associate: Arse and the standalone graph editor can be registered as `.anl` handlers, while the Visual Studio companion can recognize an `.anl` file and open it in its dependency-graph editor.
+I chose `.anl` for a couple of practical reasons:
+
+- It gives the settings file an architectural identity instead of making it look like unrelated application data.
+  - A generic `Architecture.xml` tends to get filed under "legacy config of uncertain ownership" and removed during a tidy-up sprint.
+- It gives the tools a stable file type to recognize.
+  - Arse and the standalone graph editor can register themselves as `.anl` handlers.
+  - The Visual Studio companion can open an `.anl` file in its dependency-graph editor.
 
 Add an XSD schema hint when you want XML-aware editors to validate element and attribute names while you edit. The schema is [AnaalIJzer.xsd](src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd); generated configurations can place a copy beside `Architecture.anl`:
 
@@ -262,7 +287,7 @@ If several projects should use the same `Architecture.anl`, put the XML next to 
 ```xml
 <Project>
   <ItemGroup>
-    <PackageReference Include="RonSijm.AnaalIJzer" Version="0.4.0" PrivateAssets="all" />
+    <PackageReference Include="RonSijm.AnaalIJzer" Version="0.3.5" PrivateAssets="all" />
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)Architecture.anl" Link="Architecture.anl" />
   </ItemGroup>
 </Project>
@@ -311,11 +336,22 @@ public sealed class OrderRepository { }
 
 The analyzer recognizes `AssemblyMetadata("AnaalIJzerSettings", "...")` and reads the second constructor argument as XML. No custom helper attribute or extra package reference is needed.
 
-If both config sources exist, `Architecture.anl` wins and the inline metadata value is ignored without comment, so if carefully crafted inline rules suddenly stopped applying, look for a file someone added last week. Visual Studio and Rider code fixes can now edit both file-based settings and inline `AssemblyMetadata("AnaalIJzerSettings", ...)`, including the owning included file when a rule comes from `<Include>`. The simple one-file examples in this repository use `AssemblyMetadata("AnaalIJzerSettings", ...)`, and exact type-name rules use `nameof(...)` so refactors break the code at compile time instead of quietly breaking the config. Broader examples use XML files when that makes the configuration easier to read. See [IDE code fixes](docs/configuration/ide-code-fixes.md) for the supported fixer matrix.
+If both config sources exist, `Architecture.anl` wins and the inline metadata value is ignored without comment. If carefully crafted inline rules suddenly stop applying, look for a file someone added last week.
+
+The practical split is:
+
+- **One-file examples and very small projects** use `AssemblyMetadata("AnaalIJzerSettings", ...)`.
+  - Exact type-name rules can use `nameof(...)`, so a refactor breaks at compile time instead of quietly breaking the config.
+- **Broader examples and real rule sets** use `.anl` files.
+  - XML is easier to read once the settings need includes, nested layers, or several policy families.
+- **Code fixes** can edit either source.
+  - When a rule comes from `<Include>`, the fixer targets the included file that actually owns it.
+
+See [IDE code fixes](docs/configuration/ide-code-fixes.md) for the supported fixer matrix.
 
 **Example project:** [`Example.InlineXml`](Examples/Features/Example.InlineXml)
 
-That's it. The analyzer activates automatically for every `.cs` file in the project.
+That's it. The analyzer now runs for every `.cs` file in the project.
 
 Examples use one vocabulary at a time. Explanatory diagnostics use the restaurant roles `Customer`, `Waiter`, `Chef`, and `Pantry`. Setup and reference examples use the technical layers `Presentation`, `Application`, and `Persistence`. A diagram, code block, or explanation never maps one vocabulary onto the other, because a `Waiter` in the `Persistence` layer helps nobody.
 
@@ -324,13 +360,13 @@ flowchart LR
     Customer --> Waiter --> Chef --> Pantry
 ```
 
-The self-contained projects under [`Examples/`](Examples/) are referenced inline where their feature is documented. Most intentionally fail with documented `ARCH00X` errors; a few demonstrate clean wildcard config or generated report/documentation output. Scenario examples, such as [`Example.RepositoryQuerySurface`](Examples/Scenarios/Example.RepositoryQuerySurface), show larger usage patterns rather than a single analyzer feature.
+The self-contained projects under [`Examples/`](Examples/) are referenced inline where their feature is documented. Most intentionally fail with documented `ARCH_<CONCERN>_<REASON>` errors; a few demonstrate clean wildcard config or generated report/documentation output. Scenario examples, such as [`Example.RepositoryQuerySurface`](Examples/Scenarios/Example.RepositoryQuerySurface), show larger usage patterns rather than a single analyzer feature.
 
 ---
 
 ## Visual Studio 2026 companion extension
 
-The Visual Studio add-on is a VSIX companion for the analyzer. The analyzer remains the authority for `ARCH00X` diagnostics; the extension makes the configured architecture visible while you read and edit code. It cannot bless a dependency the analyzer rejects, however tidy the graph looks.
+I made the Visual Studio add-on because an architecture rule is easier to understand when its layer is visible next to the code instead of being reconstructed from XML in your head. It is a VSIX companion, not a second analyzer: the analyzer remains the authority for `ARCH_<CONCERN>_<REASON>` diagnostics. The extension cannot bless a dependency the analyzer rejects, however tidy the graph looks.
 
 It adds four visual workflows to Visual Studio 2026:
 
@@ -349,11 +385,11 @@ Build the VSIX from the repository root:
 build\Scripts\Addon\build-vs-extension.cmd
 ```
 
-The script writes `RonSijm.AnaalIJzer.VisualStudio.vsix` to `build\Artifacts\VisualStudio`. Install that VSIX into Visual Studio 2026 to enable the editor companion. Each VSIX build stamps a fresh timestamp-based extension version, so Visual Studio can install a newly built local VSIX over the previous one instead of insisting that the version you just changed is already installed.
+The script writes `RonSijm.AnaalIJzer.VisualStudio.vsix` to `build\Artifacts\VisualStudio`. Install that VSIX into Visual Studio 2026 to enable the editor companion. Each build stamps a timestamp-based extension version so Visual Studio recognizes it as newer than the previous local build.
 
 The GitHub `build-vsix.yml` workflow builds and uploads the VSIX artifact on Windows. On pushes to `main`, it also submits the VSIX to Visual Studio Marketplace when the repository secret `VS_MARKETPLACE_TOKEN` is configured. Marketplace metadata lives in `src\Extensions\RonSijm.AnaalIJzer.VisualStudio\marketplace-publish.json`.
 
-The established classic companion reads the same `Architecture.anl` or `AssemblyMetadata("AnaalIJzerSettings", ...)` configuration as the analyzer through Visual Studio's Roslyn workspace. If no AnaalIJzer config exists, it renders nothing - an empty editor means "nothing is configured", not "everything is in order". If the config is invalid, the classic companion stays quiet and leaves the existing `ARCH_CONF_003` analyzer diagnostic as the source of truth.
+The companion reads the same `Architecture.anl` or `AssemblyMetadata("AnaalIJzerSettings", ...)` configuration as the analyzer through Visual Studio's Roslyn workspace. If no AnaalIJzer config exists, it renders nothing - an empty editor means "nothing is configured", not "everything is in order". If the config is invalid, the companion stays quiet and leaves the existing `ARCH_CONF_003` analyzer diagnostic as the source of truth.
 
 ### Layer information on declarations
 
@@ -370,7 +406,7 @@ Layer indicators are controlled from Visual Studio 2026 Settings under `AnaalIJz
 | Highlight code in layer | On | Shows a region-like block highlight around a layered type declaration. |
 | Tint layer declaration text | Off | Applies the older line-background tint to a layered type declaration. |
 
-Start in this settings page when you want to decide how much architectural context belongs in the editor. The controls separate fast scanning aids, such as glyphs and badges, from richer information that only appears when you hover or open CodeLens.
+Use this settings page to choose how much architectural context appears in the editor. Glyphs and badges support scanning; hover and CodeLens content provide additional detail on demand.
 
 ![AnaalIJzer editor settings](Examples/Assets/VisualStudio/editor-settings.png)
 
@@ -378,25 +414,25 @@ Start in this settings page when you want to decide how much architectural conte
 
 ![Layer badge](Examples/Assets/VisualStudio/layer-badge.png)
 
-**Layer metadata above a declaration.** The CodeLens-style summary exposes the layer's immediate relationship to the rest of the graph before you open a hover card. It is useful when reading an unfamiliar file top to bottom.
+**Layer metadata above a declaration.** The CodeLens-style summary shows the layer's immediate relationship to the rest of the graph before you open a hover card.
 
 ![Layer metadata above a declaration](Examples/Assets/VisualStudio/layer-codelens.png)
 
-**Not in layer.** This neutral badge is deliberately opt-in: it helps distinguish a type that has not been classified from a type that simply has no dependency violation.
+**Not in layer.** This optional neutral badge distinguishes an unclassified type from a classified type with no dependency violation.
 
 ![Not in layer badge](Examples/Assets/VisualStudio/not-in-layer-badge.png)
 
-**Gutter glyph.** The glyph keeps layer information visible while the declaration itself is off to the side or collapsed, making the editor margin useful for quick file-level scanning.
+**Gutter glyph.** The glyph keeps layer information visible in the editor margin when the declaration is horizontally out of view or collapsed.
 
 ![Layer gutter glyph](Examples/Assets/VisualStudio/layer-gutter-glyph.png)
 
-**Block highlight.** Highlighting frames the complete declaration rather than only tinting a line. That makes the boundary of the type easy to follow in a dense file.
+**Block highlight.** Highlighting frames the complete declaration instead of tinting one line, making the type boundary visible in a dense file.
 
 ![Layer block highlight](Examples/Assets/VisualStudio/layer-block-highlight.png)
 
 Hovering a layered type or dependency site also shows native Visual Studio QuickInfo. Layer QuickInfo shows the canonical path, ancestry, palette slot, description when configured, which layers may call the current layer, and which layers the current layer may call.
 
-The hover complements the lightweight badge: it answers the next architectural question, “what is this layer connected to?”, including a compact call chain when the relationship is linear.
+The hover adds incoming and outgoing layer relationships to the badge information, including a compact call chain when the relationship is linear.
 
 ![Layer CodeLens and QuickInfo](Examples/Assets/VisualStudio/layer-badge-hover-info.png)
 
@@ -422,23 +458,37 @@ Layer information and Sites Diagnostics use the same supported dependency sites 
 | Attribute | Show Attribute Layer Information | Show Attribute Site Diagnostics |
 | Static member access | Show StaticMember Layer Information | Show StaticMember Site Diagnostics |
 
-The labels do not create or suppress diagnostics. They make the syntactic location and resolved layer visible while the analyzer remains responsible for compile/build errors. Turning a label off hides the annotation, not the rule. Separate allowed, warning, unclassified, and error colors make an allowed constructor dependency distinct from a site-filtered or blocked one.
+The labels are editor information, not analyzer switches:
+
+- They show the syntactic site and resolved layer.
+- Turning one off hides the annotation, not the rule.
+- Allowed, warning, unclassified, and error states use different colors.
+
+The analyzer still owns compile and build diagnostics. A hidden badge is not an architectural pardon.
 
 For a clean demonstration of every site in one editor tab, open [`Example.VisualStudioSiteDiagnostics`](Examples/Documentation/Example.VisualStudioSiteDiagnostics). It deliberately has no analyzer violations, so the layer and site labels remain easy to inspect.
 
-**A focused site explanation.** The constructor is the smallest useful example. Its label identifies where the dependency is being introduced, while the analyzer's red squiggle remains responsible for saying whether that use is legal.
+**A focused site explanation.** The constructor label identifies where the dependency is introduced. The analyzer diagnostic states whether that use is permitted.
 
 ![Constructor Site Diagnostics](Examples/Assets/VisualStudio/site-diagnostics-constructor.png)
 
-**A whole-file view.** The all-sites showcase makes it easier to see the difference between a type's layer and the code location that references it. Open the example, enable the relevant group of controls, and use the labelled lines to learn each site shape in context.
+**A whole-file view.** The all-sites example shows the difference between a referenced type's layer and the C# site that introduces the dependency. Open the example and enable the relevant controls to compare the labels.
 
 ![All Layer Information sites](Examples/Assets/VisualStudio/site-layer-information-all-sites.png)
 
 ### Dependency graphs
 
-Use `Extensions > IJzer > Show Dependency Graphs` or command search to open a dockable dependency-graph sidebar. The sidebar groups concrete layer rules into connected graphs and shows wildcard/global rules separately. The graph is the same reusable WPF editor hosted by the standalone graph editor. It supports layer grouping, user-controlled layout, connector-based dependency creation, right-click editing, nested-boundary visualization, and PNG export. When the loaded solution has `<SolutionTopology>`, it also shows that configuration as a separate read-only module graph with observed direct project-reference evidence; edit the `.anl` source for module policy changes.
+Use `Extensions > IJzer > Show Dependency Graphs` or command search to open the dockable graph sidebar. It uses the same WPF editor as the standalone graph tool and supports:
 
-**Start with the configured structure.** With code evidence off, the graph stays focused on the intended architecture: the named layers and the allowed paths between them. This is the clearest mode for discussing or editing the rules themselves.
+- connected-graph grouping, with wildcard and global rules kept separately;
+- nested-boundary visualization;
+- user-controlled layout;
+- connector-based dependency creation and right-click editing;
+- PNG export.
+
+When the solution has `<SolutionTopology>`, the sidebar adds a separate read-only module graph with observed direct project-reference evidence. Edit the `.anl` source when the module policy itself needs to change.
+
+**Start with the configured structure.** With code evidence off, the graph contains the named layers and configured paths between them. Use this mode when reviewing or editing rules.
 
 ![Dependency graph without code evidence](Examples/Assets/VisualStudio/graph-no-code.png)
 
@@ -448,7 +498,7 @@ Use `Extensions > IJzer > Show Dependency Graphs` or command search to open a do
 | Open .anl files in diagram editor | On | Opens or selects an `.anl` settings file in the graph editor automatically. |
 | Include code evidence | Off | Includes matching project types and observed violations in graph snapshots. |
 
-**Add evidence when investigating a real project.** Enabling code evidence adds matching-type counts and observed violations to the same graph. The dashed red connection in this capture turns an abstract rule into a concrete place to investigate.
+**Add evidence when investigating a project.** Enabling code evidence adds matching-type counts and observed violations to the same graph. A dashed red connection identifies the observed dependency that violated a rule.
 
 ![Dependency graph with code evidence](Examples/Assets/VisualStudio/graph-with-code.png)
 
@@ -460,21 +510,47 @@ When the graph comes from an active C# document in a loaded Visual Studio projec
 - show the target file, risk level, and preview diff for each proposal;
 - apply one selected proposal and immediately refresh the graph.
 
-You can also right-click a layer or dependency connection and jump straight to the scoped fixer view for that selection. The proposal list is filtered to the selected layer or dependency pair, so you do not have to scan every fix in the active project by hand.
+You can also right-click a layer or dependency connection and open the scoped fixer view for that selection. The proposal list is filtered to the selected layer or dependency pair.
 
 Detached `.anl` files still open in the graph editor, but they do not automatically have enough Roslyn project context to offer analyzer-backed configuration fixes.
 
 ### Status and troubleshooting
 
-Use `Extensions > IJzer > Show Status` if the editor appears quiet. It analyzes the active document and reports whether the file is part of Visual Studio's Roslyn workspace, whether settings were found, how many layer/site indicators were produced, and whether configuration issues are suppressing visual adornments. It is a faster diagnosis than the traditional method of restarting Visual Studio three times and hoping.
+Use `Extensions > IJzer > Show Status` if the editor appears quiet. It analyzes the active document and reports whether the file is part of Visual Studio's Roslyn workspace, whether settings were found, how many layer/site indicators were produced, and whether configuration issues are suppressing visual adornments. It is faster than the traditional method of restarting Visual Studio three times and hoping.
 
-The companion writes diagnostic logs to Visual Studio's Activity Log and to an Output window pane named `AnaalIJzer`. If settings, menu commands, or editor visuals do not appear, start Visual Studio with logging enabled, reproduce the issue, and search the Activity Log for `AnaalIJzer`. If there are no `AnaalIJzer` entries at all, the VSIX package is not loading; if package initialization is present but no tagger entries appear, the editor MEF component is not being created for the active C# view.
+The companion writes logs to Visual Studio's Activity Log and to an Output pane named `AnaalIJzer`.
 
-For local validation, use the [Visual Studio companion manual acceptance checklist](docs/visual-studio-companion-manual-acceptance.md). If no adornments appear, run `Extensions > IJzer > Show Status` first. The extension reads analyzer `AdditionalFiles`, inline `AssemblyMetadata("AnaalIJzerSettings", ...)`, and as an editor-only convenience the nearest `Architecture.anl` above the active document; if the config is invalid, the companion intentionally renders nothing and leaves the `ARCH_CONF_003` diagnostic as the source of truth.
+If settings, commands, or editor visuals do not appear:
+
+1. Run `Extensions > IJzer > Show Status`.
+2. Start Visual Studio with logging enabled.
+3. Reproduce the issue.
+4. Search the Activity Log and `AnaalIJzer` Output pane.
+
+The first missing event usually tells you which half is broken:
+
+- No `AnaalIJzer` entries at all means the VSIX package is not loading.
+- Package initialization without tagger entries means the editor MEF component is not being created for the active C# view.
+
+For local validation, use the [Visual Studio companion manual acceptance checklist](docs/visual-studio-companion-manual-acceptance.md).
+
+The extension looks for settings in this order:
+
+- analyzer `AdditionalFiles`;
+- inline `AssemblyMetadata("AnaalIJzerSettings", ...)`;
+- as an editor-only convenience, the nearest `Architecture.anl` above the active document.
+
+An invalid config intentionally produces no adornments. `ARCH_CONF_003` remains the source of truth instead of decorating the editor with guesses from a half-parsed file.
 
 ### Technical notes
 
-The VSIX uses classic Visual Studio editor extension points: MEF taggers, glyphs, inline adornments, option pages and Fonts & Colors format definitions. The shared snapshot logic lives in the analyzer assembly under `RonSijm.AnaalIJzer.Editor`, so the extension does not duplicate config parsing or layer matching.
+The implementation uses:
+
+- MEF taggers, glyphs, and inline adornments;
+- option pages and Fonts & Colors format definitions;
+- shared snapshot logic from `RonSijm.AnaalIJzer.Editor`.
+
+The last part matters: the extension does not maintain its own slightly different interpretation of config parsing and layer matching.
 
 ## IDE code fixes
 
@@ -655,13 +731,26 @@ AnaalIJzer should help with both kinds of repair, but it should not use a config
 
 ## Arse TUI
 
-Arse - **A**rchitecture **R**ule **S**tandalone **E**xecutable - can load a real project or solution with `MSBuildWorkspace`, so it sees the same compiled `AnaalIJzerSettings` metadata value as the analyzer. It can also generate documentation directly from a specific XML settings file.
+Arse means **A**rchitecture **R**ule **S**tandalone **E**xecutable. I wanted one standalone host for inspecting projects, generating settings, writing reports, and doing the other jobs that should not happen inside a compiler analyzer. The name followed from there, I suppose. It loads a real project or solution with `MSBuildWorkspace`, so it sees the same compiled `AnaalIJzerSettings` metadata value as the analyzer. It can also generate documentation directly from a specific XML settings file.
 
 ```powershell
 dotnet tool install --global RonSijm.AnaalIJzer.Arse
 ```
 
-Run `arse` without arguments for the interactive terminal interface built with [RazorConsole](https://github.com/RazorConsole/RazorConsole). Path fields show matching directories and relevant files while you type. Use Up/Down to select a suggestion, Right Arrow to complete it without leaving the field, or Tab to apply the selected or shared-prefix completion before moving on. Interactive architecture inspection displays its report before writing anything; choose `Save` afterward to select the output file. Supply a command to use the same executable headlessly:
+### Interactive mode
+
+Run `arse` without arguments for the interactive terminal interface built with [RazorConsole](https://github.com/RazorConsole/RazorConsole).
+
+- Path fields show matching directories and relevant files while you type.
+  - Use Up/Down to select a suggestion.
+  - Use Right Arrow to complete it without leaving the field.
+  - Use Tab to apply the selected or shared-prefix completion before moving on.
+- Architecture inspection shows its report before writing anything.
+  - Choose `Save` afterward if you want the report on disk.
+
+### Headless mode
+
+Supply a command to use the same executable without the TUI:
 
 ```cmd
 arse generate-config --project src\MyApp\MyApp.csproj --output Architecture.anl
@@ -684,6 +773,8 @@ arse format-config --config Architecture.anl
 arse explain-config --config Architecture.anl --output docs\architecture-explanation.md --force
 ```
 
+### Generate a baseline
+
 `generate-config` inspects source-defined types and the dependency sites already present in the project. It infers layers from the first namespace segment below the project's common namespace, falling back to familiar type suffixes such as `Controller`, `Service`, `Repository`, `Handler` and `Projection`. The command writes both `Architecture.anl` and a local `AnaalIJzer.xsd`, then runs the analyzer against the generated XML before accepting the result - a generator that emits configuration its own analyzer rejects would not be much of a favour.
 
 The generation strategy controls how observed dependencies become rules:
@@ -693,6 +784,8 @@ The generation strategy controls how observed dependencies become rules:
 | `snapshot` | The default. Every observed layer edge and dependency site becomes an `AllowedDependency`, producing a passing description of the current structure. |
 | `helpful` | A gentle baseline. For projects it behaves like a current-structure snapshot with softer wording. For solutions it creates one layer per C# project assembly using `<Assembly exactName="...">` and permits observed project-to-project dependency sites. |
 | `conventions` | Infers dominant edges and writes minority caller types into `<Exceptions>`, producing a passing ratchet that blocks new callers from following those outliers. |
+
+#### Solution-wide baselines
 
 For a solution-wide baseline, generate `Architecture.anl` beside the solution or in an ancestor directory:
 
@@ -704,6 +797,8 @@ arse inspect --solution src\MyApp.slnx --output build\Artifacts\architecture-hea
 Solution inspection still respects project-specific `Architecture.anl` and inline `AssemblyMetadata("AnaalIJzerSettings", ...)` first. If a project has no local config, Arse applies the nearest `Architecture.anl` found from the solution directory upward. Shared solution configs are inspected against the combined solution evidence, so assembly matchers and dependency edges are not reported as unused just because they do not apply to every project individually.
 
 AnaalIJzer dogfoods this flow with [`build\Scripts\Arse\inspect-self-architecture.cmd`](build/Scripts/Arse/inspect-self-architecture.cmd), using a helpful solution baseline instead of a strict hand-authored policy.
+
+#### Convention thresholds
 
 Convention inference is configurable:
 
@@ -764,11 +859,42 @@ The executable counterpart lives in [`src/Tests/RonSijm.AnaalIJzer.Application.T
 
 Generated `<Exceptions>` use the analyzer's existing ratchet semantics: the caller is exempt from that layer matcher, so all of that caller's dependencies are grandfathered. Review these entries before adopting the file. Convention mode identifies statistically dominant structure; it cannot prove architectural intent. Eight classes doing the same thing is evidence of a habit, which is not automatically evidence of a decision.
 
-Add `--generate-documentation` to write `architecture-documentation.md` beside the generated XML. The document includes the evidence counts behind inferred edges, the project types resolved by each matcher, concrete code usages permitted by each allowed dependency, generated exceptions as unclassified types, and any current analyzer violations. Add `--include-input` when the document should also contain a fenced copy of the generated XML.
+#### Document the generated baseline
 
-`export-config` writes the evaluated inline XML, so `typeName="{nameof(OrderRepository)}"` becomes `typeName="OrderRepository"` in the persisted file. `documentation` accepts either a project for compiled inline settings and project-backed XML or a specific XML file directly. `report` accepts a project or solution; solution mode opens every C# project in the solution, runs the same analyzer pass per project, and aggregates the diagnostics into one Markdown report. `documentation` and `report` use `documentationPath` / `reportPath` from the config when the output is omitted. Solution `report` uses the first configured project as the representative settings source; if no `reportPath` is enabled there, it defaults to `architectural-violations.md` beside the solution.
+Add `--generate-documentation` to write `architecture-documentation.md` beside the generated XML. The generated document includes:
 
-`inspect` (aliases: `validate`, `doctor`, `health`, `self-check`) accepts a project, solution, or XML file and writes `architecture-health.md` by default. XML inspection reports malformed settings, missing includes, invalid matchers, unknown layer references, and configured cycles. Project inspection additionally reports unclassified or ambiguously classified types, unmatched matchers, stale exceptions, unused allowed edges, observed dependency cycles, and current analyzer violations. Solution inspection runs that same project inspection for every C# project and aggregates the findings into one report. Add `--enforce-topology` to a solution inspection when its settings contain `<SolutionTopology>`; this emits `ARCH_SOL_001` / `ARCH_SOL_006` findings without changing normal project builds. Choosing an `.json` `--output` path writes the same findings as machine-readable evidence. Headless Arse exits with code `3` when findings require review, which gives CI something to fail on instead of a report that everybody agrees to read later.
+- evidence counts behind inferred edges;
+- project types resolved by each matcher;
+- concrete code usages permitted by each allowed dependency;
+- generated exceptions as unclassified types;
+- current analyzer violations.
+
+Add `--include-input` when the document should also contain a fenced copy of the generated XML.
+
+### Export, document, report, and inspect
+
+The related commands have deliberately different jobs:
+
+- `export-config` writes evaluated inline XML.
+  - `typeName="{nameof(OrderRepository)}"` becomes `typeName="OrderRepository"` in the persisted file.
+- `documentation` accepts a project-backed config or one specific `.anl` file.
+- `report` accepts a project or solution.
+  - Solution mode opens every C# project and combines the diagnostics into one Markdown report.
+- `documentation` and `report` use `documentationPath` / `reportPath` when `--output` is omitted.
+  - A solution report uses the first configured project as its representative settings source.
+  - Without a configured `reportPath`, it writes `architectural-violations.md` beside the solution.
+
+`inspect` (aliases: `validate`, `doctor`, `health`, `self-check`) accepts a project, solution, or `.anl` file and writes `architecture-health.md` by default.
+
+- **Config inspection** reports malformed settings, missing includes, invalid matchers, unknown layer references, and configured cycles.
+- **Project inspection** also reports unclassified or ambiguously classified types, unmatched matchers, stale exceptions, unused allowed edges, observed dependency cycles, and current analyzer violations.
+- **Solution inspection** runs the project checks for every C# project and combines the findings.
+  - Add `--enforce-topology` to evaluate `<SolutionTopology>` as `ARCH_SOL_001` / `ARCH_SOL_006` findings without changing normal project builds.
+- **JSON output** contains the same ordered findings as machine-readable evidence.
+
+Headless Arse exits with code `3` when findings require review. That gives CI something concrete to fail on instead of producing a report everybody agrees to read later.
+
+### Merge, split, format, and explain settings
 
 `merge-config` recursively replaces `<Include>` elements with their referenced rules and writes one self-contained XML file. Repeated references resolving to the same path are included once. Root settings such as `requireRecognizedDependencies`, report paths, documentation paths and the XSD location are preserved and rebased relative to the merged output.
 
@@ -784,11 +910,15 @@ The manifest includes every generated file, so it remains a complete replacement
 
 `explain-config` writes a compact Markdown walkthrough of a settings file in XML order: root settings, includes, layers, matchers, dependency rules, type policies and name rules. It is intentionally shorter than generated architecture documentation and useful during review when you want to understand what a ruleset says before loading a project.
 
+### Configuration fixes
+
 `fixes` lists configuration-backed proposals from the same Roslyn fixer catalog used by the IDE. One diagnostic may offer several proposals, for example adding a missing `AllowedDependency`, widening `allowedSites`, or relaxing `blockedSites`. Arse shows the proposals with stable ids, a risk label, the target file, and a preview diff so you can review them before applying anything.
 
 `apply-fix` applies one of those proposal ids back to the owning settings source. If the rule came from an included `.anl`, Arse edits that included file. If the project uses inline `AssemblyMetadata("AnaalIJzerSettings", ...)`, Arse rewrites only the metadata string in the owning source file. After applying a fix, Arse reruns the proposal collection so you can immediately see what remains.
 
 The executable coverage lives in [`src/Tests/RonSijm.AnaalIJzer.Application.Tests/ApplicationOperations/ApplicationOperationsTests.ConfigurationFixes.cs`](src/Tests/RonSijm.AnaalIJzer.Application.Tests/ApplicationOperations/ApplicationOperationsTests.ConfigurationFixes.cs). Those tests exercise both file-based and inline settings projects end to end: list proposals, apply one fix, and verify that the proposal list becomes empty afterward.
+
+### One operation catalog
 
 Arse's interactive and headless modes share `RonSijm.AnaalIJzer.Application`. Its `ToolOperationCatalog`, `ToolRequest` and `ToolRunner` own the available operations, supported inputs, validation and execution behavior, keeping both modes in feature parity.
 
@@ -880,11 +1010,36 @@ anaaltomy chart --database .\build\Artifacts\statistics.db --output-directory .\
 anaaltomy chart --database .\build\Artifacts\statistics.db --output-directory .\build\Artifacts\charts --trend --dimension DependencySite --bucket Local
 ```
 
-`trend` lists the stored value for one dimension/bucket over commit time. `commits` filters that stream to commits where the stored count changed. `compare` prints the bucket-by-bucket delta between two stored commit scans. These history queries use the most recently completed repository/scan-definition history in the database, so measurements collected with different compiler options are never silently combined.
+The query commands answer different questions:
 
-`export` writes the latest summary as JSON, CSV, or Markdown. `export-database` materializes the full SQLite-shaped store as one file per table: `SchemaVersion`, `Repository`, `GitCommit`, `GitCommitParent`, `ScanDefinition`, `CommitScan`, `ProjectScan`, `Measurement`, `GroupedMeasurement`, and `ScanFailure`. SQLite remains the canonical source of truth; these files are portable snapshots for reporting, inspection, or downstream tooling.
+- `trend`: how did one dimension/bucket change over commit time?
+- `commits`: at which commits did that stored count actually change?
+- `compare`: what is the bucket-by-bucket difference between two stored commit scans?
 
-`chart` creates deterministic PNG reports. Without `--trend`, it creates a breakdown from the latest scan; without `--dimension`, it writes one horizontal bar chart for every populated measurement dimension: type kinds, dependency sites, type accessibility, member accessibility, and member kinds. Each breakdown title names its scanned project, solution, or folder, such as `Anaaltomy Dependency Site breakdown of 'Azure.Storage.Blobs'`. Add `--group` to render grouped breakdowns from the latest scan, such as member accessibility grouped by member kind. Use `--group-by <dimension>` to request an explicit grouping dimension. Use `--trend --dimension <dimension> --bucket <bucket>` to render a line chart across the stored Git-history points for one measurement. The SQLite database remains the source of truth; PNG files are portable report artifacts.
+They use the most recently completed repository/scan-definition history in the database. Measurements collected with different compiler options are never quietly combined into one very confident graph.
+
+The export commands are deliberately separate:
+
+- `export` writes the latest summary as JSON, CSV, or Markdown.
+- `export-database` writes the full SQLite-shaped store as one file per table:
+  - `SchemaVersion`, `Repository`, `GitCommit`, and `GitCommitParent`;
+  - `ScanDefinition`, `CommitScan`, and `ProjectScan`;
+  - `Measurement`, `GroupedMeasurement`, and `ScanFailure`.
+
+SQLite remains the source of truth. The exported files are portable snapshots for reporting, inspection, or downstream tooling.
+
+`chart` creates deterministic PNG reports:
+
+- Without `--trend`, it uses the latest scan.
+- Without `--dimension`, it writes one horizontal bar chart for every populated dimension.
+  - Type kinds, dependency sites, type accessibility, member accessibility, and member kinds each get their own chart.
+- Every title names the scanned project, solution, or folder.
+  - For example: `Anaaltomy Dependency Site breakdown of 'Azure.Storage.Blobs'`.
+- `--group` creates a grouped breakdown from the latest scan.
+  - Use `--group-by <dimension>` to choose the grouping dimension explicitly.
+- `--trend --dimension <dimension> --bucket <bucket>` creates a line chart across stored Git-history points.
+
+The database remains authoritative. PNG files are the part you can put in a report without asking its readers to query SQLite first.
 
 An exported JSON summary looks like this in principle:
 
@@ -916,7 +1071,13 @@ anaaltomy history --repository . --from v0.2.0 --to HEAD --database .\build\Arti
 anaaltomy history --repository . --from-root --first-parent --max-commits 50 --database .\build\Artifacts\statistics.db
 ```
 
-Use either `--from-root` or `--from <revision>`; the tool rejects an unbounded accidental history scan. `--first-parent` follows the primary integration path, while the default includes every reachable commit in topological order. Merge commits are scanned as their resulting source tree and retain both parent links in SQLite.
+History selection is explicit:
+
+- Use either `--from-root` or `--from <revision>`.
+  - The tool rejects an unbounded accidental history scan.
+- Add `--first-parent` to follow the primary integration path.
+- Without it, Anaaltomy scans every reachable commit in topological order.
+- Merge commits are scanned as their resulting source tree and retain both parent links in SQLite.
 
 Historical scans default to `--restore-mode always`, because an isolated worktree may not have restored assets. They can be resumed:
 
@@ -941,7 +1102,7 @@ Use `anaaltomy --help` for the complete option list.
 
 ## WPF graph editor component
 
-The WPF graph editor is the reusable visual editor behind the standalone graph editor harness and the Visual Studio dependency-graph tool window.
+The WPF graph editor is the reusable visual editor behind the standalone graph editor harness and the Visual Studio dependency-graph tool window. I keep it outside the Visual Studio project because the graph is useful without Visual Studio too, and debugging WPF inside a VSIX every time would be an unnecessarily specific hobby.
 
 | Project | Purpose |
 |---|---|
@@ -950,7 +1111,14 @@ The WPF graph editor is the reusable visual editor behind the standalone graph e
 | `src/Tools/RonSijm.AnaalIJzer.GraphEditor.Standalone` | Small executable harness for testing the WPF component outside Visual Studio. |
 | `src/Extensions/RonSijm.AnaalIJzer.VisualStudio` | Hosts the same WPF component inside the Visual Studio companion extension. |
 
-The central controls are `ArchitectureGraphEditorControl` and `ArchitectureGraphCanvas`. They consume an `ArchitectureGraphSnapshot`, render connected layer graphs left-to-right, show wildcard/global rules separately, and preserve user layout through graph editor user settings. A solution input that contains `<SolutionTopology>` also gets a separate read-only topology graph: configured modules and their rules are shown alongside observed direct project-reference evidence. That view is for investigation; editing remains deliberately limited to the authoritative `Architecture.anl` file.
+The central controls are `ArchitectureGraphEditorControl` and `ArchitectureGraphCanvas`. Given an `ArchitectureGraphSnapshot`, they:
+
+- render connected layer graphs from left to right;
+- keep wildcard and global rules separate from the concrete graphs;
+- preserve the user's layout in graph-editor user settings;
+- add a separate read-only topology graph when a solution contains `<SolutionTopology>`.
+  - That graph shows configured modules beside observed direct project references.
+  - It is for investigation; topology edits still belong in the authoritative `Architecture.anl` file.
 
 The editor is source-aware. It can edit XML settings files and inline `AssemblyMetadata("AnaalIJzerSettings", ...)` settings, then reload through the same configuration-reading path used by the analyzer tooling. The graph supports:
 
@@ -961,14 +1129,21 @@ The editor is source-aware. It can edit XML settings files and inline `AssemblyM
 - drawing new dependencies from output connectors to input connectors;
 - removing layers and dependencies;
 - editing allowed/blocked dependency kind, site filters, descriptions and descendant cascading;
-- editing layer matchers, scoped type policies, includes and root settings from the inspector.
+- editing layer matchers, scoped type policies, includes and root settings from the inspector;
 - exporting the currently rendered graph surface to a PNG image.
 
 When the standalone harness is opened from a `.csproj`, `.sln`, or `.slnx`, the graph exposes `Configuration fixes` in both the root inspector and the selected layer or connection inspector. That panel uses the same shared configuration-fix catalog as the Roslyn light bulbs and `arse fixes`, shows preview diffs, and can apply one proposal and immediately reload the diagram.
 
 Right-clicking a layer or connection also offers a direct `Show configuration fixes` entry point. The resulting inspector view filters the loaded proposal list to the selected layer or dependency pair.
 
-The component itself is not a Roslyn analyzer; dragging a box in the editor changes configuration, not code. It edits the configuration model through `RonSijm.AnaalIJzer.ConfigurationEditing`, and hosts decide where snapshots come from. Visual Studio builds snapshots from the active Roslyn workspace. The standalone harness treats `Architecture.anl` as the normal settings file and can also open project, solution, and legacy `.xml` inputs. Project and solution inputs use the shared MSBuildWorkspace tooling host, choose the first project with an AnaalIJzer configuration as the editable settings source, and overlay solution-wide code evidence on the diagram.
+The component itself is not a Roslyn analyzer; dragging a box changes configuration, not code. The responsibilities are split like this:
+
+- `RonSijm.AnaalIJzer.ConfigurationEditing` edits the configuration model.
+- Visual Studio builds graph snapshots from the active Roslyn workspace.
+- The standalone harness can open `Architecture.anl`, a project, a solution, or a legacy `.xml` input.
+  - Project and solution inputs use the shared `MSBuildWorkspace` host.
+  - The first configured project supplies the editable settings source.
+  - Solution-wide code evidence is overlaid on the same diagram.
 
 The `Export PNG` button is part of the shared WPF control, so it is available in both the standalone graph editor and the Visual Studio dependency-graph tool window. Tests can also call `ArchitectureGraphEditorControl.ExportGraphsAsPng(...)` directly for quick render smoke checks.
 
@@ -978,7 +1153,7 @@ To regenerate a graph image for every example project, run:
 build\Scripts\GraphEditor\export-example-graph-images.cmd
 ```
 
-By default, the script preserves the existing repository-friendly behavior: it writes flat PNG artifacts to `build\Artifacts\ExampleGraphImages` and copies each image next to its example project as `<ExampleProjectName>-Graph.png`. Intentionally invalid diagnostic examples get a placeholder image instead of stopping the whole export run; one deliberately broken example should not take the rest of the catalog down with it.
+By default, the script writes flat PNG artifacts to `build\Artifacts\ExampleGraphImages` and copies each image next to its example project as `<ExampleProjectName>-Graph.png`. Intentionally invalid diagnostic examples get a placeholder image instead of stopping the whole export run; one deliberately broken example should not take the rest of the catalog down with it.
 
 Use `-Placement` to choose where the generated images go:
 
@@ -989,7 +1164,13 @@ build\Scripts\GraphEditor\export-example-graph-images.cmd -Placement SideBySide
 build\Scripts\GraphEditor\export-example-graph-images.cmd -Placement All
 ```
 
-`Flat` writes one big export folder with files such as `Example.IncludeSettings-Graph.png`. `PreserveStructure` writes under one export folder while keeping the `Examples` folder structure. `SideBySide` writes next to each example project. `FlatAndSideBySide` is the default, and `All` writes all three shapes.
+The placement modes are:
+
+- `Flat`: one export folder containing files such as `Example.IncludeSettings-Graph.png`.
+- `PreserveStructure`: one export folder that keeps the `Examples` directory structure.
+- `SideBySide`: each image is written next to its example project.
+- `FlatAndSideBySide`: the default.
+- `All`: writes all three shapes.
 
 Build the standalone harness locally from the repository root:
 
@@ -1011,15 +1192,36 @@ RonSijm.AnaalIJzer.GraphEditor.Standalone.exe --associate-anl
 RonSijm.AnaalIJzer.GraphEditor.Standalone.exe --unassociate-anl
 ```
 
-The GitHub `build_main.yml` workflow builds this Windows-only editor, uploads `build\Artifacts\GraphEditor.Standalone` as a workflow artifact, and publishes a zipped release asset named `AnaalIJzer-GraphEditor-Standalone-<version>.zip`. If the `graph-editor-v<version>` release already exists, the workflow removes that release and tag before creating the new one.
+The GitHub `build_main.yml` workflow:
 
-The standalone graph editor is not shipped as a `dotnet tool install` package. The .NET SDK does not support `PackAsTool` for WPF or WindowsDesktop projects, so the packaging decision was made for us: Arse remains the command-line dotnet tool while the graph editor is distributed as a Windows executable artifact and hosted inside the Visual Studio extension.
+- builds the Windows-only editor;
+- uploads `build\Artifacts\GraphEditor.Standalone` as a workflow artifact;
+- publishes `AnaalIJzer-GraphEditor-Standalone-<version>.zip` as a release asset;
+- replaces an existing `graph-editor-v<version>` release and tag before publishing the same version again.
 
-The WPF behavior is covered by `RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests`, including persistence from visual edits, inline-settings edits, context menus, connector-created dependencies, layout preservation, group collapse, theme behavior, and shared configuration-fix preview/apply behavior, including selection-scoped filtering.
+The standalone graph editor is not shipped as a `dotnet tool install` package. The .NET SDK does not support `PackAsTool` for WPF or WindowsDesktop projects, so the packaging decision was made for us: Arse remains the command-line .NET tool while the graph editor is distributed as a Windows executable artifact and hosted inside the Visual Studio extension.
+
+`RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests` covers:
+
+- persistence from visual and inline-settings edits;
+- context menus and connector-created dependencies;
+- layout preservation and group collapse;
+- theme behavior;
+- configuration-fix previews, application, and selection-scoped filtering.
 
 ## Configuration mental model
 
-The settings are not one large list of competing rules. They answer seven different questions. Imagine that every type is a person entering a restaurant: the analyzer checks whether the restaurant's namespace ownership permits a reference, gives each person a job badge, checks whether that kind of person and their public visibility are permitted, checks who their role may depend on and how, then checks whether important names keep their meaning.
+The settings are not one large list of competing rules. They answer seven different questions:
+
+1. What role does this type have?
+2. Is this kind of type permitted?
+3. Is this declaration visible to the right audience?
+4. Which roles may depend on which?
+5. Does namespace ownership permit this reference?
+6. Where may the dependency appear?
+7. Do important value names still mean the same thing?
+
+The restaurant model gives those questions something concrete to talk about: namespace ownership controls which room may reach which other room, layers provide job badges, type and visibility policies check who is permitted, dependency rules say which jobs may rely on each other, and name rules stop `customerId` quietly turning into `animalId` somewhere along the way.
 
 ### 1. What role does this type have?
 
@@ -1027,7 +1229,13 @@ A [`<Layer>`](#layer) assigns the job badge. A type might be classified as a `Cu
 
 Nested layers make the badge more specific. A type in `Restaurant/Kitchen/Chef` must obey the broad `Restaurant` and `Kitchen` boundary rules as well as the specific `Chef` rules. An inner boundary can add restrictions; it cannot cancel a restriction imposed by an outer boundary.
 
-An [`<Exceptions>`](#exceptions) block tells one matcher to ignore a particular type. It does **not** grant that type permission to break one dependency rule. For example, excepting `TemporaryChef` from a `<Class endsWith="Chef">` matcher means that matcher no longer gives it the `Chef` badge. Another matcher may still classify it; if none does, the type is outside the layer graph. That makes a layer exception a broad classification exemption, not a narrow allowed edge. This is the most common misreading in the whole configuration: an exception says "this type is not a Chef", never "this Chef is excused from the rules".
+An [`<Exceptions>`](#exceptions) block tells one matcher to ignore a particular type. It does **not** grant permission to break a dependency rule.
+
+- Excepting `TemporaryChef` from `<Class endsWith="Chef">` means that matcher no longer gives it the `Chef` badge.
+- Another matcher may still classify it.
+- If no other matcher does, the type is outside the layer graph.
+
+This is the most common misreading in the whole configuration: an exception says "this type is not a Chef", never "this Chef is excused from the rules".
 
 [`requireRecognizedDependencies`](#requirerecognizeddependencies-attribute) lists the code sites where a dependency must receive a configured badge. Put it on the root to apply everywhere, or on a `<Layer>` to apply only to callers in that layer and its descendants. For example, `requireRecognizedDependencies="Constructor, Local"` reports ARCH_DEP_002 for unknown constructor and local-variable types. At sites not listed, unknown types remain outside the layer graph without producing ARCH_DEP_002.
 
@@ -1106,7 +1314,7 @@ flowchart TD
     Edges["5. Check dependency rules<br/>Blocked, then AllowedDependency"]
     Sites["6. Check the dependency site"]
     Names["7. Check NameRules<br/>For named value movements"]
-    Result["8. Permit the code<br/>or report ARCH00X"]
+    Result["8. Permit the code<br/>or report ARCH_*"]
 
     NamespaceOwnership --- Classify
     Classify --- TypePolicy
@@ -1244,6 +1452,18 @@ Wildcard patterns are also supported. A bare file-name wildcard such as `<Includ
 </ArchitecturalLevels>
 ```
 
+By default, a wildcard that matches nothing reports `ARCH_CONF_003`. That catches misspelled paths and forgotten MSBuild registration. For a deliberately optional drop-in folder, use `allowNoMatches="true"`:
+
+```xml
+<ArchitecturalLevels>
+  <Include path="OptionalRules/*.anl" allowNoMatches="true" />
+</ArchitecturalLevels>
+```
+
+This opt-out belongs to wildcard includes only. `<Include path="MissingRules.anl" allowNoMatches="true" />` still reports the missing exact file, because silently accepting a misspelled explicit filename would hide a broken configuration.
+
+Boolean values follow XML Schema rules, so `true`, `false`, `1`, and `0` are valid. The default is `false`.
+
 That is most useful when the project or solution registers a rule-pack folder, for example:
 
 ```xml
@@ -1270,7 +1490,15 @@ Layers are logical roles, not project or folder labels. `Architecture.anl` delib
 </Layer>
 ```
 
-Each `<Class>`, `<Namespace>`, or `<Assembly>` child is a matcher. Attributes on one element are combined with **AND**; separate elements are alternatives combined with **OR**. A type is assigned to a layer when every condition on any one matcher element succeeds. Exact class-name matchers take precedence; remaining matchers are evaluated in configuration order, so the order of your alternatives is a decision whether or not you meant to make one.
+Each `<Class>`, `<Namespace>`, or `<Assembly>` child is a matcher:
+
+- attributes on one element are combined with **AND**;
+- separate matcher elements are alternatives combined with **OR**;
+- a type enters the layer when every condition on any one matcher succeeds;
+- exact class-name matchers take precedence;
+- remaining matchers are evaluated in configuration order.
+
+That last point means the order of your alternatives is a decision whether or not you meant to make one.
 
 For `<Class>`, you can also add inner declaration matchers when the type itself is not enough and you want to describe a recognizable shape:
 
@@ -1444,7 +1672,7 @@ Supported declaration matcher elements are:
 | `<Operator>` | A user-defined operator |
 | `<Conversion>` | An implicit or explicit conversion operator |
 
-This makes "shape" rules possible without inventing a special-purpose matcher per scenario:
+Nested declaration matchers support structural "shape" rules with the same matcher vocabulary:
 
 ```xml
 <Class endsWith="Request">
@@ -1602,7 +1830,7 @@ This is an intentional constraint, not a claim that physical structure never mat
 
 ### `<AllowedDependency>`
 
-Declares that types in layer `from` are permitted to depend on types in layer `to`. Any dependency not covered by an explicit edge (or the special `*` wildcard) is a layering violation - see [ARCH_DEP_001/ARCH_DEP_004/ARCH_DEP_005](#diagnostics) for how the three reasons are distinguished. The default answer is "no"; permission has to be written down somewhere other than a team's collective memory.
+Declares that types in layer `from` are permitted to depend on types in layer `to`. Any dependency not covered by an explicit edge or the `*` wildcard is a layering violation. See [ARCH_DEP_001/ARCH_DEP_004/ARCH_DEP_005](#diagnostics) for how the three reasons are distinguished. The default answer is "no"; permission has to be written down somewhere other than a team's collective memory.
 
 ```xml
 <AllowedDependency from="Presentation" to="Application" />
@@ -1651,7 +1879,7 @@ Use `to="*"` for the symmetric case - a single layer that is allowed to depend o
 <AllowedDependency from="Diagnostics" to="*" />
 ```
 
-`from="*" to="*"` is also accepted and means "every configured layer may depend on every other configured layer". Nested boundary gates still require local rules unless the edge sets `appliesToDescendants="true"`. `<Forbidden>` types are still rejected, and unknown types at sites required by root-level or caller-layer `requireRecognizedDependencies` still report ARCH_DEP_002 - the wildcard only relaxes the directed-edge requirement. It is a legal configuration; it has simply stopped describing an architecture and started describing a pile.
+`from="*" to="*"` is also accepted and means "every configured layer may depend on every other configured layer". Nested boundary gates still require local rules unless the edge sets `appliesToDescendants="true"`. `<Forbidden>` types are still rejected, and unknown types at sites required by root-level or caller-layer `requireRecognizedDependencies` still report ARCH_DEP_002. It is a legal configuration; it has simply stopped describing an architecture and started describing a pile.
 
 ### `<BlockedDependency>`
 
@@ -1882,9 +2110,16 @@ public class OrderManager(OrderStore store) { }
 
 ### `<Exceptions>`
 
-Every `<Class>` and `<Namespace>` matcher (including matchers inside `<Layer>`, `<Allowed>` and `<Forbidden>`) accepts a nested `<Exceptions>` block listing types that should be exempt from the rule. Exceptions support the full matcher attribute set documented in [Matcher types](#matcher-types) above, including conjunctive matcher attributes, `typeKind`, semantic matchers (`inherits`, `implements`, `withAttribute`, `withAccessModifier`), and `regex`.
+Every `<Class>` and `<Namespace>` matcher can have a nested `<Exceptions>` block. That includes matchers inside `<Layer>`, `<Allowed>`, and `<Forbidden>`.
 
-When a dependency matches a rule **and** matches any of that rule's exceptions, the rule is skipped and evaluation continues with the next rule in document order. The rename code-fix is also suppressed for excepted types — if a type is allowed, the IDE will not nag with a rename suggestion.
+An exception can use the same matcher vocabulary as the rule it narrows:
+
+- several attributes on one matcher, combined with AND;
+- `typeKind`;
+- `inherits`, `implements`, `withAttribute`, and `withAccessModifier`;
+- `regex` and the normal text matchers.
+
+When a dependency matches a rule **and** matches any of that rule's exceptions, the rule is skipped and evaluation continues with the next rule in document order. The rename code fix is also suppressed for excepted types - if a type is allowed, the IDE will not nag it with a rename suggestion.
 
 ```xml
 <Forbidden>
@@ -1908,7 +2143,13 @@ When a dependency matches a rule **and** matches any of that rule's exceptions, 
 </Layer>
 ```
 
-The intent is the **ratchet pattern**: lock in current violations as a baseline so the rule blocks *new* offenders without forcing a flag-day rewrite. This mechanism is deliberately simple: it does not track when an exception was added, expire it, or report on it. If you want expiry dates and reminders, that is what [`<ExceptionPolicy>`](docs/configuration/exception-policy.md) is for.
+The intent is the **ratchet pattern**:
+
+- lock current violations into a named baseline;
+- block new offenders immediately;
+- remove the old exceptions at whatever pace the codebase permits.
+
+Plain exceptions do not track when they were added, expire themselves, or report reminders. If you need that, use [`<ExceptionPolicy>`](docs/configuration/exception-policy.md). A carve-out can be simple or accountable; it should not pretend to be both.
 
 **Example project:** [`Example.Exceptions`](Examples/Features/Example.Exceptions)
 
@@ -1952,13 +2193,13 @@ public class OrderManager(OrderStore store) { }
 
 #### When to reach for `<Exceptions>`
 
-- **Legacy migration / introducing the analyzer to an existing codebase.** Turn the analyzer on with complete rules from day one and add every current offender to `<Exceptions>` (the IDE code-fix does this in one keystroke). The build stays green, but every *new* violation now fails CI. Burn the list down at whatever pace fits the team - there is no migration milestone you have to hit, although a list that has not shrunk in a year is making a statement about priorities all by itself.
+- **Introducing the analyzer to an existing codebase.** Enable the complete rules and add current offenders to `<Exceptions>` with the IDE code fix. The build stays green, but every new violation fails CI. Burn the list down at whatever pace fits the team. There is no migration milestone you have to hit, although a list that has not shrunk in a year is making a statement about priorities all by itself.
 - **Intentional architectural carve-outs.** One diagnostics or bootstrap module legitimately needs to see a type the rest of the codebase shouldn't. Excepting it scoped to *that one type* keeps the rule active everywhere else.
-- **Third-party / vendor types** you can't rename, generated code, framework conventions, test doubles (`InMemoryFakeOrderRepository` looks like a Repository but isn't one), and any other case where the type name happens to match a pattern it doesn't semantically belong to.
+- **Types that only look like a match.** This includes third-party types you cannot rename, generated code, framework conventions, and test doubles (`InMemoryFakeOrderRepository` looks like a Repository but is not one).
 
 #### Why `<Exceptions>` and not something like `<Baseline>`?
 
-`<Baseline>` would presuppose the *reason* ("this is legacy debt we're grandfathering in") and invite feature creep — baseline freshness warnings, expiry dates, "ratchet down" reports, and so on. In practice exceptions get added for several different reasons (the list above), and a config file is the wrong place to assert intent. `<Exceptions>` is neutral about *why* something is excepted and leaves the policy ("when do we shrink this list?") to the team. Use an XML comment next to the entry if you want to record the reason.
+`<Baseline>` would imply that every exemption represents legacy debt. In practice exceptions are also used for vendor types, framework conventions, generated code, and intentional carve-outs. `<Exceptions>` is neutral about why something is excepted and leaves the policy to the team. Use an XML comment to record the reason, or `<ExceptionPolicy>` when ownership and expiry must be enforced.
 
 #### Code fix
 
@@ -2152,7 +2393,17 @@ Other site names remain valid in filters because the site vocabulary is shared a
 
 #### Direct language forms
 
-`RequireMatchingNames` checks direct value movements by default. That includes ordinary and compound assignments, component-wise tuple/deconstruction assignments, object-construction arguments, named and optional arguments, `in` arguments, `out` values flowing back to the caller, direct returns, and expression-bodied methods, properties, indexers, and local functions. Parentheses, conversions, `as`, null-forgiving operators, conditional branches, coalesce expressions, and tuple expressions are unwrapped into their direct named sources.
+`RequireMatchingNames` checks direct value movements by default. Those include:
+
+- ordinary and compound assignments;
+- component-wise tuple and deconstruction assignments;
+- constructor and method arguments;
+  - including named, optional, and `in` arguments;
+- `out` values flowing back to the caller;
+- direct returns;
+- expression-bodied methods, properties, indexers, and local functions.
+
+Parentheses, conversions, `as`, null-forgiving operators, conditional branches, coalesce expressions, and tuple expressions are unwrapped to their direct named sources.
 
 Anonymous-lambda returns intentionally have no named return target, so the rule does not compare them with the containing method. Calls and assignments *inside* the lambda are still analysed at their own sites. This prevents a lambda from being accidentally reported as though it returned from its outer method.
 
@@ -2181,13 +2432,22 @@ var pending = customerId;
 Save(pending); // ARCH_NAME_008 when Save accepts orderId.
 ```
 
-Method-like bodies use Roslyn control-flow graphs, so a branch join keeps provenance only when every path agrees. Roslyn does not expose a standalone control-flow graph root for a lambda body, so lambda bodies use a conservative ordered scan and discard local provenance before a conditional, loop, switch, or `try` block. A captured parameter can still be the direct source inside a lambda, but a local alias never crosses a callback boundary. Tracking intentionally stops at method calls, virtual dispatch, collections, delegate invocation, reflection, and method boundaries. That is a bounded local-provenance check, not a whole-program taint-analysis promise.
+Method-like bodies use Roslyn control-flow graphs, so a branch join keeps provenance only when every path agrees.
+
+Lambda bodies are deliberately more conservative:
+
+- Roslyn does not expose a standalone control-flow graph root for one lambda body.
+- The analyzer therefore uses an ordered scan.
+- It discards local provenance before a conditional, loop, switch, or `try` block.
+- A captured parameter can remain the direct source, but a local alias never crosses a callback boundary.
+
+Tracking also stops at method calls, virtual dispatch, collections, delegate invocation, reflection, and method boundaries. This is bounded local provenance, not a whole-program taint-analysis promise wearing a smaller hat.
 
 **Tracking example:** [`Example.NameRuleIntraProceduralTracking`](Examples/Features/Example.NameRuleIntraProceduralTracking).
 
 #### Declaration names and semantic types
 
-`RequireDeclarationNameMatchesType` checks the declaration itself. This is useful when serializers, model binders, dependency injection, or humans rely on an identifier to describe a strongly typed value:
+`RequireDeclarationNameMatchesType` checks the declaration itself. Use it when serializers, model binders, dependency injection, or readers rely on an identifier to describe a strongly typed value:
 
 ```xml
 <Layer name="AspEndpoints">
@@ -2534,7 +2794,7 @@ Arse includes contract-purity findings in `inspect`, `report`, generated documen
 
 ### Return-value policies
 
-`<ReturnValuePolicy>` rejects configured **direct return expressions**. Inside a `<Layer>`, it applies to methods in that layer and descendants. Directly inside `<ArchitecturalLevels>`, it applies globally to every analyzed method, including code that belongs to no layer. It is useful when a particular return value is a sentinel that hides a decision the method should make explicitly. `return null` is such a decision: it delegates the hard part to whichever caller dereferences it first, usually in production.
+`<ReturnValuePolicy>` rejects configured **direct return expressions**. Inside a `<Layer>`, it applies to methods in that layer and descendants. Directly inside `<ArchitecturalLevels>`, it applies globally to every analyzed method, including code that belongs to no layer. It is useful when a return value is a sentinel that hides a decision the method should make explicitly. `return null` is such a decision: it delegates the hard part to whichever caller dereferences it first, usually in production.
 
 It does not impose a universal “never return null” opinion. You decide which returned expressions are unacceptable:
 
@@ -2555,9 +2815,9 @@ It does not impose a universal “never return null” opinion. You decide which
 
 Direct matcher children are forbidden expressions: returning a value matching **any** one produces `ARCH_RET_001`. Attributes on one matcher are combined, just like layer matchers.
 
-### Require a named return shape
+### Use a return-shape allow-list carefully
 
-Use one `<AllowedReturn>` block when a layer must return only selected direct expression shapes. Its child matchers are alternatives, so a return must match at least one of them. This makes the "put the result in a variable before returning it" convention explicit:
+Use one `<AllowedReturn>` block only when a layer must return **nothing except** the selected direct expression shapes. Its child matchers are alternatives, so a return must match at least one of them. This can make a strict "only return a named expression" convention explicit:
 
 ```xml
 <Layer name="Kitchen">
@@ -2589,6 +2849,16 @@ public Pizza PreparePizzaWithAResult()
 
 `<Identifier />` means a bare named expression such as `return result;`. It deliberately does not prove that the name is a local: a parameter, an unqualified field, a property, or a constant is also an identifier expression. This is a direct return-shape rule, not a variable-provenance or data-flow rule. Add `<MemberAccess />` to the same `<AllowedReturn>` block when direct member access should also be allowed.
 
+That allow-list is broader than "do not return a method invocation directly." It also rejects `return false;`, `return null;`, `return 42;`, `return new Pizza();`, and every other shape not listed. When the actual rule is only about direct calls, configure the unwanted shape instead:
+
+```xml
+<ReturnValuePolicy description="Do not return method invocations directly.">
+  <Invocation description="Assign the invocation result before returning it." />
+</ReturnValuePolicy>
+```
+
+Now `return oven.BakePizza();` fails, while unrelated literal and object-creation returns remain alone. This is usually the clearer drop-in rule.
+
 Only one `<AllowedReturn>` block is valid for a policy. It may be combined with forbidden direct matcher children; forbidden matches win, so a policy can permit named returns generally while still rejecting one specifically named sentinel.
 
 ### Apply a drop-in policy to every project
@@ -2605,12 +2875,10 @@ For a reusable rule folder, keep a small root configuration and import the rule 
 ```
 
 ```xml
-<!-- Rules/OnlyNamedReturns.anl -->
+<!-- Rules/NoDirectInvocationReturns.anl -->
 <ArchitecturalLevels>
-  <ReturnValuePolicy description="Every kitchen names a return hand-off before serving it.">
-    <AllowedReturn>
-      <Identifier />
-    </AllowedReturn>
+  <ReturnValuePolicy description="The kitchen does not serve an oven call directly.">
+    <Invocation description="Assign the oven result before serving it." />
   </ReturnValuePolicy>
 </ArchitecturalLevels>
 ```
@@ -2652,7 +2920,7 @@ There is intentionally no code fix for `ARCH_RET_001`: the configuration identif
 - [`Example.Arch_RET_001.ExplicitNullReturn`](Examples/Diagnostics/RET/Example.Arch_RET_001.ExplicitNullReturn) - `Literal value="null"` rejects a direct null return.
 - [`Example.Arch_RET_001.AnnotatedInvocationReturn`](Examples/Diagnostics/RET/Example.Arch_RET_001.AnnotatedInvocationReturn) - an annotation matcher rejects returning an optional lookup unchanged.
 - [`Example.Arch_RET_001.ConfiguredLiteralReturns`](Examples/Diagnostics/RET/Example.Arch_RET_001.ConfiguredLiteralReturns) - empty-string, numeric, and enum-zero sentinels are configuration values.
-- [`Example.Arch_RET_001.OnlyIdentifierReturn`](Examples/Diagnostics/RET/Example.Arch_RET_001.OnlyIdentifierReturn) - `<AllowedReturn><Identifier /></AllowedReturn>` rejects direct calls while allowing a named return hand-off.
+- [`Example.Arch_RET_001.DirectInvocationReturn`](Examples/Diagnostics/RET/Example.Arch_RET_001.DirectInvocationReturn) - `<Invocation />` rejects direct calls while leaving `false`, `null`, and other unrelated return shapes alone.
 - [`Example.GlobalReturnValuePolicy`](Examples/Features/Example.GlobalReturnValuePolicy) - a wildcard-included, root-level policy applies to unlayered code.
 
 ### Namespace hierarchy policies
@@ -2740,7 +3008,7 @@ There is no automatic code fix for `ARCH_NS_007`. The analyzer can identify the 
 
 `<ForbiddenOperations>` rejects one selected resolved API operation inside an owning layer and its descendants. It is intentionally narrower than `<Forbidden>`: you can forbid `DateTime.UtcNow` without forbidding `DateTime`, or forbid `Environment.MachineName` while still allowing `Environment.NewLine`.
 
-This is a semantic policy. AnaalIjzer compares Roslyn symbols, so an alias and a fully qualified spelling resolve to the same member. It does not need, and does not take, a dependency on the assembly that defines the selected member or attribute.
+This is a semantic policy. AnaalIJzer compares Roslyn symbols, so an alias and a fully qualified spelling resolve to the same member. It does not need, and does not take, a dependency on the assembly that defines the selected member or attribute.
 
 ```xml
 <Layer name="Kitchen">
@@ -2821,7 +3089,21 @@ When Sites Diagnostics is enabled in the Visual Studio companion, a matching ope
 
 `<BehavioralOperations>` adds narrow, mechanically provable rules about the resolved operations inside a selected declaration body. It belongs to a layer, applies to that layer and its descendants, and reports `ARCH_OPER_002`, `ARCH_OPER_011`, or `ARCH_OPER_012` according to whether a required operation is missing, a count is exceeded, or ordering is invalid.
 
-This is deliberately more precise than an ordinary dependency rule and deliberately less ambitious than a business-process proof. AnaalIjzer can prove that a configured `PizzaSafetyCheck.Validate()` call dominates a configured `PizzaOven.Bake()` call in C# control flow. It cannot prove that the validator accepted the pizza, that the oven completed at runtime, or that another service did not mutate the order elsewhere.
+This is deliberately more precise than an ordinary dependency rule and less ambitious than a business-process proof.
+
+AnaalIJzer can prove that:
+
+- a configured `PizzaSafetyCheck.Validate()` call exists;
+- it dominates a configured `PizzaOven.Bake()` call in C# control flow;
+- a configured operation occurs no more than the permitted number of times.
+
+It cannot prove that:
+
+- the validator accepted the pizza;
+- the oven completed at runtime;
+- another service did not mutate the order elsewhere.
+
+That boundary is intentional. This feature inspects source operations; it has not secretly become a theorem prover for lunch.
 
 ```xml
 <Layer name="Kitchen">
@@ -2900,7 +3182,13 @@ Ordering rules add a related target:
 - It does not analyse generated code by default.
 - It does not offer automatic code fixes for the `ARCH_OPER_*` diagnostics; adding a call, changing its order, or removing an extra operation is a domain decision.
 
-Arse can validate, document, merge, split, and report these policies through the shared configuration model. The WPF and Visual Studio graph editors preserve and edit the layer-scoped policy as XML; the Visual Studio companion surfaces the concrete `ARCH_OPER_*` result through opt-in Sites Diagnostics and QuickInfo without reimplementing the evaluator.
+The surrounding tools reuse the same configuration model:
+
+- Arse validates, documents, merges, splits, and reports the policies.
+- The WPF and Visual Studio graph editors preserve and edit the layer-scoped XML.
+- The Visual Studio companion shows concrete `ARCH_OPER_*` results through Sites Diagnostics and QuickInfo.
+
+None of those hosts reimplements the evaluator.
 
 **Focused examples:**
 
@@ -3063,7 +3351,7 @@ This feature checks **compiled assembly attributes**, including those generated 
 
 ## ASP.NET Core example pack
 
-AnaalIjzer does not need an ASP.NET Core dependency to enforce many useful Web API rules. Roslyn resolves the symbols in your application; the ordinary matcher and policy vocabulary can then select facts such as `[ApiController]`, `ControllerBase`, action parameters, public return types, and direct method calls.
+AnaalIJzer does not need an ASP.NET Core dependency to enforce many useful Web API rules. Roslyn resolves the symbols in your application; the ordinary matcher and policy vocabulary can then select facts such as `[ApiController]`, `ControllerBase`, action parameters, public return types, and direct method calls.
 
 The runnable [`Example.AspNetCore`](Examples/Scenarios/Example.AspNetCore) pack uses real `Microsoft.NET.Sdk.Web` projects to show four framework-neutral rules:
 
@@ -3092,7 +3380,7 @@ These rules examine explicit source semantics. They do **not** infer route templ
 
 ## Entity Framework Core example pack
 
-AnaalIjzer does not need an Entity Framework Core dependency to enforce useful persistence boundaries. Roslyn resolves the EF Core symbols in the application project; ordinary matchers and policies then select facts such as `DbContext`, `IQueryable<T>`, `IEntityTypeConfiguration<T>`, `Migration`, and `[Index]`.
+AnaalIJzer does not need an Entity Framework Core dependency to enforce useful persistence boundaries. Roslyn resolves the EF Core symbols in the application project; ordinary matchers and policies then select facts such as `DbContext`, `IQueryable<T>`, `IEntityTypeConfiguration<T>`, `Migration`, and `[Index]`.
 
 The runnable [`Example.EntityFrameworkCore`](Examples/Scenarios/Example.EntityFrameworkCore) pack uses real `Microsoft.EntityFrameworkCore` packages to demonstrate six framework-neutral configurations:
 
@@ -3679,7 +3967,7 @@ See [`Example.Arch_BOUND_007.BoundaryEntryPoints`](Examples/Diagnostics/BOUND/Ex
 
 Source locations validate placement after classification; they do not assign types to layers from folders or projects. See [Layer membership and physical layout](docs/configuration/layer-membership-and-layout.md) for the reasoning and the alternatives considered.
 
-Folder structure is the first thing a newcomer reads and among the last things anyone keeps honest.
+Folder structure is the first thing a newcomer reads and among the last things anyone keeps honest. `<SourceLocations>` checks it instead of relying on convention alone.
 
 Restaurant version:
 
@@ -3882,7 +4170,24 @@ When `enableDocumentation="true"` is set, Arse uses `documentationPath` as the d
 
 ### `description` attributes
 
-Every XML element that participates in the ruleset can carry a `description` attribute: `<ArchitecturalLevels>`, `<Include>`, `<Layer>`, `<Class>`, `<Namespace>`, `<Assembly>`, `<Allowed>`, `<Forbidden>`, `<Exceptions>`, `<Fix>`, `<AllowedDependency>`, `<BlockedDependency>`, `<NamespaceHierarchyPolicy>`, `<BlockedRelation>`, `<Operations>`, `<Operation>`, `<Owner>`, `<Request>`, `<Response>`, `<EntryPoint>`, `<NameRules>`, `<RequireMatchingNames>`, `<RequireDeclarationNameMatchesType>`, `<VisibilityPolicy>`, `<InheritancePolicy>`, `<ReturnValuePolicy>`, `<AllowedReturn>`, `<ForbiddenOperations>`, `<ForbiddenOperation>`, `<BehavioralOperations>`, `<RequiredOperation>`, `<RequiredOperationBefore>`, `<ForbiddenOperationAfter>`, `<MaximumOperationCount>`, `<DeclarationMatcher>`, `<BeforeOperation>`, `<AfterOperation>`, `<OperationMatcher>`, `<ContainingType>`, `<Member>`, `<ApiSurface>`, `<AllowedLayer>`, `<BlockedLayer>`, `<Type>`, `<NestedType>`, `<Constructor>`, `<Method>`, `<Property>`, `<Field>`, `<Event>`, `<Operator>`, `<Conversion>`, `<Name>`, `<Source>`, `<Target>` and `<Allow>`. Descriptions do not affect diagnostics. They exist so generated documentation can explain why a rule exists while preserving the same order as the XML. It is the cheapest available place to record intent: without it, a future reviewer has to guess why a rule is there, and guesswork usually resolves in favour of deleting it.
+Every XML element that participates in the ruleset can carry a `description` attribute. That includes:
+
+- **Structure**
+  - `<ArchitecturalLevels>`, `<Include>`, and `<Layer>`;
+- **Matchers and exceptions**
+  - `<Class>`, `<Namespace>`, `<Assembly>`, `<Type>`, `<NestedType>`, `<ContainingType>`, `<Member>`, `<Name>`, `<Source>`, `<Target>`, `<Exceptions>`, and `<Fix>`;
+- **Type and dependency policies**
+  - `<Allowed>`, `<Forbidden>`, `<AllowedDependency>`, `<BlockedDependency>`, `<ApiSurface>`, `<AllowedLayer>`, and `<BlockedLayer>`;
+- **Namespace and operation contracts**
+  - `<NamespaceHierarchyPolicy>`, `<BlockedRelation>`, `<Operations>`, `<Operation>`, `<Owner>`, `<Request>`, `<Response>`, and `<EntryPoint>`;
+- **Name, visibility, inheritance, and return policies**
+  - `<NameRules>`, `<RequireMatchingNames>`, `<RequireDeclarationNameMatchesType>`, `<Allow>`, `<VisibilityPolicy>`, `<InheritancePolicy>`, `<ReturnValuePolicy>`, and `<AllowedReturn>`;
+- **Operation policies**
+  - `<ForbiddenOperations>`, `<ForbiddenOperation>`, `<BehavioralOperations>`, `<RequiredOperation>`, `<RequiredOperationBefore>`, `<ForbiddenOperationAfter>`, `<MaximumOperationCount>`, `<DeclarationMatcher>`, `<BeforeOperation>`, `<AfterOperation>`, and `<OperationMatcher>`;
+- **Declaration matchers**
+  - `<Constructor>`, `<Method>`, `<Property>`, `<Field>`, `<Event>`, `<Operator>`, and `<Conversion>`.
+
+Descriptions do not affect diagnostics. They are the cheapest place to record intent: without one, a future reviewer has to guess why a rule exists, and guesswork usually resolves in favour of deleting it.
 
 ```xml
 <Layer name="QuerySurface"
@@ -3944,7 +4249,7 @@ The analyzer ships with twenty-nine compiler diagnostic IDs. IDs follow `ARCH_<C
 | ARCH_ASSM_001 | A compiled assembly attribute violates an `AssemblyAttributePolicy` |
 | ARCH_NS_007 | A source namespace relationship violates a `NamespaceHierarchyPolicy` |
 
-The example projects referenced inline below are self-contained and deliberately broken so Visual Studio, Rider and `dotnet build` show the corresponding `ARCH_<CONCERN>_<REASON>` error. They fail on purpose; the repository is not having a bad day.
+The example projects referenced below are self-contained and deliberately broken so Visual Studio, Rider, and `dotnet build` show the corresponding `ARCH_<CONCERN>_<REASON>` error. They fail on purpose; the repository is not having a bad day.
 
 ![Examples in Visual Studio](Examples/Assets/Examples-VS-Result.png)
 
@@ -3956,7 +4261,7 @@ The original design folded every layering problem under `ARCH_DEP_001`. The thre
 - **Wrong direction (ARCH_DEP_004)** - almost always a real architectural mistake. The fix is usually inversion of control (introduce an abstraction in the lower layer), never adding a reverse edge.
 - **Same layer (`ARCH_DEP_005`)** - sometimes intentional (helper types collaborating within a layer). Many teams want to suppress this category project-wide while keeping `ARCH_DEP_001` and `ARCH_DEP_004` as errors.
 
-Splitting the IDs makes the three policies independently configurable in `.editorconfig` or `<NoWarn>`, surfaces the reason directly in the IDE error list without parsing the message, and makes the architectural intent of each rule self-documenting. A single shared ID is easier to implement and much harder to triage: "layering error, one of three unrelated causes" is not a useful line to meet in a build log.
+Splitting the IDs makes the three policies independently configurable in `.editorconfig` or `<NoWarn>`, exposes the reason directly in the IDE error list without parsing the message, and makes the architectural intent of each rule self-documenting. A single shared ID is easier to implement and much harder to triage: "layering error, one of three unrelated causes" is not a useful line to meet in a build log.
 
 ### ARCH_DEP_001 - Illegal layer dependency
 
@@ -4089,7 +4394,7 @@ Wildcard and self-edges are excluded because they do not describe a finite direc
 
 ### ARCH_TYPE_001 - Type policy violation
 
-Reported when a dependency type matches an applicable `<Forbidden>` pattern or does not match an applicable `<Allowed>` list. The two causes read similarly in an error list but mean different things: one type is specifically unwelcome, the other simply never made the guest list. If a `<Fix Rename="…">` is configured on a forbidden pattern, Visual Studio and Rider will offer a one-click rename code-fix. Forbidden-rule matches can also add the type to that rule's `<Exceptions>` block. Allow-list failures use a different fixer: the IDE can add an exact `<Class typeName="..."/>` matcher to every applicable `<Allowed>` list.
+Reported when a dependency type matches an applicable `<Forbidden>` pattern or does not match an applicable `<Allowed>` list. The two causes read similarly in an error list but mean different things: one type is specifically unwelcome, while the other simply never made the guest list. If a `<Fix Rename="…">` is configured on a forbidden pattern, Visual Studio and Rider offer a rename code fix. Forbidden-rule matches can also add the type to that rule's `<Exceptions>` block. For allow-list failures, the IDE can add an exact `<Class typeName="..."/>` matcher to every applicable `<Allowed>` list.
 
 **Example output:**
 ```
@@ -4263,14 +4568,14 @@ public class PizzaChef(ISauceChef sauceChef) { }
 
 ### ARCH_CONF_003 - Invalid architecture configuration
 
-Reported when settings cannot be evaluated reliably: malformed or schema-invalid XML, missing includes, duplicate layers, invalid or ambiguous matchers, invalid site filters, or dependency rules that reference unknown layers. The analyzer no longer becomes silently inactive when configuration parsing fails, because a misspelled layer name used to produce the same clean build as a flawless codebase - flattering, but not informative.
+Reported when settings cannot be evaluated reliably: malformed or schema-invalid XML, missing includes, duplicate layers, invalid or ambiguous matchers, invalid site filters, or dependency rules that reference unknown layers. The analyzer does not become silently inactive when configuration parsing fails, because a misspelled layer name producing the same clean build as a flawless codebase is flattering, but not informative.
 
 **Example project:** [`Example.Arch_CONF_003.UnknownLayer`](Examples/Diagnostics/CONF/Example.Arch_CONF_003.UnknownLayer)
 
 #### Real-world uses
 
 - Fail CI when a layer was renamed but an edge, include, or policy still references the old name.
-- Catch a malformed drop-in `.anl` rule pack before it quietly disables the architectural guard it was meant to add.
+- Catch a malformed drop-in `.anl` rule pack before it prevents the intended rules from loading.
 
 ### ARCH_CONF_006 - Cyclic architecture dependency graph
 
@@ -4281,7 +4586,7 @@ Reported when `enforceAcyclic="true"` and the explicit allowed dependency graph 
 #### Real-world uses
 
 - Reject a proposed set of allowed module edges that would let Ordering, Billing, and Inventory depend on one another in a loop.
-- Keep a configuration review honest when individually reasonable exceptions accidentally create a cyclic architectural policy as a whole.
+- Detect when individually reasonable dependency rules combine into a cyclic architectural policy.
 
 ### ARCH_NAME_008 - Name rule violation
 
@@ -4801,7 +5106,7 @@ Typical fixes:
 
 There is no automatic code fix. The policy tells AnaalIJzer which return expression is unacceptable; it cannot know which domain-specific value, result type, variable name, fallback, or exception behavior is correct. The analyzer recognises the rejected shape; it has no opinion about what your domain should say instead.
 
-**Focused examples:** [`Example.Arch_RET_001.ExplicitNullReturn`](Examples/Diagnostics/RET/Example.Arch_RET_001.ExplicitNullReturn), [`Example.Arch_RET_001.AnnotatedInvocationReturn`](Examples/Diagnostics/RET/Example.Arch_RET_001.AnnotatedInvocationReturn), [`Example.Arch_RET_001.ConfiguredLiteralReturns`](Examples/Diagnostics/RET/Example.Arch_RET_001.ConfiguredLiteralReturns), [`Example.Arch_RET_001.OnlyIdentifierReturn`](Examples/Diagnostics/RET/Example.Arch_RET_001.OnlyIdentifierReturn), and [`Example.GlobalReturnValuePolicy`](Examples/Features/Example.GlobalReturnValuePolicy).
+**Focused examples:** [`Example.Arch_RET_001.ExplicitNullReturn`](Examples/Diagnostics/RET/Example.Arch_RET_001.ExplicitNullReturn), [`Example.Arch_RET_001.AnnotatedInvocationReturn`](Examples/Diagnostics/RET/Example.Arch_RET_001.AnnotatedInvocationReturn), [`Example.Arch_RET_001.ConfiguredLiteralReturns`](Examples/Diagnostics/RET/Example.Arch_RET_001.ConfiguredLiteralReturns), [`Example.Arch_RET_001.DirectInvocationReturn`](Examples/Diagnostics/RET/Example.Arch_RET_001.DirectInvocationReturn), and [`Example.GlobalReturnValuePolicy`](Examples/Features/Example.GlobalReturnValuePolicy).
 
 #### Real-world uses
 
@@ -4841,7 +5146,7 @@ Typical fixes:
 - move service resolution to the composition root rather than locating a dependency in application code;
 - narrow the policy only when that exact operation is intentionally allowed in the owning layer.
 
-There is no automatic code fix. AnaalIjzer can identify the selected forbidden operation, but the correct architectural replacement belongs to the application.
+There is no automatic code fix. AnaalIJzer can identify the selected forbidden operation, but the correct architectural replacement belongs to the application.
 
 **Focused examples:** [`Example.Arch_OPER_001.ClockAccess`](Examples/Diagnostics/OPER/Example.Arch_OPER_001.ClockAccess), [`Example.Arch_OPER_001.BlockingTaskAccess`](Examples/Diagnostics/OPER/Example.Arch_OPER_001.BlockingTaskAccess), [`Example.Arch_OPER_001.ServiceLocation`](Examples/Diagnostics/OPER/Example.Arch_OPER_001.ServiceLocation), and [`Example.Arch_OPER_001.SelectedEnvironmentMember`](Examples/Diagnostics/OPER/Example.Arch_OPER_001.SelectedEnvironmentMember).
 
@@ -5044,25 +5349,32 @@ The analyzer reports the diagnostic at the actual dependency site and supports c
 
 ### Diagnostic properties
 
-Every dependency diagnostic (ARCH_DEP_001, ARCH_DEP_004, ARCH_DEP_005), name-rule diagnostic (ARCH_NAME_008), and API-surface diagnostic (ARCH_API_001 and ARCH_API_010) carries a `Site` property in `Diagnostic.Properties` indicating where the issue was found. This lets code-fix providers, custom reporters and CI dashboards filter or group by dependency style without re-parsing the source - which beats a dashboard built on regexes over diagnostic messages that breaks the day the wording improves.
+Dependency diagnostics (`ARCH_DEP_001`, `ARCH_DEP_004`, and `ARCH_DEP_005`), `ARCH_NAME_008`, and the API-surface diagnostics carry a `Site` property in `Diagnostic.Properties`. Code-fix providers, reporters, and CI dashboards can group findings without parsing message text, which beats a regex dashboard that breaks the day the wording improves.
 
-ARCH_VIS_001 describes declarations rather than dependency sites. It exposes `DeclarationTarget`, `DeclaredAccessibility`, and `DeclaredSymbolName` alongside the caller layer and rule-origin properties.
+The policy families add their own properties:
 
-ARCH_INH_001 also describes declarations rather than dependency sites. It exposes `DeclaredSymbolName` and `InheritanceViolationKind` alongside the caller layer and rule-origin properties.
-
-ARCH_RET_001 exposes `Site` as `MethodReturn`, together with `DeclaredSymbolName`, `ReturnValueRuleTarget`, `ReturnValueRule`, and `ReturnValueRuleMode`. `ReturnValueRuleMode` is `Forbidden` for a matching direct forbidden matcher and `Allowed` when the returned expression did not match an `<AllowedReturn>` shape allow-list.
-
-ARCH_OPER_001 exposes `Site`, `OperationKind`, `OperationDisplayName`, and `OperationPolicyRule` so reports can distinguish, for example, a forbidden `DateTime.UtcNow` property read from a forbidden `Task.Wait()` invocation.
-
-`ARCH_OPER_002`, `ARCH_OPER_011`, and `ARCH_OPER_012` expose `Site`, `DeclaredSymbolName`, `OperationKind`, `OperationDisplayName`, `OperationPolicyRule`, `BehavioralOperationViolationKind`, and `BehavioralOperationOrdering`. A missing required operation uses the owning declaration location and its ordinary declaration site; a selected failing operation uses that operation's source site.
-
-ARCH_ASSM_001 describes emitted assembly metadata rather than a dependency site. It exposes `AssemblyAttributeTypeName` and `AssemblyAttributePolicyRule` alongside the normal caller, rule-origin, and configuration-location properties. SDK-generated attributes can have no source span, because the project SDK created the final attribute.
-
-ARCH_NS_007 exposes `CallerNamespace`, `DependencyNamespace`, `NamespaceHierarchyRoot`, `NamespaceHierarchyRelation`, `NamespaceHierarchyRuleXmlPath`, `NamespaceHierarchyRuleXmlLine`, and `NamespaceHierarchyRuleXmlCol`. Its `Site` identifies the resolved source dependency that crossed the configured namespace-ownership boundary.
-
-ARCH_API_001 additionally exposes `ApiMemberName`, identifying the externally visible declaration that published the dependency type.
-
-ARCH_API_010 adds `ExposureRootMember`, `ExposurePath`, `ExposureDepth`, `NestedMemberName`, and `NestedMemberContainingType`. Its `Site` identifies the nested public member that exposed the forbidden type rather than the root signature site.
+- `ARCH_VIS_001`
+  - `DeclarationTarget`, `DeclaredAccessibility`, and `DeclaredSymbolName`;
+- `ARCH_INH_001`
+  - `DeclaredSymbolName` and `InheritanceViolationKind`;
+- `ARCH_RET_001`
+  - `Site=MethodReturn`, `DeclaredSymbolName`, `ReturnValueRuleTarget`, `ReturnValueRule`, and `ReturnValueRuleMode`;
+  - `ReturnValueRuleMode` is `Forbidden` for a matching forbidden expression and `Allowed` when no `<AllowedReturn>` shape matched;
+- `ARCH_OPER_001`
+  - `Site`, `OperationKind`, `OperationDisplayName`, and `OperationPolicyRule`;
+- `ARCH_OPER_002`, `ARCH_OPER_011`, and `ARCH_OPER_012`
+  - `Site`, `DeclaredSymbolName`, `OperationKind`, `OperationDisplayName`, `OperationPolicyRule`, `BehavioralOperationViolationKind`, and `BehavioralOperationOrdering`;
+  - a missing operation points at its owning declaration, while a selected failing operation points at the operation itself;
+- `ARCH_ASSM_001`
+  - `AssemblyAttributeTypeName` and `AssemblyAttributePolicyRule`, plus the normal caller and rule-origin properties;
+  - an SDK-generated attribute may have no source span because the SDK emitted it;
+- `ARCH_NS_007`
+  - `CallerNamespace`, `DependencyNamespace`, `NamespaceHierarchyRoot`, `NamespaceHierarchyRelation`, and the rule XML path/line/column properties;
+- `ARCH_API_001`
+  - `ApiMemberName`, identifying the declaration that published the dependency type;
+- `ARCH_API_010`
+  - `ExposureRootMember`, `ExposurePath`, `ExposureDepth`, `NestedMemberName`, and `NestedMemberContainingType`;
+  - its `Site` identifies the nested public member that exposed the forbidden type.
 
 | `Site` value        | Where the dependency was introduced                                        |
 |---------------------|----------------------------------------------------------------------------|
@@ -5150,9 +5462,9 @@ If you see a message like this:
 no allowed dependency gate from 'Application/Contracts' to 'Crosscutting' is configured in boundary 'Application'
 ```
 
-then `Task` or `Nullable` has been classified into one of your configured layers. The analyzer does not treat framework types as forbidden by default; it has no particular opinion about `Task`. Something in the configuration adopted it into a layer, and the rules simply did as they were told. Once a matcher puts `Task`, `Nullable`, or another framework type in `Crosscutting`, normal layer and nested-boundary rules apply to it.
+then `Task` or `Nullable` has been classified into one of your configured layers. The analyzer has no particular opinion about `Task`; something in the configuration adopted it into a layer, and the rules simply did as they were told. Once a matcher puts `Task`, `Nullable`, or another framework type in `Crosscutting`, normal layer and nested-boundary rules apply to it.
 
-The cleanest fix is usually: do not classify framework types into application architecture layers unless you really mean to. Keep `Crosscutting` scoped to your own code:
+The cleanest fix is usually not to classify framework types into application architecture layers unless you really mean to. Keep `Crosscutting` scoped to your own code:
 
 ```xml
 <Layer name="Crosscutting">
@@ -5248,7 +5560,14 @@ arse report --project src\MyApp\MyApp.csproj --force
 arse report --solution src\MyApp.slnx --output docs\architectural-violations.md --force
 ```
 
-The violation report groups code dependency, type-policy, and name-rule violations by their exact diagnostic IDs: `ARCH_DEP_001`, `ARCH_DEP_002`, `ARCH_TYPE_001`, `ARCH_DEP_004`, `ARCH_DEP_005`, and `ARCH_NAME_008`. For `ARCH_DEP_002`, it includes a **Suggested Configuration** block with `<Layer>` and `<AllowedDependency>` snippets that would resolve the unrecognized dependencies it found. Use `--project` for one assembly or `--solution` when the architecture is enforced across multiple projects. Configuration findings and cycles belong in the `inspect` health report.
+The report does a few specific things:
+
+- Groups code dependency, type-policy, and name-rule violations by their exact diagnostic IDs.
+- Adds a **Suggested Configuration** block for `ARCH_DEP_002`, with `<Layer>` and `<AllowedDependency>` snippets for the unrecognized dependencies it found.
+- Accepts `--project` for one assembly or `--solution` for an architecture spread across several projects.
+- Leaves configuration findings and cycles to the `inspect` health report.
+
+It is a violation report, not a second health report with a different filename.
 
 - **CI dashboards** - commit the report as a build artifact and diff it across runs to track architectural drift.
 - **Onboarding** - point new contributors at a single file that summarizes the project's layering health.
@@ -5256,11 +5575,13 @@ The violation report groups code dependency, type-policy, and name-rule violatio
 
 The report is written by `RonSijm.AnaalIJzer.Reporting.ArchitecturalViolationReporter`. Arse runs the analyzer in-process with Roslyn, converts the resulting diagnostics into report rows, and writes the file explicitly. Normal analyzer builds do not perform filesystem I/O, because an analyzer that writes files during a parallel build is a support ticket waiting to be filed.
 
-Assembly-metadata failures (`ARCH_ASSM_001`) are reported in a dedicated table with the current assembly, emitted attribute type, matching policy rule, and reason. This keeps project-file-generated attributes such as `InternalsVisibleTo` visible even when they do not map to a handwritten source location.
+Assembly-metadata failures (`ARCH_ASSM_001`) are reported in a dedicated table with the current assembly, emitted attribute type, matching policy rule, and reason. The table includes project-file-generated attributes such as `InternalsVisibleTo` even when they do not map to a handwritten source location.
 
 ### Example report
 
-This repository ships a [rendered example report](Examples/Documentation/Generated/architectural-violations.md) generated from the [`Examples/Documentation/Example.ReportDemo`](Examples/Documentation/Example.ReportDemo) project, which intentionally contains one violation of each diagnostic ID. To regenerate it from the repo root:
+This repository ships a [rendered example report](Examples/Documentation/Generated/architectural-violations.md). It comes from [`Examples/Documentation/Example.ReportDemo`](Examples/Documentation/Example.ReportDemo), which intentionally contains one violation of each diagnostic ID.
+
+Regenerate it from the repo root:
 
 ```cmd
 dotnet run --project src\Tools\RonSijm.AnaalIJzer.Arse -- report --project Examples\Documentation\Example.ReportDemo\Example.ReportDemo.csproj --force
@@ -5281,7 +5602,20 @@ arse inspect --solution src\MyApp.slnx --enforce-topology --output build\Artifac
 arse inspect --config Architecture.anl --force
 ```
 
-Project validation identifies unclassified and ambiguously classified types, matchers that resolve no current types, stale exceptions, unused allowed edges, configured and observed dependency cycles, and current analyzer violations. Unused edges and dead matchers are the configuration equivalent of unreachable code: harmless until somebody reads them as a statement of intent. Solution validation runs the same checks for every C# project and writes one combined report. Add `--enforce-topology` to evaluate configured solution-level module edges as `ARCH_SOL_001` and configured module cycles as `ARCH_SOL_006`. XML-only validation checks configuration validity and configured cycles without loading MSBuild. An `.json` output path writes the same ordered findings as machine-readable evidence.
+The input decides how far inspection goes:
+
+- **One `.anl` file** checks configuration validity and configured cycles without loading MSBuild.
+- **One project** also checks:
+  - unclassified or ambiguously classified types;
+  - matchers that resolve no current types;
+  - stale exceptions and unused allowed edges;
+  - configured and observed dependency cycles;
+  - current analyzer violations.
+- **One solution** runs the project checks for every C# project and writes one combined report.
+  - Add `--enforce-topology` to report configured module edges as `ARCH_SOL_001` and module cycles as `ARCH_SOL_006`.
+- **A `.json` output path** writes the same ordered findings as machine-readable evidence.
+
+Unused edges and dead matchers are the configuration equivalent of unreachable code: harmless until somebody reads them as a statement of intent.
 
 **Example project:** [`Example.ArchitectureHealth`](Examples/Features/Example.ArchitectureHealth)
 
@@ -5289,7 +5623,16 @@ Project validation identifies unclassified and ambiguously classified types, mat
 
 ## Architecture documentation
 
-For configurations that grow large - many layers, wildcard edges, site filters, includes and type policies - a single graph is not always enough. Arse can render Markdown documentation that combines [Mermaid](https://mermaid.js.org/) dependency diagrams with layer descriptions, edge descriptions, scoped allow/block type-policy summaries and the rules in the same order as the XML. Enable a default path by setting `enableDocumentation="true"` on the `<ArchitecturalLevels>` root and optionally `documentationPath`, or pass `--output` directly:
+For configurations that grow large, a single graph is not always enough. A diagram can show the arrows while still leaving the reader to guess what a wildcard, site filter, include, or type policy was meant to protect.
+
+Arse can therefore generate one Markdown document containing:
+
+- [Mermaid](https://mermaid.js.org/) dependency diagrams;
+- layer and edge descriptions;
+- scoped allow/block type-policy summaries;
+- rules in the same order as the XML.
+
+Set `enableDocumentation="true"` and optionally `documentationPath`, or pass `--output` directly:
 
 ```xml
 <ArchitecturalLevels enableDocumentation="true"
@@ -5299,7 +5642,17 @@ For configurations that grow large - many layers, wildcard edges, site filters, 
 </ArchitecturalLevels>
 ```
 
-The output is a single Markdown file. If the dependency graph contains unrelated chains, each connected chain gets its own section and Mermaid diagram before wildcard rules are shown. Nested layers are rendered as Mermaid subgraphs with canonical paths in the accompanying tables. For example, an order-processing chain and a billing chain are documented separately instead of being forced into one confusing graph.
+### What the document does with the graph
+
+The output is one Markdown file:
+
+- Unrelated dependency chains get separate sections and Mermaid diagrams.
+  - An ordering chain and a billing chain do not need to share one confusing canvas merely because they share one settings file.
+- Wildcard rules are shown after the connected graphs.
+- Nested layers become Mermaid subgraphs.
+- Accompanying tables use canonical layer paths.
+
+### Choose how much source evidence to include
 
 XML-only documentation remains the lightweight default and does not load or compile an application:
 
@@ -5313,11 +5666,18 @@ For a project-backed document, add `--include-code-evidence`:
 arse documentation --project MyApplication.csproj --include-code-evidence --include-input
 ```
 
-The optional code-evidence section evaluates the rules against the current Roslyn compilation. It lists the effective project types resolved through each top-level `<Class>` and `<Namespace>` matcher, concrete caller/dependency/site usages permitted by every `<AllowedDependency>`, types that remain unclassified, and current analyzer violations with diagnostic ID, dependency site, caller, dependency and source location. Matching is attributed through the analyzer's actual rule resolution, so document order, semantic matchers and nested exceptions are respected.
+The optional code-evidence section evaluates the rules against the current Roslyn compilation. It adds:
+
+- project types resolved through each top-level `<Class>` and `<Namespace>` matcher;
+- concrete caller/dependency/site usages permitted by every `<AllowedDependency>`;
+- types that remain unclassified;
+- current analyzer violations with diagnostic ID, site, caller, dependency, and source location.
+
+This uses the analyzer's actual rule resolution, including document order, semantic matchers, and nested exceptions. It does not rebuild a cheaper approximation for the documentation and hope nobody notices the difference.
 
 `--include-input` is independent of code evidence. It appends an **Input Configuration** section containing the root XML and a short note identifying it as the source for the document. With project input, `Architecture.anl` is included when present; otherwise the evaluated `AssemblyMetadata("AnaalIJzerSettings", ...)` XML is included. Without this flag, documentation output remains unchanged.
 
-Edges with `allowedSites`, `blockedSites`, or `appliesToDescendants` are rendered with Mermaid edge labels and a table row. The table identifies the boundary gate that owns each rule, so nested egress, ingress, and cascading rules remain distinguishable even when they resolve to the same canonical endpoints. That makes allow lists, block lists, and descendant-cascading rules visible in both the picture and the text.
+Edges with `allowedSites`, `blockedSites`, or `appliesToDescendants` get both a Mermaid label and a table row. The table also identifies the boundary gate that owns the rule. This keeps nested egress, ingress, and cascading rules distinguishable even when they resolve to the same canonical endpoints.
 
 Descriptions are especially useful for repository query surfaces. You might allow a repository to return a transient `OrderQuery` so callers can immediately project it:
 
@@ -5330,19 +5690,28 @@ Descriptions are especially useful for repository query surfaces. You might allo
                    description="Query surfaces may create projections and return only those projected objects." />
 ```
 
-That documents the intent clearly: the repository owns the query surface, while outside layers should receive a projected DTO rather than keeping a queryable object around where extra application logic can creep in. A diagram on its own shows which arrows exist; only the descriptions record why anyone drew them.
+That documents the intent clearly: the repository owns the query surface, while outside layers receive a projected DTO rather than keeping a queryable object around where extra application logic can creep in. A diagram on its own shows which arrows exist; only the descriptions record why anyone drew them.
 
 The documentation is written by `RonSijm.AnaalIJzer.Reporting.ArchitectureDocumentationGenerator`. Arse's `report` and `documentation` commands are independent - run either, both, or neither.
 
 ### Example documentation
 
-This repository ships a [rendered documentation example](Examples/Documentation/Generated/architecture-documentation.md) generated from [`Examples/Documentation/Example.DocumentationDemo`](Examples/Documentation/Example.DocumentationDemo), which contains a deliberately busy XML settings file with descriptions on each rule node. To regenerate it from the repo root:
+This repository ships a [rendered documentation example](Examples/Documentation/Generated/architecture-documentation.md). It is generated from [`Examples/Documentation/Example.DocumentationDemo`](Examples/Documentation/Example.DocumentationDemo), which contains a deliberately busy settings file with descriptions on each rule node.
+
+Regenerate it from the repo root:
 
 ```cmd
 Examples\Documentation\Example.DocumentationDemo\GenerateDocumentation.bat
 ```
 
-The [example batch file](Examples/Documentation/Example.DocumentationDemo/GenerateDocumentation.bat) invokes Arse with `--config` and targets that example's `Architecture.anl` directly. **In your own project**, install the tool and run either `arse documentation --project path\to\Project.csproj --include-code-evidence --include-input` or `arse documentation --config path\to\Architecture.anl --include-input`. Pass `--output` to override `documentationPath`, and `--force` to overwrite an existing file.
+The [example batch file](Examples/Documentation/Example.DocumentationDemo/GenerateDocumentation.bat) invokes Arse with `--config` and targets that example's `Architecture.anl` directly.
+
+In your own project:
+
+- use `arse documentation --project path\to\Project.csproj --include-code-evidence --include-input` when the document should include compiled code evidence;
+- use `arse documentation --config path\to\Architecture.anl --include-input` when the settings alone are enough;
+- pass `--output` to override `documentationPath`;
+- pass `--force` to overwrite an existing file.
 
 Documentation coverage is guarded by [`ToolRunner_GeneratesDocumentationForSupportedConfigurationFeatures`](src/Tests/RonSijm.AnaalIJzer.IntegrationTests/ExampleApplicationIntegrationTests.cs), which runs the real `arse documentation --config` path against a feature-matrix XML containing nested layers, descriptions, type policies, exceptions, rename fixes, site filters, wildcard rules and input inclusion.
 
@@ -5352,19 +5721,19 @@ Root-level source-metadata policies such as `<AssemblyAttributePolicy>` are rend
 
 ## No config source = no diagnostics
 
-If no `Architecture.anl` additional file or `AssemblyMetadata("AnaalIJzerSettings", ...)` value is present, the analyzer is completely silent. This makes the analyzer **opt-in per project**: you can reference it in a shared analyzer package and only activate it in the projects that supply config. Adoption then happens one project at a time, which is the only pace at which adoption tends to happen at all.
+If no `Architecture.anl` additional file or `AssemblyMetadata("AnaalIJzerSettings", ...)` value is present, the analyzer is completely silent. This makes the analyzer **opt-in per project**: you can reference it centrally and activate it only in projects that supply configuration. Adoption can then happen one project at a time, which is usually the only pace at which adoption happens at all.
 
 ---
 
 ## "I still don't understand"
 
-To get started, it's probably easiest to just download this entire repo, and look at the example projects. They are small, self-contained, and clearly labelled where they are meant to break.
+If the written explanation is not clicking yet, clone the repository and open the projects under [`Examples/`](Examples/). They are small, self-contained, and clearly labelled where they are supposed to break. Sometimes one red squiggle explains more than another page of XML reference.
 
 ---
 
 ## Design note: why generated files live in the tools
 
-The analyzer reports `ARCH00X` diagnostics and deliberately does not write files during compilation. Roslyn analyzers run in IDEs, build servers and design-time builds, so keeping them free of filesystem side effects avoids surprising writes and keeps them closer to Roslyn's analyzer guidance.
+The analyzer reports `ARCH_<CONCERN>_<REASON>` diagnostics and deliberately does not write files during compilation. Roslyn analyzers run in IDEs, build servers, and design-time builds, so keeping them free of filesystem side effects avoids surprising writes and follows Roslyn's analyzer guidance.
 
 The shared tooling engine is the explicit generation host used by both Arse modes. It can load a project with `MSBuildWorkspace` or read an XML settings file directly for documentation. For project-backed operations it reads the same `Architecture.anl` / `AssemblyMetadata("AnaalIJzerSettings", ...)` config as the analyzer and runs the analyzer in-process when a violation report is needed:
 

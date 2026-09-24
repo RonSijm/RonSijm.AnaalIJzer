@@ -8,64 +8,63 @@ namespace RonSijm.AnaalIJzer.Application;
 
 internal static partial class ArchitectureHealthReportGenerator
 {
-	private static ImmutableArray<INamedTypeSymbol> GetDistinctProjectTypes(IReadOnlyList<ProjectAnalysisResult> projects, GeneratedCodeAnalysisScope generatedCodeScope, CancellationToken cancellationToken)
-	{
-		var types = new Dictionary<string, INamedTypeSymbol>(StringComparer.Ordinal);
-		foreach (var project in projects)
-		{
-			foreach (var type in CompilationTypeCollector.GetProjectTypes(project.Compilation, generatedCodeScope, cancellationToken))
-			{
-				types.TryAdd(GetTypeIdentity(type), type);
-			}
-		}
+    private static ImmutableArray<INamedTypeSymbol> GetDistinctProjectTypes(IReadOnlyList<ProjectAnalysisResult> projects, GeneratedCodeAnalysisScope generatedCodeScope, CancellationToken cancellationToken)
+    {
+        var types = new Dictionary<string, INamedTypeSymbol>(StringComparer.Ordinal);
+        foreach (var project in projects)
+        {
+            foreach (var type in CompilationTypeCollector.GetProjectTypes(project.Compilation, generatedCodeScope, cancellationToken))
+            {
+                types.TryAdd(GetTypeIdentity(type), type);
+            }
+        }
 
-		var result = types.Values.ToImmutableArray();
+        var result = types.Values.ToImmutableArray();
 
-		return result;
-	}
+        return result;
+    }
 
-	private static string GetTypeIdentity(INamedTypeSymbol type)
-	{
-		var result = type.ContainingAssembly.Name + ":" + type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+    private static string GetTypeIdentity(INamedTypeSymbol type)
+    {
+        var result = type.ContainingAssembly.Name + ":" + type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
-		return result;
-	}
+        return result;
+    }
 
-	private static string GetProjectContext(INamedTypeSymbol type)
-	{
-		var result = type.ContainingAssembly?.Name ?? string.Empty;
+    private static string GetProjectContext(INamedTypeSymbol type)
+    {
+        var result = type.ContainingAssembly?.Name ?? string.Empty;
 
-		return result;
-	}
+        return result;
+    }
 
-	private static ArchitectureFinding AddProjectContext(string projectName, ArchitectureFinding finding)
-	{
-		var result = finding.WithContextPrefix(projectName);
+    private static ArchitectureFinding AddProjectContext(string projectName, ArchitectureFinding finding)
+    {
+        var result = finding.WithContextPrefix(projectName);
 
-		return result;
-	}
+        return result;
+    }
 
-	private static string AddProjectContext(string projectName, string context)
-	{
-		var result = string.IsNullOrWhiteSpace(context)
-			? projectName
-			: $"{projectName} - {context}";
+    private static string AddProjectContext(string projectName, string context)
+    {
+        var result = string.IsNullOrWhiteSpace(context)
+            ? projectName
+            : $"{projectName} - {context}";
 
-		return result;
-	}
+        return result;
+    }
 
-	private static string GetNamespace(INamedTypeSymbol type)
-	{
-		var result = type.ContainingNamespace.IsGlobalNamespace ? string.Empty : type.ContainingNamespace.ToDisplayString();
+    private static string GetNamespace(INamedTypeSymbol type)
+    {
+        var result = type.ContainingNamespace.IsGlobalNamespace ? string.Empty : type.ContainingNamespace.ToDisplayString();
 
-		return result;
-	}
+        return result;
+    }
 
-	private static string GetTypeName(INamedTypeSymbol type)
-	{
-		var result = type.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat);
+    private static string GetTypeName(INamedTypeSymbol type)
+    {
+        var result = type.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat);
 
-		return result;
-	}
+        return result;
+    }
 }
-

@@ -7,4 +7,4 @@ Reported when `enforceAcyclic="true"` and the explicit allowed dependency graph 
 #### Real-world uses
 
 - Reject a proposed set of allowed module edges that would let Ordering, Billing, and Inventory depend on one another in a loop.
-- Keep a configuration review honest when individually reasonable exceptions accidentally create a cyclic architectural policy as a whole.
+- Detect when individually reasonable dependency rules combine into a cyclic architectural policy.

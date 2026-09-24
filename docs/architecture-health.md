@@ -9,7 +9,20 @@ arse inspect --solution src\MyApp.slnx --enforce-topology --output build\Artifac
 arse inspect --config Architecture.anl --force
 ```
 
-Project validation identifies unclassified and ambiguously classified types, matchers that resolve no current types, stale exceptions, unused allowed edges, configured and observed dependency cycles, and current analyzer violations. Unused edges and dead matchers are the configuration equivalent of unreachable code: harmless until somebody reads them as a statement of intent. Solution validation runs the same checks for every C# project and writes one combined report. Add `--enforce-topology` to evaluate configured solution-level module edges as `ARCH_SOL_001` and configured module cycles as `ARCH_SOL_006`. XML-only validation checks configuration validity and configured cycles without loading MSBuild. An `.json` output path writes the same ordered findings as machine-readable evidence.
+The input decides how far inspection goes:
+
+- **One `.anl` file** checks configuration validity and configured cycles without loading MSBuild.
+- **One project** also checks:
+  - unclassified or ambiguously classified types;
+  - matchers that resolve no current types;
+  - stale exceptions and unused allowed edges;
+  - configured and observed dependency cycles;
+  - current analyzer violations.
+- **One solution** runs the project checks for every C# project and writes one combined report.
+  - Add `--enforce-topology` to report configured module edges as `ARCH_SOL_001` and module cycles as `ARCH_SOL_006`.
+- **A `.json` output path** writes the same ordered findings as machine-readable evidence.
+
+Unused edges and dead matchers are the configuration equivalent of unreachable code: harmless until somebody reads them as a statement of intent.
 
 **Example project:** [`Example.ArchitectureHealth`](../Examples/Features/Example.ArchitectureHealth)
 

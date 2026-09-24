@@ -5,11 +5,11 @@ namespace RonSijm.AnaalIJzer.Core.Configuration.Document.Tests.Document;
 
 public sealed class ArchitectureConfigurationValidatorTests
 {
-	[Fact]
-	public void Validate_SupportsEveryDeclarationTarget()
-	{
-		var document = XDocument.Parse(
-			"""
+    [Fact]
+    public void Validate_SupportsEveryDeclarationTarget()
+    {
+        var document = XDocument.Parse(
+            """
 			<ArchitecturalLevels>
 			  <Layer name="Requests">
 			    <Class endsWith="Request">
@@ -26,54 +26,54 @@ public sealed class ArchitectureConfigurationValidatorTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""",
-			LoadOptions.SetLineInfo);
+            LoadOptions.SetLineInfo);
 
-		var result = ArchitectureConfigurationValidator.Validate(document, "Architecture.anl");
+        var result = ArchitectureConfigurationValidator.Validate(document, "Architecture.anl");
 
-		result.Should().BeEmpty();
-	}
+        result.Should().BeEmpty();
+    }
 
-	[Fact]
-	public void Validate_ReportsMissingMatcherAttribute()
-	{
-		var document = XDocument.Parse(
-			"""
+    [Fact]
+    public void Validate_ReportsMissingMatcherAttribute()
+    {
+        var document = XDocument.Parse(
+            """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Class />
 			  </Layer>
 			</ArchitecturalLevels>
 			""",
-			LoadOptions.SetLineInfo);
+            LoadOptions.SetLineInfo);
 
-		var result = ArchitectureConfigurationValidator.Validate(document, "Architecture.anl");
+        var result = ArchitectureConfigurationValidator.Validate(document, "Architecture.anl");
 
-		result.Should().Contain(issue => issue.Message.Contains("Class requires at least one matcher attribute.", StringComparison.Ordinal));
-	}
+        result.Should().Contain(issue => issue.Message.Contains("Class requires at least one matcher attribute.", StringComparison.Ordinal));
+    }
 
-	[Fact]
-	public void Validate_ReportsInvalidRegex()
-	{
-		var document = XDocument.Parse(
-			"""
+    [Fact]
+    public void Validate_ReportsInvalidRegex()
+    {
+        var document = XDocument.Parse(
+            """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Class regex="[" />
 			  </Layer>
 			</ArchitecturalLevels>
 			""",
-			LoadOptions.SetLineInfo);
+            LoadOptions.SetLineInfo);
 
-		var result = ArchitectureConfigurationValidator.Validate(document, "Architecture.anl");
+        var result = ArchitectureConfigurationValidator.Validate(document, "Architecture.anl");
 
-		result.Should().Contain(issue => issue.Message.Contains("Invalid regular expression", StringComparison.Ordinal));
-	}
+        result.Should().Contain(issue => issue.Message.Contains("Invalid regular expression", StringComparison.Ordinal));
+    }
 
-	[Fact]
-	public void Validate_ClassMatcherDeclarationChildWithoutMatcher_ReportsIssue()
-	{
-		var document = XDocument.Parse(
-			"""
+    [Fact]
+    public void Validate_ClassMatcherDeclarationChildWithoutMatcher_ReportsIssue()
+    {
+        var document = XDocument.Parse(
+            """
 			<ArchitecturalLevels>
 			  <Layer name="Requests">
 			    <Class endsWith="Request">
@@ -82,18 +82,18 @@ public sealed class ArchitectureConfigurationValidatorTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""",
-			LoadOptions.SetLineInfo);
+            LoadOptions.SetLineInfo);
 
-		var result = ArchitectureConfigurationValidator.Validate(document, "Architecture.anl");
+        var result = ArchitectureConfigurationValidator.Validate(document, "Architecture.anl");
 
-		result.Should().Contain(issue => issue.Message.Contains("Property requires at least one matcher attribute.", StringComparison.Ordinal));
-	}
+        result.Should().Contain(issue => issue.Message.Contains("Property requires at least one matcher attribute.", StringComparison.Ordinal));
+    }
 
-	[Fact]
-	public void Validate_ClassMatcherDeclarationChildrenWithMatchers_RemainValid()
-	{
-		var document = XDocument.Parse(
-			"""
+    [Fact]
+    public void Validate_ClassMatcherDeclarationChildrenWithMatchers_RemainValid()
+    {
+        var document = XDocument.Parse(
+            """
 			<ArchitecturalLevels>
 			  <Layer name="Requests">
 			    <Class endsWith="Request">
@@ -103,18 +103,18 @@ public sealed class ArchitectureConfigurationValidatorTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""",
-			LoadOptions.SetLineInfo);
+            LoadOptions.SetLineInfo);
 
-		var result = ArchitectureConfigurationValidator.Validate(document, "Architecture.anl");
+        var result = ArchitectureConfigurationValidator.Validate(document, "Architecture.anl");
 
-		result.Should().BeEmpty();
-	}
+        result.Should().BeEmpty();
+    }
 
-	[Fact]
-	public void Validate_ObservationMatchers_AllowExistenceWithoutAttributes()
-	{
-		var document = XDocument.Parse(
-			"""
+    [Fact]
+    public void Validate_ObservationMatchers_AllowExistenceWithoutAttributes()
+    {
+        var document = XDocument.Parse(
+            """
 			<ArchitecturalLevels>
 			  <Layer name="FallbackServices">
 			    <Class endsWith="Service">
@@ -125,18 +125,18 @@ public sealed class ArchitectureConfigurationValidatorTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""",
-			LoadOptions.SetLineInfo);
+            LoadOptions.SetLineInfo);
 
-		var result = ArchitectureConfigurationValidator.Validate(document, "Architecture.anl");
+        var result = ArchitectureConfigurationValidator.Validate(document, "Architecture.anl");
 
-		result.Should().BeEmpty();
-	}
+        result.Should().BeEmpty();
+    }
 
-	[Fact]
-	public void Validate_ObservationMatchers_RejectUnsupportedSemanticAttributes()
-	{
-		var document = XDocument.Parse(
-			"""
+    [Fact]
+    public void Validate_ObservationMatchers_RejectUnsupportedSemanticAttributes()
+    {
+        var document = XDocument.Parse(
+            """
 			<ArchitecturalLevels>
 			  <Layer name="FallbackServices">
 			    <Class endsWith="Service">
@@ -147,10 +147,10 @@ public sealed class ArchitectureConfigurationValidatorTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""",
-			LoadOptions.SetLineInfo);
+            LoadOptions.SetLineInfo);
 
-		var result = ArchitectureConfigurationValidator.Validate(document, "Architecture.anl");
+        var result = ArchitectureConfigurationValidator.Validate(document, "Architecture.anl");
 
-		result.Should().Contain(issue => issue.Message.Contains("Throw supports typeName, exactName, exactFullName, endsWith, startsWith, contains, or regex matchers.", StringComparison.Ordinal));
-	}
+        result.Should().Contain(issue => issue.Message.Contains("Throw supports typeName, exactName, exactFullName, endsWith, startsWith, contains, or regex matchers.", StringComparison.Ordinal));
+    }
 }

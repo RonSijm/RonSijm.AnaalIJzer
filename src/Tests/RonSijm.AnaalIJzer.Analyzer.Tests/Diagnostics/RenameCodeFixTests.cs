@@ -5,18 +5,18 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Diagnostics;
 
 public sealed class RenameCodeFixTests
 {
-	[Fact]
-	public void RenameCodeFix_HasNoFixAllProvider()
-	{
-		new ArchitecturalLevelCodeFixProvider()
-			.GetFixAllProvider()
-			.Should().BeNull();
-	}
+    [Fact]
+    public void RenameCodeFix_HasNoFixAllProvider()
+    {
+        new ArchitecturalLevelCodeFixProvider()
+            .GetFixAllProvider()
+            .Should().BeNull();
+    }
 
-	[Fact]
-	public async Task ForbiddenWithFix_DiagnosticContainsRenameProperties()
-	{
-		const string config = """
+    [Fact]
+    public async Task ForbiddenWithFix_DiagnosticContainsRenameProperties()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Manager">
 		                              <Class endsWith="Manager" />
@@ -29,22 +29,22 @@ public sealed class RenameCodeFixTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public interface IPartnerStore { }
 		                      public class PatientManager(IPartnerStore store) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var arch003 = diagnostics.First(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed);
-		arch003.Properties[ArchitecturalDiagnostics.PropertyMatchedSuffix].Should().Be("Store");
-		arch003.Properties[ArchitecturalDiagnostics.PropertyFixSuffix].Should().Be("Repository");
-	}
+        var arch003 = diagnostics.First(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed);
+        arch003.Properties[ArchitecturalDiagnostics.PropertyMatchedSuffix].Should().Be("Store");
+        arch003.Properties[ArchitecturalDiagnostics.PropertyFixSuffix].Should().Be("Repository");
+    }
 
-	[Fact]
-	public async Task ForbiddenWithoutFix_DiagnosticHasNoRenameProperties()
-	{
-		const string config = """
+    [Fact]
+    public async Task ForbiddenWithoutFix_DiagnosticHasNoRenameProperties()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Manager">
 		                              <Class endsWith="Manager" />
@@ -55,22 +55,22 @@ public sealed class RenameCodeFixTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public interface IPartnerStore { }
 		                      public class PatientManager(IPartnerStore store) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var arch003 = diagnostics.First(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed);
-		arch003.Properties.ContainsKey(ArchitecturalDiagnostics.PropertyMatchedSuffix).Should().BeFalse();
-		arch003.Properties.ContainsKey(ArchitecturalDiagnostics.PropertyFixSuffix).Should().BeFalse();
-	}
+        var arch003 = diagnostics.First(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed);
+        arch003.Properties.ContainsKey(ArchitecturalDiagnostics.PropertyMatchedSuffix).Should().BeFalse();
+        arch003.Properties.ContainsKey(ArchitecturalDiagnostics.PropertyFixSuffix).Should().BeFalse();
+    }
 
-	[Fact]
-	public async Task ForbiddenWithFix_ExactTypeNameMatch_NoRenameProperties()
-	{
-		const string config = """
+    [Fact]
+    public async Task ForbiddenWithFix_ExactTypeNameMatch_NoRenameProperties()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Manager">
 		                              <Class endsWith="Manager" />
@@ -83,22 +83,22 @@ public sealed class RenameCodeFixTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public interface IIdentityContext { }
 		                      public class PatientManager(IIdentityContext identity) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var arch003 = diagnostics.First(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed);
-		// Exact-name matches produce no MatchedSuffix, so the fixer will not offer a rename.
-		arch003.Properties.ContainsKey(ArchitecturalDiagnostics.PropertyMatchedSuffix).Should().BeFalse();
-	}
+        var arch003 = diagnostics.First(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed);
+        // Exact-name matches produce no MatchedSuffix, so the fixer will not offer a rename.
+        arch003.Properties.ContainsKey(ArchitecturalDiagnostics.PropertyMatchedSuffix).Should().BeFalse();
+    }
 
-	[Fact]
-	public async Task ForbiddenWithFix_AppliesRenameCodeFix()
-	{
-		const string config = """
+    [Fact]
+    public async Task ForbiddenWithFix_AppliesRenameCodeFix()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Manager">
 		                              <Class endsWith="Manager" />
@@ -111,14 +111,14 @@ public sealed class RenameCodeFixTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public interface IPartnerStore { }
 		                      public class PatientManager(IPartnerStore store) { }
 		                      """;
 
-		var newSource = await AnalyzerTestHelper.ApplyCodeFixAsync(source, config);
+        var newSource = await AnalyzerTestHelper.ApplyCodeFixAsync(source, config);
 
-		newSource.Should().Contain("IPartnerRepository");
-		newSource.Should().NotContain("IPartnerStore");
-	}
+        newSource.Should().Contain("IPartnerRepository");
+        newSource.Should().NotContain("IPartnerStore");
+    }
 }

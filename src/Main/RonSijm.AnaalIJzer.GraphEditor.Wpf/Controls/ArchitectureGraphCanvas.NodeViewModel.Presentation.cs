@@ -11,76 +11,76 @@ namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
 
 internal sealed partial class ArchitectureGraphCanvas
 {
-	private sealed partial class NodifyGraphNodeViewModel
-	{
-		public string ToolTip
-		{
-			get
-			{
-				var description = string.IsNullOrWhiteSpace(Description) ? string.Empty : Environment.NewLine + Description;
-				var evidence = TypeCount > 0
-					? Environment.NewLine + TypeCount + " matching type" + (TypeCount == 1 ? string.Empty : "s") + ". Violations: " + (IncomingViolationCount + OutgoingViolationCount)
-					: string.Empty;
-				var exceptionReviews = ExceptionReviewCount > 0
-					? Environment.NewLine + "Exception reviews: " + ExceptionReviewCount + Environment.NewLine + string.Join(Environment.NewLine, ExceptionReviewSummaries)
-					: string.Empty;
-				var readOnlyDetails = string.IsNullOrWhiteSpace(ReadOnlyDetails) ? string.Empty : Environment.NewLine + ReadOnlyDetails;
-				var nodeKind = Kind == ArchitectureGraphNodeKind.SolutionModule ? "Solution topology module" : "Layer";
-				var result = nodeKind + ": " + Path + description + evidence + exceptionReviews + readOnlyDetails + Environment.NewLine + "Drag to rearrange this graph.";
+    private sealed partial class NodifyGraphNodeViewModel
+    {
+        public string ToolTip
+        {
+            get
+            {
+                var description = string.IsNullOrWhiteSpace(Description) ? string.Empty : Environment.NewLine + Description;
+                var evidence = TypeCount > 0
+                    ? Environment.NewLine + TypeCount + " matching type" + (TypeCount == 1 ? string.Empty : "s") + ". Violations: " + (IncomingViolationCount + OutgoingViolationCount)
+                    : string.Empty;
+                var exceptionReviews = ExceptionReviewCount > 0
+                    ? Environment.NewLine + "Exception reviews: " + ExceptionReviewCount + Environment.NewLine + string.Join(Environment.NewLine, ExceptionReviewSummaries)
+                    : string.Empty;
+                var readOnlyDetails = string.IsNullOrWhiteSpace(ReadOnlyDetails) ? string.Empty : Environment.NewLine + ReadOnlyDetails;
+                var nodeKind = Kind == ArchitectureGraphNodeKind.SolutionModule ? "Solution topology module" : "Layer";
+                var result = nodeKind + ": " + Path + description + evidence + exceptionReviews + readOnlyDetails + Environment.NewLine + "Drag to rearrange this graph.";
 
-				return result;
-			}
-		}
+                return result;
+            }
+        }
 
-		public string ContentText
-		{
-			get
-			{
-				var evidence = TypeCount > 0
-					? Environment.NewLine + TypeCount + " type" + (TypeCount == 1 ? string.Empty : "s")
-					: string.Empty;
-				var violations = IncomingViolationCount + OutgoingViolationCount;
-				var violationText = violations > 0 ? Environment.NewLine + violations + " violation" + (violations == 1 ? string.Empty : "s") : string.Empty;
-				var exceptionReviews = ExceptionReviewCount > 0 ? Environment.NewLine + ExceptionReviewCount + " exception review" + (ExceptionReviewCount == 1 ? string.Empty : "s") : string.Empty;
-				var nodeKind = Kind == ArchitectureGraphNodeKind.SolutionModule ? "Solution module" : Path;
-				var result = nodeKind + evidence + violationText + exceptionReviews;
+        public string ContentText
+        {
+            get
+            {
+                var evidence = TypeCount > 0
+                    ? Environment.NewLine + TypeCount + " type" + (TypeCount == 1 ? string.Empty : "s")
+                    : string.Empty;
+                var violations = IncomingViolationCount + OutgoingViolationCount;
+                var violationText = violations > 0 ? Environment.NewLine + violations + " violation" + (violations == 1 ? string.Empty : "s") : string.Empty;
+                var exceptionReviews = ExceptionReviewCount > 0 ? Environment.NewLine + ExceptionReviewCount + " exception review" + (ExceptionReviewCount == 1 ? string.Empty : "s") : string.Empty;
+                var nodeKind = Kind == ArchitectureGraphNodeKind.SolutionModule ? "Solution module" : Path;
+                var result = nodeKind + evidence + violationText + exceptionReviews;
 
-				return result;
-			}
-		}
+                return result;
+            }
+        }
 
-		public static NodifyGraphNodeViewModel Create(
-			ArchitectureGraphNodeViewModel node,
-			IArchitectureGraphEditService editService,
-			Action<ArchitectureConfigurationEditResult, bool>? editResultHandler,
-			Action<ArchitectureGraphSelection>? selectionHandler,
-			Func<string, bool>? confirmationHandler,
-			Func<ArchitectureLayerCreationRequest?>? layerCreationHandler,
-			ArchitectureGraphLayoutState layoutState,
-			ArchitectureGraphCanvasTheme theme)
-		{
-			var headerBrush = node.PaletteSlot <= 0 ? ArchitectureGraphPalette.GetUnclassifiedBrush() : ArchitectureGraphPalette.GetBrush(node.PaletteSlot);
-			var contentBrush = CreateContentBrush(headerBrush);
-			var result = new NodifyGraphNodeViewModel(node, headerBrush, contentBrush, editService, editResultHandler, selectionHandler, confirmationHandler, layerCreationHandler, layoutState, theme);
+        public static NodifyGraphNodeViewModel Create(
+            ArchitectureGraphNodeViewModel node,
+            IArchitectureGraphEditService editService,
+            Action<ArchitectureConfigurationEditResult, bool>? editResultHandler,
+            Action<ArchitectureGraphSelection>? selectionHandler,
+            Func<string, bool>? confirmationHandler,
+            Func<ArchitectureLayerCreationRequest?>? layerCreationHandler,
+            ArchitectureGraphLayoutState layoutState,
+            ArchitectureGraphCanvasTheme theme)
+        {
+            var headerBrush = node.PaletteSlot <= 0 ? ArchitectureGraphPalette.GetUnclassifiedBrush() : ArchitectureGraphPalette.GetBrush(node.PaletteSlot);
+            var contentBrush = CreateContentBrush(headerBrush);
+            var result = new NodifyGraphNodeViewModel(node, headerBrush, contentBrush, editService, editResultHandler, selectionHandler, confirmationHandler, layerCreationHandler, layoutState, theme);
 
-			return result;
-		}
+            return result;
+        }
 
-		private static Brush CreateContentBrush(Brush headerBrush)
-		{
-			if (headerBrush is not SolidColorBrush solid)
-			{
-				return headerBrush;
-			}
+        private static Brush CreateContentBrush(Brush headerBrush)
+        {
+            if (headerBrush is not SolidColorBrush solid)
+            {
+                return headerBrush;
+            }
 
-			var color = solid.Color;
-			var result = new SolidColorBrush(Color.FromRgb(
-				(byte)Math.Max(0, color.R - 28),
-				(byte)Math.Max(0, color.G - 28),
-				(byte)Math.Max(0, color.B - 28)));
-			result.Freeze();
+            var color = solid.Color;
+            var result = new SolidColorBrush(Color.FromRgb(
+                (byte)Math.Max(0, color.R - 28),
+                (byte)Math.Max(0, color.G - 28),
+                (byte)Math.Max(0, color.B - 28)));
+            result.Freeze();
 
-			return result;
-		}
-	}
+            return result;
+        }
+    }
 }

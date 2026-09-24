@@ -6,80 +6,79 @@ namespace RonSijm.AnaalIJzer.GraphWorkspace;
 
 public sealed class ArchitectureGraphWorkspaceSnapshotLoader(string configuration = "Release")
 {
-	private readonly string _configuration = string.IsNullOrWhiteSpace(configuration) ? "Release" : configuration;
-	private readonly WorkspaceAnalysisService _workspace = new(configuration);
+    private readonly string _configuration = string.IsNullOrWhiteSpace(configuration) ? "Release" : configuration;
+    private readonly WorkspaceAnalysisService _workspace = new(configuration);
 
-	public async Task<ArchitectureGraphSnapshot> LoadAsync(string path, CancellationToken cancellationToken = default)
-	{
-		if (string.IsNullOrWhiteSpace(path))
-		{
-			throw new ArchitectureGraphWorkspaceException("Choose an AnaalIJzer settings, project, or solution file first.");
-		}
+    public async Task<ArchitectureGraphSnapshot> LoadAsync(string path, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            throw new ArchitectureGraphWorkspaceException("Choose an AnaalIJzer settings, project, or solution file first.");
+        }
 
-		var fullPath = Path.GetFullPath(path);
-		var extension = Path.GetExtension(fullPath);
-		if (IsSolutionExtension(extension))
-		{
-			var result = await AnalyzeSolutionAsync(fullPath, cancellationToken);
-			var snapshot = ArchitectureGraphWorkspaceSnapshotFactory.CreateForSolution(fullPath, result, cancellationToken);
+        var fullPath = Path.GetFullPath(path);
+        var extension = Path.GetExtension(fullPath);
+        if (IsSolutionExtension(extension))
+        {
+            var result = await AnalyzeSolutionAsync(fullPath, cancellationToken);
+            var snapshot = ArchitectureGraphWorkspaceSnapshotFactory.CreateForSolution(fullPath, result, cancellationToken);
 
-			return snapshot;
-		}
+            return snapshot;
+        }
 
-		if (string.Equals(extension, ".csproj", StringComparison.OrdinalIgnoreCase))
-		{
-			var result = await AnalyzeProjectAsync(fullPath, cancellationToken);
-			var snapshot = ArchitectureGraphWorkspaceSnapshotFactory.CreateForProject(fullPath, result, cancellationToken);
+        if (string.Equals(extension, ".csproj", StringComparison.OrdinalIgnoreCase))
+        {
+            var result = await AnalyzeProjectAsync(fullPath, cancellationToken);
+            var snapshot = ArchitectureGraphWorkspaceSnapshotFactory.CreateForProject(fullPath, result, cancellationToken);
 
-			return snapshot;
-		}
+            return snapshot;
+        }
 
-		return ArchitectureGraphXmlSnapshotLoader.Load(fullPath);
-	}
+        return ArchitectureGraphXmlSnapshotLoader.Load(fullPath);
+    }
 
-	public async Task<ArchitectureGraphSnapshot> LoadSolutionAsync(string solutionPath, CancellationToken cancellationToken = default)
-	{
-		var fullPath = Path.GetFullPath(solutionPath);
-		var result = await AnalyzeSolutionAsync(fullPath, cancellationToken);
-		var snapshot = ArchitectureGraphWorkspaceSnapshotFactory.CreateForSolution(fullPath, result, cancellationToken);
+    public async Task<ArchitectureGraphSnapshot> LoadSolutionAsync(string solutionPath, CancellationToken cancellationToken = default)
+    {
+        var fullPath = Path.GetFullPath(solutionPath);
+        var result = await AnalyzeSolutionAsync(fullPath, cancellationToken);
+        var snapshot = ArchitectureGraphWorkspaceSnapshotFactory.CreateForSolution(fullPath, result, cancellationToken);
 
-		return snapshot;
-	}
+        return snapshot;
+    }
 
-	private async Task<ProjectAnalysisResult> AnalyzeProjectAsync(string projectPath, CancellationToken cancellationToken)
-	{
-		var result = await ExecuteAsync(() => _workspace.AnalyzeProjectAsync(projectPath, cancellationToken));
+    private async Task<ProjectAnalysisResult> AnalyzeProjectAsync(string projectPath, CancellationToken cancellationToken)
+    {
+        var result = await ExecuteAsync(() => _workspace.AnalyzeProjectAsync(projectPath, cancellationToken));
 
-		return result;
-	}
+        return result;
+    }
 
-	private async Task<SolutionAnalysisResult> AnalyzeSolutionAsync(string solutionPath, CancellationToken cancellationToken)
-	{
-		var result = await ExecuteAsync(() => _workspace.AnalyzeSolutionAsync(solutionPath, cancellationToken));
+    private async Task<SolutionAnalysisResult> AnalyzeSolutionAsync(string solutionPath, CancellationToken cancellationToken)
+    {
+        var result = await ExecuteAsync(() => _workspace.AnalyzeSolutionAsync(solutionPath, cancellationToken));
 
-		return result;
-	}
+        return result;
+    }
 
-	private static bool IsSolutionExtension(string extension)
-	{
-		var result = string.Equals(extension, ".sln", StringComparison.OrdinalIgnoreCase)
-		             || string.Equals(extension, ".slnx", StringComparison.OrdinalIgnoreCase);
+    private static bool IsSolutionExtension(string extension)
+    {
+        var result = string.Equals(extension, ".sln", StringComparison.OrdinalIgnoreCase)
+                     || string.Equals(extension, ".slnx", StringComparison.OrdinalIgnoreCase);
 
-		return result;
-	}
+        return result;
+    }
 
-	private static async Task<T> ExecuteAsync<T>(Func<Task<T>> callback)
-	{
-		try
-		{
-			var result = await callback();
+    private static async Task<T> ExecuteAsync<T>(Func<Task<T>> callback)
+    {
+        try
+        {
+            var result = await callback();
 
-			return result;
-		}
-		catch (InvalidOperationException exception)
-		{
-			throw new ArchitectureGraphWorkspaceException(exception.Message);
-		}
-	}
+            return result;
+        }
+        catch (InvalidOperationException exception)
+        {
+            throw new ArchitectureGraphWorkspaceException(exception.Message);
+        }
+    }
 }
-

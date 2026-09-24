@@ -5,12 +5,12 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Analysis;
 
 public sealed class MultiCallerAndForkTests
 {
-	// ---- Multiple callers for same layer ----
+    // ---- Multiple callers for same layer ----
 
-	[Fact]
-	public async Task MultipleCallers_DepValidForBothCallerLayers_NoDiagnostic()
-	{
-		const string config = """
+    [Fact]
+    public async Task MultipleCallers_DepValidForBothCallerLayers_NoDiagnostic()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Manager">
 		                              <Class endsWith="Manager" />
@@ -27,21 +27,21 @@ public sealed class MultiCallerAndForkTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public interface IPartnerStore { }
 		                      public class PatientRepository { }
 		                      public class PatientManager(PatientRepository repo, IPartnerStore store) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().BeEmpty();
-	}
+        diagnostics.Should().BeEmpty();
+    }
 
-	[Fact]
-	public async Task MultipleCallers_DepNotCallableFromUnlistedCaller_ReportsARCH_DEP_001()
-	{
-		const string config = """
+    [Fact]
+    public async Task MultipleCallers_DepNotCallableFromUnlistedCaller_ReportsARCH_DEP_001()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Manager">
 		                              <Class endsWith="Manager" />
@@ -57,24 +57,24 @@ public sealed class MultiCallerAndForkTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public interface IPartnerStore { }
 		                      public class PatientManager(IPartnerStore store) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
-			.Should().NotBeEmpty();
-	}
+        diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
+            .Should().NotBeEmpty();
+    }
 
-	// ---- Fork architecture ----
+    // ---- Fork architecture ----
 
-	[Fact]
-	public async Task Fork_ApplicationToDataAbstraction_Valid()
-	{
-		const string config = """
+    [Fact]
+    public async Task Fork_ApplicationToDataAbstraction_Valid()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Manager" />
@@ -94,20 +94,20 @@ public sealed class MultiCallerAndForkTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public class PatientRepository { }
 		                      public class PatientManager(PatientRepository repo) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().BeEmpty();
-	}
+        diagnostics.Should().BeEmpty();
+    }
 
-	[Fact]
-	public async Task Fork_ServiceAgentToDatabase_ReportsARCH_DEP_001()
-	{
-		const string config = """
+    [Fact]
+    public async Task Fork_ServiceAgentToDatabase_ReportsARCH_DEP_001()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Manager" />
@@ -127,15 +127,15 @@ public sealed class MultiCallerAndForkTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public class PatientDbContext { }
 		                      public class SomeServiceAgent(PatientDbContext db) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
-			.Should().NotBeEmpty();
-	}
+        diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
+            .Should().NotBeEmpty();
+    }
 }

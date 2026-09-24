@@ -10,7 +10,6 @@
         <IsPackable>false</IsPackable>
 
         <!-- Test project invokes example builds that attach the analyzer explicitly. -->
-        <EnableArchitecturalLevelAnalyzer>false</EnableArchitecturalLevelAnalyzer>
     </PropertyGroup>
 
     <ItemGroup>

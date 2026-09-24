@@ -4,10 +4,10 @@ namespace RonSijm.AnaalIJzer.EditorRuntime.Tests.Editor.Snapshots;
 
 public sealed partial class EditorSnapshotTests
 {
-	[Fact]
-	public async Task Snapshot_ExposesDeclarationNameRuleEvidenceForQuickInfo()
-	{
-		const string config = """
+    [Fact]
+    public async Task Snapshot_ExposesDeclarationNameRuleEvidenceForQuickInfo()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Endpoints">
 			    <Class endsWith="Controller" />
@@ -19,7 +19,7 @@ public sealed partial class EditorSnapshotTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			interface IHonestType { }
 			sealed class DoctorId : IHonestType { }
 
@@ -29,14 +29,14 @@ public sealed partial class EditorSnapshotTests
 			}
 			""";
 
-		var snapshot = await CreateSnapshotAsync(source, config);
-		var indicator = snapshot.NameRuleIndicators.Should().ContainSingle().Which;
-		var content = ArchitectureQuickInfoContentBuilder.CreateNameRuleContent(indicator);
+        var snapshot = await CreateSnapshotAsync(source, config);
+        var indicator = snapshot.NameRuleIndicators.Should().ContainSingle().Which;
+        var content = ArchitectureQuickInfoContentBuilder.CreateNameRuleContent(indicator);
 
-		indicator.Site.Should().Be("Method");
-		indicator.RuleKind.Should().Be("RequireDeclarationNameMatchesType");
-		indicator.SourceName.Should().Be("DoctorId");
-		indicator.TargetName.Should().Be("patientId");
-		content.ToString().Should().Contain("Diagnostic: ARCH_NAME_008");
-	}
+        indicator.Site.Should().Be("Method");
+        indicator.RuleKind.Should().Be("RequireDeclarationNameMatchesType");
+        indicator.SourceName.Should().Be("DoctorId");
+        indicator.TargetName.Should().Be("patientId");
+        content.ToString().Should().Contain("Diagnostic: ARCH_NAME_008");
+    }
 }

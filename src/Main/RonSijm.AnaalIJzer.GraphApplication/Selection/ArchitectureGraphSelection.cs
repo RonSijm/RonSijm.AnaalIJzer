@@ -5,151 +5,151 @@ namespace RonSijm.AnaalIJzer.GraphApplication.Selection;
 
 internal sealed class ArchitectureGraphSelection
 {
-	private ArchitectureGraphSelection(
-		ArchitectureGraphSelectionKind kind,
-		string title,
-		string subtitle,
-		ArchitectureLayerEditHandle layerHandle,
-		ArchitectureDependencyRuleEditHandle dependencyHandle,
-		ImmutableArray<string> allowedSites,
-		ImmutableArray<string> blockedSites,
-		string evidenceDetails = "",
-		string relatedLayerPath = "",
-		string relatedFromLayerPath = "",
-		string relatedToLayerPath = "")
-	{
-		Kind = kind;
-		Title = title;
-		Subtitle = subtitle;
-		LayerHandle = layerHandle;
-		DependencyHandle = dependencyHandle;
-		AllowedSites = allowedSites;
-		BlockedSites = blockedSites;
-		EvidenceDetails = evidenceDetails;
-		RelatedLayerPath = relatedLayerPath;
-		RelatedFromLayerPath = relatedFromLayerPath;
-		RelatedToLayerPath = relatedToLayerPath;
-	}
+    private ArchitectureGraphSelection(
+        ArchitectureGraphSelectionKind kind,
+        string title,
+        string subtitle,
+        ArchitectureLayerEditHandle layerHandle,
+        ArchitectureDependencyRuleEditHandle dependencyHandle,
+        ImmutableArray<string> allowedSites,
+        ImmutableArray<string> blockedSites,
+        string evidenceDetails = "",
+        string relatedLayerPath = "",
+        string relatedFromLayerPath = "",
+        string relatedToLayerPath = "")
+    {
+        Kind = kind;
+        Title = title;
+        Subtitle = subtitle;
+        LayerHandle = layerHandle;
+        DependencyHandle = dependencyHandle;
+        AllowedSites = allowedSites;
+        BlockedSites = blockedSites;
+        EvidenceDetails = evidenceDetails;
+        RelatedLayerPath = relatedLayerPath;
+        RelatedFromLayerPath = relatedFromLayerPath;
+        RelatedToLayerPath = relatedToLayerPath;
+    }
 
-	public ArchitectureGraphSelectionKind Kind { get; }
+    public ArchitectureGraphSelectionKind Kind { get; }
 
-	public string Title { get; }
+    public string Title { get; }
 
-	public string Subtitle { get; }
+    public string Subtitle { get; }
 
-	public ArchitectureLayerEditHandle LayerHandle { get; }
+    public ArchitectureLayerEditHandle LayerHandle { get; }
 
-	public ArchitectureDependencyRuleEditHandle DependencyHandle { get; }
+    public ArchitectureDependencyRuleEditHandle DependencyHandle { get; }
 
-	public ImmutableArray<string> AllowedSites { get; }
+    public ImmutableArray<string> AllowedSites { get; }
 
-	public ImmutableArray<string> BlockedSites { get; }
+    public ImmutableArray<string> BlockedSites { get; }
 
-	public string EvidenceDetails { get; }
+    public string EvidenceDetails { get; }
 
-	public string RelatedLayerPath { get; }
+    public string RelatedLayerPath { get; }
 
-	public string RelatedFromLayerPath { get; }
+    public string RelatedFromLayerPath { get; }
 
-	public string RelatedToLayerPath { get; }
+    public string RelatedToLayerPath { get; }
 
-	public static ArchitectureGraphSelection ForLayer(ArchitectureLayerEditHandle handle)
-	{
-		var title = string.IsNullOrWhiteSpace(handle.LayerPath) ? "Layer" : handle.LayerPath;
-		var subtitle = handle.CanEdit ? handle.SourcePath : "Read-only or unknown configuration source.";
-		var result = new ArchitectureGraphSelection(
-			ArchitectureGraphSelectionKind.Layer,
-			title,
-			subtitle,
-			handle,
-			ArchitectureDependencyRuleEditHandle.None,
-			ImmutableArray<string>.Empty,
-			ImmutableArray<string>.Empty,
-			relatedLayerPath: handle.LayerPath);
+    public static ArchitectureGraphSelection ForLayer(ArchitectureLayerEditHandle handle)
+    {
+        var title = string.IsNullOrWhiteSpace(handle.LayerPath) ? "Layer" : handle.LayerPath;
+        var subtitle = handle.CanEdit ? handle.SourcePath : "Read-only or unknown configuration source.";
+        var result = new ArchitectureGraphSelection(
+            ArchitectureGraphSelectionKind.Layer,
+            title,
+            subtitle,
+            handle,
+            ArchitectureDependencyRuleEditHandle.None,
+            ImmutableArray<string>.Empty,
+            ImmutableArray<string>.Empty,
+            relatedLayerPath: handle.LayerPath);
 
-		return result;
-	}
+        return result;
+    }
 
-	public static ArchitectureGraphSelection ForDependency(ArchitectureDependencyRuleEditHandle handle)
-	{
-		var title = handle.ElementKind + " " + handle.ConfiguredFrom + " -> " + handle.ConfiguredTo;
-		var subtitle = handle.CanEdit ? handle.SourcePath : "Read-only or unknown configuration source.";
-		var result = new ArchitectureGraphSelection(
-			ArchitectureGraphSelectionKind.DependencyRule,
-			title,
-			subtitle,
-			ArchitectureLayerEditHandle.None,
-			handle,
-			handle.AllowedSites,
-			handle.BlockedSites,
-			relatedFromLayerPath: handle.From,
-			relatedToLayerPath: handle.To);
+    public static ArchitectureGraphSelection ForDependency(ArchitectureDependencyRuleEditHandle handle)
+    {
+        var title = handle.ElementKind + " " + handle.ConfiguredFrom + " -> " + handle.ConfiguredTo;
+        var subtitle = handle.CanEdit ? handle.SourcePath : "Read-only or unknown configuration source.";
+        var result = new ArchitectureGraphSelection(
+            ArchitectureGraphSelectionKind.DependencyRule,
+            title,
+            subtitle,
+            ArchitectureLayerEditHandle.None,
+            handle,
+            handle.AllowedSites,
+            handle.BlockedSites,
+            relatedFromLayerPath: handle.From,
+            relatedToLayerPath: handle.To);
 
-		return result;
-	}
+        return result;
+    }
 
-	public static ArchitectureGraphSelection ForSolutionTopologyModule(string modulePath, string displayName, string? details)
-	{
-		var result = new ArchitectureGraphSelection(
-			ArchitectureGraphSelectionKind.SolutionTopologyModule,
-			"Solution module " + displayName,
-			"Read-only solution topology projection.",
-			ArchitectureLayerEditHandle.None,
-			ArchitectureDependencyRuleEditHandle.None,
-			ImmutableArray<string>.Empty,
-			ImmutableArray<string>.Empty,
-			details ?? string.Empty,
-			relatedLayerPath: modulePath);
+    public static ArchitectureGraphSelection ForSolutionTopologyModule(string modulePath, string displayName, string? details)
+    {
+        var result = new ArchitectureGraphSelection(
+            ArchitectureGraphSelectionKind.SolutionTopologyModule,
+            "Solution module " + displayName,
+            "Read-only solution topology projection.",
+            ArchitectureLayerEditHandle.None,
+            ArchitectureDependencyRuleEditHandle.None,
+            ImmutableArray<string>.Empty,
+            ImmutableArray<string>.Empty,
+            details ?? string.Empty,
+            relatedLayerPath: modulePath);
 
-		return result;
-	}
+        return result;
+    }
 
-	public static ArchitectureGraphSelection ForSolutionTopologyRule(ArchitectureDependencyRuleEditHandle handle)
-	{
-		var details = string.IsNullOrWhiteSpace(handle.Description)
-			? "Read-only solution topology rule."
-			: handle.Description!;
-		var subtitle = string.IsNullOrWhiteSpace(handle.SourcePath)
-			? "Read-only solution topology rule."
-			: "Read-only rule from " + handle.SourcePath + ".";
-		var result = new ArchitectureGraphSelection(
-			ArchitectureGraphSelectionKind.SolutionTopologyRule,
-			handle.ElementKind + " " + handle.ConfiguredFrom + " -> " + handle.ConfiguredTo,
-			subtitle,
-			ArchitectureLayerEditHandle.None,
-			handle,
-			ImmutableArray<string>.Empty,
-			ImmutableArray<string>.Empty,
-			details,
-			relatedFromLayerPath: handle.From,
-			relatedToLayerPath: handle.To);
+    public static ArchitectureGraphSelection ForSolutionTopologyRule(ArchitectureDependencyRuleEditHandle handle)
+    {
+        var details = string.IsNullOrWhiteSpace(handle.Description)
+            ? "Read-only solution topology rule."
+            : handle.Description!;
+        var subtitle = string.IsNullOrWhiteSpace(handle.SourcePath)
+            ? "Read-only solution topology rule."
+            : "Read-only rule from " + handle.SourcePath + ".";
+        var result = new ArchitectureGraphSelection(
+            ArchitectureGraphSelectionKind.SolutionTopologyRule,
+            handle.ElementKind + " " + handle.ConfiguredFrom + " -> " + handle.ConfiguredTo,
+            subtitle,
+            ArchitectureLayerEditHandle.None,
+            handle,
+            ImmutableArray<string>.Empty,
+            ImmutableArray<string>.Empty,
+            details,
+            relatedFromLayerPath: handle.From,
+            relatedToLayerPath: handle.To);
 
-		return result;
-	}
+        return result;
+    }
 
-	public static ArchitectureGraphSelection ForCodeEvidence(string from, string to, string summary, string details)
-	{
-		var result = new ArchitectureGraphSelection(
-			ArchitectureGraphSelectionKind.CodeEvidence,
-			"Observed code dependency " + from + " -> " + to,
-			summary,
-			ArchitectureLayerEditHandle.None,
-			ArchitectureDependencyRuleEditHandle.None,
-			ImmutableArray<string>.Empty,
-			ImmutableArray<string>.Empty,
-			details,
-			relatedFromLayerPath: from,
-			relatedToLayerPath: to);
+    public static ArchitectureGraphSelection ForCodeEvidence(string from, string to, string summary, string details)
+    {
+        var result = new ArchitectureGraphSelection(
+            ArchitectureGraphSelectionKind.CodeEvidence,
+            "Observed code dependency " + from + " -> " + to,
+            summary,
+            ArchitectureLayerEditHandle.None,
+            ArchitectureDependencyRuleEditHandle.None,
+            ImmutableArray<string>.Empty,
+            ImmutableArray<string>.Empty,
+            details,
+            relatedFromLayerPath: from,
+            relatedToLayerPath: to);
 
-		return result;
-	}
+        return result;
+    }
 
-	public static ArchitectureGraphSelection None { get; } = new(
-		ArchitectureGraphSelectionKind.None,
-		"Nothing selected",
-		"Select a layer or dependency rule in the graph.",
-		ArchitectureLayerEditHandle.None,
-		ArchitectureDependencyRuleEditHandle.None,
-		ImmutableArray<string>.Empty,
-		ImmutableArray<string>.Empty);
+    public static ArchitectureGraphSelection None { get; } = new(
+        ArchitectureGraphSelectionKind.None,
+        "Nothing selected",
+        "Select a layer or dependency rule in the graph.",
+        ArchitectureLayerEditHandle.None,
+        ArchitectureDependencyRuleEditHandle.None,
+        ImmutableArray<string>.Empty,
+        ImmutableArray<string>.Empty);
 }

@@ -29,15 +29,10 @@ public sealed class StatisticsWorkspaceScanner
 				}
 				break;
 			case StatisticsWorkspaceInputKind.Directory:
-				foreach (var projectPath in StatisticsProjectDiscovery.FindProjects(inputPath))
+				using (var directoryLoader = CreateLoader(request))
 				{
-					cancellationToken.ThrowIfCancellationRequested();
-					using (var projectLoader = CreateLoader(request))
-					{
-						await ScanLoadResultAsync(await projectLoader.LoadProjectAsync(projectPath, cancellationToken), inputPath, request, projects, failures, cancellationToken);
-					}
-
-					ReleaseDisposedWorkspaceMemory();
+					var projectPaths = StatisticsProjectDiscovery.FindProjects(inputPath);
+					await ScanLoadResultAsync(await directoryLoader.LoadProjectsAsync(projectPaths, cancellationToken), inputPath, request, projects, failures, cancellationToken);
 				}
 				break;
 			default:
@@ -55,14 +50,6 @@ public sealed class StatisticsWorkspaceScanner
 		var result = new WorkspaceCompilationLoader(request.Configuration, request.RestoreMode, request.TargetFramework);
 
 		return result;
-	}
-
-	private static void ReleaseDisposedWorkspaceMemory()
-	{
-		// Each completed project can leave a large Roslyn compilation graph eligible for collection.
-		GC.Collect();
-		GC.WaitForPendingFinalizers();
-		GC.Collect();
 	}
 
 	private static async Task ScanLoadResultAsync(WorkspaceCompilationLoadResult loadResult, string inputPath, StatisticsWorkspaceScanRequest request, List<StatisticsProjectSnapshot> projects, List<StatisticsScanFailure> failures, CancellationToken cancellationToken)

@@ -5,77 +5,77 @@ namespace RonSijm.AnaalIJzer.Core.ProjectArchitecture;
 
 public static class PackageReferenceEvaluator
 {
-	public static PackageReferenceEvaluation Evaluate(ProjectArchitectureConfig config, string sourceProjectName, string packageId, string packageVersion, PackageReferenceKind referenceKind)
-	{
-		var sourceGroup = ProjectReferenceEvaluator.MatchProjectGroup(config.ProjectGroups, sourceProjectName);
-		var sourceGroupName = sourceGroup.HasValue ? sourceGroup.Value.Name : null;
-		if (config.RequireRecognizedProjects && sourceGroup is null)
-		{
-			var unrecognizedResult = new PackageReferenceEvaluation(
-				false,
-				$"source project '{sourceProjectName}' is not assigned to a configured ProjectGroup",
-				null,
-				null,
-				null);
+    public static PackageReferenceEvaluation Evaluate(ProjectArchitectureConfig config, string sourceProjectName, string packageId, string packageVersion, PackageReferenceKind referenceKind)
+    {
+        var sourceGroup = ProjectReferenceEvaluator.MatchProjectGroup(config.ProjectGroups, sourceProjectName);
+        var sourceGroupName = sourceGroup.HasValue ? sourceGroup.Value.Name : null;
+        if (config.RequireRecognizedProjects && sourceGroup is null)
+        {
+            var unrecognizedResult = new PackageReferenceEvaluation(
+                false,
+                $"source project '{sourceProjectName}' is not assigned to a configured ProjectGroup",
+                null,
+                null,
+                null);
 
-			return unrecognizedResult;
-		}
+            return unrecognizedResult;
+        }
 
-		if (sourceGroup is null)
-		{
-			var unmatchedResult = new PackageReferenceEvaluation(true, string.Empty, null, null, null);
+        if (sourceGroup is null)
+        {
+            var unmatchedResult = new PackageReferenceEvaluation(true, string.Empty, null, null, null);
 
-			return unmatchedResult;
-		}
+            return unmatchedResult;
+        }
 
-		foreach (var policy in config.PackagePolicies)
-		{
-			if (!string.Equals(policy.ProjectGroup, sourceGroupName, StringComparison.Ordinal))
-			{
-				continue;
-			}
+        foreach (var policy in config.PackagePolicies)
+        {
+            if (!string.Equals(policy.ProjectGroup, sourceGroupName, StringComparison.Ordinal))
+            {
+                continue;
+            }
 
-			if (referenceKind == PackageReferenceKind.Transitive && !policy.IncludeTransitive)
-			{
-				continue;
-			}
+            if (referenceKind == PackageReferenceKind.Transitive && !policy.IncludeTransitive)
+            {
+                continue;
+            }
 
-			foreach (var forbiddenMatcher in policy.ForbiddenMatchers)
-			{
-				if (!forbiddenMatcher.Matches(packageId))
-				{
-					continue;
-				}
+            foreach (var forbiddenMatcher in policy.ForbiddenMatchers)
+            {
+                if (!forbiddenMatcher.Matches(packageId))
+                {
+                    continue;
+                }
 
-				var forbiddenResult = new PackageReferenceEvaluation(
-					false,
-					$"the package matches a Forbidden policy for project group '{sourceGroupName}'",
-					policy,
-					forbiddenMatcher,
-					sourceGroupName);
+                var forbiddenResult = new PackageReferenceEvaluation(
+                    false,
+                    $"the package matches a Forbidden policy for project group '{sourceGroupName}'",
+                    policy,
+                    forbiddenMatcher,
+                    sourceGroupName);
 
-				return forbiddenResult;
-			}
+                return forbiddenResult;
+            }
 
-			if (!policy.AllowedMatchers.IsDefaultOrEmpty)
-			{
-				var allowedMatcher = policy.AllowedMatchers.FirstOrDefault(matcher => matcher.Matches(packageId));
-				if (allowedMatcher.Equals(default(ReferenceIdentityMatcher)))
-				{
-					var allowlistResult = new PackageReferenceEvaluation(
-						false,
-						$"the package does not match the Allowed package list for project group '{sourceGroupName}'",
-						policy,
-						null,
-						sourceGroupName);
+            if (!policy.AllowedMatchers.IsDefaultOrEmpty)
+            {
+                var allowedMatcher = policy.AllowedMatchers.FirstOrDefault(matcher => matcher.Matches(packageId));
+                if (allowedMatcher.Equals(default(ReferenceIdentityMatcher)))
+                {
+                    var allowlistResult = new PackageReferenceEvaluation(
+                        false,
+                        $"the package does not match the Allowed package list for project group '{sourceGroupName}'",
+                        policy,
+                        null,
+                        sourceGroupName);
 
-					return allowlistResult;
-				}
-			}
-		}
+                    return allowlistResult;
+                }
+            }
+        }
 
-		var result = new PackageReferenceEvaluation(true, string.Empty, null, null, sourceGroupName);
+        var result = new PackageReferenceEvaluation(true, string.Empty, null, null, sourceGroupName);
 
-		return result;
-	}
+        return result;
+    }
 }

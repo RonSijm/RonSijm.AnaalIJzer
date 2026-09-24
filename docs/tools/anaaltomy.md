@@ -86,11 +86,36 @@ anaaltomy chart --database .\build\Artifacts\statistics.db --output-directory .\
 anaaltomy chart --database .\build\Artifacts\statistics.db --output-directory .\build\Artifacts\charts --trend --dimension DependencySite --bucket Local
 ```
 
-`trend` lists the stored value for one dimension/bucket over commit time. `commits` filters that stream to commits where the stored count changed. `compare` prints the bucket-by-bucket delta between two stored commit scans. These history queries use the most recently completed repository/scan-definition history in the database, so measurements collected with different compiler options are never silently combined.
+The query commands answer different questions:
 
-`export` writes the latest summary as JSON, CSV, or Markdown. `export-database` materializes the full SQLite-shaped store as one file per table: `SchemaVersion`, `Repository`, `GitCommit`, `GitCommitParent`, `ScanDefinition`, `CommitScan`, `ProjectScan`, `Measurement`, `GroupedMeasurement`, and `ScanFailure`. SQLite remains the canonical source of truth; these files are portable snapshots for reporting, inspection, or downstream tooling.
+- `trend`: how did one dimension/bucket change over commit time?
+- `commits`: at which commits did that stored count actually change?
+- `compare`: what is the bucket-by-bucket difference between two stored commit scans?
 
-`chart` creates deterministic PNG reports. Without `--trend`, it creates a breakdown from the latest scan; without `--dimension`, it writes one horizontal bar chart for every populated measurement dimension: type kinds, dependency sites, type accessibility, member accessibility, and member kinds. Each breakdown title names its scanned project, solution, or folder, such as `Anaaltomy Dependency Site breakdown of 'Azure.Storage.Blobs'`. Add `--group` to render grouped breakdowns from the latest scan, such as member accessibility grouped by member kind. Use `--group-by <dimension>` to request an explicit grouping dimension. Use `--trend --dimension <dimension> --bucket <bucket>` to render a line chart across the stored Git-history points for one measurement. The SQLite database remains the source of truth; PNG files are portable report artifacts.
+They use the most recently completed repository/scan-definition history in the database. Measurements collected with different compiler options are never quietly combined into one very confident graph.
+
+The export commands are deliberately separate:
+
+- `export` writes the latest summary as JSON, CSV, or Markdown.
+- `export-database` writes the full SQLite-shaped store as one file per table:
+  - `SchemaVersion`, `Repository`, `GitCommit`, and `GitCommitParent`;
+  - `ScanDefinition`, `CommitScan`, and `ProjectScan`;
+  - `Measurement`, `GroupedMeasurement`, and `ScanFailure`.
+
+SQLite remains the source of truth. The exported files are portable snapshots for reporting, inspection, or downstream tooling.
+
+`chart` creates deterministic PNG reports:
+
+- Without `--trend`, it uses the latest scan.
+- Without `--dimension`, it writes one horizontal bar chart for every populated dimension.
+  - Type kinds, dependency sites, type accessibility, member accessibility, and member kinds each get their own chart.
+- Every title names the scanned project, solution, or folder.
+  - For example: `Anaaltomy Dependency Site breakdown of 'Azure.Storage.Blobs'`.
+- `--group` creates a grouped breakdown from the latest scan.
+  - Use `--group-by <dimension>` to choose the grouping dimension explicitly.
+- `--trend --dimension <dimension> --bucket <bucket>` creates a line chart across stored Git-history points.
+
+The database remains authoritative. PNG files are the part you can put in a report without asking its readers to query SQLite first.
 
 An exported JSON summary looks like this in principle:
 
@@ -122,7 +147,13 @@ anaaltomy history --repository . --from v0.2.0 --to HEAD --database .\build\Arti
 anaaltomy history --repository . --from-root --first-parent --max-commits 50 --database .\build\Artifacts\statistics.db
 ```
 
-Use either `--from-root` or `--from <revision>`; the tool rejects an unbounded accidental history scan. `--first-parent` follows the primary integration path, while the default includes every reachable commit in topological order. Merge commits are scanned as their resulting source tree and retain both parent links in SQLite.
+History selection is explicit:
+
+- Use either `--from-root` or `--from <revision>`.
+  - The tool rejects an unbounded accidental history scan.
+- Add `--first-parent` to follow the primary integration path.
+- Without it, Anaaltomy scans every reachable commit in topological order.
+- Merge commits are scanned as their resulting source tree and retain both parent links in SQLite.
 
 Historical scans default to `--restore-mode always`, because an isolated worktree may not have restored assets. They can be resumed:
 

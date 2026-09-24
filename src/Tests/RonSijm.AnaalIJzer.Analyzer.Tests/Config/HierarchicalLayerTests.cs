@@ -5,32 +5,32 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Config;
 
 public sealed class HierarchicalLayerTests
 {
-	[Fact]
-	public async Task CrossBoundaryDependency_PassesEveryConfiguredGate()
-	{
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(CrossBoundarySource, CreateCrossBoundaryConfig());
+    [Fact]
+    public async Task CrossBoundaryDependency_PassesEveryConfiguredGate()
+    {
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(CrossBoundarySource, CreateCrossBoundaryConfig());
 
-		diagnostics.Should().BeEmpty();
-	}
+        diagnostics.Should().BeEmpty();
+    }
 
-	[Theory]
-	[InlineData("outer", "root boundary")]
-	[InlineData("egress", "boundary 'Ordering'")]
-	[InlineData("ingress", "boundary 'Billing'")]
-	public async Task CrossBoundaryDependency_ReportsFirstMissingGate(string missingGate, string expectedBoundary)
-	{
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(CrossBoundarySource, CreateCrossBoundaryConfig(missingGate));
+    [Theory]
+    [InlineData("outer", "root boundary")]
+    [InlineData("egress", "boundary 'Ordering'")]
+    [InlineData("ingress", "boundary 'Billing'")]
+    public async Task CrossBoundaryDependency_ReportsFirstMissingGate(string missingGate, string expectedBoundary)
+    {
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(CrossBoundarySource, CreateCrossBoundaryConfig(missingGate));
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Subject;
-		diagnostic.GetMessage().Should().Contain(expectedBoundary);
-		diagnostic.GetMessage().Should().Contain("Ordering/Application");
-		diagnostic.GetMessage().Should().Contain("Billing/Contracts");
-	}
+        var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Subject;
+        diagnostic.GetMessage().Should().Contain(expectedBoundary);
+        diagnostic.GetMessage().Should().Contain("Ordering/Application");
+        diagnostic.GetMessage().Should().Contain("Billing/Contracts");
+    }
 
-	[Fact]
-	public async Task InternalDependency_IsCheckedAtSharedBoundary()
-	{
-		const string source = """
+    [Fact]
+    public async Task InternalDependency_IsCheckedAtSharedBoundary()
+    {
+        const string source = """
 		                      namespace Shop.Ordering.Application
 		                      {
 		                          public class PlaceOrderService(Shop.Ordering.Repository.OrderRepository repository) { }
@@ -41,18 +41,18 @@ public sealed class HierarchicalLayerTests
 		                      }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateCrossBoundaryConfig());
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateCrossBoundaryConfig());
 
-		diagnostics.Should().BeEmpty();
-	}
+        diagnostics.Should().BeEmpty();
+    }
 
-	[Fact]
-	public async Task DifferentChildrenOfSameBoundary_DoNotReportSameLayer()
-	{
-		var config = CreateCrossBoundaryConfig().Replace(
-			"""<AllowedDependency from="Application" to="Repository" />""",
-			string.Empty);
-		const string source = """
+    [Fact]
+    public async Task DifferentChildrenOfSameBoundary_DoNotReportSameLayer()
+    {
+        var config = CreateCrossBoundaryConfig().Replace(
+            """<AllowedDependency from="Application" to="Repository" />""",
+            string.Empty);
+        const string source = """
 		                      namespace Shop.Ordering.Application
 		                      {
 		                          public class PlaceOrderService(Shop.Ordering.Repository.OrderRepository repository) { }
@@ -63,16 +63,16 @@ public sealed class HierarchicalLayerTests
 		                      }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed);
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.DependencyPeerScope);
-	}
+        diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed);
+        diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.DependencyPeerScope);
+    }
 
-	[Fact]
-	public async Task SameDeepestChild_ReportsSameLayer()
-	{
-		const string source = """
+    [Fact]
+    public async Task SameDeepestChild_ReportsSameLayer()
+    {
+        const string source = """
 		                      namespace Shop.Ordering.Application
 		                      {
 		                          public class PrepareOrderService { }
@@ -80,16 +80,16 @@ public sealed class HierarchicalLayerTests
 		                      }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateCrossBoundaryConfig());
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateCrossBoundaryConfig());
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyPeerScope).Subject;
-		diagnostic.GetMessage().Should().Contain("Ordering/Application");
-	}
+        var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyPeerScope).Subject;
+        diagnostic.GetMessage().Should().Contain("Ordering/Application");
+    }
 
-	[Fact]
-	public async Task ParentMatcher_ClassifiesTypesThatMatchNoChild()
-	{
-		const string config = """
+    [Fact]
+    public async Task ParentMatcher_ClassifiesTypesThatMatchNoChild()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Layer name="Ordering">
 		                          <Namespace startsWith="Shop.Ordering" />
@@ -98,7 +98,7 @@ public sealed class HierarchicalLayerTests
 		                        </Layer>
 		                      </ArchitecturalLevels>
 		                      """;
-		const string source = """
+        const string source = """
 		                      namespace Shop.Ordering
 		                      {
 		                          public class OrderModule(Shop.Ordering.Application.PlaceOrderService service) { }
@@ -109,15 +109,15 @@ public sealed class HierarchicalLayerTests
 		                      }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().BeEmpty();
-	}
+        diagnostics.Should().BeEmpty();
+    }
 
-	[Fact]
-	public async Task MatcherlessParent_DerivesMembershipFromChildren()
-	{
-		const string config = """
+    [Fact]
+    public async Task MatcherlessParent_DerivesMembershipFromChildren()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Layer name="Commerce">
 		                          <Layer name="Ordering"><Class typeName="PlaceOrderService" /></Layer>
@@ -126,36 +126,36 @@ public sealed class HierarchicalLayerTests
 		                        </Layer>
 		                      </ArchitecturalLevels>
 		                      """;
-		const string source = """
+        const string source = """
 		                      public class InvoiceContract { }
 		                      public class PlaceOrderService(InvoiceContract contract) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().BeEmpty();
-	}
+        diagnostics.Should().BeEmpty();
+    }
 
-	[Fact]
-	public async Task OuterBlockedRule_CannotBeOverriddenByInnerAllowances()
-	{
-		var config = CreateCrossBoundaryConfig().Replace(
-			"""<AllowedDependency from="Ordering" to="Billing" />""",
-			"""
+    [Fact]
+    public async Task OuterBlockedRule_CannotBeOverriddenByInnerAllowances()
+    {
+        var config = CreateCrossBoundaryConfig().Replace(
+            """<AllowedDependency from="Ordering" to="Billing" />""",
+            """
 			  <AllowedDependency from="Ordering" to="Billing" />
 			  <BlockedDependency from="Ordering" to="Billing" />
 			""");
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(CrossBoundarySource, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(CrossBoundarySource, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Subject;
-		diagnostic.GetMessage().Should().Contain("explicitly blocks");
-	}
+        var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Subject;
+        diagnostic.GetMessage().Should().Contain("explicitly blocks");
+    }
 
-	[Fact]
-	public async Task ReverseOuterGate_ReportsWrongDirection()
-	{
-		const string source = """
+    [Fact]
+    public async Task ReverseOuterGate_ReportsWrongDirection()
+    {
+        const string source = """
 		                      namespace Shop.Ordering.Application
 		                      {
 		                          public class PlaceOrderService { }
@@ -166,60 +166,60 @@ public sealed class HierarchicalLayerTests
 		                      }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateCrossBoundaryConfig());
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateCrossBoundaryConfig());
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyReverseDirection);
-	}
+        diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyReverseDirection);
+    }
 
-	[Fact]
-	public async Task SiteFilters_MustPassAtEveryGate()
-	{
-		var config = CreateCrossBoundaryConfig().Replace(
-			"""<AllowedDependency from="Application" to="/Billing/Contracts" />""",
-			"""<AllowedDependency from="Application" to="/Billing/Contracts" allowedSites="Local" />""");
+    [Fact]
+    public async Task SiteFilters_MustPassAtEveryGate()
+    {
+        var config = CreateCrossBoundaryConfig().Replace(
+            """<AllowedDependency from="Application" to="/Billing/Contracts" />""",
+            """<AllowedDependency from="Application" to="/Billing/Contracts" allowedSites="Local" />""");
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(CrossBoundarySource, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(CrossBoundarySource, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Subject;
-		diagnostic.GetMessage().Should().Contain("allowedSites does not include Constructor");
-		diagnostic.GetMessage().Should().Contain("boundary 'Ordering'");
-	}
+        var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Subject;
+        diagnostic.GetMessage().Should().Contain("allowedSites does not include Constructor");
+        diagnostic.GetMessage().Should().Contain("boundary 'Ordering'");
+    }
 
-	[Fact]
-	public async Task Wildcards_AreScopedToTheirBoundaryGate()
-	{
-		var config = CreateCrossBoundaryConfig()
-			.Replace("""<AllowedDependency from="Application" to="/Billing/Contracts" />""", """<AllowedDependency from="Application" to="*" />""")
-			.Replace("""<AllowedDependency from="/Ordering/Application" to="Contracts" />""", """<AllowedDependency from="*" to="Contracts" />""");
+    [Fact]
+    public async Task Wildcards_AreScopedToTheirBoundaryGate()
+    {
+        var config = CreateCrossBoundaryConfig()
+            .Replace("""<AllowedDependency from="Application" to="/Billing/Contracts" />""", """<AllowedDependency from="Application" to="*" />""")
+            .Replace("""<AllowedDependency from="/Ordering/Application" to="Contracts" />""", """<AllowedDependency from="*" to="Contracts" />""");
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(CrossBoundarySource, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(CrossBoundarySource, config);
 
-		diagnostics.Should().BeEmpty();
-	}
+        diagnostics.Should().BeEmpty();
+    }
 
-	[Fact]
-	public async Task CascadingDependency_DefaultsToStrictNestedBoundary()
-	{
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(FrameworkDependencySource, CreateFrameworkBoundaryConfig());
+    [Fact]
+    public async Task CascadingDependency_DefaultsToStrictNestedBoundary()
+    {
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(FrameworkDependencySource, CreateFrameworkBoundaryConfig());
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Subject;
-		diagnostic.GetMessage().Should().Contain("boundary 'Application'");
-	}
+        var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Subject;
+        diagnostic.GetMessage().Should().Contain("boundary 'Application'");
+    }
 
-	[Fact]
-	public async Task CascadingDependency_RootWildcardAllowsDescendantBoundary()
-	{
-		var config = CreateFrameworkBoundaryConfig("""<AllowedDependency from="*" to="Framework" appliesToDescendants="true" />""");
+    [Fact]
+    public async Task CascadingDependency_RootWildcardAllowsDescendantBoundary()
+    {
+        var config = CreateFrameworkBoundaryConfig("""<AllowedDependency from="*" to="Framework" appliesToDescendants="true" />""");
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(FrameworkDependencySource, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(FrameworkDependencySource, config);
 
-		diagnostics.Should().BeEmpty();
-	}
+        diagnostics.Should().BeEmpty();
+    }
 
-	[Fact]
-	public async Task CascadingDependency_ScopedCascadeDoesNotApplyToUnrelatedParent()
-	{
-		const string source = """
+    [Fact]
+    public async Task CascadingDependency_ScopedCascadeDoesNotApplyToUnrelatedParent()
+    {
+        const string source = """
 		                      namespace Platform
 		                      {
 		                          public class FrameworkToken { }
@@ -239,7 +239,7 @@ public sealed class HierarchicalLayerTests
 		                          }
 		                      }
 		                      """;
-		const string config = """
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Layer name="Application">
 		                          <Namespace startsWith="App" />
@@ -256,72 +256,72 @@ public sealed class HierarchicalLayerTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Subject;
-		diagnostic.GetMessage().Should().Contain("DataAbstraction/Contracts").And.Contain("boundary 'DataAbstraction'");
-	}
+        var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Subject;
+        diagnostic.GetMessage().Should().Contain("DataAbstraction/Contracts").And.Contain("boundary 'DataAbstraction'");
+    }
 
-	[Fact]
-	public async Task CascadingDependency_SiteFiltersAreEnforced()
-	{
-		var config = CreateFrameworkBoundaryConfig("""<AllowedDependency from="*" to="Framework" allowedSites="MethodReturn" appliesToDescendants="true" />""");
+    [Fact]
+    public async Task CascadingDependency_SiteFiltersAreEnforced()
+    {
+        var config = CreateFrameworkBoundaryConfig("""<AllowedDependency from="*" to="Framework" allowedSites="MethodReturn" appliesToDescendants="true" />""");
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(FrameworkDependencySource, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(FrameworkDependencySource, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Subject;
-		diagnostic.GetMessage().Should().Contain("allowedSites does not include Constructor");
-	}
+        var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Subject;
+        diagnostic.GetMessage().Should().Contain("allowedSites does not include Constructor");
+    }
 
-	[Fact]
-	public async Task CascadingDependency_LocalBlockedRuleDeniesCascadedAllowedRule()
-	{
-		var config = CreateFrameworkBoundaryConfig(
-			"""<AllowedDependency from="*" to="Framework" appliesToDescendants="true" />""",
-			"""<BlockedDependency from="Contracts" to="/Framework" />""");
+    [Fact]
+    public async Task CascadingDependency_LocalBlockedRuleDeniesCascadedAllowedRule()
+    {
+        var config = CreateFrameworkBoundaryConfig(
+            """<AllowedDependency from="*" to="Framework" appliesToDescendants="true" />""",
+            """<BlockedDependency from="Contracts" to="/Framework" />""");
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(FrameworkDependencySource, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(FrameworkDependencySource, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Subject;
-		diagnostic.GetMessage().Should().Contain("explicitly blocks").And.Contain("boundary 'Application'");
-	}
+        var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Subject;
+        diagnostic.GetMessage().Should().Contain("explicitly blocks").And.Contain("boundary 'Application'");
+    }
 
-	[Fact]
-	public async Task CascadingDependency_CascadedBlockedRuleCannotBeOverriddenLocally()
-	{
-		var config = CreateFrameworkBoundaryConfig(
-			"""
+    [Fact]
+    public async Task CascadingDependency_CascadedBlockedRuleCannotBeOverriddenLocally()
+    {
+        var config = CreateFrameworkBoundaryConfig(
+            """
 			<AllowedDependency from="*" to="Framework" appliesToDescendants="true" />
 			<BlockedDependency from="Application" to="Framework" appliesToDescendants="true" />
 			""",
-			"""<AllowedDependency from="Contracts" to="/Framework" />""");
+            """<AllowedDependency from="Contracts" to="/Framework" />""");
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(FrameworkDependencySource, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(FrameworkDependencySource, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Subject;
-		diagnostic.GetMessage().Should().Contain("explicitly blocks");
-	}
+        var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Subject;
+        diagnostic.GetMessage().Should().Contain("explicitly blocks");
+    }
 
-	[Fact]
-	public async Task CascadingDependency_ReverseCascadedRuleReportsWrongDirection()
-	{
-		var config = CreateFrameworkBoundaryConfig(
-			"""
+    [Fact]
+    public async Task CascadingDependency_ReverseCascadedRuleReportsWrongDirection()
+    {
+        var config = CreateFrameworkBoundaryConfig(
+            """
 			<AllowedDependency from="Application" to="Framework" />
 			<AllowedDependency from="Framework" to="Application" appliesToDescendants="true" />
 			""");
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(FrameworkDependencySource, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(FrameworkDependencySource, config);
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyReverseDirection);
-	}
+        diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyReverseDirection);
+    }
 
-	private static string CreateCrossBoundaryConfig(string? missingGate = null)
-	{
-		var outer = missingGate == "outer" ? string.Empty : """<AllowedDependency from="Ordering" to="Billing" />""";
-		var egress = missingGate == "egress" ? string.Empty : """<AllowedDependency from="Application" to="/Billing/Contracts" />""";
-		var ingress = missingGate == "ingress" ? string.Empty : """<AllowedDependency from="/Ordering/Application" to="Contracts" />""";
-		return $$"""
+    private static string CreateCrossBoundaryConfig(string? missingGate = null)
+    {
+        var outer = missingGate == "outer" ? string.Empty : """<AllowedDependency from="Ordering" to="Billing" />""";
+        var egress = missingGate == "egress" ? string.Empty : """<AllowedDependency from="Application" to="/Billing/Contracts" />""";
+        var ingress = missingGate == "ingress" ? string.Empty : """<AllowedDependency from="/Ordering/Application" to="Contracts" />""";
+        return $$"""
 		          <ArchitecturalLevels>
 		            <Layer name="Ordering">
 		              <Namespace startsWith="Shop.Ordering" />
@@ -339,11 +339,11 @@ public sealed class HierarchicalLayerTests
 		            {{outer}}
 		          </ArchitecturalLevels>
 		          """;
-	}
+    }
 
-	private static string CreateFrameworkBoundaryConfig(string rootRules = """<AllowedDependency from="*" to="Framework" />""", string applicationRules = "")
-	{
-		return $$"""
+    private static string CreateFrameworkBoundaryConfig(string rootRules = """<AllowedDependency from="*" to="Framework" />""", string applicationRules = "")
+    {
+        return $$"""
 		         <ArchitecturalLevels>
 		           <Layer name="Application">
 		             <Namespace startsWith="App" />
@@ -356,7 +356,7 @@ public sealed class HierarchicalLayerTests
 		           {{rootRules}}
 		         </ArchitecturalLevels>
 		         """;
-	}
+    }
 
     private const string CrossBoundarySource = """
                                                namespace Shop.Billing.Contracts
@@ -369,7 +369,7 @@ public sealed class HierarchicalLayerTests
                                                }
                                                """;
 
-	private const string FrameworkDependencySource = """
+    private const string FrameworkDependencySource = """
 	                                                 namespace Platform
 	                                                 {
 	                                                     public class FrameworkToken { }

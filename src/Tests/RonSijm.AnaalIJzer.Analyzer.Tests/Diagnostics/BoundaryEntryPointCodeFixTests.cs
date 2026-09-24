@@ -5,10 +5,10 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Diagnostics;
 
 public sealed class BoundaryEntryPointCodeFixTests
 {
-	[Fact]
-	public async Task BoundaryEntryPointViolation_AddsLayerEntryPoint()
-	{
-		const string config = """
+    [Fact]
+    public async Task BoundaryEntryPointViolation_AddsLayerEntryPoint()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Presentation">
 			    <Class endsWith="Controller" />
@@ -28,7 +28,7 @@ public sealed class BoundaryEntryPointCodeFixTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			namespace Shop.Ordering.Implementation
 			{
 			    public class CandyOrderingService { }
@@ -37,19 +37,19 @@ public sealed class BoundaryEntryPointCodeFixTests
 			public class CandyController(Shop.Ordering.Implementation.CandyOrderingService service) { }
 			""";
 
-		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
-			source,
-			config,
-			ArchitecturalDiagnosticIds.BoundaryEntryPlacement,
-			"Add entry point 'Implementation' to boundary 'Ordering'");
+        var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
+            source,
+            config,
+            ArchitecturalDiagnosticIds.BoundaryEntryPlacement,
+            "Add entry point 'Implementation' to boundary 'Ordering'");
 
-		updatedConfig.Should().Contain("""<EntryPoint layer="Implementation" />""");
-	}
+        updatedConfig.Should().Contain("""<EntryPoint layer="Implementation" />""");
+    }
 
-	[Fact]
-	public async Task BoundaryEntryPointViolation_RemovesBlockedSite()
-	{
-		const string config = """
+    [Fact]
+    public async Task BoundaryEntryPointViolation_RemovesBlockedSite()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Presentation">
 			    <Class endsWith="Controller" />
@@ -66,7 +66,7 @@ public sealed class BoundaryEntryPointCodeFixTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			namespace Shop.Ordering.Contracts
 			{
 			    public class PlaceCandyContract { }
@@ -75,19 +75,19 @@ public sealed class BoundaryEntryPointCodeFixTests
 			public class CandyController(Shop.Ordering.Contracts.PlaceCandyContract contract) { }
 			""";
 
-		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
-			source,
-			config,
-			ArchitecturalDiagnosticIds.BoundaryEntryPlacement,
-			"Remove site 'Constructor' from blocked entry point for 'Ordering/Contracts'");
+        var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
+            source,
+            config,
+            ArchitecturalDiagnosticIds.BoundaryEntryPlacement,
+            "Remove site 'Constructor' from blocked entry point for 'Ordering/Contracts'");
 
-		updatedConfig.Should().NotContain("blockedSites=\"Constructor\"");
-	}
+        updatedConfig.Should().NotContain("blockedSites=\"Constructor\"");
+    }
 
-	[Fact]
-	public async Task BoundaryEntryPointViolation_InlineSettings_UpdatesAssemblyMetadata()
-	{
-		const string source = """"
+    [Fact]
+    public async Task BoundaryEntryPointViolation_InlineSettings_UpdatesAssemblyMetadata()
+    {
+        const string source = """"
 			using System.Reflection;
 
 			[assembly: AssemblyMetadata("AnaalIJzerSettings", """
@@ -119,11 +119,11 @@ public sealed class BoundaryEntryPointCodeFixTests
 			public class CandyController(Shop.Ordering.Implementation.CandyOrderingService service) { }
 			"""";
 
-		var updatedSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
-			source,
-			ArchitecturalDiagnosticIds.BoundaryEntryPlacement,
-			"Add entry point 'Implementation' to boundary 'Ordering'");
+        var updatedSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
+            source,
+            ArchitecturalDiagnosticIds.BoundaryEntryPlacement,
+            "Add entry point 'Implementation' to boundary 'Ordering'");
 
-		updatedSource.Should().Contain("""<EntryPoint layer="Implementation" />""");
-	}
+        updatedSource.Should().Contain("""<EntryPoint layer="Implementation" />""");
+    }
 }

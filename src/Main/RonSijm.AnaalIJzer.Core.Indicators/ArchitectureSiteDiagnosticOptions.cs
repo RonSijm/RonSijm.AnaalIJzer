@@ -42,64 +42,64 @@ public sealed class ArchitectureSiteDiagnosticOptions(
     public bool ShowStaticMemberSiteDiagnostics { get; } = showStaticMemberSiteDiagnostics;
 
     public bool AnyEnabled
-	{
-		get
-		{
-			var result = ShowConstructorSiteDiagnostics
-			             || ShowMethodSiteDiagnostics
-			             || ShowMethodReturnSiteDiagnostics
-			             || ShowFieldSiteDiagnostics
-			             || ShowPropertySiteDiagnostics
-			             || ShowLocalSiteDiagnostics
-			             || ShowNewSiteDiagnostics
-			             || ShowGenericInvocationSiteDiagnostics
-			             || ShowGenericArgumentSiteDiagnostics
-			             || ShowInheritanceSiteDiagnostics
-			             || ShowInterfaceImplementationSiteDiagnostics
-			             || ShowAttributeSiteDiagnostics
-			             || ShowStaticMemberSiteDiagnostics;
+    {
+        get
+        {
+            var result = ShowConstructorSiteDiagnostics
+                         || ShowMethodSiteDiagnostics
+                         || ShowMethodReturnSiteDiagnostics
+                         || ShowFieldSiteDiagnostics
+                         || ShowPropertySiteDiagnostics
+                         || ShowLocalSiteDiagnostics
+                         || ShowNewSiteDiagnostics
+                         || ShowGenericInvocationSiteDiagnostics
+                         || ShowGenericArgumentSiteDiagnostics
+                         || ShowInheritanceSiteDiagnostics
+                         || ShowInterfaceImplementationSiteDiagnostics
+                         || ShowAttributeSiteDiagnostics
+                         || ShowStaticMemberSiteDiagnostics;
 
-			return result;
-		}
-	}
+            return result;
+        }
+    }
 
-	public static ArchitectureSiteDiagnosticOptions None { get; } = new();
+    public static ArchitectureSiteDiagnosticOptions None { get; } = new();
 
-	public static ArchitectureSiteDiagnosticOptions All { get; } = new(
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true);
+    public static ArchitectureSiteDiagnosticOptions All { get; } = new(
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true);
 
-	public bool IsEnabled(string site)
-	{
-		var result = site switch
-		{
-			ArchitectureDependencySites.Constructor => ShowConstructorSiteDiagnostics,
-			ArchitectureDependencySites.Method => ShowMethodSiteDiagnostics,
-			ArchitectureDependencySites.MethodReturn => ShowMethodReturnSiteDiagnostics,
-			ArchitectureDependencySites.Field => ShowFieldSiteDiagnostics,
-			ArchitectureDependencySites.Property => ShowPropertySiteDiagnostics,
-			ArchitectureDependencySites.Local => ShowLocalSiteDiagnostics,
-			ArchitectureDependencySites.New => ShowNewSiteDiagnostics,
-			ArchitectureDependencySites.GenericInvocation => ShowGenericInvocationSiteDiagnostics,
-			ArchitectureDependencySites.GenericArgument => ShowGenericArgumentSiteDiagnostics,
-			ArchitectureDependencySites.Inheritance => ShowInheritanceSiteDiagnostics,
-			ArchitectureDependencySites.InterfaceImplementation => ShowInterfaceImplementationSiteDiagnostics,
-			ArchitectureDependencySites.Attribute => ShowAttributeSiteDiagnostics,
-			ArchitectureDependencySites.StaticMember => ShowStaticMemberSiteDiagnostics,
-			_ => false
-		};
+    public bool IsEnabled(string site)
+    {
+        var result = site switch
+        {
+            ArchitectureDependencySites.Constructor => ShowConstructorSiteDiagnostics,
+            ArchitectureDependencySites.Method => ShowMethodSiteDiagnostics,
+            ArchitectureDependencySites.MethodReturn => ShowMethodReturnSiteDiagnostics,
+            ArchitectureDependencySites.Field => ShowFieldSiteDiagnostics,
+            ArchitectureDependencySites.Property => ShowPropertySiteDiagnostics,
+            ArchitectureDependencySites.Local => ShowLocalSiteDiagnostics,
+            ArchitectureDependencySites.New => ShowNewSiteDiagnostics,
+            ArchitectureDependencySites.GenericInvocation => ShowGenericInvocationSiteDiagnostics,
+            ArchitectureDependencySites.GenericArgument => ShowGenericArgumentSiteDiagnostics,
+            ArchitectureDependencySites.Inheritance => ShowInheritanceSiteDiagnostics,
+            ArchitectureDependencySites.InterfaceImplementation => ShowInterfaceImplementationSiteDiagnostics,
+            ArchitectureDependencySites.Attribute => ShowAttributeSiteDiagnostics,
+            ArchitectureDependencySites.StaticMember => ShowStaticMemberSiteDiagnostics,
+            _ => false
+        };
 
-		return result;
-	}
+        return result;
+    }
 }

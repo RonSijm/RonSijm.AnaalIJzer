@@ -4,7 +4,7 @@ namespace RonSijm.AnaalIJzer.EditorRuntime.Editor.Snapshots;
 
 public static partial class ArchitectureEditorSnapshotService
 {
-	private readonly struct CallerInfo(string typeName, string layerPath, LayerMatch match)
+    private readonly struct CallerInfo(string typeName, string layerPath, LayerMatch match)
     {
         public string TypeName { get; } = typeName;
 

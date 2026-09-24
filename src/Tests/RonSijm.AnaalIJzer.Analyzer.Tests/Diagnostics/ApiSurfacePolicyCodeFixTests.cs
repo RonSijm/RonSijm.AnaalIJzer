@@ -5,10 +5,10 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Diagnostics;
 
 public sealed class ApiSurfacePolicyCodeFixTests
 {
-	[Fact]
-	public async Task ApiSurfaceLeakage_AddsAllowedLayer()
-	{
-		const string config = """
+    [Fact]
+    public async Task ApiSurfaceLeakage_AddsAllowedLayer()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Class endsWith="Service" />
@@ -24,7 +24,7 @@ public sealed class ApiSurfacePolicyCodeFixTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			public class LollyQueryable { }
 			public class CandyService
 			{
@@ -32,19 +32,19 @@ public sealed class ApiSurfacePolicyCodeFixTests
 			}
 			""";
 
-		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
-			source,
-			config,
-			ArchitecturalDiagnosticIds.ApiExposureNotAllowed,
-			"Allow API surface to expose '/QuerySurface'");
+        var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
+            source,
+            config,
+            ArchitecturalDiagnosticIds.ApiExposureNotAllowed,
+            "Allow API surface to expose '/QuerySurface'");
 
-		updatedConfig.Should().Contain("""<AllowedLayer path="/QuerySurface" />""");
-	}
+        updatedConfig.Should().Contain("""<AllowedLayer path="/QuerySurface" />""");
+    }
 
-	[Fact]
-	public async Task ApiSurfaceLeakage_RepairsExistingAllowedLayerSiteFilter()
-	{
-		const string config = """
+    [Fact]
+    public async Task ApiSurfaceLeakage_RepairsExistingAllowedLayerSiteFilter()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Class endsWith="Service" />
@@ -61,7 +61,7 @@ public sealed class ApiSurfacePolicyCodeFixTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			public class LollyQueryable { }
 			public class CandyService
 			{
@@ -69,19 +69,19 @@ public sealed class ApiSurfacePolicyCodeFixTests
 			}
 			""";
 
-		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
-			source,
-			config,
-			ArchitecturalDiagnosticIds.ApiExposureNotAllowed,
-			"Add site 'MethodReturn' to ApiSurface AllowedLayer '/QuerySurface'");
+        var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
+            source,
+            config,
+            ArchitecturalDiagnosticIds.ApiExposureNotAllowed,
+            "Add site 'MethodReturn' to ApiSurface AllowedLayer '/QuerySurface'");
 
-		updatedConfig.Should().Contain("allowedSites=\"MethodReturn, Property\"");
-	}
+        updatedConfig.Should().Contain("allowedSites=\"MethodReturn, Property\"");
+    }
 
-	[Fact]
-	public async Task ApiSurfaceLeakage_DisablesRequireRecognizedTypes()
-	{
-		const string config = """
+    [Fact]
+    public async Task ApiSurfaceLeakage_DisablesRequireRecognizedTypes()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Class endsWith="Service" />
@@ -94,7 +94,7 @@ public sealed class ApiSurfacePolicyCodeFixTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			public class UnknownType { }
 			public class CandyService
 			{
@@ -102,19 +102,19 @@ public sealed class ApiSurfacePolicyCodeFixTests
 			}
 			""";
 
-		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
-			source,
-			config,
-			ArchitecturalDiagnosticIds.ApiExposureNotAllowed,
-			"Disable requireRecognizedTypes on ApiSurface");
+        var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
+            source,
+            config,
+            ArchitecturalDiagnosticIds.ApiExposureNotAllowed,
+            "Disable requireRecognizedTypes on ApiSurface");
 
-		updatedConfig.Should().Contain("requireRecognizedTypes=\"false\"");
-	}
+        updatedConfig.Should().Contain("requireRecognizedTypes=\"false\"");
+    }
 
-	[Fact]
-	public async Task ApiSurfaceLeakage_RelaxesBlockedLayerAtCurrentSite()
-	{
-		const string config = """
+    [Fact]
+    public async Task ApiSurfaceLeakage_RelaxesBlockedLayerAtCurrentSite()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Class endsWith="Service" />
@@ -127,7 +127,7 @@ public sealed class ApiSurfacePolicyCodeFixTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			public class LollyQueryable { }
 			public class CandyService
 			{
@@ -135,19 +135,19 @@ public sealed class ApiSurfacePolicyCodeFixTests
 			}
 			""";
 
-		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
-			source,
-			config,
-			ArchitecturalDiagnosticIds.ApiExposureNotAllowed,
-			"Stop blocking API-surface layer '/QuerySurface' at MethodReturn");
+        var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
+            source,
+            config,
+            ArchitecturalDiagnosticIds.ApiExposureNotAllowed,
+            "Stop blocking API-surface layer '/QuerySurface' at MethodReturn");
 
-		updatedConfig.Should().Contain("allowedSites=\"Property\"");
-	}
+        updatedConfig.Should().Contain("allowedSites=\"Property\"");
+    }
 
-	[Fact]
-	public async Task ForbiddenTransitiveExposure_AddsAllowedLayer()
-	{
-		const string config = """
+    [Fact]
+    public async Task ForbiddenTransitiveExposure_AddsAllowedLayer()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Class endsWith="Service" />
@@ -164,7 +164,7 @@ public sealed class ApiSurfacePolicyCodeFixTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			public class LollyQueryable { }
 			public class LollyProjection
 			{
@@ -176,19 +176,19 @@ public sealed class ApiSurfacePolicyCodeFixTests
 			}
 			""";
 
-		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
-			source,
-			config,
-			ArchitecturalDiagnosticIds.ApiTransitiveExposure,
-			"Allow API surface to expose '/QuerySurface'");
+        var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
+            source,
+            config,
+            ArchitecturalDiagnosticIds.ApiTransitiveExposure,
+            "Allow API surface to expose '/QuerySurface'");
 
-		updatedConfig.Should().Contain("""<AllowedLayer path="/QuerySurface" />""");
-	}
+        updatedConfig.Should().Contain("""<AllowedLayer path="/QuerySurface" />""");
+    }
 
-	[Fact]
-	public async Task ApiSurfaceLeakage_InlineSettings_UpdatesAssemblyMetadata()
-	{
-		const string source = """"
+    [Fact]
+    public async Task ApiSurfaceLeakage_InlineSettings_UpdatesAssemblyMetadata()
+    {
+        const string source = """"
 			using System.Reflection;
 
 			[assembly: AssemblyMetadata("AnaalIJzerSettings", """
@@ -215,11 +215,11 @@ public sealed class ApiSurfacePolicyCodeFixTests
 			}
 			"""";
 
-		var updatedSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
-			source,
-			ArchitecturalDiagnosticIds.ApiExposureNotAllowed,
-			"Allow API surface to expose '/QuerySurface'");
+        var updatedSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
+            source,
+            ArchitecturalDiagnosticIds.ApiExposureNotAllowed,
+            "Allow API surface to expose '/QuerySurface'");
 
-		updatedSource.Should().Contain("""<AllowedLayer path="/QuerySurface" />""");
-	}
+        updatedSource.Should().Contain("""<AllowedLayer path="/QuerySurface" />""");
+    }
 }

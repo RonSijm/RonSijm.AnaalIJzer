@@ -6,109 +6,109 @@ namespace RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
 
 public static partial class ArchitectureConfigurationEditService
 {
-	public static ArchitectureLayerInspectionResult GetLayerDetails(ArchitectureLayerEditHandle handle)
-	{
-		var result = ArchitectureConfigurationInspectionReader.GetLayerDetails(handle);
+    public static ArchitectureLayerInspectionResult GetLayerDetails(ArchitectureLayerEditHandle handle)
+    {
+        var result = ArchitectureConfigurationInspectionReader.GetLayerDetails(handle);
 
-		return result;
-	}
+        return result;
+    }
 
-	public static ArchitectureRootInspectionResult GetRootDetails(ArchitectureConfigurationSource source)
-	{
-		var result = ArchitectureConfigurationInspectionReader.GetRootDetails(source);
+    public static ArchitectureRootInspectionResult GetRootDetails(ArchitectureConfigurationSource source)
+    {
+        var result = ArchitectureConfigurationInspectionReader.GetRootDetails(source);
 
-		return result;
-	}
+        return result;
+    }
 
-	public static ArchitectureConfigurationEditResult SetRootSettings(
-		ArchitectureConfigurationSource source,
-		string? description,
-		string? requireRecognizedDependencies,
-		bool enforceAcyclic,
-		bool enableReport,
-		string? reportPath,
-		bool enableDocumentation,
-		string? documentationPath,
-		bool enableExceptionPolicy,
-		bool requireExceptionReason,
-		bool requireExceptionOwner,
-		bool requireExceptionExpiresOn,
-		int exceptionWarnBeforeDays,
-		string? exceptionPolicyDescription)
-	{
-		var result = ArchitectureConfigurationEditResult.FromDocumentResult(
-			ArchitectureRootEditor.SetRootSettings(
-				source,
-				description,
-				requireRecognizedDependencies,
-				enforceAcyclic,
-				enableReport,
-				reportPath,
-				enableDocumentation,
-				documentationPath,
-				enableExceptionPolicy,
-				requireExceptionReason,
-				requireExceptionOwner,
-				requireExceptionExpiresOn,
-				exceptionWarnBeforeDays,
-				exceptionPolicyDescription));
+    public static ArchitectureConfigurationEditResult SetRootSettings(
+        ArchitectureConfigurationSource source,
+        string? description,
+        string? requireRecognizedDependencies,
+        bool enforceAcyclic,
+        bool enableReport,
+        string? reportPath,
+        bool enableDocumentation,
+        string? documentationPath,
+        bool enableExceptionPolicy,
+        bool requireExceptionReason,
+        bool requireExceptionOwner,
+        bool requireExceptionExpiresOn,
+        int exceptionWarnBeforeDays,
+        string? exceptionPolicyDescription)
+    {
+        var result = ArchitectureConfigurationEditResult.FromDocumentResult(
+            ArchitectureRootEditor.SetRootSettings(
+                source,
+                description,
+                requireRecognizedDependencies,
+                enforceAcyclic,
+                enableReport,
+                reportPath,
+                enableDocumentation,
+                documentationPath,
+                enableExceptionPolicy,
+                requireExceptionReason,
+                requireExceptionOwner,
+                requireExceptionExpiresOn,
+                exceptionWarnBeforeDays,
+                exceptionPolicyDescription));
 
-		return result;
-	}
+        return result;
+    }
 
-	public static ArchitectureConfigurationEditResult SetConfigurationElementAttributes(ArchitectureConfigurationElementEditHandle handle, ImmutableDictionary<string, string> attributes)
-	{
-		var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureConfigurationElementEditor.SetConfigurationElementAttributes(handle, attributes));
+    public static ArchitectureConfigurationEditResult SetConfigurationElementAttributes(ArchitectureConfigurationElementEditHandle handle, ImmutableDictionary<string, string> attributes)
+    {
+        var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureConfigurationElementEditor.SetConfigurationElementAttributes(handle, attributes));
 
-		return result;
-	}
+        return result;
+    }
 
-	public static ArchitectureConfigurationEditResult SetConfigurationElementChildren(ArchitectureConfigurationElementEditHandle handle, string childXml)
-	{
-		var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureConfigurationElementEditor.SetConfigurationElementChildren(handle, childXml));
+    public static ArchitectureConfigurationEditResult SetConfigurationElementChildren(ArchitectureConfigurationElementEditHandle handle, string childXml)
+    {
+        var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureConfigurationElementEditor.SetConfigurationElementChildren(handle, childXml));
 
-		return result;
-	}
+        return result;
+    }
 
-	public static ArchitectureConfigurationEditResult RemoveConfigurationElement(ArchitectureConfigurationElementEditHandle handle)
-	{
-		var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureConfigurationElementEditor.RemoveConfigurationElement(handle));
+    public static ArchitectureConfigurationEditResult RemoveConfigurationElement(ArchitectureConfigurationElementEditHandle handle)
+    {
+        var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureConfigurationElementEditor.RemoveConfigurationElement(handle));
 
-		return result;
-	}
+        return result;
+    }
 
-	public static ArchitectureConfigurationEditResult AddGlobalTypePolicyMatcher(ArchitectureConfigurationSource source, string policyKind, string elementKind, ImmutableDictionary<string, string> attributes)
-	{
-		var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureRootEditor.AddGlobalTypePolicyMatcher(source, policyKind, elementKind, attributes));
+    public static ArchitectureConfigurationEditResult AddGlobalTypePolicyMatcher(ArchitectureConfigurationSource source, string policyKind, string elementKind, ImmutableDictionary<string, string> attributes)
+    {
+        var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureRootEditor.AddGlobalTypePolicyMatcher(source, policyKind, elementKind, attributes));
 
-		return result;
-	}
+        return result;
+    }
 
-	public static ArchitectureConfigurationEditResult AddInclude(ArchitectureConfigurationSource source, string path)
-	{
-		var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureRootEditor.AddInclude(source, path));
+    public static ArchitectureConfigurationEditResult AddInclude(ArchitectureConfigurationSource source, string path, bool allowNoMatches)
+    {
+        var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureRootEditor.AddInclude(source, path, allowNoMatches));
 
-		return result;
-	}
+        return result;
+    }
 
-	public static ArchitectureConfigurationEditResult AddOperationContracts(ArchitectureConfigurationSource source, ImmutableDictionary<string, string> attributes, string childXml)
-	{
-		var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureRootEditor.AddOperationContracts(source, attributes, childXml));
+    public static ArchitectureConfigurationEditResult AddOperationContracts(ArchitectureConfigurationSource source, ImmutableDictionary<string, string> attributes, string childXml)
+    {
+        var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureRootEditor.AddOperationContracts(source, attributes, childXml));
 
-		return result;
-	}
+        return result;
+    }
 
-	public static ArchitectureConfigurationEditResult AddAssemblyAttributePolicy(ArchitectureConfigurationSource source, ImmutableDictionary<string, string> attributes, string childXml)
-	{
-		var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureRootEditor.AddAssemblyAttributePolicy(source, attributes, childXml));
+    public static ArchitectureConfigurationEditResult AddAssemblyAttributePolicy(ArchitectureConfigurationSource source, ImmutableDictionary<string, string> attributes, string childXml)
+    {
+        var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureRootEditor.AddAssemblyAttributePolicy(source, attributes, childXml));
 
-		return result;
-	}
+        return result;
+    }
 
-	public static ArchitectureConfigurationEditResult AddNamespaceHierarchyPolicy(ArchitectureConfigurationSource source, ImmutableDictionary<string, string> attributes, string childXml)
-	{
-		var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureRootEditor.AddNamespaceHierarchyPolicy(source, attributes, childXml));
+    public static ArchitectureConfigurationEditResult AddNamespaceHierarchyPolicy(ArchitectureConfigurationSource source, ImmutableDictionary<string, string> attributes, string childXml)
+    {
+        var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureRootEditor.AddNamespaceHierarchyPolicy(source, attributes, childXml));
 
-		return result;
-	}
+        return result;
+    }
 }

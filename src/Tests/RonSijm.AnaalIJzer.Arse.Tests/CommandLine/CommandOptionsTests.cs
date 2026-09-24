@@ -4,51 +4,51 @@ namespace RonSijm.AnaalIJzer.Arse.Tests.CommandLine;
 
 public sealed class CommandOptionsTests
 {
-	[Fact]
-	public void Parse_AcceptsSolutionInput()
-	{
-		var options = CommandOptions.Parse(["--solution", "src\\MyApp.slnx", "--output", "docs\\architecture-health.md"]);
-		var request = options.ToRequest(ApplicationOperationKind.Inspect);
+    [Fact]
+    public void Parse_AcceptsSolutionInput()
+    {
+        var options = CommandOptions.Parse(["--solution", "src\\MyApp.slnx", "--output", "docs\\architecture-health.md"]);
+        var request = options.ToRequest(ApplicationOperationKind.Inspect);
 
-		request.InputKind.Should().Be(ApplicationInputKind.Solution);
-		request.InputPaths.Should().Equal("src\\MyApp.slnx");
-		request.OutputPath.Should().Be("docs\\architecture-health.md");
-	}
+        request.InputKind.Should().Be(ApplicationInputKind.Solution);
+        request.InputPaths.Should().Equal("src\\MyApp.slnx");
+        request.OutputPath.Should().Be("docs\\architecture-health.md");
+    }
 
-	[Fact]
-	public void Parse_AcceptsSolutionTopologyEnforcement()
-	{
-		var options = CommandOptions.Parse(["--solution", "src\\MyApp.slnx", "--enforce-topology"]);
-		var request = options.ToRequest(ApplicationOperationKind.Inspect);
+    [Fact]
+    public void Parse_AcceptsSolutionTopologyEnforcement()
+    {
+        var options = CommandOptions.Parse(["--solution", "src\\MyApp.slnx", "--enforce-topology"]);
+        var request = options.ToRequest(ApplicationOperationKind.Inspect);
 
-		request.EnforceSolutionTopology.Should().BeTrue();
-	}
+        request.EnforceSolutionTopology.Should().BeTrue();
+    }
 
-	[Fact]
-	public void Parse_AcceptsHelpfulGenerationStrategy()
-	{
-		var options = CommandOptions.Parse(["--project", "src\\MyApp.csproj", "--strategy", "helpful"]);
-		var request = options.ToRequest(ApplicationOperationKind.GenerateConfig);
+    [Fact]
+    public void Parse_AcceptsHelpfulGenerationStrategy()
+    {
+        var options = CommandOptions.Parse(["--project", "src\\MyApp.csproj", "--strategy", "helpful"]);
+        var request = options.ToRequest(ApplicationOperationKind.GenerateConfig);
 
-		request.GenerationOptions.Strategy.Should().Be(ConfigurationGenerationStrategy.Helpful);
-	}
+        request.GenerationOptions.Strategy.Should().Be(ConfigurationGenerationStrategy.Helpful);
+    }
 
-	[Fact]
-	public void Parse_AcceptsFixIdForApplyFix()
-	{
-		var options = CommandOptions.Parse(["--solution", "src\\MyApp.slnx", "--fix-id", "fix-123"]);
-		var request = options.ToRequest(ApplicationOperationKind.ApplyFix);
+    [Fact]
+    public void Parse_AcceptsFixIdForApplyFix()
+    {
+        var options = CommandOptions.Parse(["--solution", "src\\MyApp.slnx", "--fix-id", "fix-123"]);
+        var request = options.ToRequest(ApplicationOperationKind.ApplyFix);
 
-		request.InputKind.Should().Be(ApplicationInputKind.Solution);
-		request.InputPaths.Should().Equal("src\\MyApp.slnx");
-		request.FixId.Should().Be("fix-123");
-	}
+        request.InputKind.Should().Be(ApplicationInputKind.Solution);
+        request.InputPaths.Should().Equal("src\\MyApp.slnx");
+        request.FixId.Should().Be("fix-123");
+    }
 
-	[Fact]
-	public void Parse_RejectsMixedProjectAndSolutionInput()
-	{
-		var parse = () => CommandOptions.Parse(["--project", "src\\MyApp.csproj", "--solution", "src\\MyApp.slnx"]);
+    [Fact]
+    public void Parse_RejectsMixedProjectAndSolutionInput()
+    {
+        var parse = () => CommandOptions.Parse(["--project", "src\\MyApp.csproj", "--solution", "src\\MyApp.slnx"]);
 
-		parse.Should().Throw<Exception>().WithMessage("Use only one input option.");
-	}
+        parse.Should().Throw<Exception>().WithMessage("Use only one input option.");
+    }
 }

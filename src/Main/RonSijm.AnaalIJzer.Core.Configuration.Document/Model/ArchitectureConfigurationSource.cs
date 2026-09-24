@@ -7,14 +7,14 @@ public sealed class ArchitectureConfigurationSource(ArchitectureConfigurationSou
     public string Path { get; } = path;
 
     public bool CanEdit
-	{
-		get
-		{
-			var result = Kind != ArchitectureConfigurationSourceKind.None && !string.IsNullOrWhiteSpace(Path);
+    {
+        get
+        {
+            var result = Kind != ArchitectureConfigurationSourceKind.None && !string.IsNullOrWhiteSpace(Path);
 
-			return result;
-		}
-	}
+            return result;
+        }
+    }
 
-	public static ArchitectureConfigurationSource None { get; } = new(ArchitectureConfigurationSourceKind.None, string.Empty);
+    public static ArchitectureConfigurationSource None { get; } = new(ArchitectureConfigurationSourceKind.None, string.Empty);
 }

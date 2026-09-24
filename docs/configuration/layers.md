@@ -14,7 +14,15 @@ Layers are logical roles, not project or folder labels. `Architecture.anl` delib
 </Layer>
 ```
 
-Each `<Class>`, `<Namespace>`, or `<Assembly>` child is a matcher. Attributes on one element are combined with **AND**; separate elements are alternatives combined with **OR**. A type is assigned to a layer when every condition on any one matcher element succeeds. Exact class-name matchers take precedence; remaining matchers are evaluated in configuration order, so the order of your alternatives is a decision whether or not you meant to make one.
+Each `<Class>`, `<Namespace>`, or `<Assembly>` child is a matcher:
+
+- attributes on one element are combined with **AND**;
+- separate matcher elements are alternatives combined with **OR**;
+- a type enters the layer when every condition on any one matcher succeeds;
+- exact class-name matchers take precedence;
+- remaining matchers are evaluated in configuration order.
+
+That last point means the order of your alternatives is a decision whether or not you meant to make one.
 
 For `<Class>`, you can also add inner declaration matchers when the type itself is not enough and you want to describe a recognizable shape:
 
@@ -188,7 +196,7 @@ Supported declaration matcher elements are:
 | `<Operator>` | A user-defined operator |
 | `<Conversion>` | An implicit or explicit conversion operator |
 
-This makes "shape" rules possible without inventing a special-purpose matcher per scenario:
+Nested declaration matchers support structural "shape" rules with the same matcher vocabulary:
 
 ```xml
 <Class endsWith="Request">

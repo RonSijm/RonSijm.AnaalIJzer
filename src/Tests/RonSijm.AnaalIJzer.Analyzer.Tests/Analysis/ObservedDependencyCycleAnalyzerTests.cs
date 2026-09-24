@@ -5,10 +5,10 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Analysis;
 
 public sealed class ObservedDependencyCycleAnalyzerTests
 {
-	[Fact]
-	public async Task ObservedCycle_WhenDisabled_DoesNotReportArch018()
-	{
-		const string config = """
+    [Fact]
+    public async Task ObservedCycle_WhenDisabled_DoesNotReportArch018()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Layer name="Ordering">
 		                          <Namespace startsWith="Shop.Ordering" />
@@ -21,15 +21,15 @@ public sealed class ObservedDependencyCycleAnalyzerTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(GetObservedCycleSource(), config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(GetObservedCycleSource(), config);
 
-		diagnostics.Should().NotContain(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.DependencyCycle);
-	}
+        diagnostics.Should().NotContain(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.DependencyCycle);
+    }
 
-	[Fact]
-	public async Task ObservedCycle_WhenEnabled_ReportsArch018()
-	{
-		const string config = """
+    [Fact]
+    public async Task ObservedCycle_WhenEnabled_ReportsArch018()
+    {
+        const string config = """
 		                      <ArchitecturalLevels enforceObservedAcyclic="true">
 		                        <Layer name="Ordering">
 		                          <Namespace startsWith="Shop.Ordering" />
@@ -42,20 +42,20 @@ public sealed class ObservedDependencyCycleAnalyzerTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(GetObservedCycleSource(), config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(GetObservedCycleSource(), config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyCycle).Subject;
-		diagnostic.GetMessage().Should().Contain("Notifications -> Ordering -> Notifications");
-		diagnostic.Properties[ArchitecturalDiagnostics.PropertyCycleLayers].Should().Be("Notifications|Ordering");
-		diagnostic.Properties[ArchitecturalDiagnostics.PropertyCycleLength].Should().Be("2");
-		diagnostic.Properties[ArchitecturalDiagnostics.PropertyObservedSites].Should().Be("Constructor");
-		diagnostic.Properties[ArchitecturalDiagnostics.PropertyCycleScope].Should().Be("Project");
-	}
+        var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.DependencyCycle).Subject;
+        diagnostic.GetMessage().Should().Contain("Notifications -> Ordering -> Notifications");
+        diagnostic.Properties[ArchitecturalDiagnostics.PropertyCycleLayers].Should().Be("Notifications|Ordering");
+        diagnostic.Properties[ArchitecturalDiagnostics.PropertyCycleLength].Should().Be("2");
+        diagnostic.Properties[ArchitecturalDiagnostics.PropertyObservedSites].Should().Be("Constructor");
+        diagnostic.Properties[ArchitecturalDiagnostics.PropertyCycleScope].Should().Be("Project");
+    }
 
-	[Fact]
-	public async Task ObservedCycle_InvalidBoolean_ReportsArch006()
-	{
-		const string config = """
+    [Fact]
+    public async Task ObservedCycle_InvalidBoolean_ReportsArch006()
+    {
+        const string config = """
 		                      <ArchitecturalLevels enforceObservedAcyclic="maybe">
 		                        <Layer name="Ordering">
 		                          <Namespace startsWith="Shop.Ordering" />
@@ -68,15 +68,15 @@ public sealed class ObservedDependencyCycleAnalyzerTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(GetObservedCycleSource(), config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(GetObservedCycleSource(), config);
 
-		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid && item.GetMessage().Contains("enforceObservedAcyclic", StringComparison.Ordinal));
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.DependencyCycle);
-	}
+        diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid && item.GetMessage(null).Contains("enforceObservedAcyclic", StringComparison.Ordinal));
+        diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.DependencyCycle);
+    }
 
-	private static string GetObservedCycleSource()
-	{
-		var result = """
+    private static string GetObservedCycleSource()
+    {
+        var result = """
 		             namespace Shop.Ordering
 		             {
 		                 using Shop.Notifications;
@@ -98,6 +98,6 @@ public sealed class ObservedDependencyCycleAnalyzerTests
 		             }
 		             """;
 
-		return result;
-	}
+        return result;
+    }
 }

@@ -6,46 +6,46 @@ namespace RonSijm.AnaalIJzer.VisualStudio.Editor.LayerIndicators;
 
 internal static class ArchitectureLayerCodeLensText
 {
-	internal static string CreateSummary(ArchitectureLayerIndicator indicator, ArchitectureEditorOptions options)
-	{
-		if (!indicator.IsInLayer)
-		{
-			var unclassifiedResult = "AnaalIJzer layer: not in a configured layer";
+    internal static string CreateSummary(ArchitectureLayerIndicator indicator, ArchitectureEditorOptions options)
+    {
+        if (!indicator.IsInLayer)
+        {
+            var unclassifiedResult = "AnaalIJzer layer: not in a configured layer";
 
-			return unclassifiedResult;
-		}
+            return unclassifiedResult;
+        }
 
-		var inboundCount = CountLayers(indicator.LayersThatCanCallThisLayer, options);
-		var outboundCount = CountLayers(indicator.LayersThisLayerCanCall, options);
-		var result = "AnaalIJzer layer: "
-		             + indicator.LayerPath
-		             + " | called by "
-		             + FormatLayerCount(inboundCount)
-		             + " | can call "
-		             + FormatLayerCount(outboundCount);
+        var inboundCount = CountLayers(indicator.LayersThatCanCallThisLayer, options);
+        var outboundCount = CountLayers(indicator.LayersThisLayerCanCall, options);
+        var result = "AnaalIJzer layer: "
+                     + indicator.LayerPath
+                     + " | called by "
+                     + FormatLayerCount(inboundCount)
+                     + " | can call "
+                     + FormatLayerCount(outboundCount);
 
-		return result;
-	}
+        return result;
+    }
 
-	private static int CountLayers(ImmutableArray<string> layers, ArchitectureEditorOptions options)
-	{
-		var count = layers.Count(layer => options.ShowGlobalLayerRulesInBadges || !IsGlobalLayerRule(layer));
-		var result = count;
+    private static int CountLayers(ImmutableArray<string> layers, ArchitectureEditorOptions options)
+    {
+        var count = layers.Count(layer => options.ShowGlobalLayerRulesInBadges || !IsGlobalLayerRule(layer));
+        var result = count;
 
-		return result;
-	}
+        return result;
+    }
 
-	private static bool IsGlobalLayerRule(string layer)
-	{
-		var result = layer == "*" || layer.StartsWith("* ", StringComparison.Ordinal);
+    private static bool IsGlobalLayerRule(string layer)
+    {
+        var result = layer == "*" || layer.StartsWith("* ", StringComparison.Ordinal);
 
-		return result;
-	}
+        return result;
+    }
 
-	private static string FormatLayerCount(int count)
-	{
-		var result = count == 1 ? "1 layer" : count + " layers";
+    private static string FormatLayerCount(int count)
+    {
+        var result = count == 1 ? "1 layer" : count + " layers";
 
-		return result;
-	}
+        return result;
+    }
 }

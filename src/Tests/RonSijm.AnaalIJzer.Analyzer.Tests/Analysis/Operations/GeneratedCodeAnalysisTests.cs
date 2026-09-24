@@ -7,51 +7,51 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Analysis.Operations;
 
 public sealed class GeneratedCodeAnalysisTests
 {
-	[Fact]
-	public async Task GeneratedSource_IsExcludedByDefault()
-	{
-		var diagnostics = await GetDiagnosticsAsync("Generated_Clock_Kitchen.g.cs", CreateConfig());
+    [Fact]
+    public async Task GeneratedSource_IsExcludedByDefault()
+    {
+        var diagnostics = await GetDiagnosticsAsync("Generated_Clock_Kitchen.g.cs", CreateConfig());
 
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.OperationNotAllowed);
-	}
+        diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.OperationNotAllowed);
+    }
 
-	[Fact]
-	public async Task GeneratedSource_IsAnalyzedWhenIncludeConfiguredPathMatches()
-	{
-		const string generatedCode = """
+    [Fact]
+    public async Task GeneratedSource_IsAnalyzedWhenIncludeConfiguredPathMatches()
+    {
+        const string generatedCode = """
 			<GeneratedCode mode="IncludeConfigured">
 			  <Path endsWith="Generated_Clock_Kitchen.g.cs" />
 			</GeneratedCode>
 			""";
-		var diagnostics = await GetDiagnosticsAsync("Generated_Clock_Kitchen.g.cs", CreateConfig(generatedCode));
+        var diagnostics = await GetDiagnosticsAsync("Generated_Clock_Kitchen.g.cs", CreateConfig(generatedCode));
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.OperationNotAllowed);
-	}
+        diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.OperationNotAllowed);
+    }
 
-	[Fact]
-	public async Task GeneratedSource_IsExcludedWhenConfiguredPathDoesNotMatch()
-	{
-		const string generatedCode = """
+    [Fact]
+    public async Task GeneratedSource_IsExcludedWhenConfiguredPathDoesNotMatch()
+    {
+        const string generatedCode = """
 			<GeneratedCode mode="IncludeConfigured">
 			  <Path endsWith="Generated_Menu_Kitchen.g.cs" />
 			</GeneratedCode>
 			""";
-		var diagnostics = await GetDiagnosticsAsync("Generated_Clock_Kitchen.g.cs", CreateConfig(generatedCode));
+        var diagnostics = await GetDiagnosticsAsync("Generated_Clock_Kitchen.g.cs", CreateConfig(generatedCode));
 
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.OperationNotAllowed);
-	}
+        diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.OperationNotAllowed);
+    }
 
-	[Fact]
-	public async Task OrdinarySource_RemainsAnalyzedWhenGeneratedSourceIsExcluded()
-	{
-		var diagnostics = await GetDiagnosticsAsync("PizzaKitchen.cs", CreateConfig());
+    [Fact]
+    public async Task OrdinarySource_RemainsAnalyzedWhenGeneratedSourceIsExcluded()
+    {
+        var diagnostics = await GetDiagnosticsAsync("PizzaKitchen.cs", CreateConfig());
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.OperationNotAllowed);
-	}
+        diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.OperationNotAllowed);
+    }
 
-	private static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(string sourcePath, string config)
-	{
-		const string source = """
+    private static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(string sourcePath, string config)
+    {
+        const string source = """
 			using System;
 
 			public sealed class PizzaKitchen
@@ -59,17 +59,17 @@ public sealed class GeneratedCodeAnalysisTests
 				public DateTime Prepare() => DateTime.UtcNow;
 			}
 			""";
-		var result = await AnalyzerTestHelper.GetDiagnosticsAsync(
-			[(sourcePath, source)],
-			null,
-			("Architecture.anl", config));
+        var result = await AnalyzerTestHelper.GetDiagnosticsAsync(
+            [(sourcePath, source)],
+            null,
+            ("Architecture.anl", config));
 
-		return result;
-	}
+        return result;
+    }
 
-	private static string CreateConfig(string? generatedCode = null)
-	{
-		var result = $"""
+    private static string CreateConfig(string? generatedCode = null)
+    {
+        var result = $"""
 			<ArchitecturalLevels>
 			  {generatedCode}
 			  <Layer name="Kitchen">
@@ -86,6 +86,6 @@ public sealed class GeneratedCodeAnalysisTests
 			</ArchitecturalLevels>
 			""";
 
-		return result;
-	}
+        return result;
+    }
 }

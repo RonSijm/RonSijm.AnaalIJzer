@@ -2,6 +2,8 @@
 // ARCH_DEP_001: CuriousWaiter skips the Chef layer and grabs ingredients directly.
 // The layer rules and allowed flow come from drop-in .anl files matched by
 // <Include path="*.anl" />.
+// The separate OptionalRules/*.anl include uses allowNoMatches="true", so an
+// empty optional plug-in folder does not make the configuration invalid.
 
 namespace Example.IncludeWildcardSettings;
 

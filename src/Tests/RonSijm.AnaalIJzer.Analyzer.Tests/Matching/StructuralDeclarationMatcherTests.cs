@@ -5,10 +5,10 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Matching;
 
 public sealed class StructuralDeclarationMatcherTests
 {
-	[Fact]
-	public async Task ClassMatcherWithDeclarationMatchers_CanDriveInheritancePolicy()
-	{
-		const string source = """
+    [Fact]
+    public async Task ClassMatcherWithDeclarationMatchers_CanDriveInheritancePolicy()
+    {
+        const string source = """
 			namespace Demo.Requests
 			{
 				public interface IPizzaProvider { }
@@ -43,7 +43,7 @@ public sealed class StructuralDeclarationMatcherTests
 				}
 			}
 			""";
-		const string config = """
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="PizzaProviderRequests">
 			    <Class endsWith="Request">
@@ -58,21 +58,21 @@ public sealed class StructuralDeclarationMatcherTests
 			</ArchitecturalLevels>
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InheritanceNotAllowed).Subject;
-		violation.Properties[ArchitecturalDiagnostics.PropertyDeclaredSymbolName].Should().Be("CreatePizzaRequest");
-		violation.GetMessage().Should().Contain("requires implemented interface IPizzaProvider");
-	}
+        var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InheritanceNotAllowed).Subject;
+        violation.Properties[ArchitecturalDiagnostics.PropertyDeclaredSymbolName].Should().Be("CreatePizzaRequest");
+        violation.GetMessage().Should().Contain("requires implemented interface IPizzaProvider");
+    }
 
-	[Fact]
-	public async Task ExactClassMatcherWithMissingRequiredDeclaration_FallsThroughToLaterMatcher()
-	{
-		const string source = """
+    [Fact]
+    public async Task ExactClassMatcherWithMissingRequiredDeclaration_FallsThroughToLaterMatcher()
+    {
+        const string source = """
 			public sealed class PizzaRequest { }
 			public sealed class Caller(PizzaRequest request) { }
 			""";
-		const string config = """
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Caller">
 			    <Class typeName="Caller" />
@@ -89,15 +89,15 @@ public sealed class StructuralDeclarationMatcherTests
 			</ArchitecturalLevels>
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().BeEmpty();
-	}
+        diagnostics.Should().BeEmpty();
+    }
 
-	[Fact]
-	public async Task MethodDeclarationMatcherWithThrowObservation_CanDriveInheritancePolicy()
-	{
-		const string source = """
+    [Fact]
+    public async Task MethodDeclarationMatcherWithThrowObservation_CanDriveInheritancePolicy()
+    {
+        const string source = """
 			using System;
 			
 			namespace Demo.Deliveries
@@ -121,7 +121,7 @@ public sealed class StructuralDeclarationMatcherTests
 				}
 			}
 			""";
-		const string config = """
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="FallbackServices">
 			    <Class endsWith="Service">
@@ -137,16 +137,16 @@ public sealed class StructuralDeclarationMatcherTests
 			</ArchitecturalLevels>
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InheritanceNotAllowed).Subject;
-		violation.Properties[ArchitecturalDiagnostics.PropertyDeclaredSymbolName].Should().Be("CrashingPizzaDeliveryService");
-	}
+        var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InheritanceNotAllowed).Subject;
+        violation.Properties[ArchitecturalDiagnostics.PropertyDeclaredSymbolName].Should().Be("CrashingPizzaDeliveryService");
+    }
 
-	[Fact]
-	public async Task PropertyDeclarationMatcherWithThrowObservation_CanDriveInheritancePolicy()
-	{
-		const string source = """
+    [Fact]
+    public async Task PropertyDeclarationMatcherWithThrowObservation_CanDriveInheritancePolicy()
+    {
+        const string source = """
 			using System;
 			
 			namespace Demo.Catalogs
@@ -165,7 +165,7 @@ public sealed class StructuralDeclarationMatcherTests
 				}
 			}
 			""";
-		const string config = """
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="GuardedCatalogs">
 			    <Class endsWith="Catalog">
@@ -181,9 +181,9 @@ public sealed class StructuralDeclarationMatcherTests
 			</ArchitecturalLevels>
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InheritanceNotAllowed).Subject;
-		violation.Properties[ArchitecturalDiagnostics.PropertyDeclaredSymbolName].Should().Be("ExplosivePizzaCatalog");
-	}
+        var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InheritanceNotAllowed).Subject;
+        violation.Properties[ArchitecturalDiagnostics.PropertyDeclaredSymbolName].Should().Be("ExplosivePizzaCatalog");
+    }
 }

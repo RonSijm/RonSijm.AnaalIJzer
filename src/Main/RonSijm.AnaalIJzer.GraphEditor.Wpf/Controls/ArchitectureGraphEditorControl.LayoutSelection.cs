@@ -11,82 +11,82 @@ namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
 
 public sealed partial class ArchitectureGraphEditorControl
 {
-	private void EnsureLayoutState(ArchitectureConfigurationSource source)
-	{
-		var sourceKey = ArchitectureGraphLayoutState.CreateSourceKey(source);
-		if (string.Equals(_layoutState.SourceKey, sourceKey, StringComparison.Ordinal))
-		{
-			return;
-		}
+    private void EnsureLayoutState(ArchitectureConfigurationSource source)
+    {
+        var sourceKey = ArchitectureGraphLayoutState.CreateSourceKey(source);
+        if (string.Equals(_layoutState.SourceKey, sourceKey, StringComparison.Ordinal))
+        {
+            return;
+        }
 
-		_layoutState.Save();
-		_layoutState = ArchitectureGraphLayoutState.Load(source, _warningLogger);
-	}
+        _layoutState.Save();
+        _layoutState = ArchitectureGraphLayoutState.Load(source, _warningLogger);
+    }
 
-	private ArchitectureGraphSelection RemapSelection(ArchitectureGraphSelection selection)
-	{
-		var result = selection.Kind switch
-		{
-			ArchitectureGraphSelectionKind.Layer => RemapLayerSelection(selection),
-			ArchitectureGraphSelectionKind.DependencyRule => RemapDependencySelection(selection),
-			_ => ArchitectureGraphSelection.None
-		};
+    private ArchitectureGraphSelection RemapSelection(ArchitectureGraphSelection selection)
+    {
+        var result = selection.Kind switch
+        {
+            ArchitectureGraphSelectionKind.Layer => RemapLayerSelection(selection),
+            ArchitectureGraphSelectionKind.DependencyRule => RemapDependencySelection(selection),
+            _ => ArchitectureGraphSelection.None
+        };
 
-		return result;
-	}
+        return result;
+    }
 
-	private ArchitectureGraphSelection RemapLayerSelection(ArchitectureGraphSelection selection)
-	{
-		var layer = _snapshot.Layers.FirstOrDefault(item => string.Equals(item.Path, selection.LayerHandle.LayerPath, StringComparison.Ordinal));
-		var result = layer is null ? ArchitectureGraphSelection.None : ArchitectureGraphSelection.ForLayer(layer.EditHandle);
+    private ArchitectureGraphSelection RemapLayerSelection(ArchitectureGraphSelection selection)
+    {
+        var layer = _snapshot.Layers.FirstOrDefault(item => string.Equals(item.Path, selection.LayerHandle.LayerPath, StringComparison.Ordinal));
+        var result = layer is null ? ArchitectureGraphSelection.None : ArchitectureGraphSelection.ForLayer(layer.EditHandle);
 
-		return result;
-	}
+        return result;
+    }
 
-	private ArchitectureGraphSelection RemapDependencySelection(ArchitectureGraphSelection selection)
-	{
-		var handle = selection.DependencyHandle;
-		var rule = _snapshot.Rules.FirstOrDefault(item =>
-			string.Equals(item.Kind, handle.ElementKind, StringComparison.Ordinal)
-			&& string.Equals(item.ScopePath, handle.ScopePath, StringComparison.Ordinal)
-			&& string.Equals(item.ConfiguredFrom, handle.ConfiguredFrom, StringComparison.Ordinal)
-			&& string.Equals(item.ConfiguredTo, handle.ConfiguredTo, StringComparison.Ordinal)
-			&& (handle.XmlLineNumber <= 0 || item.XmlLineNumber == handle.XmlLineNumber));
-		rule ??= _snapshot.Rules.FirstOrDefault(item =>
-			string.Equals(item.Kind, handle.ElementKind, StringComparison.Ordinal)
-			&& string.Equals(item.ScopePath, handle.ScopePath, StringComparison.Ordinal)
-			&& string.Equals(item.ConfiguredFrom, handle.ConfiguredFrom, StringComparison.Ordinal)
-			&& string.Equals(item.ConfiguredTo, handle.ConfiguredTo, StringComparison.Ordinal));
-		var result = rule is null ? ArchitectureGraphSelection.None : ArchitectureGraphSelection.ForDependency(rule.EditHandle);
+    private ArchitectureGraphSelection RemapDependencySelection(ArchitectureGraphSelection selection)
+    {
+        var handle = selection.DependencyHandle;
+        var rule = _snapshot.Rules.FirstOrDefault(item =>
+            string.Equals(item.Kind, handle.ElementKind, StringComparison.Ordinal)
+            && string.Equals(item.ScopePath, handle.ScopePath, StringComparison.Ordinal)
+            && string.Equals(item.ConfiguredFrom, handle.ConfiguredFrom, StringComparison.Ordinal)
+            && string.Equals(item.ConfiguredTo, handle.ConfiguredTo, StringComparison.Ordinal)
+            && (handle.XmlLineNumber <= 0 || item.XmlLineNumber == handle.XmlLineNumber));
+        rule ??= _snapshot.Rules.FirstOrDefault(item =>
+            string.Equals(item.Kind, handle.ElementKind, StringComparison.Ordinal)
+            && string.Equals(item.ScopePath, handle.ScopePath, StringComparison.Ordinal)
+            && string.Equals(item.ConfiguredFrom, handle.ConfiguredFrom, StringComparison.Ordinal)
+            && string.Equals(item.ConfiguredTo, handle.ConfiguredTo, StringComparison.Ordinal));
+        var result = rule is null ? ArchitectureGraphSelection.None : ArchitectureGraphSelection.ForDependency(rule.EditHandle);
 
-		return result;
-	}
+        return result;
+    }
 
-	private static void AddSection(StackPanel panel, string title, IReadOnlyCollection<string> rows)
-	{
-		if (rows.Count == 0)
-		{
-			return;
-		}
+    private static void AddSection(StackPanel panel, string title, IReadOnlyCollection<string> rows)
+    {
+        if (rows.Count == 0)
+        {
+            return;
+        }
 
-		panel.Children.Add(new TextBlock { Text = title, Margin = new Thickness(0, 6, 0, 2), FontWeight = FontWeights.SemiBold });
-		foreach (var row in rows)
-		{
-			panel.Children.Add(new TextBlock { Text = row, TextWrapping = TextWrapping.Wrap, FontFamily = new FontFamily("Consolas"), Margin = new Thickness(0, 1, 0, 1) });
-		}
-	}
+        panel.Children.Add(new TextBlock { Text = title, Margin = new Thickness(0, 6, 0, 2), FontWeight = FontWeights.SemiBold });
+        foreach (var row in rows)
+        {
+            panel.Children.Add(new TextBlock { Text = row, TextWrapping = TextWrapping.Wrap, FontFamily = new FontFamily("Consolas"), Margin = new Thickness(0, 1, 0, 1) });
+        }
+    }
 
-	private static string FormatActiveLayers(ArchitectureGraphSnapshot snapshot)
-	{
-		var result = snapshot.ActiveLayerPaths.Length == 0 ? "none" : string.Join(", ", snapshot.ActiveLayerPaths);
+    private static string FormatActiveLayers(ArchitectureGraphSnapshot snapshot)
+    {
+        var result = snapshot.ActiveLayerPaths.Length == 0 ? "none" : string.Join(", ", snapshot.ActiveLayerPaths);
 
-		return result;
-	}
+        return result;
+    }
 
-	private static string CreateGroupKey(ArchitectureGraphGroupViewModel group)
-	{
-		var result = group.Title;
+    private static string CreateGroupKey(ArchitectureGraphGroupViewModel group)
+    {
+        var result = group.Title;
 
-		return result;
-	}
+        return result;
+    }
 }

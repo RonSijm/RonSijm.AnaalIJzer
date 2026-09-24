@@ -33,7 +33,7 @@ Typical fixes:
 
 There is no automatic code fix. The policy tells AnaalIJzer which return expression is unacceptable; it cannot know which domain-specific value, result type, variable name, fallback, or exception behavior is correct. The analyzer recognises the rejected shape; it has no opinion about what your domain should say instead.
 
-**Focused examples:** [`Example.Arch_RET_001.ExplicitNullReturn`](../../Examples/Diagnostics/RET/Example.Arch_RET_001.ExplicitNullReturn), [`Example.Arch_RET_001.AnnotatedInvocationReturn`](../../Examples/Diagnostics/RET/Example.Arch_RET_001.AnnotatedInvocationReturn), [`Example.Arch_RET_001.ConfiguredLiteralReturns`](../../Examples/Diagnostics/RET/Example.Arch_RET_001.ConfiguredLiteralReturns), [`Example.Arch_RET_001.OnlyIdentifierReturn`](../../Examples/Diagnostics/RET/Example.Arch_RET_001.OnlyIdentifierReturn), and [`Example.GlobalReturnValuePolicy`](../../Examples/Features/Example.GlobalReturnValuePolicy).
+**Focused examples:** [`Example.Arch_RET_001.ExplicitNullReturn`](../../Examples/Diagnostics/RET/Example.Arch_RET_001.ExplicitNullReturn), [`Example.Arch_RET_001.AnnotatedInvocationReturn`](../../Examples/Diagnostics/RET/Example.Arch_RET_001.AnnotatedInvocationReturn), [`Example.Arch_RET_001.ConfiguredLiteralReturns`](../../Examples/Diagnostics/RET/Example.Arch_RET_001.ConfiguredLiteralReturns), [`Example.Arch_RET_001.DirectInvocationReturn`](../../Examples/Diagnostics/RET/Example.Arch_RET_001.DirectInvocationReturn), and [`Example.GlobalReturnValuePolicy`](../../Examples/Features/Example.GlobalReturnValuePolicy).
 
 #### Real-world uses
 

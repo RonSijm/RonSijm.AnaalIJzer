@@ -5,61 +5,61 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Analysis;
 
 public sealed class GenericTypeArgumentTests
 {
-	[Fact]
-	public async Task GenericTypeArgument_LazyOfRepository_FromController_ReportsARCH_DEP_001()
-	{
-		const string source = """
+    [Fact]
+    public async Task GenericTypeArgument_LazyOfRepository_FromController_ReportsARCH_DEP_001()
+    {
+        const string source = """
 		                      using System;
 		                      public interface IPatientRepository { }
 		                      public class OrderController(Lazy<IPatientRepository> repo) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
-		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
-			.Should().ContainSingle()
-			.Which.GetMessage(CultureInfo.InvariantCulture)
-			.Should().Contain("IPatientRepository");
-	}
+        diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
+            .Should().ContainSingle()
+            .Which.GetMessage(CultureInfo.InvariantCulture)
+            .Should().Contain("IPatientRepository");
+    }
 
-	[Fact]
-	public async Task GenericTypeArgument_EnumerableOfRepository_FromController_ReportsARCH_DEP_001()
-	{
-		const string source = """
+    [Fact]
+    public async Task GenericTypeArgument_EnumerableOfRepository_FromController_ReportsARCH_DEP_001()
+    {
+        const string source = """
 		                      using System.Collections.Generic;
 		                      public interface IPatientRepository { }
 		                      public class ReportController(IEnumerable<IPatientRepository> repos) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
-		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
-			.Should().ContainSingle();
-	}
+        diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
+            .Should().ContainSingle();
+    }
 
-	[Fact]
-	public async Task GenericTypeArgument_NestedGenerics_AreUnwrappedRecursively()
-	{
-		const string source = """
+    [Fact]
+    public async Task GenericTypeArgument_NestedGenerics_AreUnwrappedRecursively()
+    {
+        const string source = """
 		                      using System;
 		                      using System.Collections.Generic;
 		                      public interface IPatientRepository { }
 		                      public class AuditController(Lazy<IEnumerable<IPatientRepository>> repos) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
-		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
-			.Should().ContainSingle();
-	}
+        diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
+            .Should().ContainSingle();
+    }
 
-	[Fact]
-	public async Task GenericTypeArgument_SelfReference_IsAllowed()
-	{
-		const string config = """
+    [Fact]
+    public async Task GenericTypeArgument_SelfReference_IsAllowed()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Kitchen" />
@@ -67,20 +67,20 @@ public sealed class GenericTypeArgumentTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public interface ILogger<T> { }
 		                      public class PizzaKitchen(ILogger<PizzaKitchen> log) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().BeEmpty();
-	}
+        diagnostics.Should().BeEmpty();
+    }
 
-	[Fact]
-	public async Task GenericTypeArgument_DuplicateInnerType_ReportsOnlyOnce()
-	{
-		const string config = """
+    [Fact]
+    public async Task GenericTypeArgument_DuplicateInnerType_ReportsOnlyOnce()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Controller">
 		                              <Class endsWith="Controller" />
@@ -91,39 +91,39 @@ public sealed class GenericTypeArgumentTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public class Pair<TFirst, TSecond> { }
 		                      namespace VendorA { public class CheeseRepository { } }
 		                      namespace VendorB { public class CheeseRepository { } }
 		                      public class PizzaController(Pair<VendorA.CheeseRepository, VendorB.CheeseRepository> repositories) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
-			.Should().ContainSingle();
-	}
+        diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
+            .Should().ContainSingle();
+    }
 
-	[Fact]
-	public async Task GenericTypeArgument_AllowedDependency_NoDiagnostic()
-	{
-		// Controller -> Lazy<IPatientManager> is allowed because the inner type maps to Application.
-		const string source = """
+    [Fact]
+    public async Task GenericTypeArgument_AllowedDependency_NoDiagnostic()
+    {
+        // Controller -> Lazy<IPatientManager> is allowed because the inner type maps to Application.
+        const string source = """
 		                      using System;
 		                      public interface IPatientManager { }
 		                      public class PatientController(Lazy<IPatientManager> manager) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
-		diagnostics.Should().BeEmpty();
-	}
+        diagnostics.Should().BeEmpty();
+    }
 
-	[Fact]
-	public async Task GenericTypeArgument_ForbiddenTypeInsideGeneric_ReportsARCH_TYPE_001()
-	{
-		const string config = """
+    [Fact]
+    public async Task GenericTypeArgument_ForbiddenTypeInsideGeneric_ReportsARCH_TYPE_001()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Manager">
 		                              <Class endsWith="Manager" />
@@ -134,27 +134,27 @@ public sealed class GenericTypeArgumentTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      using System;
 		                      public interface IPartnerStore { }
 		                      public class PatientManager(Lazy<IPartnerStore> store) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
-			.Should().ContainSingle()
-			.Which.GetMessage(CultureInfo.InvariantCulture)
-			.Should().Contain("IPartnerStore");
-	}
+        diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
+            .Should().ContainSingle()
+            .Which.GetMessage(CultureInfo.InvariantCulture)
+            .Should().Contain("IPartnerStore");
+    }
 
-	[Fact]
-	public async Task GenericTypeArgument_ForbiddenInsideGeneric_NoRenameProperties()
-	{
-		// A rename code-fix on the parameter would rewrite the outer Lazy, not the inner
-		// IPartnerStore — so no rename metadata should be attached for nested matches.
-		const string config = """
+    [Fact]
+    public async Task GenericTypeArgument_ForbiddenInsideGeneric_NoRenameProperties()
+    {
+        // A rename code-fix on the parameter would rewrite the outer Lazy, not the inner
+        // IPartnerStore — so no rename metadata should be attached for nested matches.
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Manager">
 		                              <Class endsWith="Manager" />
@@ -167,66 +167,66 @@ public sealed class GenericTypeArgumentTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      using System;
 		                      public interface IPartnerStore { }
 		                      public class PatientManager(Lazy<IPartnerStore> store) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var arch003 = diagnostics.First(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed);
-		arch003.Properties.ContainsKey(ArchitecturalDiagnostics.PropertyMatchedSuffix).Should().BeFalse();
-		arch003.Properties.ContainsKey(ArchitecturalDiagnostics.PropertyFixSuffix).Should().BeFalse();
-	}
+        var arch003 = diagnostics.First(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed);
+        arch003.Properties.ContainsKey(ArchitecturalDiagnostics.PropertyMatchedSuffix).Should().BeFalse();
+        arch003.Properties.ContainsKey(ArchitecturalDiagnostics.PropertyFixSuffix).Should().BeFalse();
+    }
 
-	[Fact]
-	public async Task GenericTypeArgument_OuterAndInnerInDifferentLayers_BothReported()
-	{
-		// Outer 'OtherManager' matches Manager (same layer as caller -> ARCH_DEP_005).
-		// Inner 'IPatientController' matches Controller (wrong direction -> ARCH_DEP_004).
-		const string source = """
+    [Fact]
+    public async Task GenericTypeArgument_OuterAndInnerInDifferentLayers_BothReported()
+    {
+        // Outer 'OtherManager' matches Manager (same layer as caller -> ARCH_DEP_005).
+        // Inner 'IPatientController' matches Controller (wrong direction -> ARCH_DEP_004).
+        const string source = """
 		                      using System.Collections.Generic;
 		                      public interface IPatientController { }
 		                      public class OtherManager<T> { }
 		                      public class PatientManager(OtherManager<IPatientController> wrapped) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
-		diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyPeerScope);
-		diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyReverseDirection);
-	}
+        diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyPeerScope);
+        diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyReverseDirection);
+    }
 
-	[Fact]
-	public async Task GenericTypeArgument_RecognitionRequirement_RecognizedThroughInner_NoARCH_DEP_002()
-	{
-		// Outer 'Lazy' is not in any layer, but inner PatientConsentRepository is,
-		// so the parameter has a recognized architectural dependency.
-		const string source = """
+    [Fact]
+    public async Task GenericTypeArgument_RecognitionRequirement_RecognizedThroughInner_NoARCH_DEP_002()
+    {
+        // Outer 'Lazy' is not in any layer, but inner PatientConsentRepository is,
+        // so the parameter has a recognized architectural dependency.
+        const string source = """
 		                      using System;
 		                      public class PatientConsentRepository { }
 		                      public class PatientManager(Lazy<PatientConsentRepository> repo) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.RequireRecognizedDependenciesConfig);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.RequireRecognizedDependenciesConfig);
 
-		diagnostics.Should().BeEmpty();
-	}
+        diagnostics.Should().BeEmpty();
+    }
 
-	[Fact]
-	public async Task GenericTypeArgument_RecognitionRequirement_AllUnrecognized_ReportsARCH_DEP_002Once()
-	{
-		const string source = """
+    [Fact]
+    public async Task GenericTypeArgument_RecognitionRequirement_AllUnrecognized_ReportsARCH_DEP_002Once()
+    {
+        const string source = """
 		                      using System;
 		                      public interface IPartnerStore { }
 		                      public class PatientManager(Lazy<IPartnerStore> store) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.RequireRecognizedDependenciesConfig);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.RequireRecognizedDependenciesConfig);
 
-		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyRequiredMissing)
-			.Should().ContainSingle();
-	}
+        diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyRequiredMissing)
+            .Should().ContainSingle();
+    }
 }

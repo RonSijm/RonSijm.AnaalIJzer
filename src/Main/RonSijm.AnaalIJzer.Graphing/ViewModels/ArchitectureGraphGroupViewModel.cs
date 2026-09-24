@@ -12,8 +12,8 @@ internal sealed class ArchitectureGraphGroupViewModel(
     ImmutableArray<ArchitectureGraphNodeViewModel> nodes = default,
     ImmutableArray<ArchitectureGraphEdgeViewModel> edges = default,
     ArchitectureConfigurationSource? configurationSource = null,
-	ImmutableArray<ArchitectureGraphBoundaryViewModel> boundaries = default,
-	bool isReadOnly = false)
+    ImmutableArray<ArchitectureGraphBoundaryViewModel> boundaries = default,
+    bool isReadOnly = false)
 {
     public string Title { get; } = title;
 
@@ -31,7 +31,7 @@ internal sealed class ArchitectureGraphGroupViewModel(
 
     public ArchitectureConfigurationSource ConfigurationSource { get; } = configurationSource ?? ArchitectureConfigurationSource.None;
 
-	public ImmutableArray<ArchitectureGraphBoundaryViewModel> Boundaries { get; } = boundaries.IsDefault ? ImmutableArray<ArchitectureGraphBoundaryViewModel>.Empty : boundaries;
+    public ImmutableArray<ArchitectureGraphBoundaryViewModel> Boundaries { get; } = boundaries.IsDefault ? ImmutableArray<ArchitectureGraphBoundaryViewModel>.Empty : boundaries;
 
-	public bool IsReadOnly { get; } = isReadOnly;
+    public bool IsReadOnly { get; } = isReadOnly;
 }

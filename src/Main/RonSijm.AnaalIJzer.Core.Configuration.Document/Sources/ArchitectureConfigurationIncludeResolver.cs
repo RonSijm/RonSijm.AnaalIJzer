@@ -1,227 +1,245 @@
 using System.Collections.Immutable;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
 
 namespace RonSijm.AnaalIJzer.Core.Configuration.Document.Sources;
 
 public static class ArchitectureConfigurationIncludeResolver
 {
-	public static ImmutableArray<AdditionalText> ResolveAdditionalFiles(
-		ImmutableArray<AdditionalText> additionalFiles,
-		IReadOnlyDictionary<string, AdditionalText> additionalFileLookup,
-		string configPath,
-		string includePath,
-		bool allowFileNameFallback)
-	{
-		if (string.IsNullOrWhiteSpace(includePath))
-		{
-			return [];
-		}
+    public const string AllowNoMatchesAttributeName = "allowNoMatches";
 
-		if (!HasWildcardPattern(includePath))
-		{
-			var resolvedPath = ArchitectureConfigurationSourceLookup.ResolveRelativePath(includePath, configPath);
-			if (!ArchitectureConfigurationSourceLookup.TryFindIncludedFile(additionalFileLookup, resolvedPath, includePath, allowFileNameFallback, out var includeFile))
-			{
-				return [];
-			}
+    public static ImmutableArray<AdditionalText> ResolveAdditionalFiles(
+        ImmutableArray<AdditionalText> additionalFiles,
+        IReadOnlyDictionary<string, AdditionalText> additionalFileLookup,
+        string configPath,
+        string includePath,
+        bool allowFileNameFallback)
+    {
+        if (string.IsNullOrWhiteSpace(includePath))
+        {
+            return [];
+        }
 
-			return [includeFile];
-		}
+        if (!HasWildcardPattern(includePath))
+        {
+            var resolvedPath = ArchitectureConfigurationSourceLookup.ResolveRelativePath(includePath, configPath);
+            if (!ArchitectureConfigurationSourceLookup.TryFindIncludedFile(additionalFileLookup, resolvedPath, includePath, allowFileNameFallback, out var includeFile))
+            {
+                return [];
+            }
 
-		var matches = ImmutableArray.CreateBuilder<AdditionalText>();
-		var seenPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-		var normalizedConfigPath = ArchitectureConfigurationSourceLookup.NormalizePath(configPath);
-		foreach (var file in additionalFiles.OrderBy(file => ArchitectureConfigurationSourceLookup.NormalizePath(file.Path), StringComparer.OrdinalIgnoreCase))
-		{
-			if (!MatchesIncludePath(configPath, includePath, file.Path))
-			{
-				continue;
-			}
+            return [includeFile];
+        }
 
-			var normalizedPath = ArchitectureConfigurationSourceLookup.NormalizePath(file.Path);
-			if (string.Equals(normalizedPath, normalizedConfigPath, StringComparison.OrdinalIgnoreCase))
-			{
-				continue;
-			}
+        var matches = ImmutableArray.CreateBuilder<AdditionalText>();
+        var seenPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var normalizedConfigPath = ArchitectureConfigurationSourceLookup.NormalizePath(configPath);
+        foreach (var file in additionalFiles.OrderBy(file => ArchitectureConfigurationSourceLookup.NormalizePath(file.Path), StringComparer.OrdinalIgnoreCase))
+        {
+            if (!MatchesIncludePath(configPath, includePath, file.Path))
+            {
+                continue;
+            }
 
-			if (!seenPaths.Add(normalizedPath))
-			{
-				continue;
-			}
+            var normalizedPath = ArchitectureConfigurationSourceLookup.NormalizePath(file.Path);
+            if (string.Equals(normalizedPath, normalizedConfigPath, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
 
-			matches.Add(file);
-		}
+            if (!seenPaths.Add(normalizedPath))
+            {
+                continue;
+            }
 
-		var result = matches.ToImmutable();
+            matches.Add(file);
+        }
 
-		return result;
-	}
+        var result = matches.ToImmutable();
 
-	public static ImmutableArray<string> ResolveFileSystemPaths(string configPath, string includePath)
-	{
-		if (string.IsNullOrWhiteSpace(includePath))
-		{
-			return [];
-		}
+        return result;
+    }
 
-		if (!HasWildcardPattern(includePath))
-		{
-			var resolvedPath = Path.GetFullPath(ArchitectureConfigurationSourceLookup.ResolveRelativePath(includePath, configPath));
-			if (!File.Exists(resolvedPath))
-			{
-				return [];
-			}
+    public static ImmutableArray<string> ResolveFileSystemPaths(string configPath, string includePath)
+    {
+        if (string.IsNullOrWhiteSpace(includePath))
+        {
+            return [];
+        }
 
-			return [resolvedPath];
-		}
+        if (!HasWildcardPattern(includePath))
+        {
+            var resolvedPath = Path.GetFullPath(ArchitectureConfigurationSourceLookup.ResolveRelativePath(includePath, configPath));
+            if (!File.Exists(resolvedPath))
+            {
+                return [];
+            }
 
-		var searchRoot = DetermineSearchRoot(configPath, includePath);
-		if (string.IsNullOrWhiteSpace(searchRoot) || !Directory.Exists(searchRoot))
-		{
-			return [];
-		}
+            return [resolvedPath];
+        }
 
-		try
-		{
-			var matches = Directory
-				.EnumerateFiles(searchRoot, "*", SearchOption.AllDirectories)
-				.Where(path => MatchesIncludePath(configPath, includePath, path))
-				.Select(Path.GetFullPath)
-				.Where(path => !string.Equals(
-					ArchitectureConfigurationSourceLookup.NormalizePath(path),
-					ArchitectureConfigurationSourceLookup.NormalizePath(configPath),
-					StringComparison.OrdinalIgnoreCase))
-				.Distinct(StringComparer.OrdinalIgnoreCase)
-				.OrderBy(path => ArchitectureConfigurationSourceLookup.NormalizePath(path), StringComparer.OrdinalIgnoreCase)
-				.ToImmutableArray();
+        var searchRoot = DetermineSearchRoot(configPath, includePath);
+        if (string.IsNullOrWhiteSpace(searchRoot) || !Directory.Exists(searchRoot))
+        {
+            return [];
+        }
 
-			return matches;
-		}
-		catch (IOException)
-		{
-			return [];
-		}
-		catch (UnauthorizedAccessException)
-		{
-			return [];
-		}
-	}
+        try
+        {
+            var matches = Directory
+                .EnumerateFiles(searchRoot, "*", SearchOption.AllDirectories)
+                .Where(path => MatchesIncludePath(configPath, includePath, path))
+                .Select(Path.GetFullPath)
+                .Where(path => !string.Equals(
+                    ArchitectureConfigurationSourceLookup.NormalizePath(path),
+                    ArchitectureConfigurationSourceLookup.NormalizePath(configPath),
+                    StringComparison.OrdinalIgnoreCase))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(path => ArchitectureConfigurationSourceLookup.NormalizePath(path), StringComparer.OrdinalIgnoreCase)
+                .ToImmutableArray();
 
-	public static string CreateMissingIncludeMessage(string includePath)
-	{
-		var result = HasWildcardPattern(includePath)
-			? $"Included architecture configuration wildcard matched no files: {includePath}."
-			: $"Included architecture configuration was not provided as an AdditionalFile: {includePath}.";
+            return matches;
+        }
+        catch (IOException)
+        {
+            return [];
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return [];
+        }
+    }
 
-		return result;
-	}
+    public static string CreateMissingIncludeMessage(string includePath)
+    {
+        var result = HasWildcardPattern(includePath)
+            ? $"Included architecture configuration wildcard matched no files: {includePath}."
+            : $"Included architecture configuration was not provided as an AdditionalFile: {includePath}.";
 
-	public static bool HasWildcardPattern(string path)
-	{
-		var result = path.IndexOfAny(['*', '?']) >= 0;
+        return result;
+    }
 
-		return result;
-	}
+    public static bool AllowsNoMatches(XElement include)
+    {
+        var includePath = include.Attribute("path")?.Value;
+        if (string.IsNullOrWhiteSpace(includePath) || !HasWildcardPattern(includePath!))
+        {
+            return false;
+        }
 
-	private static bool MatchesIncludePath(string configPath, string includePath, string candidatePath)
-	{
-		if (IsFileNameOnlyPattern(includePath))
-		{
-			var candidateFileName = ArchitectureConfigurationSourceLookup.GetFileNamePreservingStyle(candidatePath);
-			var isMatch = GlobMatches(includePath, candidateFileName);
+        var value = include.Attribute(AllowNoMatchesAttributeName)?.Value;
+        var result = string.Equals(value, "true", StringComparison.OrdinalIgnoreCase)
+                     || string.Equals(value, "1", StringComparison.Ordinal);
 
-			return isMatch;
-		}
+        return result;
+    }
 
-		var resolvedPattern = ArchitectureConfigurationSourceLookup.NormalizePath(ArchitectureConfigurationSourceLookup.ResolveRelativePath(includePath, configPath));
-		var normalizedCandidate = ArchitectureConfigurationSourceLookup.NormalizePath(candidatePath);
-		var result = GlobMatches(resolvedPattern, normalizedCandidate);
+    public static bool HasWildcardPattern(string path)
+    {
+        var result = path.IndexOfAny(['*', '?']) >= 0;
 
-		return result;
-	}
+        return result;
+    }
 
-	private static string DetermineSearchRoot(string configPath, string includePath)
-	{
-		var configurationDirectory = Path.GetDirectoryName(Path.GetFullPath(configPath));
-		if (string.IsNullOrWhiteSpace(configurationDirectory))
-		{
-			return string.Empty;
-		}
+    private static bool MatchesIncludePath(string configPath, string includePath, string candidatePath)
+    {
+        if (IsFileNameOnlyPattern(includePath))
+        {
+            var candidateFileName = ArchitectureConfigurationSourceLookup.GetFileNamePreservingStyle(candidatePath);
+            var isMatch = GlobMatches(includePath, candidateFileName);
 
-		if (IsFileNameOnlyPattern(includePath))
-		{
-			return configurationDirectory!;
-		}
+            return isMatch;
+        }
 
-		var resolvedPattern = ArchitectureConfigurationSourceLookup.NormalizePath(ArchitectureConfigurationSourceLookup.ResolveRelativePath(includePath, configPath));
-		var fixedPrefix = GetFixedPrefix(resolvedPattern);
-		var candidateDirectory = ArchitectureConfigurationSourceLookup.GetDirectoryNamePreservingStyle(fixedPrefix);
-		if (string.IsNullOrWhiteSpace(candidateDirectory))
-		{
-			return configurationDirectory!;
-		}
+        var resolvedPattern = ArchitectureConfigurationSourceLookup.NormalizePath(ArchitectureConfigurationSourceLookup.ResolveRelativePath(includePath, configPath));
+        var normalizedCandidate = ArchitectureConfigurationSourceLookup.NormalizePath(candidatePath);
+        var result = GlobMatches(resolvedPattern, normalizedCandidate);
 
-		var currentDirectory = NormalizeForCurrentPlatform(candidateDirectory!);
-		while (!string.IsNullOrWhiteSpace(currentDirectory) && !Directory.Exists(currentDirectory))
-		{
-			var parent = Directory.GetParent(currentDirectory);
-			if (parent is null)
-			{
-				break;
-			}
+        return result;
+    }
 
-			currentDirectory = parent.FullName;
-		}
+    private static string DetermineSearchRoot(string configPath, string includePath)
+    {
+        var configurationDirectory = Path.GetDirectoryName(Path.GetFullPath(configPath));
+        if (string.IsNullOrWhiteSpace(configurationDirectory))
+        {
+            return string.Empty;
+        }
 
-		var result = Directory.Exists(currentDirectory) ? currentDirectory : configurationDirectory!;
+        if (IsFileNameOnlyPattern(includePath))
+        {
+            return configurationDirectory!;
+        }
 
-		return result;
-	}
+        var resolvedPattern = ArchitectureConfigurationSourceLookup.NormalizePath(ArchitectureConfigurationSourceLookup.ResolveRelativePath(includePath, configPath));
+        var fixedPrefix = GetFixedPrefix(resolvedPattern);
+        var candidateDirectory = ArchitectureConfigurationSourceLookup.GetDirectoryNamePreservingStyle(fixedPrefix);
+        if (string.IsNullOrWhiteSpace(candidateDirectory))
+        {
+            return configurationDirectory!;
+        }
 
-	private static string GetFixedPrefix(string pattern)
-	{
-		var wildcardIndex = pattern.IndexOfAny(['*', '?']);
-		var result = wildcardIndex < 0 ? pattern : pattern.Substring(0, wildcardIndex);
+        var currentDirectory = NormalizeForCurrentPlatform(candidateDirectory!);
+        while (!string.IsNullOrWhiteSpace(currentDirectory) && !Directory.Exists(currentDirectory))
+        {
+            var parent = Directory.GetParent(currentDirectory);
+            if (parent is null)
+            {
+                break;
+            }
 
-		return result;
-	}
+            currentDirectory = parent.FullName;
+        }
 
-	private static bool GlobMatches(string pattern, string candidate)
-	{
-		var normalizedPattern = NormalizeGlobText(pattern);
-		var normalizedCandidate = NormalizeGlobText(candidate);
-		var regexPattern = "^"
-		                   + Regex.Escape(normalizedPattern)
-			                   .Replace(@"\*\*", "__DOUBLE_STAR__")
-			                   .Replace(@"\*", "[^/]*")
-			                   .Replace(@"\?", "[^/]")
-			                   .Replace("__DOUBLE_STAR__", ".*")
-		                   + "$";
-		var result = Regex.IsMatch(normalizedCandidate, regexPattern, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        var result = Directory.Exists(currentDirectory) ? currentDirectory : configurationDirectory!;
 
-		return result;
-	}
+        return result;
+    }
 
-	private static bool IsFileNameOnlyPattern(string includePath)
-	{
-		var result = !ArchitectureConfigurationSourceLookup.IsPathRootedPreservingStyle(includePath)
-		             && includePath.IndexOfAny(['\\', '/']) < 0;
+    private static string GetFixedPrefix(string pattern)
+    {
+        var wildcardIndex = pattern.IndexOfAny(['*', '?']);
+        var result = wildcardIndex < 0 ? pattern : pattern.Substring(0, wildcardIndex);
 
-		return result;
-	}
+        return result;
+    }
 
-	private static string NormalizeForCurrentPlatform(string path)
-	{
-		var result = path.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
+    private static bool GlobMatches(string pattern, string candidate)
+    {
+        var normalizedPattern = NormalizeGlobText(pattern);
+        var normalizedCandidate = NormalizeGlobText(candidate);
+        var regexPattern = "^"
+                           + Regex.Escape(normalizedPattern)
+                               .Replace(@"\*\*", "__DOUBLE_STAR__")
+                               .Replace(@"\*", "[^/]*")
+                               .Replace(@"\?", "[^/]")
+                               .Replace("__DOUBLE_STAR__", ".*")
+                           + "$";
+        var result = Regex.IsMatch(normalizedCandidate, regexPattern, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
-		return result;
-	}
+        return result;
+    }
 
-	private static string NormalizeGlobText(string value)
-	{
-		var result = value.Replace('\\', '/');
+    private static bool IsFileNameOnlyPattern(string includePath)
+    {
+        var result = !ArchitectureConfigurationSourceLookup.IsPathRootedPreservingStyle(includePath)
+                     && includePath.IndexOfAny(['\\', '/']) < 0;
 
-		return result;
-	}
+        return result;
+    }
+
+    private static string NormalizeForCurrentPlatform(string path)
+    {
+        var result = path.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
+
+        return result;
+    }
+
+    private static string NormalizeGlobText(string value)
+    {
+        var result = value.Replace('\\', '/');
+
+        return result;
+    }
 }

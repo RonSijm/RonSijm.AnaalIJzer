@@ -58,7 +58,7 @@
     <Project Path="Examples/Diagnostics/RET/Example.Arch_RET_001.AnnotatedInvocationReturn/Example.Arch_RET_001.AnnotatedInvocationReturn.csproj" />
     <Project Path="Examples/Diagnostics/RET/Example.Arch_RET_001.ConfiguredLiteralReturns/Example.Arch_RET_001.ConfiguredLiteralReturns.csproj" />
     <Project Path="Examples/Diagnostics/RET/Example.Arch_RET_001.ExplicitNullReturn/Example.Arch_RET_001.ExplicitNullReturn.csproj" />
-    <Project Path="Examples/Diagnostics/RET/Example.Arch_RET_001.OnlyIdentifierReturn/Example.Arch_RET_001.OnlyIdentifierReturn.csproj" />
+    <Project Path="Examples/Diagnostics/RET/Example.Arch_RET_001.DirectInvocationReturn/Example.Arch_RET_001.DirectInvocationReturn.csproj" />
   </Folder>
   <Folder Name="/Examples/Diagnostics/TYPE/">
     <Project Path="Examples/Diagnostics/TYPE/Example.Arch_TYPE_001.ForbiddenType/Example.Arch_TYPE_001.ForbiddenType.csproj" />

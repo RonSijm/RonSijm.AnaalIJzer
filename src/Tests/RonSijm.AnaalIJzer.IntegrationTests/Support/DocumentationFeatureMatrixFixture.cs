@@ -2,7 +2,7 @@ namespace RonSijm.AnaalIJzer.IntegrationTests.Support;
 
 internal static class DocumentationFeatureMatrixFixture
 {
-	public const string Configuration = """
+    public const string Configuration = """
 <ArchitecturalLevels enableDocumentation="true"
                      documentationPath="docs\architecture-documentation.md"
                      enableReport="true"

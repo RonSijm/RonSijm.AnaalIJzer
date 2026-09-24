@@ -9,7 +9,6 @@
         <UseWPF>true</UseWPF>
         <EnableWindowsTargeting>true</EnableWindowsTargeting>
         <IsPackable>false</IsPackable>
-        <EnableArchitecturalLevelAnalyzer>false</EnableArchitecturalLevelAnalyzer>
     </PropertyGroup>
 
     <ItemGroup>

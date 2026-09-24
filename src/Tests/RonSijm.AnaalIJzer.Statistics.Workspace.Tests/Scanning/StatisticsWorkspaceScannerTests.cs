@@ -20,7 +20,7 @@ public sealed class StatisticsWorkspaceScannerTests
 				new StatisticsWorkspaceScanRequest(StatisticsWorkspaceInputKind.Solution, solutionPath, restoreMode: WorkspaceRestoreMode.Always),
 				TestContext.Current.CancellationToken);
 			var directoryResult = await scanner.ScanAsync(
-				new StatisticsWorkspaceScanRequest(StatisticsWorkspaceInputKind.Directory, directoryPath, restoreMode: WorkspaceRestoreMode.Never),
+				new StatisticsWorkspaceScanRequest(StatisticsWorkspaceInputKind.Directory, directoryPath, restoreMode: WorkspaceRestoreMode.Always),
 				TestContext.Current.CancellationToken);
 
 			solutionResult.Status.Should().Be(StatisticsScanStatus.Complete);

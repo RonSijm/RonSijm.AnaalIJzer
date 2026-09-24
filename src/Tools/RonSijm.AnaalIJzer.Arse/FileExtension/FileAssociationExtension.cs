@@ -7,89 +7,89 @@ namespace RonSijm.AnaalIJzer.Arse.FileExtension;
 
 public static class FileAssociationExtension
 {
-	private const int ShcneAssocchanged = 0x8000000;
-	private const int ShcnfFlush = 0x1000;
+    private const int ShcneAssocchanged = 0x8000000;
+    private const int ShcnfFlush = 0x1000;
 
-	[DllImport("Shell32.dll")]
-	private static extern int SHChangeNotify(int eventId, int flags, IntPtr item1, IntPtr item2);
+    [DllImport("Shell32.dll")]
+    private static extern int SHChangeNotify(int eventId, int flags, IntPtr item1, IntPtr item2);
 
-	public static bool CreateFileExtensionAssociation(this string extension, string programName, string fileTypeDescription, string inputCommand = "\"%1\"")
-	{
-		if (!OperatingSystem.IsWindows())
-		{
-			return false;
-		}
+    public static bool CreateFileExtensionAssociation(this string extension, string programName, string fileTypeDescription, string inputCommand = "\"%1\"")
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return false;
+        }
 
-		var mainModule = Process.GetCurrentProcess().MainModule;
-		if (mainModule is null)
-		{
-			return false;
-		}
+        var mainModule = Process.GetCurrentProcess().MainModule;
+        if (mainModule is null)
+        {
+            return false;
+        }
 
-		var applicationFilePath = mainModule.FileName;
-		var madeChanges = false;
-		madeChanges |= SetKeyDefaultValue(@"Software\Classes\" + extension, programName);
-		madeChanges |= SetKeyDefaultValue(@"Software\Classes\" + programName, fileTypeDescription);
-		madeChanges |= SetKeyDefaultValue($@"Software\Classes\{programName}\shell\open\command", $"\"{applicationFilePath}\" {inputCommand}");
+        var applicationFilePath = mainModule.FileName;
+        var madeChanges = false;
+        madeChanges |= SetKeyDefaultValue(@"Software\Classes\" + extension, programName);
+        madeChanges |= SetKeyDefaultValue(@"Software\Classes\" + programName, fileTypeDescription);
+        madeChanges |= SetKeyDefaultValue($@"Software\Classes\{programName}\shell\open\command", $"\"{applicationFilePath}\" {inputCommand}");
 
-		if (madeChanges)
-		{
-			SHChangeNotify(ShcneAssocchanged, ShcnfFlush, IntPtr.Zero, IntPtr.Zero);
-		}
+        if (madeChanges)
+        {
+            SHChangeNotify(ShcneAssocchanged, ShcnfFlush, IntPtr.Zero, IntPtr.Zero);
+        }
 
-		return madeChanges;
-	}
+        return madeChanges;
+    }
 
-	public static bool RemoveFileExtensionAssociation(this string extension, string programName)
-	{
-		if (!OperatingSystem.IsWindows())
-		{
-			return false;
-		}
+    public static bool RemoveFileExtensionAssociation(this string extension, string programName)
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return false;
+        }
 
-		var madeChanges = false;
-		using (var extensionKey = Registry.CurrentUser.OpenSubKey(@"Software\Classes\" + extension, writable: true))
-		{
-			if (extensionKey?.GetValue(string.Empty) as string == programName)
-			{
-				extensionKey.DeleteValue(string.Empty, throwOnMissingValue: false);
-				madeChanges = true;
-			}
-		}
+        var madeChanges = false;
+        using (var extensionKey = Registry.CurrentUser.OpenSubKey(@"Software\Classes\" + extension, writable: true))
+        {
+            if (extensionKey?.GetValue(string.Empty) as string == programName)
+            {
+                extensionKey.DeleteValue(string.Empty, throwOnMissingValue: false);
+                madeChanges = true;
+            }
+        }
 
-		using (var classesKey = Registry.CurrentUser.OpenSubKey(@"Software\Classes", writable: true))
-		{
-			if (classesKey?.OpenSubKey(programName) is not null)
-			{
-				classesKey.DeleteSubKeyTree(programName, throwOnMissingSubKey: false);
-				madeChanges = true;
-			}
-		}
+        using (var classesKey = Registry.CurrentUser.OpenSubKey(@"Software\Classes", writable: true))
+        {
+            if (classesKey?.OpenSubKey(programName) is not null)
+            {
+                classesKey.DeleteSubKeyTree(programName, throwOnMissingSubKey: false);
+                madeChanges = true;
+            }
+        }
 
-		if (madeChanges)
-		{
-			SHChangeNotify(ShcneAssocchanged, ShcnfFlush, IntPtr.Zero, IntPtr.Zero);
-		}
+        if (madeChanges)
+        {
+            SHChangeNotify(ShcneAssocchanged, ShcnfFlush, IntPtr.Zero, IntPtr.Zero);
+        }
 
-		return madeChanges;
-	}
+        return madeChanges;
+    }
 
-	[SupportedOSPlatform("windows")]
-	private static bool SetKeyDefaultValue(string keyPath, string value)
-	{
-		using var key = Registry.CurrentUser.CreateSubKey(keyPath);
-		if (key is null)
-		{
-			return false;
-		}
+    [SupportedOSPlatform("windows")]
+    private static bool SetKeyDefaultValue(string keyPath, string value)
+    {
+        using var key = Registry.CurrentUser.CreateSubKey(keyPath);
+        if (key is null)
+        {
+            return false;
+        }
 
-		if (key.GetValue(string.Empty) as string == value)
-		{
-			return false;
-		}
+        if (key.GetValue(string.Empty) as string == value)
+        {
+            return false;
+        }
 
-		key.SetValue(string.Empty, value);
+        key.SetValue(string.Empty, value);
 
-		return true;
-	}
+        return true;
+    }
 }

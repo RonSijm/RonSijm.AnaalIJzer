@@ -26,7 +26,7 @@ jobs:
         shell: pwsh
         run: ./build/Scripts/Testing/check-portable-project-files.ps1
       - name: Restore cross-platform test graph
-        run: dotnet restore src/RonSijm.AnaalIJzer.CrossPlatform.slnx
+        run: dotnet restore src/RonSijm.AnaalIJzer.CrossPlatform.slnx --disable-parallel --disable-build-servers -m:1 -p:UseSharedCompilation=false
       - name: Run cross-platform tests
         shell: pwsh
         run: ./build/Scripts/Testing/test-all.ps1 -Configuration Debug -SkipWindowsOnly -NoRestore -CollectCoverage -ResultsDirectory ./coverage
@@ -60,7 +60,7 @@ jobs:
       - name: Build graph editor artifact
         run: build\Scripts\GraphEditor\build-graph-editor-standalone.bat
       - name: Test graph editor WPF support code
-        run: dotnet test src\Tests\RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests\RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests.csproj --configuration Release
+        run: dotnet test src\Tests\RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests\RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests.csproj --configuration Release --disable-build-servers -m:1 -p:UseSharedCompilation=false
       - name: Upload graph editor artifact
         uses: actions/upload-artifact@v4
         with:

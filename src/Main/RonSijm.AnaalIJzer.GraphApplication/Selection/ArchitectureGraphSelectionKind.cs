@@ -2,10 +2,10 @@ namespace RonSijm.AnaalIJzer.GraphApplication.Selection;
 
 internal enum ArchitectureGraphSelectionKind
 {
-	None,
-	Layer,
-	DependencyRule,
-	SolutionTopologyModule,
-	SolutionTopologyRule,
-	CodeEvidence
+    None,
+    Layer,
+    DependencyRule,
+    SolutionTopologyModule,
+    SolutionTopologyRule,
+    CodeEvidence
 }

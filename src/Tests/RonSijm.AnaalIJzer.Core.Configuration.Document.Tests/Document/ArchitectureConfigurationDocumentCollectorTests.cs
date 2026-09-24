@@ -10,258 +10,313 @@ namespace RonSijm.AnaalIJzer.Core.Configuration.Document.Tests.Document;
 
 public sealed class ArchitectureConfigurationDocumentCollectorTests
 {
-	[Fact]
-	public void Collect_LoadsIncludedDocumentsAndDocumentationItems()
-	{
-		var additionalFiles = ImmutableArray.Create<AdditionalText>(
-			new TestAdditionalText(
-				"Architecture.anl",
-				"""
+    [Fact]
+    public void Collect_LoadsIncludedDocumentsAndDocumentationItems()
+    {
+        var additionalFiles = ImmutableArray.Create<AdditionalText>(
+            new TestAdditionalText(
+                "Architecture.anl",
+                """
 				<ArchitecturalLevels>
 				  <Layer name="Root" />
 				  <Include path="Shared.anl" />
 				</ArchitecturalLevels>
 				"""),
-			new TestAdditionalText(
-				"Shared.anl",
-				"""
+            new TestAdditionalText(
+                "Shared.anl",
+                """
 				<ArchitecturalLevels>
 				  <Layer name="Shared" />
 				</ArchitecturalLevels>
 				"""));
-		var lookup = ArchitectureConfigurationSourceLookup.BuildAdditionalFileLookup(additionalFiles);
+        var lookup = ArchitectureConfigurationSourceLookup.BuildAdditionalFileLookup(additionalFiles);
 
-		var result = ArchitectureConfigurationDocumentCollector.Collect(
-			additionalFiles[0].GetText(TestContext.Current.CancellationToken)!.ToString(),
-			additionalFiles[0].Path,
-			additionalFiles,
-			lookup,
-			TestContext.Current.CancellationToken,
-			ValidateDocument,
-			ArchitectureConfigurationDocumentLoader.InlineSettingsMetadataKey,
-			false);
+        var result = ArchitectureConfigurationDocumentCollector.Collect(
+            additionalFiles[0].GetText(TestContext.Current.CancellationToken)!.ToString(),
+            additionalFiles[0].Path,
+            additionalFiles,
+            lookup,
+            TestContext.Current.CancellationToken,
+            ValidateDocument,
+            ArchitectureConfigurationDocumentLoader.InlineSettingsMetadataKey,
+            false);
 
-		result.Documents.Should().HaveCount(2);
-		result.Elements.Should().HaveCount(2);
-		result.Elements.Select(element => element.Element.Attribute("name")?.Value).Should().BeEquivalentTo(["Root", "Shared"]);
-		result.DocumentationItems.Should().Contain(item => item.Kind == "Include" && item.Label == "Shared.anl");
-		result.Issues.Should().BeEmpty();
-	}
+        result.Documents.Should().HaveCount(2);
+        result.Elements.Should().HaveCount(2);
+        result.Elements.Select(element => element.Element.Attribute("name")?.Value).Should().BeEquivalentTo(["Root", "Shared"]);
+        result.DocumentationItems.Should().Contain(item => item.Kind == "Include" && item.Label == "Shared.anl");
+        result.Issues.Should().BeEmpty();
+    }
 
-	[Fact]
-	public void Collect_LoadsIncludedDocuments_ForWindowsStylePaths()
-	{
-		var additionalFiles = ImmutableArray.Create<AdditionalText>(
-			new TestAdditionalText(
-				@"D:\repo\config\Architecture.anl",
-				"""
+    [Fact]
+    public void Collect_LoadsIncludedDocuments_ForWindowsStylePaths()
+    {
+        var additionalFiles = ImmutableArray.Create<AdditionalText>(
+            new TestAdditionalText(
+                @"D:\repo\config\Architecture.anl",
+                """
 				<ArchitecturalLevels>
 				  <Layer name="Root" />
 				  <Include path="Shared.anl" />
 				</ArchitecturalLevels>
 				"""),
-			new TestAdditionalText(
-				@"D:\repo\config\Shared.anl",
-				"""
+            new TestAdditionalText(
+                @"D:\repo\config\Shared.anl",
+                """
 				<ArchitecturalLevels>
 				  <Layer name="Shared" />
 				</ArchitecturalLevels>
 				"""));
-		var lookup = ArchitectureConfigurationSourceLookup.BuildAdditionalFileLookup(additionalFiles);
+        var lookup = ArchitectureConfigurationSourceLookup.BuildAdditionalFileLookup(additionalFiles);
 
-		var result = ArchitectureConfigurationDocumentCollector.Collect(
-			additionalFiles[0].GetText(TestContext.Current.CancellationToken)!.ToString(),
-			additionalFiles[0].Path,
-			additionalFiles,
-			lookup,
-			TestContext.Current.CancellationToken,
-			ValidateDocument,
-			ArchitectureConfigurationDocumentLoader.InlineSettingsMetadataKey,
-			false);
+        var result = ArchitectureConfigurationDocumentCollector.Collect(
+            additionalFiles[0].GetText(TestContext.Current.CancellationToken)!.ToString(),
+            additionalFiles[0].Path,
+            additionalFiles,
+            lookup,
+            TestContext.Current.CancellationToken,
+            ValidateDocument,
+            ArchitectureConfigurationDocumentLoader.InlineSettingsMetadataKey,
+            false);
 
-		result.Documents.Should().HaveCount(2);
-		result.Elements.Should().HaveCount(2);
-		result.Elements.Select(element => element.Element.Attribute("name")?.Value).Should().BeEquivalentTo(["Root", "Shared"]);
-		result.Issues.Should().BeEmpty();
-	}
+        result.Documents.Should().HaveCount(2);
+        result.Elements.Should().HaveCount(2);
+        result.Elements.Select(element => element.Element.Attribute("name")?.Value).Should().BeEquivalentTo(["Root", "Shared"]);
+        result.Issues.Should().BeEmpty();
+    }
 
-	[Fact]
-	public void NormalizePath_CollapsesParentSegments_ForWindowsAbsolutePaths()
-	{
-		var result = ArchitectureConfigurationSourceLookup.NormalizePath(@"D:\repo\Examples\Data\..\Architecture.anl");
+    [Fact]
+    public void NormalizePath_CollapsesParentSegments_ForWindowsAbsolutePaths()
+    {
+        var result = ArchitectureConfigurationSourceLookup.NormalizePath(@"D:\repo\Examples\Data\..\Architecture.anl");
 
-		result.Should().Be("D:/repo/Examples/Architecture.anl");
-	}
+        result.Should().Be("D:/repo/Examples/Architecture.anl");
+    }
 
-	[Fact]
-	public void NormalizePath_CollapsesParentSegments_ForUnixAbsolutePaths()
-	{
-		var result = ArchitectureConfigurationSourceLookup.NormalizePath("/repo/examples/data/../Architecture.anl");
+    [Fact]
+    public void NormalizePath_CollapsesParentSegments_ForUnixAbsolutePaths()
+    {
+        var result = ArchitectureConfigurationSourceLookup.NormalizePath("/repo/examples/data/../Architecture.anl");
 
-		result.Should().Be("/repo/examples/Architecture.anl");
-	}
+        result.Should().Be("/repo/examples/Architecture.anl");
+    }
 
-	[Fact]
-	public void Collect_ReportsMissingIncludedDocument()
-	{
-		var additionalFiles = ImmutableArray.Create<AdditionalText>(
-			new TestAdditionalText(
-				"Architecture.anl",
-				"""
+    [Fact]
+    public void Collect_ReportsMissingIncludedDocument()
+    {
+        var additionalFiles = ImmutableArray.Create<AdditionalText>(
+            new TestAdditionalText(
+                "Architecture.anl",
+                """
 				<ArchitecturalLevels>
 				  <Include path="Missing.anl" />
 				</ArchitecturalLevels>
 				"""));
-		var lookup = ArchitectureConfigurationSourceLookup.BuildAdditionalFileLookup(additionalFiles);
+        var lookup = ArchitectureConfigurationSourceLookup.BuildAdditionalFileLookup(additionalFiles);
 
-		var result = ArchitectureConfigurationDocumentCollector.Collect(
-			additionalFiles[0].GetText(TestContext.Current.CancellationToken)!.ToString(),
-			additionalFiles[0].Path,
-			additionalFiles,
-			lookup,
-			TestContext.Current.CancellationToken,
-			ValidateDocument,
-			ArchitectureConfigurationDocumentLoader.InlineSettingsMetadataKey,
-			false);
+        var result = ArchitectureConfigurationDocumentCollector.Collect(
+            additionalFiles[0].GetText(TestContext.Current.CancellationToken)!.ToString(),
+            additionalFiles[0].Path,
+            additionalFiles,
+            lookup,
+            TestContext.Current.CancellationToken,
+            ValidateDocument,
+            ArchitectureConfigurationDocumentLoader.InlineSettingsMetadataKey,
+            false);
 
-		result.Documents.Should().HaveCount(1);
-		result.Issues.Should().ContainSingle(issue => issue.Message.Contains("Included architecture configuration was not provided as an AdditionalFile", StringComparison.Ordinal));
-	}
+        result.Documents.Should().HaveCount(1);
+        result.Issues.Should().ContainSingle(issue => issue.Message.Contains("Included architecture configuration was not provided as an AdditionalFile", StringComparison.Ordinal));
+    }
 
-	[Fact]
-	public void Collect_LoadsIncludedDocuments_ForRelativeBackslashPaths()
-	{
-		var additionalFiles = ImmutableArray.Create<AdditionalText>(
-			new TestAdditionalText(
-				@"Examples\Scenarios\Example.ProjectReferenceBoundaries\Example.ProjectReferenceBoundaries.Application\Architecture.anl",
-				"""
+    [Fact]
+    public void Collect_LoadsIncludedDocuments_ForRelativeBackslashPaths()
+    {
+        var additionalFiles = ImmutableArray.Create<AdditionalText>(
+            new TestAdditionalText(
+                @"Examples\Scenarios\Example.ProjectReferenceBoundaries\Example.ProjectReferenceBoundaries.Application\Architecture.anl",
+                """
 				<ArchitecturalLevels>
 				  <Include path="../Architecture.anl" />
 				</ArchitecturalLevels>
 				"""),
-			new TestAdditionalText(
-				@"Examples\Scenarios\Example.ProjectReferenceBoundaries\Architecture.anl",
-				"""
+            new TestAdditionalText(
+                @"Examples\Scenarios\Example.ProjectReferenceBoundaries\Architecture.anl",
+                """
 				<ArchitecturalLevels>
 				  <Layer name="Application" />
 				</ArchitecturalLevels>
 				"""));
-		var lookup = ArchitectureConfigurationSourceLookup.BuildAdditionalFileLookup(additionalFiles);
+        var lookup = ArchitectureConfigurationSourceLookup.BuildAdditionalFileLookup(additionalFiles);
 
-		var result = ArchitectureConfigurationDocumentCollector.Collect(
-			additionalFiles[0].GetText(TestContext.Current.CancellationToken)!.ToString(),
-			additionalFiles[0].Path,
-			additionalFiles,
-			lookup,
-			TestContext.Current.CancellationToken,
-			ValidateDocument,
-			ArchitectureConfigurationDocumentLoader.InlineSettingsMetadataKey,
-			false);
+        var result = ArchitectureConfigurationDocumentCollector.Collect(
+            additionalFiles[0].GetText(TestContext.Current.CancellationToken)!.ToString(),
+            additionalFiles[0].Path,
+            additionalFiles,
+            lookup,
+            TestContext.Current.CancellationToken,
+            ValidateDocument,
+            ArchitectureConfigurationDocumentLoader.InlineSettingsMetadataKey,
+            false);
 
-		result.Documents.Should().HaveCount(2);
-		result.Elements.Should().ContainSingle();
-		result.Elements[0].Element.Attribute("name")?.Value.Should().Be("Application");
-		result.Issues.Should().BeEmpty();
-	}
+        result.Documents.Should().HaveCount(2);
+        result.Elements.Should().ContainSingle();
+        result.Elements[0].Element.Attribute("name")?.Value.Should().Be("Application");
+        result.Issues.Should().BeEmpty();
+    }
 
-	[Fact]
-	public void Collect_LoadsWildcardIncludedDocuments_FromNestedRuleFiles()
-	{
-		var additionalFiles = ImmutableArray.Create<AdditionalText>(
-			new TestAdditionalText(
-				@"D:\repo\Features\Example.IncludeWildcardSettings\Architecture.anl",
-				"""
+    [Fact]
+    public void Collect_LoadsWildcardIncludedDocuments_FromNestedRuleFiles()
+    {
+        var additionalFiles = ImmutableArray.Create<AdditionalText>(
+            new TestAdditionalText(
+                @"D:\repo\Features\Example.IncludeWildcardSettings\Architecture.anl",
+                """
 				<ArchitecturalLevels>
 				  <Include path="*.anl" />
 				</ArchitecturalLevels>
 				"""),
-			new TestAdditionalText(
-				@"D:\repo\Features\Example.IncludeWildcardSettings\RulePlugins\RestaurantFlow.anl",
-				"""
+            new TestAdditionalText(
+                @"D:\repo\Features\Example.IncludeWildcardSettings\RulePlugins\RestaurantFlow.anl",
+                """
 				<ArchitecturalLevels>
 				  <AllowedDependency from="Waiter" to="Chef" />
 				</ArchitecturalLevels>
 				"""),
-			new TestAdditionalText(
-				@"D:\repo\Features\Example.IncludeWildcardSettings\RulePlugins\RestaurantLayers.anl",
-				"""
+            new TestAdditionalText(
+                @"D:\repo\Features\Example.IncludeWildcardSettings\RulePlugins\RestaurantLayers.anl",
+                """
 				<ArchitecturalLevels>
 				  <Layer name="Waiter" />
 				  <Layer name="Chef" />
 				</ArchitecturalLevels>
 				"""));
-		var lookup = ArchitectureConfigurationSourceLookup.BuildAdditionalFileLookup(additionalFiles);
+        var lookup = ArchitectureConfigurationSourceLookup.BuildAdditionalFileLookup(additionalFiles);
 
-		var result = ArchitectureConfigurationDocumentCollector.Collect(
-			additionalFiles[0].GetText(TestContext.Current.CancellationToken)!.ToString(),
-			additionalFiles[0].Path,
-			additionalFiles,
-			lookup,
-			TestContext.Current.CancellationToken,
-			ValidateDocument,
-			ArchitectureConfigurationDocumentLoader.InlineSettingsMetadataKey,
-			false);
+        var result = ArchitectureConfigurationDocumentCollector.Collect(
+            additionalFiles[0].GetText(TestContext.Current.CancellationToken)!.ToString(),
+            additionalFiles[0].Path,
+            additionalFiles,
+            lookup,
+            TestContext.Current.CancellationToken,
+            ValidateDocument,
+            ArchitectureConfigurationDocumentLoader.InlineSettingsMetadataKey,
+            false);
 
-		result.Documents.Should().HaveCount(3);
-		result.Elements.Should().HaveCount(3);
-		var layerNames = result.Elements
-			.Select(element => element.Element.Attribute("name")?.Value)
-			.Where(value => value is not null)
-			.Cast<string>()
-			.ToArray();
+        result.Documents.Should().HaveCount(3);
+        result.Elements.Should().HaveCount(3);
+        var layerNames = result.Elements
+            .Select(element => element.Element.Attribute("name")?.Value)
+            .Where(value => value is not null)
+            .Cast<string>()
+            .ToArray();
 
-		layerNames.Should().Contain("Waiter");
-		layerNames.Should().Contain("Chef");
-		result.Elements.Should().Contain(element => element.Element.Name.LocalName == "AllowedDependency");
-		result.Issues.Should().BeEmpty();
-	}
+        layerNames.Should().Contain("Waiter");
+        layerNames.Should().Contain("Chef");
+        result.Elements.Should().Contain(element => element.Element.Name.LocalName == "AllowedDependency");
+        result.Issues.Should().BeEmpty();
+    }
 
-	[Fact]
-	public void Collect_ReportsMissingWildcardIncludedDocuments()
-	{
-		var additionalFiles = ImmutableArray.Create<AdditionalText>(
-			new TestAdditionalText(
-				"Architecture.anl",
-				"""
+    [Fact]
+    public void Collect_ReportsMissingWildcardIncludedDocuments()
+    {
+        var additionalFiles = ImmutableArray.Create<AdditionalText>(
+            new TestAdditionalText(
+                "Architecture.anl",
+                """
 				<ArchitecturalLevels>
 				  <Include path="*.anl" />
 				</ArchitecturalLevels>
 				"""));
-		var lookup = ArchitectureConfigurationSourceLookup.BuildAdditionalFileLookup(additionalFiles);
+        var lookup = ArchitectureConfigurationSourceLookup.BuildAdditionalFileLookup(additionalFiles);
 
-		var result = ArchitectureConfigurationDocumentCollector.Collect(
-			additionalFiles[0].GetText(TestContext.Current.CancellationToken)!.ToString(),
-			additionalFiles[0].Path,
-			additionalFiles,
-			lookup,
-			TestContext.Current.CancellationToken,
-			ValidateDocument,
-			ArchitectureConfigurationDocumentLoader.InlineSettingsMetadataKey,
-			false);
+        var result = ArchitectureConfigurationDocumentCollector.Collect(
+            additionalFiles[0].GetText(TestContext.Current.CancellationToken)!.ToString(),
+            additionalFiles[0].Path,
+            additionalFiles,
+            lookup,
+            TestContext.Current.CancellationToken,
+            ValidateDocument,
+            ArchitectureConfigurationDocumentLoader.InlineSettingsMetadataKey,
+            false);
 
-		result.Documents.Should().HaveCount(1);
-		result.Issues.Should().ContainSingle(issue => issue.Message.Contains("wildcard matched no files", StringComparison.Ordinal));
-	}
+        result.Documents.Should().HaveCount(1);
+        result.Issues.Should().ContainSingle(issue => issue.Message.Contains("wildcard matched no files", StringComparison.Ordinal));
+    }
 
-	private static ImmutableArray<ConfigurationIssue> ValidateDocument(XDocument document, string configPath)
-	{
-		_ = document;
-		_ = configPath;
+    [Fact]
+    public void Collect_AllowsWildcardToMatchNoDocumentsWhenConfigured()
+    {
+        var additionalFiles = ImmutableArray.Create<AdditionalText>(
+            new TestAdditionalText(
+                "Architecture.anl",
+                """
+				<ArchitecturalLevels>
+				  <Include path="OptionalRules/*.anl" allowNoMatches="true" />
+				  <Layer name="Kitchen" />
+				</ArchitecturalLevels>
+				"""));
+        var lookup = ArchitectureConfigurationSourceLookup.BuildAdditionalFileLookup(additionalFiles);
 
-		return ImmutableArray<ConfigurationIssue>.Empty;
-	}
+        var result = ArchitectureConfigurationDocumentCollector.Collect(
+            additionalFiles[0].GetText(TestContext.Current.CancellationToken)!.ToString(),
+            additionalFiles[0].Path,
+            additionalFiles,
+            lookup,
+            TestContext.Current.CancellationToken,
+            ValidateDocument,
+            ArchitectureConfigurationDocumentLoader.InlineSettingsMetadataKey,
+            false);
 
-	private sealed class TestAdditionalText(string path, string content) : AdditionalText
-	{
-		private readonly SourceText _text = SourceText.From(content);
+        result.Documents.Should().ContainSingle();
+        result.Elements.Should().ContainSingle(element => element.Element.Name.LocalName == "Layer");
+        result.Issues.Should().BeEmpty();
+    }
 
-		public override string Path { get; } = path;
+    [Fact]
+    public void Collect_DoesNotAllowMissingExactDocumentWhenWildcardOptionIsConfigured()
+    {
+        var additionalFiles = ImmutableArray.Create<AdditionalText>(
+            new TestAdditionalText(
+                "Architecture.anl",
+                """
+				<ArchitecturalLevels>
+				  <Include path="Missing.anl" allowNoMatches="true" />
+				</ArchitecturalLevels>
+				"""));
+        var lookup = ArchitectureConfigurationSourceLookup.BuildAdditionalFileLookup(additionalFiles);
 
-		public override SourceText GetText(CancellationToken cancellationToken = default)
-		{
-			var result = _text;
+        var result = ArchitectureConfigurationDocumentCollector.Collect(
+            additionalFiles[0].GetText(TestContext.Current.CancellationToken)!.ToString(),
+            additionalFiles[0].Path,
+            additionalFiles,
+            lookup,
+            TestContext.Current.CancellationToken,
+            ValidateDocument,
+            ArchitectureConfigurationDocumentLoader.InlineSettingsMetadataKey,
+            false);
 
-			return result;
-		}
-	}
+        result.Issues.Should().ContainSingle(issue => issue.Message.Contains("was not provided as an AdditionalFile", StringComparison.Ordinal));
+    }
+
+    private static ImmutableArray<ConfigurationIssue> ValidateDocument(XDocument document, string configPath)
+    {
+        _ = document;
+        _ = configPath;
+
+        return ImmutableArray<ConfigurationIssue>.Empty;
+    }
+
+    private sealed class TestAdditionalText(string path, string content) : AdditionalText
+    {
+        private readonly SourceText _text = SourceText.From(content);
+
+        public override string Path { get; } = path;
+
+        public override SourceText GetText(CancellationToken cancellationToken = default)
+        {
+            var result = _text;
+
+            return result;
+        }
+    }
 }

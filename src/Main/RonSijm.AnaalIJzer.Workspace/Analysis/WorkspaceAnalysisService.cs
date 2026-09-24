@@ -5,137 +5,137 @@ namespace RonSijm.AnaalIJzer.Workspace.Analysis;
 
 internal sealed class WorkspaceAnalysisService(string configuration)
 {
-	private readonly string _configuration = string.IsNullOrWhiteSpace(configuration) ? "Release" : configuration;
+    private readonly string _configuration = string.IsNullOrWhiteSpace(configuration) ? "Release" : configuration;
 
-	public async Task<ProjectAnalysisResult> AnalyzeProjectAsync(string projectPath, CancellationToken cancellationToken)
-	{
-		var fullProjectPath = Path.GetFullPath(projectPath);
-		if (!File.Exists(fullProjectPath))
-		{
-			throw new InvalidOperationException($"Project file not found: {fullProjectPath}");
-		}
+    public async Task<ProjectAnalysisResult> AnalyzeProjectAsync(string projectPath, CancellationToken cancellationToken)
+    {
+        var fullProjectPath = Path.GetFullPath(projectPath);
+        if (!File.Exists(fullProjectPath))
+        {
+            throw new InvalidOperationException($"Project file not found: {fullProjectPath}");
+        }
 
-		using var host = new ProjectAnalysisHost(_configuration);
-		var result = await host.AnalyzeAsync(fullProjectPath, cancellationToken);
-		EnsureWorkspaceLoaded(result.WorkspaceFailures, "project");
-		EnsureCompilerErrorsAbsent(result.CompilerErrors, "Project");
+        using var host = new ProjectAnalysisHost(_configuration);
+        var result = await host.AnalyzeAsync(fullProjectPath, cancellationToken);
+        EnsureWorkspaceLoaded(result.WorkspaceFailures, "project");
+        EnsureCompilerErrorsAbsent(result.CompilerErrors, "Project");
 
-		return result;
-	}
+        return result;
+    }
 
-	public async Task<SolutionAnalysisResult> AnalyzeSolutionAsync(string solutionPath, CancellationToken cancellationToken)
-	{
-		var fullSolutionPath = Path.GetFullPath(solutionPath);
-		if (!File.Exists(fullSolutionPath))
-		{
-			throw new InvalidOperationException($"Solution file not found: {fullSolutionPath}");
-		}
+    public async Task<SolutionAnalysisResult> AnalyzeSolutionAsync(string solutionPath, CancellationToken cancellationToken)
+    {
+        var fullSolutionPath = Path.GetFullPath(solutionPath);
+        if (!File.Exists(fullSolutionPath))
+        {
+            throw new InvalidOperationException($"Solution file not found: {fullSolutionPath}");
+        }
 
-		using var host = new ProjectAnalysisHost(_configuration);
-		var result = await host.AnalyzeSolutionAsync(fullSolutionPath, cancellationToken);
-		if (result.Projects.Length == 0)
-		{
-			throw new InvalidOperationException($"No C# projects were found in solution: {fullSolutionPath}");
-		}
+        using var host = new ProjectAnalysisHost(_configuration);
+        var result = await host.AnalyzeSolutionAsync(fullSolutionPath, cancellationToken);
+        if (result.Projects.Length == 0)
+        {
+            throw new InvalidOperationException($"No C# projects were found in solution: {fullSolutionPath}");
+        }
 
-		EnsureWorkspaceLoaded(result.WorkspaceFailures, "solution");
-		EnsureCompilerErrorsAbsent(result.CompilerErrors, "Solution");
+        EnsureWorkspaceLoaded(result.WorkspaceFailures, "solution");
+        EnsureCompilerErrorsAbsent(result.CompilerErrors, "Solution");
 
-		return result;
-	}
+        return result;
+    }
 
-	public void EnsureConfigHasRules(AnalyzerConfig config)
-	{
-		if (!config.HasConfiguredRules)
-		{
-			throw new InvalidOperationException("No ArchitecturalLevels config was found. Add Architecture.anl or AssemblyMetadata(\"AnaalIJzerSettings\", ...).");
-		}
-	}
+    public void EnsureConfigHasRules(AnalyzerConfig config)
+    {
+        if (!config.HasConfiguredRules)
+        {
+            throw new InvalidOperationException("No ArchitecturalLevels config was found. Add Architecture.anl or AssemblyMetadata(\"AnaalIJzerSettings\", ...).");
+        }
+    }
 
-	public ProjectAnalysisResult EnsureSolutionHasRules(SolutionAnalysisResult result)
-	{
-		var representativeProject = result.FirstConfiguredProject;
-		if (representativeProject is null)
-		{
-			throw new InvalidOperationException("No ArchitecturalLevels config was found in the solution. Add Architecture.anl or AssemblyMetadata(\"AnaalIJzerSettings\", ...) to at least one project.");
-		}
+    public ProjectAnalysisResult EnsureSolutionHasRules(SolutionAnalysisResult result)
+    {
+        var representativeProject = result.FirstConfiguredProject;
+        if (representativeProject is null)
+        {
+            throw new InvalidOperationException("No ArchitecturalLevels config was found in the solution. Add Architecture.anl or AssemblyMetadata(\"AnaalIJzerSettings\", ...) to at least one project.");
+        }
 
-		return representativeProject;
-	}
+        return representativeProject;
+    }
 
-	public async Task<ConfigurationFixCollectionResult> FindProjectConfigurationFixesAsync(string projectPath, CancellationToken cancellationToken)
-	{
-		var fullProjectPath = Path.GetFullPath(projectPath);
-		if (!File.Exists(fullProjectPath))
-		{
-			throw new InvalidOperationException($"Project file not found: {fullProjectPath}");
-		}
+    public async Task<ConfigurationFixCollectionResult> FindProjectConfigurationFixesAsync(string projectPath, CancellationToken cancellationToken)
+    {
+        var fullProjectPath = Path.GetFullPath(projectPath);
+        if (!File.Exists(fullProjectPath))
+        {
+            throw new InvalidOperationException($"Project file not found: {fullProjectPath}");
+        }
 
-		using var host = new ProjectAnalysisHost(_configuration);
-		var result = await host.FindProjectConfigurationFixesAsync(fullProjectPath, cancellationToken);
-		EnsureWorkspaceLoaded(host.WorkspaceFailures, "project");
+        using var host = new ProjectAnalysisHost(_configuration);
+        var result = await host.FindProjectConfigurationFixesAsync(fullProjectPath, cancellationToken);
+        EnsureWorkspaceLoaded(host.WorkspaceFailures, "project");
 
-		return result;
-	}
+        return result;
+    }
 
-	public async Task<ConfigurationFixCollectionResult> FindSolutionConfigurationFixesAsync(string solutionPath, CancellationToken cancellationToken)
-	{
-		var fullSolutionPath = Path.GetFullPath(solutionPath);
-		if (!File.Exists(fullSolutionPath))
-		{
-			throw new InvalidOperationException($"Solution file not found: {fullSolutionPath}");
-		}
+    public async Task<ConfigurationFixCollectionResult> FindSolutionConfigurationFixesAsync(string solutionPath, CancellationToken cancellationToken)
+    {
+        var fullSolutionPath = Path.GetFullPath(solutionPath);
+        if (!File.Exists(fullSolutionPath))
+        {
+            throw new InvalidOperationException($"Solution file not found: {fullSolutionPath}");
+        }
 
-		using var host = new ProjectAnalysisHost(_configuration);
-		var result = await host.FindSolutionConfigurationFixesAsync(fullSolutionPath, cancellationToken);
-		EnsureWorkspaceLoaded(host.WorkspaceFailures, "solution");
+        using var host = new ProjectAnalysisHost(_configuration);
+        var result = await host.FindSolutionConfigurationFixesAsync(fullSolutionPath, cancellationToken);
+        EnsureWorkspaceLoaded(host.WorkspaceFailures, "solution");
 
-		return result;
-	}
+        return result;
+    }
 
-	public async Task<ConfigurationFixApplyResult> ApplyProjectConfigurationFixAsync(string projectPath, string fixId, CancellationToken cancellationToken)
-	{
-		var fullProjectPath = Path.GetFullPath(projectPath);
-		if (!File.Exists(fullProjectPath))
-		{
-			throw new InvalidOperationException($"Project file not found: {fullProjectPath}");
-		}
+    public async Task<ConfigurationFixApplyResult> ApplyProjectConfigurationFixAsync(string projectPath, string fixId, CancellationToken cancellationToken)
+    {
+        var fullProjectPath = Path.GetFullPath(projectPath);
+        if (!File.Exists(fullProjectPath))
+        {
+            throw new InvalidOperationException($"Project file not found: {fullProjectPath}");
+        }
 
-		using var host = new ProjectAnalysisHost(_configuration);
-		var result = await host.ApplyProjectConfigurationFixAsync(fullProjectPath, fixId, cancellationToken);
-		EnsureWorkspaceLoaded(host.WorkspaceFailures, "project");
+        using var host = new ProjectAnalysisHost(_configuration);
+        var result = await host.ApplyProjectConfigurationFixAsync(fullProjectPath, fixId, cancellationToken);
+        EnsureWorkspaceLoaded(host.WorkspaceFailures, "project");
 
-		return result;
-	}
+        return result;
+    }
 
-	public async Task<ConfigurationFixApplyResult> ApplySolutionConfigurationFixAsync(string solutionPath, string fixId, CancellationToken cancellationToken)
-	{
-		var fullSolutionPath = Path.GetFullPath(solutionPath);
-		if (!File.Exists(fullSolutionPath))
-		{
-			throw new InvalidOperationException($"Solution file not found: {fullSolutionPath}");
-		}
+    public async Task<ConfigurationFixApplyResult> ApplySolutionConfigurationFixAsync(string solutionPath, string fixId, CancellationToken cancellationToken)
+    {
+        var fullSolutionPath = Path.GetFullPath(solutionPath);
+        if (!File.Exists(fullSolutionPath))
+        {
+            throw new InvalidOperationException($"Solution file not found: {fullSolutionPath}");
+        }
 
-		using var host = new ProjectAnalysisHost(_configuration);
-		var result = await host.ApplySolutionConfigurationFixAsync(fullSolutionPath, fixId, cancellationToken);
-		EnsureWorkspaceLoaded(host.WorkspaceFailures, "solution");
+        using var host = new ProjectAnalysisHost(_configuration);
+        var result = await host.ApplySolutionConfigurationFixAsync(fullSolutionPath, fixId, cancellationToken);
+        EnsureWorkspaceLoaded(host.WorkspaceFailures, "solution");
 
-		return result;
-	}
+        return result;
+    }
 
-	private static void EnsureWorkspaceLoaded(IReadOnlyList<string> workspaceFailures, string inputKind)
-	{
-		if (workspaceFailures.Count > 0)
-		{
-			throw new InvalidOperationException("Workspace failed to load the " + inputKind + ":" + Environment.NewLine + string.Join(Environment.NewLine, workspaceFailures));
-		}
-	}
+    private static void EnsureWorkspaceLoaded(IReadOnlyList<string> workspaceFailures, string inputKind)
+    {
+        if (workspaceFailures.Count > 0)
+        {
+            throw new InvalidOperationException("Workspace failed to load the " + inputKind + ":" + Environment.NewLine + string.Join(Environment.NewLine, workspaceFailures));
+        }
+    }
 
-	private static void EnsureCompilerErrorsAbsent(IReadOnlyList<string> compilerErrors, string label)
-	{
-		if (compilerErrors.Count > 0)
-		{
-			throw new InvalidOperationException(label + " has compiler errors:" + Environment.NewLine + string.Join(Environment.NewLine, compilerErrors));
-		}
-	}
+    private static void EnsureCompilerErrorsAbsent(IReadOnlyList<string> compilerErrors, string label)
+    {
+        if (compilerErrors.Count > 0)
+        {
+            throw new InvalidOperationException(label + " has compiler errors:" + Environment.NewLine + string.Join(Environment.NewLine, compilerErrors));
+        }
+    }
 }

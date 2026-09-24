@@ -6,28 +6,28 @@ namespace RonSijm.AnaalIJzer.Core.Configuration.Document.Validation;
 
 public static class ArchitectureConfigurationSchemaProvider
 {
-	private static readonly Lazy<XmlSchemaSet> CachedSchemas = new(CreateSchemas);
+    private static readonly Lazy<XmlSchemaSet> CachedSchemas = new(CreateSchemas);
 
-	public static XmlSchemaSet Schemas
-	{
-		get
-		{
-			var result = CachedSchemas.Value;
+    public static XmlSchemaSet Schemas
+    {
+        get
+        {
+            var result = CachedSchemas.Value;
 
-			return result;
-		}
-	}
+            return result;
+        }
+    }
 
-	private static XmlSchemaSet CreateSchemas()
-	{
-		var assembly = typeof(ArchitectureConfigurationSchemaProvider).GetTypeInfo().Assembly;
-		using var stream = assembly.GetManifestResourceStream("RonSijm.AnaalIJzer.AnaalIJzer.xsd")
-			?? throw new InvalidOperationException("Embedded AnaalIJzer.xsd schema was not found.");
-		using var reader = XmlReader.Create(stream);
-		var schemas = new XmlSchemaSet();
-		schemas.Add(string.Empty, reader);
-		schemas.Compile();
+    private static XmlSchemaSet CreateSchemas()
+    {
+        var assembly = typeof(ArchitectureConfigurationSchemaProvider).GetTypeInfo().Assembly;
+        using var stream = assembly.GetManifestResourceStream("RonSijm.AnaalIJzer.AnaalIJzer.xsd")
+            ?? throw new InvalidOperationException("Embedded AnaalIJzer.xsd schema was not found.");
+        using var reader = XmlReader.Create(stream);
+        var schemas = new XmlSchemaSet();
+        schemas.Add(string.Empty, reader);
+        schemas.Compile();
 
-		return schemas;
-	}
+        return schemas;
+    }
 }

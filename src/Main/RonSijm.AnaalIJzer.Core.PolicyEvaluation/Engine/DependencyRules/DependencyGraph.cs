@@ -11,24 +11,24 @@ namespace RonSijm.AnaalIJzer.Core.PolicyEvaluation.Engine.DependencyRules;
 /// </summary>
 public readonly partial struct DependencyGraph(ImmutableArray<DependencyEdge> dependencyEdges)
 {
-	/// <summary>All valid dependency edges declared by <c>&lt;AllowedDependency /&gt;</c>.</summary>
-	public ImmutableArray<DependencyEdge> DependencyEdges { get; } = dependencyEdges;
+    /// <summary>All valid dependency edges declared by <c>&lt;AllowedDependency /&gt;</c>.</summary>
+    public ImmutableArray<DependencyEdge> DependencyEdges { get; } = dependencyEdges;
 
-	/// <summary>
-	///     Explicit directed edges declared via <c>&lt;AllowedDependency from="A" to="B"/&gt;</c>.
-	///     Exposed for tests and the ARCH_DEP_004 reverse-direction check.
-	/// </summary>
-	public ImmutableHashSet<(string From, string To)> AllowedEdges =>
-		DependencyEdges.Where(edge => edge.IsAllowed && edge.IsExplicit).Select(edge => (edge.From, edge.To))
-			.ToImmutableHashSet();
+    /// <summary>
+    ///     Explicit directed edges declared via <c>&lt;AllowedDependency from="A" to="B"/&gt;</c>.
+    ///     Exposed for tests and the ARCH_DEP_004 reverse-direction check.
+    /// </summary>
+    public ImmutableHashSet<(string From, string To)> AllowedEdges =>
+        DependencyEdges.Where(edge => edge.IsAllowed && edge.IsExplicit).Select(edge => (edge.From, edge.To))
+            .ToImmutableHashSet();
 
     /// <summary>
 	///     Layer names reachable via <c>&lt;AllowedDependency from="*" to="..."&gt;</c>.
 	///     Any layer may depend on these when the matching edge allows the current dependency site.
 	/// </summary>
 	public ImmutableHashSet<string> WildcardTargets =>
-		DependencyEdges.Where(edge => edge.IsAllowed && edge.IsWildcardTarget).Select(edge => edge.To)
-			.ToImmutableHashSet();
+        DependencyEdges.Where(edge => edge.IsAllowed && edge.IsWildcardTarget).Select(edge => edge.To)
+            .ToImmutableHashSet();
 
     /// <summary>
 	///     Layer names declared via <c>&lt;AllowedDependency from="..." to="*"&gt;</c>.
@@ -36,55 +36,54 @@ public readonly partial struct DependencyGraph(ImmutableArray<DependencyEdge> de
 	///     allows the current dependency site.
 	/// </summary>
 	public ImmutableHashSet<string> WildcardSources =>
-		DependencyEdges.Where(edge => edge.IsAllowed && edge.IsWildcardSource).Select(edge => edge.From)
-			.ToImmutableHashSet();
+        DependencyEdges.Where(edge => edge.IsAllowed && edge.IsWildcardSource).Select(edge => edge.From)
+            .ToImmutableHashSet();
 
     /// <summary>
 	///     When <see langword="true" /> the config declared <c>&lt;AllowedDependency from="*" to="*"/&gt;</c>.
 	/// </summary>
 	public bool AllowAnyDependency => DependencyEdges.Any(edge => edge.IsAllowed && edge.IsAllowAny);
 
-	/// <summary>
-	///     Returns <see langword="true" /> when an explicit directed edge from
-	///     <paramref name="from" /> to <paramref name="to" /> is configured, regardless of its site
-	///     filter. Used by ARCH_DEP_004 so a reversed dependency still reports as wrong-direction.
-	/// </summary>
-	public bool HasEdge(string from, string to)
-	{
-		var result = DependencyEdges.Any(edge => edge.IsAllowed && edge.IsExplicit && edge.From == from && edge.To == to);
+    /// <summary>
+    ///     Returns <see langword="true" /> when an explicit directed edge from
+    ///     <paramref name="from" /> to <paramref name="to" /> is configured, regardless of its site
+    ///     filter. Used by ARCH_DEP_004 so a reversed dependency still reports as wrong-direction.
+    /// </summary>
+    public bool HasEdge(string from, string to)
+    {
+        var result = DependencyEdges.Any(edge => edge.IsAllowed && edge.IsExplicit && edge.From == from && edge.To == to);
 
-		return result;
-	}
+        return result;
+    }
 
-	public bool HasEdge(string scopePath, string from, string to)
-	{
-		var result = TryFindAllowedEdge(scopePath, from, to, out _);
+    public bool HasEdge(string scopePath, string from, string to)
+    {
+        var result = TryFindAllowedEdge(scopePath, from, to, out _);
 
-		return result;
-	}
+        return result;
+    }
 
-	public bool TryFindAllowedEdge(string scopePath, string from, string to, out DependencyEdge edge)
-	{
-		foreach (var candidate in DependencyEdges)
-		{
-			if (!EdgeAppliesAtScope(candidate, scopePath) || !candidate.IsAllowed || !EdgeMatches(candidate, from, to))
-			{
-				continue;
-			}
+    public bool TryFindAllowedEdge(string scopePath, string from, string to, out DependencyEdge edge)
+    {
+        foreach (var candidate in DependencyEdges)
+        {
+            if (!EdgeAppliesAtScope(candidate, scopePath) || !candidate.IsAllowed || !EdgeMatches(candidate, from, to))
+            {
+                continue;
+            }
 
-			edge = candidate;
-			return true;
-		}
+            edge = candidate;
+            return true;
+        }
 
-		edge = default;
-		return false;
-	}
+        edge = default;
+        return false;
+    }
 
-	public bool Matches(DependencyEdge edge, string from, string to)
-	{
-		var result = GetGateScopes(from, to).Any(scopePath => EdgeAppliesAtScope(edge, scopePath)) && EdgeMatches(edge, from, to);
+    public bool Matches(DependencyEdge edge, string from, string to)
+    {
+        var result = GetGateScopes(from, to).Any(scopePath => EdgeAppliesAtScope(edge, scopePath)) && EdgeMatches(edge, from, to);
 
-		return result;
-	}
+        return result;
+    }
 }
-

@@ -1,5 +1,5 @@
 ﻿## "I still don't understand"
 
-To get started, it's probably easiest to just download this entire repo, and look at the example projects. They are small, self-contained, and clearly labelled where they are meant to break.
+If the written explanation is not clicking yet, clone the repository and open the projects under [`Examples/`](../Examples/). They are small, self-contained, and clearly labelled where they are supposed to break. Sometimes one red squiggle explains more than another page of XML reference.
 
 ---

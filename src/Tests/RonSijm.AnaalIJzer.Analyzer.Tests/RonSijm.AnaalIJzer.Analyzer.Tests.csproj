@@ -11,7 +11,6 @@
         <NoWarn>RS1036;RS1038;RS1041;RS2008</NoWarn>
 
         <!-- Test project compiles analyzer source directly; do not self-reference via Directory.Build.props -->
-        <EnableArchitecturalLevelAnalyzer>false</EnableArchitecturalLevelAnalyzer>
     </PropertyGroup>
 
     <ItemGroup>

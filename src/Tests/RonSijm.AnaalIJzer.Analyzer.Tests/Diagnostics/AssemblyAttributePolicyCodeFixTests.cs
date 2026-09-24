@@ -5,23 +5,23 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Diagnostics;
 
 public sealed class AssemblyAttributePolicyCodeFixTests
 {
-	[Fact]
-	public void AssemblyAttributePolicyViolation_IsNotListedAsFixable()
-	{
-		new ArchitecturalLevelCodeFixProvider()
-			.FixableDiagnosticIds
-			.Should()
-			.NotContain(ArchitecturalDiagnosticIds.AssemblyAttributeNotAllowed);
-	}
+    [Fact]
+    public void AssemblyAttributePolicyViolation_IsNotListedAsFixable()
+    {
+        new ArchitecturalLevelCodeFixProvider()
+            .FixableDiagnosticIds
+            .Should()
+            .NotContain(ArchitecturalDiagnosticIds.AssemblyAttributeNotAllowed);
+    }
 
-	[Fact]
-	public async Task AssemblyAttributePolicyViolation_OffersNoSpeculativeCodeFix()
-	{
-		const string source = """
+    [Fact]
+    public async Task AssemblyAttributePolicyViolation_OffersNoSpeculativeCodeFix()
+    {
+        const string source = """
 			using System.Runtime.CompilerServices;
 			[assembly: InternalsVisibleTo("NotAllowedExample")]
 			""";
-		const string config = """
+        const string config = """
 			<ArchitecturalLevels>
 			  <AssemblyAttributePolicy>
 			    <Forbidden>
@@ -33,8 +33,8 @@ public sealed class AssemblyAttributePolicyCodeFixTests
 			</ArchitecturalLevels>
 			""";
 
-		var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(source, config, ArchitecturalDiagnosticIds.AssemblyAttributeNotAllowed);
+        var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(source, config, ArchitecturalDiagnosticIds.AssemblyAttributeNotAllowed);
 
-		titles.Should().BeEmpty();
-	}
+        titles.Should().BeEmpty();
+    }
 }

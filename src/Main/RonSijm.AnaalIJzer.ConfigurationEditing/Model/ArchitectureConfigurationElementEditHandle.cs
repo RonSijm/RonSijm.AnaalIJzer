@@ -27,14 +27,14 @@ public sealed class ArchitectureConfigurationElementEditHandle(
     public ImmutableDictionary<string, string> Attributes { get; } = attributes ?? ImmutableDictionary<string, string>.Empty;
 
     public bool CanEdit
-	{
-		get
-		{
-			var result = SourceKind != ArchitectureConfigurationSourceKind.None
-			             && !string.IsNullOrWhiteSpace(SourcePath)
-			             && !string.IsNullOrWhiteSpace(ElementKind);
+    {
+        get
+        {
+            var result = SourceKind != ArchitectureConfigurationSourceKind.None
+                         && !string.IsNullOrWhiteSpace(SourcePath)
+                         && !string.IsNullOrWhiteSpace(ElementKind);
 
-			return result;
-		}
-	}
+            return result;
+        }
+    }
 }

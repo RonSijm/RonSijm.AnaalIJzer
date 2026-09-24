@@ -96,7 +96,7 @@ Diagnostic examples are grouped by the concern segment in their diagnostic ID. T
 | [`RET`](Diagnostics/RET) | [`Example.Arch_RET_001.AnnotatedInvocationReturn`](Diagnostics/RET/Example.Arch_RET_001.AnnotatedInvocationReturn) | `ReturnValuePolicy` - a configured nullable-result annotation must be handled before an invocation is returned. |
 | [`RET`](Diagnostics/RET) | [`Example.Arch_RET_001.ConfiguredLiteralReturns`](Diagnostics/RET/Example.Arch_RET_001.ConfiguredLiteralReturns) | `ReturnValuePolicy` - empty-string, numeric, and enum-zero sentinel values are configurable literal matchers. |
 | [`RET`](Diagnostics/RET) | [`Example.Arch_RET_001.ExplicitNullReturn`](Diagnostics/RET/Example.Arch_RET_001.ExplicitNullReturn) | `ReturnValuePolicy` - a configured `Literal value="null"` is not an acceptable serving decision. |
-| [`RET`](Diagnostics/RET) | [`Example.Arch_RET_001.OnlyIdentifierReturn`](Diagnostics/RET/Example.Arch_RET_001.OnlyIdentifierReturn) | `ReturnValuePolicy` - `<AllowedReturn><Identifier /></AllowedReturn>` requires a named return hand-off instead of a direct call. |
+| [`RET`](Diagnostics/RET) | [`Example.Arch_RET_001.DirectInvocationReturn`](Diagnostics/RET/Example.Arch_RET_001.DirectInvocationReturn) | `ReturnValuePolicy` - `<Invocation />` rejects a directly returned method call without blocking literal or null returns. |
 | [`TYPE`](Diagnostics/TYPE) | [`Example.Arch_TYPE_001.ForbiddenType`](Diagnostics/TYPE/Example.Arch_TYPE_001.ForbiddenType) | [`<Forbidden>`](../README.md#forbidden) |
 | [`VIS`](Diagnostics/VIS) | [`Example.Arch_VIS_001.VisibilityPolicy`](Diagnostics/VIS/Example.Arch_VIS_001.VisibilityPolicy) | [`Visibility policies`](../README.md#visibility-policies) |
 
@@ -119,7 +119,7 @@ Diagnostic examples are grouped by the concern segment in their diagnostic ID. T
 | [`Example.WildcardTo`](Features/Example.WildcardTo) | [`<AllowedDependency>`](../README.md#alloweddependency) |
 | [`Example.Exceptions`](Features/Example.Exceptions) | [`<Exceptions>`](../README.md#exceptions) |
 | [`Example.IncludeSettings`](Features/Example.IncludeSettings) | [`<Include>`](../README.md#include) |
-| [`Example.IncludeWildcardSettings`](Features/Example.IncludeWildcardSettings) | [`<Include>`](../README.md#include) |
+| [`Example.IncludeWildcardSettings`](Features/Example.IncludeWildcardSettings) | Wildcard [`<Include>`](../README.md#include) rules, including an optional drop-in folder that may be empty. |
 | [`Example.GlobalReturnValuePolicy`](Features/Example.GlobalReturnValuePolicy) | A root `<ReturnValuePolicy>` imported from a wildcard rule folder and applied without layers. |
 | [`Example.InlineXml`](Features/Example.InlineXml) | [`Optional: inline settings with AssemblyMetadata`](../README.md#5-optional-inline-settings-with-assemblymetadata) |
 | [`Example.LayerScopedRecognizedDependencies`](Features/Example.LayerScopedRecognizedDependencies) | [`requireRecognizedDependencies`](../README.md#requirerecognizeddependencies-attribute) |

@@ -6,10 +6,10 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Analysis;
 
 public sealed class ProjectReferenceBoundaryAnalyzerTests
 {
-	[Fact]
-	public async Task ProjectArchitecture_WithoutManifest_ReportsARCH_CONF_003()
-	{
-		const string config = """
+    [Fact]
+    public async Task ProjectArchitecture_WithoutManifest_ReportsARCH_CONF_003()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <ProjectArchitecture>
 		                          <ProjectGroup name="Presentation">
@@ -23,16 +23,16 @@ public sealed class ProjectReferenceBoundaryAnalyzerTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class Placeholder { }", ("Architecture.anl", config));
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class Placeholder { }", ("Architecture.anl", config));
 
-		diagnostics.Should().ContainSingle(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid)
-			.Which.GetMessage().Should().Contain("no project-reference manifest");
-	}
+        diagnostics.Should().ContainSingle(diagnostic => diagnostic.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid)
+            .Which.GetMessage().Should().Contain("no project-reference manifest");
+    }
 
-	[Fact]
-	public async Task IllegalProjectReference_ReportsARCH_PROJ_001()
-	{
-		const string config = """
+    [Fact]
+    public async Task IllegalProjectReference_ReportsARCH_PROJ_001()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <ProjectArchitecture requireRecognizedProjects="true">
 		                          <ProjectGroup name="Presentation">
@@ -48,27 +48,27 @@ public sealed class ProjectReferenceBoundaryAnalyzerTests
 		                        </ProjectArchitecture>
 		                      </ArchitecturalLevels>
 		                      """;
-		var manifest = string.Join(
-			Environment.NewLine,
-			ArchitectureReferenceManifest.Header,
-			"Project\tD:\\src\\Shop.Web.csproj\tD:\\src\\Shop.Domain.csproj");
+        var manifest = string.Join(
+            Environment.NewLine,
+            ArchitectureReferenceManifest.Header,
+            "Project\tD:\\src\\Shop.Web.csproj\tD:\\src\\Shop.Domain.csproj");
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(
-			"public class Placeholder { }",
-			("Architecture.anl", config),
-			(ArchitectureReferenceManifest.FileName, manifest));
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(
+            "public class Placeholder { }",
+            ("Architecture.anl", config),
+            (ArchitectureReferenceManifest.FileName, manifest));
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed).Subject;
-		diagnostic.GetMessage().Should().Contain("Shop.Web");
-		diagnostic.GetMessage().Should().Contain("Shop.Domain");
-		diagnostic.Properties[ArchitecturalDiagnostics.PropertySourceProjectGroup].Should().Be("Presentation");
-		diagnostic.Properties[ArchitecturalDiagnostics.PropertyTargetProjectGroup].Should().Be("Domain");
-	}
+        var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed).Subject;
+        diagnostic.GetMessage().Should().Contain("Shop.Web");
+        diagnostic.GetMessage().Should().Contain("Shop.Domain");
+        diagnostic.Properties[ArchitecturalDiagnostics.PropertySourceProjectGroup].Should().Be("Presentation");
+        diagnostic.Properties[ArchitecturalDiagnostics.PropertyTargetProjectGroup].Should().Be("Domain");
+    }
 
-	[Fact]
-	public async Task LegalProjectReference_DoesNotReportARCH_PROJ_001()
-	{
-		const string config = """
+    [Fact]
+    public async Task LegalProjectReference_DoesNotReportARCH_PROJ_001()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <ProjectArchitecture requireRecognizedProjects="true">
 		                          <ProjectGroup name="Presentation">
@@ -81,24 +81,24 @@ public sealed class ProjectReferenceBoundaryAnalyzerTests
 		                        </ProjectArchitecture>
 		                      </ArchitecturalLevels>
 		                      """;
-		var manifest = string.Join(
-			Environment.NewLine,
-			ArchitectureReferenceManifest.Header,
-			"Project\tD:\\src\\Shop.Web.csproj\tD:\\src\\Shop.Application.csproj");
+        var manifest = string.Join(
+            Environment.NewLine,
+            ArchitectureReferenceManifest.Header,
+            "Project\tD:\\src\\Shop.Web.csproj\tD:\\src\\Shop.Application.csproj");
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(
-			"public class Placeholder { }",
-			("Architecture.anl", config),
-			(ArchitectureReferenceManifest.FileName, manifest));
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(
+            "public class Placeholder { }",
+            ("Architecture.anl", config),
+            (ArchitectureReferenceManifest.FileName, manifest));
 
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed);
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
-	}
+        diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed);
+        diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
+    }
 
-	[Fact]
-	public async Task ProjectReferenceSelector_RejectsAProjectOutsideTheAllowedTargetSelector()
-	{
-		const string config = """
+    [Fact]
+    public async Task ProjectReferenceSelector_RejectsAProjectOutsideTheAllowedTargetSelector()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <ProjectArchitecture requireRecognizedProjects="true">
 		                          <ProjectGroup name="Application">
@@ -114,24 +114,24 @@ public sealed class ProjectReferenceBoundaryAnalyzerTests
 		                        </ProjectArchitecture>
 		                      </ArchitecturalLevels>
 		                      """;
-		var manifest = string.Join(
-			Environment.NewLine,
-			ArchitectureReferenceManifest.Header,
-			"Project\tD:\\src\\Shop.Orders.Application.csproj\tD:\\src\\Shop.Payments.Contracts.csproj");
+        var manifest = string.Join(
+            Environment.NewLine,
+            ArchitectureReferenceManifest.Header,
+            "Project\tD:\\src\\Shop.Orders.Application.csproj\tD:\\src\\Shop.Payments.Contracts.csproj");
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(
-			"public class Placeholder { }",
-			("Architecture.anl", config),
-			(ArchitectureReferenceManifest.FileName, manifest));
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(
+            "public class Placeholder { }",
+            ("Architecture.anl", config),
+            (ArchitectureReferenceManifest.FileName, manifest));
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed)
-			.Which.GetMessage().Should().Contain("no AllowedProjectReference permits");
-	}
+        diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed)
+            .Which.GetMessage().Should().Contain("no AllowedProjectReference permits");
+    }
 
-	[Fact]
-	public async Task ForbiddenPackageReference_ReportsARCH_PKG_001()
-	{
-		const string config = """
+    [Fact]
+    public async Task ForbiddenPackageReference_ReportsARCH_PKG_001()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <ProjectArchitecture requireRecognizedProjects="true">
 		                          <ProjectGroup name="Domain">
@@ -145,25 +145,25 @@ public sealed class ProjectReferenceBoundaryAnalyzerTests
 		                        </ProjectArchitecture>
 		                      </ArchitecturalLevels>
 		                      """;
-		var manifest = string.Join(
-			Environment.NewLine,
-			ArchitectureReferenceManifest.Header,
-			"Package\tD:\\src\\Shop.Domain.csproj\tMicrosoft.Extensions.Logging\t9.0.0\tDirect");
+        var manifest = string.Join(
+            Environment.NewLine,
+            ArchitectureReferenceManifest.Header,
+            "Package\tD:\\src\\Shop.Domain.csproj\tMicrosoft.Extensions.Logging\t9.0.0\tDirect");
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(
-			"public class Placeholder { }",
-			("Architecture.anl", config),
-			(ArchitectureReferenceManifest.FileName, manifest));
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(
+            "public class Placeholder { }",
+            ("Architecture.anl", config),
+            (ArchitectureReferenceManifest.FileName, manifest));
 
-		var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.PackageReferenceNotAllowed).Subject;
-		diagnostic.GetMessage().Should().Contain("Microsoft.Extensions.Logging");
-		diagnostic.Properties[ArchitecturalDiagnostics.PropertyPackageReferenceKind].Should().Be("Direct");
-	}
+        var diagnostic = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.PackageReferenceNotAllowed).Subject;
+        diagnostic.GetMessage().Should().Contain("Microsoft.Extensions.Logging");
+        diagnostic.Properties[ArchitecturalDiagnostics.PropertyPackageReferenceKind].Should().Be("Direct");
+    }
 
-	[Fact]
-	public async Task TransitivePackageReference_IsIgnoredByDefault()
-	{
-		const string config = """
+    [Fact]
+    public async Task TransitivePackageReference_IsIgnoredByDefault()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <ProjectArchitecture requireRecognizedProjects="true">
 		                          <ProjectGroup name="Domain">
@@ -177,16 +177,16 @@ public sealed class ProjectReferenceBoundaryAnalyzerTests
 		                        </ProjectArchitecture>
 		                      </ArchitecturalLevels>
 		                      """;
-		var manifest = string.Join(
-			Environment.NewLine,
-			ArchitectureReferenceManifest.Header,
-			"Package\tD:\\src\\Shop.Domain.csproj\tMicrosoft.Extensions.Logging.Abstractions\t9.0.0\tTransitive");
+        var manifest = string.Join(
+            Environment.NewLine,
+            ArchitectureReferenceManifest.Header,
+            "Package\tD:\\src\\Shop.Domain.csproj\tMicrosoft.Extensions.Logging.Abstractions\t9.0.0\tTransitive");
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(
-			"public class Placeholder { }",
-			("Architecture.anl", config),
-			(ArchitectureReferenceManifest.FileName, manifest));
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(
+            "public class Placeholder { }",
+            ("Architecture.anl", config),
+            (ArchitectureReferenceManifest.FileName, manifest));
 
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.PackageReferenceNotAllowed);
-	}
+        diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.PackageReferenceNotAllowed);
+    }
 }

@@ -4,5 +4,5 @@ namespace RonSijm.AnaalIJzer.Outputs.GraphExports;
 
 public interface IArchitectureGraphSnapshotLoader
 {
-	Task<ArchitectureGraphSnapshot> LoadAsync(string inputPath, CancellationToken cancellationToken);
+    Task<ArchitectureGraphSnapshot> LoadAsync(string inputPath, CancellationToken cancellationToken);
 }

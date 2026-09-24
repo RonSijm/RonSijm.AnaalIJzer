@@ -5,10 +5,10 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Matching;
 
 public sealed class ForbiddenElementTests
 {
-	[Fact]
-	public async Task Forbidden_ReportsARCH_TYPE_001WithCustomComment()
-	{
-		const string config = """
+    [Fact]
+    public async Task Forbidden_ReportsARCH_TYPE_001WithCustomComment()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Manager">
 		                              <Class endsWith="Manager" />
@@ -24,26 +24,26 @@ public sealed class ForbiddenElementTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public interface IIdentityContext { }
 		                      public class PatientRepository { }
 		                      public class PatientManager(PatientRepository repo, IIdentityContext identity) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var arch003 = diagnostics.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed).ToList();
-		arch003.Count.Should().Be(1);
+        var arch003 = diagnostics.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed).ToList();
+        arch003.Count.Should().Be(1);
 
-		var msg = arch003[0].GetMessage(CultureInfo.InvariantCulture);
-		msg.Should().Contain("IIdentityContext");
-		msg.Should().Contain("Controllers should unwrap IIdentityContext to a DTO.");
-	}
+        var msg = arch003[0].GetMessage(CultureInfo.InvariantCulture);
+        msg.Should().Contain("IIdentityContext");
+        msg.Should().Contain("Controllers should unwrap IIdentityContext to a DTO.");
+    }
 
-	[Fact]
-	public async Task Forbidden_WithoutComment_ReportsARCH_TYPE_001WithNoHint()
-	{
-		const string config = """
+    [Fact]
+    public async Task Forbidden_WithoutComment_ReportsARCH_TYPE_001WithNoHint()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Manager">
 		                              <Class endsWith="Manager" />
@@ -54,15 +54,15 @@ public sealed class ForbiddenElementTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public interface IIdentityContext { }
 		                      public class PatientManager(IIdentityContext identity) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
-			.Should().NotBeEmpty();
-	}
+        diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
+            .Should().NotBeEmpty();
+    }
 }

@@ -5,25 +5,25 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Analysis;
 
 public sealed class SiteFilteredDependencyTests
 {
-	public static IEnumerable<object[]> AllSitesAndLayeringDiagnostics()
-	{
-		foreach (var site in AllSites())
-		foreach (var diagnosticId in new[]
-		         {
-			         ArchitecturalDiagnosticIds.DependencyNotAllowed,
-			         ArchitecturalDiagnosticIds.TypeNotAllowed,
-			         ArchitecturalDiagnosticIds.DependencyReverseDirection,
-			         ArchitecturalDiagnosticIds.DependencyPeerScope
-		         })
-		{
-			yield return [site, diagnosticId];
-		}
-	}
+    public static IEnumerable<object[]> AllSitesAndLayeringDiagnostics()
+    {
+        foreach (var site in AllSites())
+            foreach (var diagnosticId in new[]
+                     {
+                     ArchitecturalDiagnosticIds.DependencyNotAllowed,
+                     ArchitecturalDiagnosticIds.TypeNotAllowed,
+                     ArchitecturalDiagnosticIds.DependencyReverseDirection,
+                     ArchitecturalDiagnosticIds.DependencyPeerScope
+                 })
+            {
+                yield return [site, diagnosticId];
+            }
+    }
 
-	[Fact]
-	public async Task AllowedSites_AllowsOnlyListedSite()
-	{
-		const string config = """
+    [Fact]
+    public async Task AllowedSites_AllowsOnlyListedSite()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Controller"><Class typeName="CandyController" /></Layer>
 		                          <Layer name="Repository"><Class typeName="CandyRepository" /></Layer>
@@ -31,7 +31,7 @@ public sealed class SiteFilteredDependencyTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public class CandyRepository { }
 		                      public class CandyController(CandyRepository repository)
 		                      {
@@ -43,17 +43,17 @@ public sealed class SiteFilteredDependencyTests
 		                      }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Which;
-		diagnostic.Properties["Site"].Should().Be("Constructor");
-		diagnostic.GetMessage().Should().Contain("<AllowedDependency from=\"Controller\" to=\"Repository\"/> is configured, but allowedSites does not include Constructor");
-	}
+        var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Which;
+        diagnostic.Properties["Site"].Should().Be("Constructor");
+        diagnostic.GetMessage().Should().Contain("<AllowedDependency from=\"Controller\" to=\"Repository\"/> is configured, but allowedSites does not include Constructor");
+    }
 
-	[Fact]
-	public async Task BlockedSites_BlocksOnlyListedSite()
-	{
-		const string config = """
+    [Fact]
+    public async Task BlockedSites_BlocksOnlyListedSite()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Controller"><Class typeName="CandyController" /></Layer>
 		                          <Layer name="Repository"><Class typeName="CandyRepository" /></Layer>
@@ -61,7 +61,7 @@ public sealed class SiteFilteredDependencyTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public class CandyRepository { }
 		                      public class CandyController(CandyRepository repository)
 		                      {
@@ -73,17 +73,17 @@ public sealed class SiteFilteredDependencyTests
 		                      }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Which;
-		diagnostic.Properties["Site"].Should().Be("Local");
-		diagnostic.GetMessage().Should().Contain("<AllowedDependency from=\"Controller\" to=\"Repository\"/> is configured, but blockedSites blocks Local");
-	}
+        var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Which;
+        diagnostic.Properties["Site"].Should().Be("Local");
+        diagnostic.GetMessage().Should().Contain("<AllowedDependency from=\"Controller\" to=\"Repository\"/> is configured, but blockedSites blocks Local");
+    }
 
-	[Fact]
-	public async Task AllowedSites_AreCommaSeparatedTrimmedAndCaseInsensitive()
-	{
-		const string config = """
+    [Fact]
+    public async Task AllowedSites_AreCommaSeparatedTrimmedAndCaseInsensitive()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Controller"><Class typeName="CandyController" /></Layer>
 		                          <Layer name="Repository"><Class typeName="CandyRepository" /></Layer>
@@ -91,7 +91,7 @@ public sealed class SiteFilteredDependencyTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public class CandyRepository { }
 		                      public class CandyController
 		                      {
@@ -105,16 +105,16 @@ public sealed class SiteFilteredDependencyTests
 		                      }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Which;
-		diagnostic.Properties["Site"].Should().Be("Field");
-	}
+        var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Which;
+        diagnostic.Properties["Site"].Should().Be("Field");
+    }
 
-	[Fact]
-	public async Task UnknownAllowedSitesToken_IgnoresEdgeFailClosed()
-	{
-		const string config = """
+    [Fact]
+    public async Task UnknownAllowedSitesToken_IgnoresEdgeFailClosed()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Controller"><Class typeName="CandyController" /></Layer>
 		                          <Layer name="Repository"><Class typeName="CandyRepository" /></Layer>
@@ -122,20 +122,20 @@ public sealed class SiteFilteredDependencyTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public class CandyRepository { }
 		                      public class CandyController(CandyRepository repository) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed);
-	}
+        diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed);
+    }
 
-	[Fact]
-	public async Task BothSiteFiltersOnSameEdge_IgnoresEdgeFailClosed()
-	{
-		const string config = """
+    [Fact]
+    public async Task BothSiteFiltersOnSameEdge_IgnoresEdgeFailClosed()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Controller"><Class typeName="CandyController" /></Layer>
 		                          <Layer name="Repository"><Class typeName="CandyRepository" /></Layer>
@@ -143,20 +143,20 @@ public sealed class SiteFilteredDependencyTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public class CandyRepository { }
 		                      public class CandyController(CandyRepository repository) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed);
-	}
+        diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed);
+    }
 
-	[Fact]
-	public async Task WildcardTargetEdges_RespectSiteFilters()
-	{
-		const string config = """
+    [Fact]
+    public async Task WildcardTargetEdges_RespectSiteFilters()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Controller"><Class typeName="CandyController" /></Layer>
 		                          <Layer name="Repository"><Class typeName="CandyRepository" /></Layer>
@@ -164,7 +164,7 @@ public sealed class SiteFilteredDependencyTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public class CandyRepository { }
 		                      public class CandyController(CandyRepository repository)
 		                      {
@@ -176,17 +176,17 @@ public sealed class SiteFilteredDependencyTests
 		                      }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Which;
-		diagnostic.Properties["Site"].Should().Be("Constructor");
-		diagnostic.GetMessage().Should().Contain("<AllowedDependency from=\"*\" to=\"Repository\"/> is configured, but allowedSites does not include Constructor");
-	}
+        var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Which;
+        diagnostic.Properties["Site"].Should().Be("Constructor");
+        diagnostic.GetMessage().Should().Contain("<AllowedDependency from=\"*\" to=\"Repository\"/> is configured, but allowedSites does not include Constructor");
+    }
 
-	[Fact]
-	public async Task WildcardSourceEdges_RespectSiteFilters()
-	{
-		const string config = """
+    [Fact]
+    public async Task WildcardSourceEdges_RespectSiteFilters()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Controller"><Class typeName="CandyController" /></Layer>
 		                          <Layer name="Repository"><Class typeName="CandyRepository" /></Layer>
@@ -194,7 +194,7 @@ public sealed class SiteFilteredDependencyTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public class CandyRepository { }
 		                      public class CandyController(CandyRepository repository)
 		                      {
@@ -206,17 +206,17 @@ public sealed class SiteFilteredDependencyTests
 		                      }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Which;
-		diagnostic.Properties["Site"].Should().Be("Local");
-		diagnostic.GetMessage().Should().Contain("<AllowedDependency from=\"Controller\" to=\"*\"/> is configured, but blockedSites blocks Local");
-	}
+        var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Which;
+        diagnostic.Properties["Site"].Should().Be("Local");
+        diagnostic.GetMessage().Should().Contain("<AllowedDependency from=\"Controller\" to=\"*\"/> is configured, but blockedSites blocks Local");
+    }
 
-	[Fact]
-	public async Task ReverseEdgeDetection_IgnoresReverseEdgeSiteFilter()
-	{
-		const string config = """
+    [Fact]
+    public async Task ReverseEdgeDetection_IgnoresReverseEdgeSiteFilter()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Controller"><Class typeName="CandyController" /></Layer>
 		                          <Layer name="Application"><Class typeName="CandyService" /></Layer>
@@ -224,28 +224,28 @@ public sealed class SiteFilteredDependencyTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public class CandyService { }
 		                      public class CandyController(CandyService service) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyReverseDirection).Which;
-		diagnostic.Properties["Site"].Should().Be("Constructor");
-	}
+        var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyReverseDirection).Which;
+        diagnostic.Properties["Site"].Should().Be("Constructor");
+    }
 
-	[Fact]
-	public async Task LocalSite_IsCheckedWithoutRootOptIn()
-	{
-		const string config = """
+    [Fact]
+    public async Task LocalSite_IsCheckedWithoutRootOptIn()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Controller"><Class typeName="CandyController" /></Layer>
 		                          <Layer name="Repository"><Class typeName="CandyRepository" /></Layer>
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public class CandyRepository { }
 		                      public class CandyController
 		                      {
@@ -257,23 +257,23 @@ public sealed class SiteFilteredDependencyTests
 		                      }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Which;
-		diagnostic.Properties["Site"].Should().Be("Local");
-	}
+        var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed).Which;
+        diagnostic.Properties["Site"].Should().Be("Local");
+    }
 
-	[Fact]
-	public async Task LocalSite_CatchesExplicitAndInferredLocals()
-	{
-		const string config = """
+    [Fact]
+    public async Task LocalSite_CatchesExplicitAndInferredLocals()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Controller"><Class typeName="CandyController" /></Layer>
 		                          <Layer name="Repository"><Class typeName="CandyRepository" /></Layer>
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public class CandyRepository { }
 		                      public class CandyController
 		                      {
@@ -286,41 +286,41 @@ public sealed class SiteFilteredDependencyTests
 		                      }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed && d.Properties["Site"] == "Local")
-			.Should().HaveCount(2);
-	}
+        diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed && d.Properties["Site"] == "Local")
+            .Should().HaveCount(2);
+    }
 
-	[Theory]
-	[MemberData(nameof(AllSitesAndLayeringDiagnostics))]
-	public async Task EverySite_CanProduceLayeringDiagnostic(string site, string diagnosticId)
-	{
-		var dependencyTypeName = GetDependencyTypeName(diagnosticId);
-		var source = CreateSourceForSite(site, dependencyTypeName);
-		var config = CreateConfigForDiagnostic(diagnosticId);
+    [Theory]
+    [MemberData(nameof(AllSitesAndLayeringDiagnostics))]
+    public async Task EverySite_CanProduceLayeringDiagnostic(string site, string diagnosticId)
+    {
+        var dependencyTypeName = GetDependencyTypeName(diagnosticId);
+        var source = CreateSourceForSite(site, dependencyTypeName);
+        var config = CreateConfigForDiagnostic(diagnosticId);
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == diagnosticId).Which;
-		diagnostic.Properties["Site"].Should().Be(site);
-	}
+        var diagnostic = diagnostics.Should().ContainSingle(d => d.Id == diagnosticId).Which;
+        diagnostic.Properties["Site"].Should().Be(site);
+    }
 
-	private static IEnumerable<string> AllSites()
-	{
-		yield return "Constructor";
-		yield return "Method";
-		yield return "MethodReturn";
-		yield return "Field";
-		yield return "Property";
-		yield return "Local";
-		yield return "New";
-		yield return "GenericInvocation";
-		yield return "GenericArgument";
-	}
+    private static IEnumerable<string> AllSites()
+    {
+        yield return "Constructor";
+        yield return "Method";
+        yield return "MethodReturn";
+        yield return "Field";
+        yield return "Property";
+        yield return "Local";
+        yield return "New";
+        yield return "GenericInvocation";
+        yield return "GenericArgument";
+    }
 
-	private static string GetDependencyTypeName(string diagnosticId)
+    private static string GetDependencyTypeName(string diagnosticId)
     {
         var result = diagnosticId switch
         {
@@ -331,7 +331,7 @@ public sealed class SiteFilteredDependencyTests
             _ => throw new ArgumentOutOfRangeException(nameof(diagnosticId), diagnosticId, null)
         };
 
-		return result;
+        return result;
     }
 
     private static string CreateConfigForDiagnostic(string diagnosticId)
@@ -368,28 +368,28 @@ public sealed class SiteFilteredDependencyTests
             _ => throw new ArgumentOutOfRangeException(nameof(diagnosticId), diagnosticId, null)
         };
 
-		return result;
+        return result;
     }
 
     private static string CreateSourceForSite(string site, string dependencyTypeName)
-	{
-		var caller = site switch
-		{
-			"Constructor" => $"public class CallerController({dependencyTypeName} dependency) {{ }}",
-			"Method" => $"public class CallerController {{ public void Use({dependencyTypeName} dependency) {{ }} }}",
-			"MethodReturn" => $"public class CallerController {{ public {dependencyTypeName} Get() => null!; }}",
-			"Field" => $"public class CallerController {{ private readonly {dependencyTypeName} _dependency = null!; }}",
-			"Property" => $"public class CallerController {{ public {dependencyTypeName} Dependency {{ get; set; }} = null!; }}",
-			"Local" => $"public class CallerController {{ public void Run() {{ {dependencyTypeName} dependency = null!; _ = dependency; }} }}",
-			"New" => $"public class CallerController {{ public void Run() => _ = new {dependencyTypeName}(); }}",
-			"GenericInvocation" => $"public class CallerController {{ public void Run() => _ = Resolve<{dependencyTypeName}>(); private static T Resolve<T>() where T : class => null!; }}",
-			"GenericArgument" => $"using System; public class CallerController(Lazy<{dependencyTypeName}> dependency) {{ }}",
-			_ => throw new ArgumentOutOfRangeException(nameof(site), site, null)
-		};
+    {
+        var caller = site switch
+        {
+            "Constructor" => $"public class CallerController({dependencyTypeName} dependency) {{ }}",
+            "Method" => $"public class CallerController {{ public void Use({dependencyTypeName} dependency) {{ }} }}",
+            "MethodReturn" => $"public class CallerController {{ public {dependencyTypeName} Get() => null!; }}",
+            "Field" => $"public class CallerController {{ private readonly {dependencyTypeName} _dependency = null!; }}",
+            "Property" => $"public class CallerController {{ public {dependencyTypeName} Dependency {{ get; set; }} = null!; }}",
+            "Local" => $"public class CallerController {{ public void Run() {{ {dependencyTypeName} dependency = null!; _ = dependency; }} }}",
+            "New" => $"public class CallerController {{ public void Run() => _ = new {dependencyTypeName}(); }}",
+            "GenericInvocation" => $"public class CallerController {{ public void Run() => _ = Resolve<{dependencyTypeName}>(); private static T Resolve<T>() where T : class => null!; }}",
+            "GenericArgument" => $"using System; public class CallerController(Lazy<{dependencyTypeName}> dependency) {{ }}",
+            _ => throw new ArgumentOutOfRangeException(nameof(site), site, null)
+        };
 
-		return $$"""
+        return $$"""
 		         {{caller}}
 		         public class {{dependencyTypeName}} { }
 		         """;
-	}
+    }
 }

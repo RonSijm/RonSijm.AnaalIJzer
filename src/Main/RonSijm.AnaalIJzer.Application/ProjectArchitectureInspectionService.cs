@@ -10,25 +10,25 @@ namespace RonSijm.AnaalIJzer.Application;
 /// </summary>
 internal static class ProjectArchitectureInspectionService
 {
-	internal static ImmutableArray<ArchitectureFinding> GetAssemblyReferencePolicyFindings(IEnumerable<ProjectAnalysisResult> projects)
-	{
-		var findings = ImmutableArray.CreateBuilder<ArchitectureFinding>();
-		foreach (var project in projects)
-		{
-			if (project.Config.ProjectArchitecture.AssemblyReferencePolicies.IsDefaultOrEmpty)
-			{
-				continue;
-			}
+    internal static ImmutableArray<ArchitectureFinding> GetAssemblyReferencePolicyFindings(IEnumerable<ProjectAnalysisResult> projects)
+    {
+        var findings = ImmutableArray.CreateBuilder<ArchitectureFinding>();
+        foreach (var project in projects)
+        {
+            if (project.Config.ProjectArchitecture.AssemblyReferencePolicies.IsDefaultOrEmpty)
+            {
+                continue;
+            }
 
-			var analysis = ProjectArchitectureAnalysisService.Analyze(project.Config.ProjectArchitecture, project.ReferenceManifest);
-			findings.AddRange(analysis.AssemblyReferenceViolations.Select(violation => violation.ToArchitectureFinding()));
-		}
+            var analysis = ProjectArchitectureAnalysisService.Analyze(project.Config.ProjectArchitecture, project.ReferenceManifest);
+            findings.AddRange(analysis.AssemblyReferenceViolations.Select(violation => violation.ToArchitectureFinding()));
+        }
 
-		var result = findings
-			.OrderBy(finding => finding.Properties.GetValueOrDefault(ArchitectureDiagnosticProperties.PropertySourceProjectName), StringComparer.Ordinal)
-			.ThenBy(finding => finding.Properties.GetValueOrDefault(ArchitectureDiagnosticProperties.PropertyAssemblyIdentity), StringComparer.Ordinal)
-			.ToImmutableArray();
+        var result = findings
+            .OrderBy(finding => finding.Properties.GetValueOrDefault(ArchitectureDiagnosticProperties.PropertySourceProjectName), StringComparer.Ordinal)
+            .ThenBy(finding => finding.Properties.GetValueOrDefault(ArchitectureDiagnosticProperties.PropertyAssemblyIdentity), StringComparer.Ordinal)
+            .ToImmutableArray();
 
-		return result;
-	}
+        return result;
+    }
 }

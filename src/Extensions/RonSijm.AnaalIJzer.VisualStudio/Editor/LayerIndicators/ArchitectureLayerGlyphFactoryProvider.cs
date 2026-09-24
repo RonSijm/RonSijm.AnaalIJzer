@@ -15,22 +15,22 @@ namespace RonSijm.AnaalIJzer.VisualStudio.Editor.LayerIndicators;
 [TagType(typeof(ArchitectureLayerGlyphTag))]
 internal sealed class ArchitectureLayerGlyphFactoryProvider : IGlyphFactoryProvider
 {
-	public IGlyphFactory GetGlyphFactory(IWpfTextView view, IWpfTextViewMargin margin)
-	{
-		var result = new ArchitectureLayerGlyphFactory();
+    public IGlyphFactory GetGlyphFactory(IWpfTextView view, IWpfTextViewMargin margin)
+    {
+        var result = new ArchitectureLayerGlyphFactory();
 
-		return result;
-	}
+        return result;
+    }
 }
 
 internal sealed class ArchitectureLayerGlyphFactory : IGlyphFactory
 {
-	public UIElement? GenerateGlyph(IWpfTextViewLine line, IGlyphTag tag)
-	{
-		var result = tag is ArchitectureLayerGlyphTag layerTag
-			? ArchitectureAdornmentFactory.CreateLayerGlyph(layerTag.Indicator)
-			: null;
+    public UIElement? GenerateGlyph(IWpfTextViewLine line, IGlyphTag tag)
+    {
+        var result = tag is ArchitectureLayerGlyphTag layerTag
+            ? ArchitectureAdornmentFactory.CreateLayerGlyph(layerTag.Indicator)
+            : null;
 
-		return result;
-	}
+        return result;
+    }
 }

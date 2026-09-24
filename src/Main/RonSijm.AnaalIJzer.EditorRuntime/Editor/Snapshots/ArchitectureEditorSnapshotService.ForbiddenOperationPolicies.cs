@@ -10,57 +10,57 @@ namespace RonSijm.AnaalIJzer.EditorRuntime.Editor.Snapshots;
 
 public static partial class ArchitectureEditorSnapshotService
 {
-	private static void AddForbiddenOperationPolicyIndicator(SyntaxNode node, SemanticModel semanticModel, ProjectAnalyzerConfig config, ImmutableArray<ArchitectureDependencySiteIndicator>.Builder indicators, CancellationToken cancellationToken)
-	{
-		if (!CanRepresentSemanticOperation(node)
-			|| !SemanticOperationFactory.TryCreate(semanticModel.GetOperation(node, cancellationToken), semanticModel, cancellationToken, out var operation)
-			|| TryGetCaller(node, semanticModel, config, cancellationToken) is not { } caller)
-		{
-			return;
-		}
+    private static void AddForbiddenOperationPolicyIndicator(SyntaxNode node, SemanticModel semanticModel, ProjectAnalyzerConfig config, ImmutableArray<ArchitectureDependencySiteIndicator>.Builder indicators, CancellationToken cancellationToken)
+    {
+        if (!CanRepresentSemanticOperation(node)
+            || !SemanticOperationFactory.TryCreate(semanticModel.GetOperation(node, cancellationToken), semanticModel, cancellationToken, out var operation)
+            || TryGetCaller(node, semanticModel, config, cancellationToken) is not { } caller)
+        {
+            return;
+        }
 
-		var evaluation = config.EvaluateForbiddenOperationPolicies(caller.Match, operation);
-		if (evaluation is null)
-		{
-			return;
-		}
+        var evaluation = config.EvaluateForbiddenOperationPolicies(caller.Match, operation);
+        if (evaluation is null)
+        {
+            return;
+        }
 
-		var tooltip = operation.Site
-		              + ": "
-		              + caller.TypeName
-		              + " ("
-		              + caller.LayerPath
-		              + ") may not use "
-		              + operation.DisplayName
-		              + " - "
-		              + evaluation.Value.Reason;
-		indicators.Add(new ArchitectureDependencySiteIndicator(
-			operation.Location.SourceSpan,
-			operation.Site,
-			caller.TypeName,
-			caller.LayerPath,
-			operation.DisplayName,
-			null,
-			0,
-			ArchitectureDependencySiteStatus.TypePolicyViolation,
-			ArchitecturalDiagnosticIds.OperationNotAllowed,
-			tooltip,
-			evaluation.Value.Reason));
-	}
+        var tooltip = operation.Site
+                      + ": "
+                      + caller.TypeName
+                      + " ("
+                      + caller.LayerPath
+                      + ") may not use "
+                      + operation.DisplayName
+                      + " - "
+                      + evaluation.Value.Reason;
+        indicators.Add(new ArchitectureDependencySiteIndicator(
+            operation.Location.SourceSpan,
+            operation.Site,
+            caller.TypeName,
+            caller.LayerPath,
+            operation.DisplayName,
+            null,
+            0,
+            ArchitectureDependencySiteStatus.TypePolicyViolation,
+            ArchitecturalDiagnosticIds.OperationNotAllowed,
+            tooltip,
+            evaluation.Value.Reason));
+    }
 
-	private static bool CanRepresentSemanticOperation(SyntaxNode node)
-	{
-		var result = node is InvocationExpressionSyntax
-			or MemberAccessExpressionSyntax
-			or IdentifierNameSyntax
-			or ElementAccessExpressionSyntax
-			or ObjectCreationExpressionSyntax
-			or ImplicitObjectCreationExpressionSyntax
-			or CastExpressionSyntax
-			or AssignmentExpressionSyntax
-			or ReturnStatementSyntax
-			or ArgumentSyntax;
+    private static bool CanRepresentSemanticOperation(SyntaxNode node)
+    {
+        var result = node is InvocationExpressionSyntax
+            or MemberAccessExpressionSyntax
+            or IdentifierNameSyntax
+            or ElementAccessExpressionSyntax
+            or ObjectCreationExpressionSyntax
+            or ImplicitObjectCreationExpressionSyntax
+            or CastExpressionSyntax
+            or AssignmentExpressionSyntax
+            or ReturnStatementSyntax
+            or ArgumentSyntax;
 
-		return result;
-	}
+        return result;
+    }
 }

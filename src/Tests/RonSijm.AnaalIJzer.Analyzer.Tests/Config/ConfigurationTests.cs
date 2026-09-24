@@ -5,23 +5,23 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Config;
 
 public sealed class ConfigurationTests
 {
-	[Fact]
-	public async Task NoConfigFile_NoDiagnostics()
-	{
-		const string source = """
+    [Fact]
+    public async Task NoConfigFile_NoDiagnostics()
+    {
+        const string source = """
 		                      public class OtherController { }
 		                      public class PatientController(OtherController other) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source);
 
-		diagnostics.Should().BeEmpty();
-	}
+        diagnostics.Should().BeEmpty();
+    }
 
-	[Fact]
-	public async Task InlineAssemblyMetadataSettings_ReportsDiagnostics()
-	{
-		const string source = """"
+    [Fact]
+    public async Task InlineAssemblyMetadataSettings_ReportsDiagnostics()
+    {
+        const string source = """"
 		                      using System.Reflection;
 
 		                      [assembly: AssemblyMetadata("AnaalIJzerSettings", """
@@ -46,18 +46,18 @@ public sealed class ConfigurationTests
 		                      public class MenuController(ICheeseRepository cheeseRepository) { }
 		                      """";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source);
 
-		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
-			.Should().ContainSingle()
-			.Which.GetMessage(CultureInfo.InvariantCulture).Should().Contain("MenuController");
-	}
+        diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
+            .Should().ContainSingle()
+            .Which.GetMessage(CultureInfo.InvariantCulture).Should().Contain("MenuController");
+    }
 
-	[Fact]
-	public async Task ArchitecturalLevelsAdditionalFile_TakesPrecedenceOverInlineAssemblyMetadata()
-	{
-		const string inlineConfigSource = """"
+    [Fact]
+    public async Task ArchitecturalLevelsAdditionalFile_TakesPrecedenceOverInlineAssemblyMetadata()
+    {
+        const string inlineConfigSource = """"
 		                                  using System.Reflection;
 
 		                                  [assembly: AssemblyMetadata("AnaalIJzerSettings", """
@@ -75,7 +75,7 @@ public sealed class ConfigurationTests
 		                                  public class MenuController(ICheeseRepository cheeseRepository) { }
 		                                  """";
 
-		const string additionalFileConfig = """
+        const string additionalFileConfig = """
 		                                    <ArchitecturalLevels>
 		                                      <Layer name="Controller">
 		                                        <Class endsWith="Controller" />
@@ -87,20 +87,20 @@ public sealed class ConfigurationTests
 		                                    </ArchitecturalLevels>
 		                                    """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(inlineConfigSource, additionalFileConfig);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(inlineConfigSource, additionalFileConfig);
 
-		diagnostics.Should().BeEmpty();
-	}
+        diagnostics.Should().BeEmpty();
+    }
 
-	[Fact]
-	public async Task NonDefaultAdditionalSettingsFile_IsIgnoredAsTopLevelConfig()
-	{
-		const string source = """
+    [Fact]
+    public async Task NonDefaultAdditionalSettingsFile_IsIgnoredAsTopLevelConfig()
+    {
+        const string source = """
 		                      public interface ICheeseRepository { }
 		                      public class MenuController(ICheeseRepository cheeseRepository) { }
 		                      """;
 
-		const string config = """
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Layer name="Controller">
 		                          <Class endsWith="Controller" />
@@ -111,20 +111,20 @@ public sealed class ConfigurationTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, ("RestaurantRules.anl", config));
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, ("RestaurantRules.anl", config));
 
-		diagnostics.Should().BeEmpty();
-	}
+        diagnostics.Should().BeEmpty();
+    }
 
-	[Fact]
-	public async Task ArchitectureAnlAdditionalFile_IsUsedAsTopLevelConfig()
-	{
-		const string source = """
+    [Fact]
+    public async Task ArchitectureAnlAdditionalFile_IsUsedAsTopLevelConfig()
+    {
+        const string source = """
 		                      public interface ICheeseRepository { }
 		                      public class MenuController(ICheeseRepository cheeseRepository) { }
 		                      """;
 
-		const string config = """
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <Layer name="Controller">
 		                          <Class endsWith="Controller" />
@@ -135,25 +135,25 @@ public sealed class ConfigurationTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, ("Architecture.anl", config));
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, ("Architecture.anl", config));
 
-		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
-			.Should().ContainSingle()
-			.Which.GetMessage(CultureInfo.InvariantCulture).Should().Contain("MenuController");
-	}
+        diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
+            .Should().ContainSingle()
+            .Which.GetMessage(CultureInfo.InvariantCulture).Should().Contain("MenuController");
+    }
 
-	[Fact]
-	public async Task IncludeElement_MergesAdditionalSettingsFile()
-	{
-		const string parentConfig = """
+    [Fact]
+    public async Task IncludeElement_MergesAdditionalSettingsFile()
+    {
+        const string parentConfig = """
 		                            <ArchitecturalLevels>
 		                              <Include path="SharedPizzeriaLayers.xml" />
 		                              <AllowedDependency from="Controller" to="Application" />
 		                            </ArchitecturalLevels>
 		                            """;
 
-		const string sharedConfig = """
+        const string sharedConfig = """
 		                            <ArchitecturalLevels>
 		                              <Layer name="Controller">
 		                                <Class endsWith="Controller" />
@@ -168,7 +168,7 @@ public sealed class ConfigurationTests
 		                            </ArchitecturalLevels>
 		                            """;
 
-		const string source = """
+        const string source = """
 		                      public interface IPizzaKitchen { }
 		                      public interface ICheeseRepository { }
 		                      public class PizzaController(IPizzaKitchen kitchen) { }
@@ -176,28 +176,28 @@ public sealed class ConfigurationTests
 		                      public class MenuController(ICheeseRepository cheeseRepository) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(
-			source,
-			("Architecture.anl", parentConfig),
-			("SharedPizzeriaLayers.xml", sharedConfig));
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(
+            source,
+            ("Architecture.anl", parentConfig),
+            ("SharedPizzeriaLayers.xml", sharedConfig));
 
-		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
-			.Should().ContainSingle()
-			.Which.GetMessage(CultureInfo.InvariantCulture).Should().Contain("MenuController");
-	}
+        diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
+            .Should().ContainSingle()
+            .Which.GetMessage(CultureInfo.InvariantCulture).Should().Contain("MenuController");
+    }
 
-	[Fact]
-	public async Task IncludeElement_MergesNestedSettingsFile()
-	{
-		const string parentConfig = """
+    [Fact]
+    public async Task IncludeElement_MergesNestedSettingsFile()
+    {
+        const string parentConfig = """
 		                            <ArchitecturalLevels>
 		                              <Include path="SharedPizzeriaLayers.xml" />
 		                              <AllowedDependency from="Controller" to="Application" />
 		                            </ArchitecturalLevels>
 		                            """;
 
-		const string sharedConfig = """
+        const string sharedConfig = """
 		                            <ArchitecturalLevels>
 		                              <Include path="SharedPizzeriaEdges.xml" />
 		                              <Layer name="Controller">
@@ -212,38 +212,38 @@ public sealed class ConfigurationTests
 		                            </ArchitecturalLevels>
 		                            """;
 
-		const string sharedEdgesConfig = """
+        const string sharedEdgesConfig = """
 		                                 <ArchitecturalLevels>
 		                                   <AllowedDependency from="Application" to="Repository" />
 		                                 </ArchitecturalLevels>
 		                                 """;
 
-		const string source = """
+        const string source = """
 		                      public interface IPizzaKitchen { }
 		                      public interface ICheeseRepository { }
 		                      public class PizzaController(IPizzaKitchen kitchen) { }
 		                      public class PizzaKitchen(ICheeseRepository cheeseRepository) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(
-			source,
-			("Architecture.anl", parentConfig),
-			("SharedPizzeriaLayers.xml", sharedConfig),
-			("SharedPizzeriaEdges.xml", sharedEdgesConfig));
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(
+            source,
+            ("Architecture.anl", parentConfig),
+            ("SharedPizzeriaLayers.xml", sharedConfig),
+            ("SharedPizzeriaEdges.xml", sharedEdgesConfig));
 
-		diagnostics.Should().BeEmpty();
-	}
+        diagnostics.Should().BeEmpty();
+    }
 
-	[Fact]
-	public async Task IncludeElement_Wildcard_MergesMatchingAdditionalSettingsFiles()
-	{
-		const string parentConfig = """
+    [Fact]
+    public async Task IncludeElement_Wildcard_MergesMatchingAdditionalSettingsFiles()
+    {
+        const string parentConfig = """
 		                            <ArchitecturalLevels>
 		                              <Include path="*.anl" />
 		                            </ArchitecturalLevels>
 		                            """;
 
-		const string sharedLayersConfig = """
+        const string sharedLayersConfig = """
 		                                  <ArchitecturalLevels>
 		                                    <Layer name="Waiter">
 		                                      <Class endsWith="Waiter" />
@@ -257,14 +257,14 @@ public sealed class ConfigurationTests
 		                                  </ArchitecturalLevels>
 		                                  """;
 
-		const string sharedEdgesConfig = """
+        const string sharedEdgesConfig = """
 		                                 <ArchitecturalLevels>
 		                                   <AllowedDependency from="Waiter" to="Chef" />
 		                                   <AllowedDependency from="Chef" to="Pantry" />
 		                                 </ArchitecturalLevels>
 		                                 """;
 
-		const string source = """
+        const string source = """
 		                      public interface IPizzaChef { }
 		                      public interface IIngredientPantry { }
 		                      public class TableWaiter(IPizzaChef chef) { }
@@ -272,22 +272,22 @@ public sealed class ConfigurationTests
 		                      public class CuriousWaiter(IIngredientPantry pantry) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(
-			source,
-			("Architecture.anl", parentConfig),
-			(@"RulePlugins\RestaurantLayers.anl", sharedLayersConfig),
-			(@"RulePlugins\RestaurantFlow.anl", sharedEdgesConfig));
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(
+            source,
+            ("Architecture.anl", parentConfig),
+            (@"RulePlugins\RestaurantLayers.anl", sharedLayersConfig),
+            (@"RulePlugins\RestaurantFlow.anl", sharedEdgesConfig));
 
-		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
-			.Should().ContainSingle()
-			.Which.GetMessage(CultureInfo.InvariantCulture).Should().Contain("CuriousWaiter");
-	}
+        diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
+            .Should().ContainSingle()
+            .Which.GetMessage(CultureInfo.InvariantCulture).Should().Contain("CuriousWaiter");
+    }
 
-	[Fact]
-	public async Task CustomLayerNames_AreRespected()
-	{
-		const string customConfig = """
+    [Fact]
+    public async Task CustomLayerNames_AreRespected()
+    {
+        const string customConfig = """
 		                            <ArchitecturalLevels>
 		                                <Layer name="Handler">
 		                                    <Class endsWith="Handler" />
@@ -299,23 +299,23 @@ public sealed class ConfigurationTests
 		                            </ArchitecturalLevels>
 		                            """;
 
-		// OtherHandler and RequestHandler are both in the Handler layer.
-		const string source = """
+        // OtherHandler and RequestHandler are both in the Handler layer.
+        const string source = """
 		                      public class OtherHandler { }
 		                      public class RequestHandler(OtherHandler other) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, customConfig);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, customConfig);
 
-		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyPeerScope)
-			.Should().NotBeEmpty();
-	}
+        diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyPeerScope)
+            .Should().NotBeEmpty();
+    }
 
-	[Fact]
-	public async Task CustomLayerNames_ValidDependency_NoDiagnostic()
-	{
-		const string customConfig = """
+    [Fact]
+    public async Task CustomLayerNames_ValidDependency_NoDiagnostic()
+    {
+        const string customConfig = """
 		                            <ArchitecturalLevels>
 		                                <Layer name="Handler">
 		                                    <Class endsWith="Handler" />
@@ -327,33 +327,33 @@ public sealed class ConfigurationTests
 		                            </ArchitecturalLevels>
 		                            """;
 
-		const string source = """
+        const string source = """
 		                      public class PatientService { }
 		                      public class RequestHandler(PatientService service) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, customConfig);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, customConfig);
 
-		diagnostics.Should().BeEmpty();
-	}
+        diagnostics.Should().BeEmpty();
+    }
 
-	[Fact]
-	public async Task DiagnosticMessage_ContainsCallerAndDependency()
-	{
-		// Same-layer (Controller -> Controller) — exercises the ARCH_DEP_005 message template.
-		const string source = """
+    [Fact]
+    public async Task DiagnosticMessage_ContainsCallerAndDependency()
+    {
+        // Same-layer (Controller -> Controller) — exercises the ARCH_DEP_005 message template.
+        const string source = """
 		                      public class OtherController { }
 		                      public class PatientController(OtherController other) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, TestConfigs.DefaultConfig);
 
-		var msg = diagnostics
-			.First(d => d.Id == ArchitecturalDiagnosticIds.DependencyPeerScope)
-			.GetMessage(CultureInfo.InvariantCulture);
+        var msg = diagnostics
+            .First(d => d.Id == ArchitecturalDiagnosticIds.DependencyPeerScope)
+            .GetMessage(CultureInfo.InvariantCulture);
 
-		msg.Should().Contain("PatientController");
-		msg.Should().Contain("OtherController");
-	}
+        msg.Should().Contain("PatientController");
+        msg.Should().Contain("OtherController");
+    }
 
 }

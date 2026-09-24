@@ -6,10 +6,10 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Analysis.ApiSurface;
 
 public sealed class ApiSurfaceAnalyzerTests
 {
-	[Fact]
-	public async Task PublicMethodReturn_ReportsBlockedLayer()
-	{
-		const string source = """
+    [Fact]
+    public async Task PublicMethodReturn_ReportsBlockedLayer()
+    {
+        const string source = """
 			public class LollyQueryable { }
 			public class LollyProjection { }
 
@@ -20,21 +20,21 @@ public sealed class ApiSurfaceAnalyzerTests
 				public LollyQueryable OrderRaw() => new();
 			}
 			""";
-		var config = CreateBlockConfig();
+        var config = CreateBlockConfig();
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed).Subject;
-		violation.Properties[ArchitecturalDiagnostics.PropertyDepTypeName].Should().Be("LollyQueryable");
-		violation.Properties[ArchitecturalDiagnostics.PropertyDepLayerName].Should().Be("QuerySurface");
-		violation.Properties[ArchitecturalDiagnostics.PropertySite].Should().Be(DependencySites.MethodReturn);
-		violation.Properties[ArchitecturalDiagnostics.PropertyApiMemberName].Should().Be("CandyService.OrderRaw");
-	}
+        var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed).Subject;
+        violation.Properties[ArchitecturalDiagnostics.PropertyDepTypeName].Should().Be("LollyQueryable");
+        violation.Properties[ArchitecturalDiagnostics.PropertyDepLayerName].Should().Be("QuerySurface");
+        violation.Properties[ArchitecturalDiagnostics.PropertySite].Should().Be(DependencySites.MethodReturn);
+        violation.Properties[ArchitecturalDiagnostics.PropertyApiMemberName].Should().Be("CandyService.OrderRaw");
+    }
 
-	[Fact]
-	public async Task EverySupportedApiSite_Reports()
-	{
-		const string source = """
+    [Fact]
+    public async Task EverySupportedApiSite_Reports()
+    {
+        const string source = """
 			using System;
 			using System.Collections.Generic;
 
@@ -55,7 +55,7 @@ public sealed class ApiSurfaceAnalyzerTests
 				public List<LollyQueryable> GenericValue() => new();
 			}
 			""";
-		const string config = """
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Class endsWith="Service" />
@@ -72,27 +72,27 @@ public sealed class ApiSurfaceAnalyzerTests
 			</ArchitecturalLevels>
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var sites = diagnostics
-			.Where(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed)
-			.Select(item => item.Properties[ArchitecturalDiagnostics.PropertySite])
-			.ToArray();
-		sites.Should().Contain(DependencySites.Constructor);
-		sites.Should().Contain(DependencySites.Method);
-		sites.Should().Contain(DependencySites.MethodReturn);
-		sites.Should().Contain(DependencySites.Property);
-		sites.Should().Contain(DependencySites.Field);
-		sites.Should().Contain(DependencySites.Inheritance);
-		sites.Should().Contain(DependencySites.InterfaceImplementation);
-		sites.Should().Contain(DependencySites.GenericArgument);
-		sites.Should().Contain(DependencySites.Attribute);
-	}
+        var sites = diagnostics
+            .Where(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed)
+            .Select(item => item.Properties[ArchitecturalDiagnostics.PropertySite])
+            .ToArray();
+        sites.Should().Contain(DependencySites.Constructor);
+        sites.Should().Contain(DependencySites.Method);
+        sites.Should().Contain(DependencySites.MethodReturn);
+        sites.Should().Contain(DependencySites.Property);
+        sites.Should().Contain(DependencySites.Field);
+        sites.Should().Contain(DependencySites.Inheritance);
+        sites.Should().Contain(DependencySites.InterfaceImplementation);
+        sites.Should().Contain(DependencySites.GenericArgument);
+        sites.Should().Contain(DependencySites.Attribute);
+    }
 
-	[Fact]
-	public async Task ArraysNullableTuplesAndDelegates_AreUnwrapped()
-	{
-		const string source = """
+    [Fact]
+    public async Task ArraysNullableTuplesAndDelegates_AreUnwrapped()
+    {
+        const string source = """
 			#nullable enable
 			public struct QueryToken { }
 			public class LollyQueryable { }
@@ -106,7 +106,7 @@ public sealed class ApiSurfaceAnalyzerTests
 				public QueryDelegate Delegate() => null!;
 			}
 			""";
-		const string config = """
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Class endsWith="Service" />
@@ -121,15 +121,15 @@ public sealed class ApiSurfaceAnalyzerTests
 			</ArchitecturalLevels>
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Count(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed).Should().BeGreaterThanOrEqualTo(5);
-	}
+        diagnostics.Count(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed).Should().BeGreaterThanOrEqualTo(5);
+    }
 
-	[Fact]
-	public async Task GenericArgumentViolation_ReportsTheArgumentSpan()
-	{
-		const string source = """
+    [Fact]
+    public async Task GenericArgumentViolation_ReportsTheArgumentSpan()
+    {
+        const string source = """
 			using System.Collections.Generic;
 			public class LollyQueryable { }
 			public class CandyService
@@ -137,20 +137,20 @@ public sealed class ApiSurfaceAnalyzerTests
 				public List<LollyQueryable> Order() => new();
 			}
 			""";
-		var config = CreateBlockConfig();
+        var config = CreateBlockConfig();
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item =>
-			item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed
-			&& item.Properties[ArchitecturalDiagnostics.PropertySite] == DependencySites.GenericArgument).Subject;
-		source.Substring(violation.Location.SourceSpan.Start, violation.Location.SourceSpan.Length).Should().Be("LollyQueryable");
-	}
+        var violation = diagnostics.Should().ContainSingle(item =>
+            item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed
+            && item.Properties[ArchitecturalDiagnostics.PropertySite] == DependencySites.GenericArgument).Subject;
+        source.Substring(violation.Location.SourceSpan.Start, violation.Location.SourceSpan.Length).Should().Be("LollyQueryable");
+    }
 
-	[Fact]
-	public async Task NonPublicDeclarations_DoNotReport()
-	{
-		const string source = """
+    [Fact]
+    public async Task NonPublicDeclarations_DoNotReport()
+    {
+        const string source = """
 			public class LollyQueryable { }
 
 			public class PublicService
@@ -164,17 +164,17 @@ public sealed class ApiSurfaceAnalyzerTests
 				public LollyQueryable PublicInsideInternal() => new();
 			}
 			""";
-		var config = CreateBlockConfig();
+        var config = CreateBlockConfig();
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed);
-	}
+        diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed);
+    }
 
-	[Fact]
-	public async Task PublicInterfaceMember_IsChecked()
-	{
-		const string source = """
+    [Fact]
+    public async Task PublicInterfaceMember_IsChecked()
+    {
+        const string source = """
 			public class LollyQueryable { }
 
 			public interface ICandyService
@@ -182,24 +182,24 @@ public sealed class ApiSurfaceAnalyzerTests
 				LollyQueryable Order();
 			}
 			""";
-		var config = CreateBlockConfig();
+        var config = CreateBlockConfig();
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed);
-	}
+        diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed);
+    }
 
-	[Fact]
-	public async Task AllowedLayerPermitsType_AndBlockedLayerWins()
-	{
-		const string source = """
+    [Fact]
+    public async Task AllowedLayerPermitsType_AndBlockedLayerWins()
+    {
+        const string source = """
 			public class LollyProjection { }
 			public class CandyService
 			{
 				public LollyProjection Order() => new();
 			}
 			""";
-		const string allowedConfig = """
+        const string allowedConfig = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Class endsWith="Service" />
@@ -212,7 +212,7 @@ public sealed class ApiSurfaceAnalyzerTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string blockedConfig = """
+        const string blockedConfig = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Class endsWith="Service" />
@@ -227,17 +227,17 @@ public sealed class ApiSurfaceAnalyzerTests
 			</ArchitecturalLevels>
 			""";
 
-		var allowedDiagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, allowedConfig);
-		var blockedDiagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, blockedConfig);
+        var allowedDiagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, allowedConfig);
+        var blockedDiagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, blockedConfig);
 
-		allowedDiagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed);
-		blockedDiagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed);
-	}
+        allowedDiagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed);
+        blockedDiagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed);
+    }
 
-	[Fact]
-	public async Task SiteFilters_RestrictOnlyApplicableSites()
-	{
-		const string source = """
+    [Fact]
+    public async Task SiteFilters_RestrictOnlyApplicableSites()
+    {
+        const string source = """
 			public class LollyQueryable { }
 			public class CandyService
 			{
@@ -245,7 +245,7 @@ public sealed class ApiSurfaceAnalyzerTests
 				public LollyQueryable Order() => new();
 			}
 			""";
-		const string config = """
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Class endsWith="Service" />
@@ -259,16 +259,16 @@ public sealed class ApiSurfaceAnalyzerTests
 			</ArchitecturalLevels>
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed).Subject;
-		violation.Properties[ArchitecturalDiagnostics.PropertySite].Should().Be(DependencySites.MethodReturn);
-	}
+        var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed).Subject;
+        violation.Properties[ArchitecturalDiagnostics.PropertySite].Should().Be(DependencySites.MethodReturn);
+    }
 
-	[Fact]
-	public async Task ParentAndChildPolicies_AreCumulative()
-	{
-		const string source = """
+    [Fact]
+    public async Task ParentAndChildPolicies_AreCumulative()
+    {
+        const string source = """
 			namespace Shop.Application
 			{
 				public class LollyQueryable { }
@@ -278,7 +278,7 @@ public sealed class ApiSurfaceAnalyzerTests
 				}
 			}
 			""";
-		const string config = """
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Namespace startsWith="Shop.Application" />
@@ -298,22 +298,22 @@ public sealed class ApiSurfaceAnalyzerTests
 			</ArchitecturalLevels>
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed);
-	}
+        diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed);
+    }
 
-	[Fact]
-	public async Task ParentLayerReference_SelectsDescendants()
-	{
-		const string source = """
+    [Fact]
+    public async Task ParentLayerReference_SelectsDescendants()
+    {
+        const string source = """
 			public class LollyProjection { }
 			public class CandyService
 			{
 				public LollyProjection Order() => new();
 			}
 			""";
-		const string config = """
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Class endsWith="Service" />
@@ -330,40 +330,40 @@ public sealed class ApiSurfaceAnalyzerTests
 			</ArchitecturalLevels>
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed);
-	}
+        diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed);
+    }
 
-	[Fact]
-	public async Task RequireRecognizedTypes_IsOptIn()
-	{
-		const string source = """
+    [Fact]
+    public async Task RequireRecognizedTypes_IsOptIn()
+    {
+        const string source = """
 			public class UnknownType { }
 			public class CandyService
 			{
 				public UnknownType Order() => new();
 			}
 			""";
-		var ignoredConfig = CreateAllowListConfig(false);
-		var requiredConfig = CreateAllowListConfig(true);
+        var ignoredConfig = CreateAllowListConfig(false);
+        var requiredConfig = CreateAllowListConfig(true);
 
-		var ignoredDiagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, ignoredConfig);
-		var requiredDiagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, requiredConfig);
+        var ignoredDiagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, ignoredConfig);
+        var requiredDiagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, requiredConfig);
 
-		ignoredDiagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed);
-		requiredDiagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed);
-	}
+        ignoredDiagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed);
+        requiredDiagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed);
+    }
 
-	[Theory]
-	[InlineData("""<ApiSurface requireRecognizedTypes="perhaps"><AllowedLayer path="/Contracts" /></ApiSurface>""")]
-	[InlineData("""<ApiSurface />""")]
-	[InlineData("""<ApiSurface><AllowedLayer path="/Unknown" /></ApiSurface>""")]
-	[InlineData("""<ApiSurface><AllowedLayer path="/Contracts" allowedSites="Method" blockedSites="Property" /></ApiSurface>""")]
-	[InlineData("""<ApiSurface><AllowedLayer path="/Contracts" allowedSites="Unknown" /></ApiSurface>""")]
-	public async Task InvalidConfiguration_ReportsArch006(string policy)
-	{
-		var config = $$"""
+    [Theory]
+    [InlineData("""<ApiSurface requireRecognizedTypes="perhaps"><AllowedLayer path="/Contracts" /></ApiSurface>""")]
+    [InlineData("""<ApiSurface />""")]
+    [InlineData("""<ApiSurface><AllowedLayer path="/Unknown" /></ApiSurface>""")]
+    [InlineData("""<ApiSurface><AllowedLayer path="/Contracts" allowedSites="Method" blockedSites="Property" /></ApiSurface>""")]
+    [InlineData("""<ApiSurface><AllowedLayer path="/Contracts" allowedSites="Unknown" /></ApiSurface>""")]
+    public async Task InvalidConfiguration_ReportsArch006(string policy)
+    {
+        var config = $$"""
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Class endsWith="Service" />
@@ -375,36 +375,36 @@ public sealed class ApiSurfaceAnalyzerTests
 			</ArchitecturalLevels>
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class CandyService { }", config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class CandyService { }", config);
 
-		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
-	}
+        diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
+    }
 
-	[Fact]
-	public async Task ConfigurationWithoutApiSurface_RemainsUnchanged()
-	{
-		const string source = """
+    [Fact]
+    public async Task ConfigurationWithoutApiSurface_RemainsUnchanged()
+    {
+        const string source = """
 			public class LollyQueryable { }
 			public class CandyService
 			{
 				public LollyQueryable Order() => new();
 			}
 			""";
-		const string config = """
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Application"><Class endsWith="Service" /></Layer>
 			  <Layer name="QuerySurface"><Class endsWith="Queryable" /></Layer>
 			</ArchitecturalLevels>
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed);
-	}
+        diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed);
+    }
 
-	private static string CreateBlockConfig()
-	{
-		const string result = """
+    private static string CreateBlockConfig()
+    {
+        const string result = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Class endsWith="Service" />
@@ -421,12 +421,12 @@ public sealed class ApiSurfaceAnalyzerTests
 			</ArchitecturalLevels>
 			""";
 
-		return result;
-	}
+        return result;
+    }
 
-	private static string CreateAllowListConfig(bool requireRecognizedTypes)
-	{
-		var result = $$"""
+    private static string CreateAllowListConfig(bool requireRecognizedTypes)
+    {
+        var result = $$"""
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Class endsWith="Service" />
@@ -440,6 +440,6 @@ public sealed class ApiSurfaceAnalyzerTests
 			</ArchitecturalLevels>
 			""";
 
-		return result;
-	}
+        return result;
+    }
 }

@@ -1,6 +1,6 @@
 ## Entity Framework Core example pack
 
-AnaalIjzer does not need an Entity Framework Core dependency to enforce useful persistence boundaries. Roslyn resolves the EF Core symbols in the application project; ordinary matchers and policies then select facts such as `DbContext`, `IQueryable<T>`, `IEntityTypeConfiguration<T>`, `Migration`, and `[Index]`.
+AnaalIJzer does not need an Entity Framework Core dependency to enforce useful persistence boundaries. Roslyn resolves the EF Core symbols in the application project; ordinary matchers and policies then select facts such as `DbContext`, `IQueryable<T>`, `IEntityTypeConfiguration<T>`, `Migration`, and `[Index]`.
 
 The runnable [`Example.EntityFrameworkCore`](../../Examples/Scenarios/Example.EntityFrameworkCore) pack uses real `Microsoft.EntityFrameworkCore` packages to demonstrate six framework-neutral configurations:
 

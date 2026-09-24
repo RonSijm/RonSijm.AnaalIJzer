@@ -6,56 +6,56 @@ namespace RonSijm.AnaalIJzer.Core.Matchers.Tests.Matching;
 
 public sealed class ProjectAndReferenceMatcherTests
 {
-	[Fact]
-	public void ProjectMatcher_UsesCaseSensitiveStringRules()
-	{
-		var matcher = new ProjectMatcher([
-			new MatchCondition(MatchKind.StartsWith, "Core."),
-			new MatchCondition(MatchKind.EndsWith, ".Tests")
-		]);
+    [Fact]
+    public void ProjectMatcher_UsesCaseSensitiveStringRules()
+    {
+        var matcher = new ProjectMatcher([
+            new MatchCondition(MatchKind.StartsWith, "Core."),
+            new MatchCondition(MatchKind.EndsWith, ".Tests")
+        ]);
 
-		matcher.Matches("Core.Graph.Tests").Should().BeTrue();
-		matcher.Matches("core.Graph.Tests").Should().BeFalse();
-	}
+        matcher.Matches("Core.Graph.Tests").Should().BeTrue();
+        matcher.Matches("core.Graph.Tests").Should().BeFalse();
+    }
 
-	[Fact]
-	public void ReferenceIdentityMatcher_UsesCaseInsensitiveStringRules()
-	{
-		var matcher = new ReferenceIdentityMatcher(
-			[
-				new MatchCondition(MatchKind.StartsWith, "microsoft."),
-				new MatchCondition(MatchKind.Contains, "codeanalysis")
-			],
-			comment: null,
-			description: null,
-			xmlPath: "Architecture.anl",
-			xmlLineNumber: 1,
-			xmlLinePosition: 1);
+    [Fact]
+    public void ReferenceIdentityMatcher_UsesCaseInsensitiveStringRules()
+    {
+        var matcher = new ReferenceIdentityMatcher(
+            [
+                new MatchCondition(MatchKind.StartsWith, "microsoft."),
+                new MatchCondition(MatchKind.Contains, "codeanalysis")
+            ],
+            comment: null,
+            description: null,
+            xmlPath: "Architecture.anl",
+            xmlLineNumber: 1,
+            xmlLinePosition: 1);
 
-		matcher.Matches("Microsoft.CodeAnalysis.CSharp").Should().BeTrue();
-		matcher.Matches("MICROSOFT.CODEANALYSIS.WORKSPACES").Should().BeTrue();
-	}
+        matcher.Matches("Microsoft.CodeAnalysis.CSharp").Should().BeTrue();
+        matcher.Matches("MICROSOFT.CODEANALYSIS.WORKSPACES").Should().BeTrue();
+    }
 
-	[Fact]
-	public void ProjectMatcher_RequiresAllConditions()
-	{
-		var matcher = new ProjectMatcher([
-			new MatchCondition(MatchKind.StartsWith, "Core."),
-			new MatchCondition(MatchKind.Contains, ".Graph."),
-			new MatchCondition(MatchKind.EndsWith, ".Tests")
-		]);
+    [Fact]
+    public void ProjectMatcher_RequiresAllConditions()
+    {
+        var matcher = new ProjectMatcher([
+            new MatchCondition(MatchKind.StartsWith, "Core."),
+            new MatchCondition(MatchKind.Contains, ".Graph."),
+            new MatchCondition(MatchKind.EndsWith, ".Tests")
+        ]);
 
-		matcher.Matches("Core.Graphing.Tests").Should().BeFalse();
-		matcher.Matches("Core.Graph.Editor.Tests").Should().BeTrue();
-	}
+        matcher.Matches("Core.Graphing.Tests").Should().BeFalse();
+        matcher.Matches("Core.Graph.Editor.Tests").Should().BeTrue();
+    }
 
-	[Fact]
-	public void EmptyProjectMatcher_DoesNotMatch()
-	{
-		var matcher = new ProjectMatcher(ImmutableArray<MatchCondition>.Empty);
+    [Fact]
+    public void EmptyProjectMatcher_DoesNotMatch()
+    {
+        var matcher = new ProjectMatcher(ImmutableArray<MatchCondition>.Empty);
 
-		var result = matcher.Matches("Anything");
+        var result = matcher.Matches("Anything");
 
-		result.Should().BeFalse();
-	}
+        result.Should().BeFalse();
+    }
 }

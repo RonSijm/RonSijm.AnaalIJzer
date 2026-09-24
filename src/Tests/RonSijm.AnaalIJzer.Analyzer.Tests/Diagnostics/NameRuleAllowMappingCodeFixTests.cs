@@ -5,10 +5,10 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Diagnostics;
 
 public sealed class NameRuleAllowMappingCodeFixTests
 {
-	[Fact]
-	public async Task RequireMatchingNames_AddsAllowMappingToConfiguration()
-	{
-		const string config = """
+    [Fact]
+    public async Task RequireMatchingNames_AddsAllowMappingToConfiguration()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Class endsWith="Service" />
@@ -20,7 +20,7 @@ public sealed class NameRuleAllowMappingCodeFixTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			public class OrderService
 			{
 			    public void Run(int legacyCustomerId)
@@ -34,19 +34,19 @@ public sealed class NameRuleAllowMappingCodeFixTests
 			}
 			""";
 
-		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
-			source,
-			config,
-			ArchitecturalDiagnosticIds.NameShapeMismatch,
-			"Add <Allow from=\"legacy.customer.id\" to=\"customer.id\" /> to name rule");
+        var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
+            source,
+            config,
+            ArchitecturalDiagnosticIds.NameShapeMismatch,
+            "Add <Allow from=\"legacy.customer.id\" to=\"customer.id\" /> to name rule");
 
-		updatedConfig.Should().Contain("<Allow from=\"legacy.customer.id\" to=\"customer.id\" />");
-	}
+        updatedConfig.Should().Contain("<Allow from=\"legacy.customer.id\" to=\"customer.id\" />");
+    }
 
-	[Fact]
-	public async Task RequireMatchingNames_OffersSiteScopedAllowMapping()
-	{
-		const string config = """
+    [Fact]
+    public async Task RequireMatchingNames_OffersSiteScopedAllowMapping()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Class endsWith="Service" />
@@ -58,7 +58,7 @@ public sealed class NameRuleAllowMappingCodeFixTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			public class OrderService
 			{
 			    public void Run(int legacyCustomerId)
@@ -72,16 +72,16 @@ public sealed class NameRuleAllowMappingCodeFixTests
 			}
 			""";
 
-		var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(source, config, ArchitecturalDiagnosticIds.NameShapeMismatch);
+        var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(source, config, ArchitecturalDiagnosticIds.NameShapeMismatch);
 
-		titles.Should().Contain("Add <Allow from=\"legacy.customer.id\" to=\"customer.id\" /> to name rule");
-		titles.Should().Contain("Add site-scoped <Allow from=\"legacy.customer.id\" to=\"customer.id\" /> for Method");
-	}
+        titles.Should().Contain("Add <Allow from=\"legacy.customer.id\" to=\"customer.id\" /> to name rule");
+        titles.Should().Contain("Add site-scoped <Allow from=\"legacy.customer.id\" to=\"customer.id\" /> for Method");
+    }
 
-	[Fact]
-	public async Task RequireMatchingNames_InlineSettings_AddsAllowMappingToAssemblyMetadata()
-	{
-		const string source = """"
+    [Fact]
+    public async Task RequireMatchingNames_InlineSettings_AddsAllowMappingToAssemblyMetadata()
+    {
+        const string source = """"
 			using System.Reflection;
 
 			[assembly: AssemblyMetadata("AnaalIJzerSettings", """
@@ -110,18 +110,18 @@ public sealed class NameRuleAllowMappingCodeFixTests
 			}
 			"""";
 
-		var updatedSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
-			source,
-			ArchitecturalDiagnosticIds.NameShapeMismatch,
-			"Add <Allow from=\"legacy.customer.id\" to=\"customer.id\" /> to name rule");
+        var updatedSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
+            source,
+            ArchitecturalDiagnosticIds.NameShapeMismatch,
+            "Add <Allow from=\"legacy.customer.id\" to=\"customer.id\" /> to name rule");
 
-		updatedSource.Should().Contain("<Allow from=\"legacy.customer.id\" to=\"customer.id\" />");
-	}
+        updatedSource.Should().Contain("<Allow from=\"legacy.customer.id\" to=\"customer.id\" />");
+    }
 
-	[Fact]
-	public async Task RequireMatchingNames_IntraProceduralAlias_AddsAllowMappingForTheRecoveredSource()
-	{
-		const string config = """
+    [Fact]
+    public async Task RequireMatchingNames_IntraProceduralAlias_AddsAllowMappingForTheRecoveredSource()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Class endsWith="Service" />
@@ -134,7 +134,7 @@ public sealed class NameRuleAllowMappingCodeFixTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			public class OrderService
 			{
 			    public void Run(int legacyCustomerId)
@@ -149,12 +149,12 @@ public sealed class NameRuleAllowMappingCodeFixTests
 			}
 			""";
 
-		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
-			source,
-			config,
-			ArchitecturalDiagnosticIds.NameShapeMismatch,
-			"Add <Allow from=\"legacy.customer.id\" to=\"customer.id\" /> to name rule");
+        var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
+            source,
+            config,
+            ArchitecturalDiagnosticIds.NameShapeMismatch,
+            "Add <Allow from=\"legacy.customer.id\" to=\"customer.id\" /> to name rule");
 
-		updatedConfig.Should().Contain("<Allow from=\"legacy.customer.id\" to=\"customer.id\" />");
-	}
+        updatedConfig.Should().Contain("<Allow from=\"legacy.customer.id\" to=\"customer.id\" />");
+    }
 }

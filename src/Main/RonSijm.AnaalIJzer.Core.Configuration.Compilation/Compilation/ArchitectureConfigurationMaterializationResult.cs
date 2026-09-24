@@ -25,8 +25,8 @@ internal readonly struct ArchitectureConfigurationMaterializationResult
         SolutionTopologyConfig solutionTopology = default,
         OperationContractCatalog operationContracts = default,
         AssemblyAttributePolicyCatalog assemblyAttributePolicies = default,
-		ImmutableArray<ReturnValuePolicy> globalReturnValuePolicies = default,
-		ImmutableArray<NamespaceHierarchyPolicy> namespaceHierarchyPolicies = default)
+        ImmutableArray<ReturnValuePolicy> globalReturnValuePolicies = default,
+        ImmutableArray<NamespaceHierarchyPolicy> namespaceHierarchyPolicies = default)
     {
         LayerCatalog = layerCatalog;
         DependencyEdges = dependencyEdges;
@@ -40,7 +40,7 @@ internal readonly struct ArchitectureConfigurationMaterializationResult
         OperationContracts = operationContracts;
         AssemblyAttributePolicies = assemblyAttributePolicies;
         GlobalReturnValuePolicies = globalReturnValuePolicies.IsDefault ? ImmutableArray<ReturnValuePolicy>.Empty : globalReturnValuePolicies;
-		NamespaceHierarchyPolicies = namespaceHierarchyPolicies.IsDefault ? ImmutableArray<NamespaceHierarchyPolicy>.Empty : namespaceHierarchyPolicies;
+        NamespaceHierarchyPolicies = namespaceHierarchyPolicies.IsDefault ? ImmutableArray<NamespaceHierarchyPolicy>.Empty : namespaceHierarchyPolicies;
     }
 
     internal CompiledLayerCatalog LayerCatalog { get; }
@@ -67,5 +67,5 @@ internal readonly struct ArchitectureConfigurationMaterializationResult
 
     internal ImmutableArray<ReturnValuePolicy> GlobalReturnValuePolicies { get; }
 
-	internal ImmutableArray<NamespaceHierarchyPolicy> NamespaceHierarchyPolicies { get; }
+    internal ImmutableArray<NamespaceHierarchyPolicy> NamespaceHierarchyPolicies { get; }
 }

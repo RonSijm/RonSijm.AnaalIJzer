@@ -5,12 +5,12 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Matching;
 
 public sealed partial class SemanticMatcherTests
 {
-	[Fact]
-	public async Task Exceptions_SemanticMatcher_BypassesRule()
-	{
-		// 'implements="IDomainEvent"' forbids everything that implements the marker,
-		// but the [LegacyEvent] attribute exempts grandfathered ones.
-		const string config = """
+    [Fact]
+    public async Task Exceptions_SemanticMatcher_BypassesRule()
+    {
+        // 'implements="IDomainEvent"' forbids everything that implements the marker,
+        // but the [LegacyEvent] attribute exempts grandfathered ones.
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Manager" />
@@ -25,7 +25,7 @@ public sealed partial class SemanticMatcherTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      using System;
 		                      public interface IDomainEvent { }
 		                      [AttributeUsage(AttributeTargets.Class)]
@@ -35,13 +35,13 @@ public sealed partial class SemanticMatcherTests
 		                      public class OrderManager(OldEvent ok, NewEvent bad) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var forbidden = diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
-			.ToList();
+        var forbidden = diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
+            .ToList();
 
-		forbidden.Should().ContainSingle();
-		forbidden[0].GetMessage(CultureInfo.InvariantCulture).Should().Contain("NewEvent");
-	}
+        forbidden.Should().ContainSingle();
+        forbidden[0].GetMessage(CultureInfo.InvariantCulture).Should().Contain("NewEvent");
+    }
 }

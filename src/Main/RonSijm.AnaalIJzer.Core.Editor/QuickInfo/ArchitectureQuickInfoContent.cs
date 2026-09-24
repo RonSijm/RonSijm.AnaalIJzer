@@ -9,9 +9,9 @@ public sealed class ArchitectureQuickInfoContent(string title, ImmutableArray<st
     public ImmutableArray<string> Lines { get; } = lines;
 
     public override string ToString()
-	{
-		var result = Title + "\n" + string.Join("\n", Lines);
+    {
+        var result = Title + "\n" + string.Join("\n", Lines);
 
-		return result;
-	}
+        return result;
+    }
 }

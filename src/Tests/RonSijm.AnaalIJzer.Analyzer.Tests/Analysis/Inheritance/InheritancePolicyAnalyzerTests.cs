@@ -5,10 +5,10 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Analysis.Inheritance;
 
 public sealed class InheritancePolicyAnalyzerTests
 {
-	[Fact]
-	public async Task InheritancePolicy_RejectsMissingRequiredBaseType()
-	{
-		const string source = """
+    [Fact]
+    public async Task InheritancePolicy_RejectsMissingRequiredBaseType()
+    {
+        const string source = """
 			namespace Demo.Framework
 			{
 				public abstract class Entity { }
@@ -20,7 +20,7 @@ public sealed class InheritancePolicyAnalyzerTests
 				public class SyrupEntity { }
 			}
 			""";
-		const string config = """
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="PersistenceEntities">
 			    <Namespace startsWith="Demo.Persistence" />
@@ -32,18 +32,18 @@ public sealed class InheritancePolicyAnalyzerTests
 			</ArchitecturalLevels>
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InheritanceNotAllowed).Subject;
-		violation.Properties[ArchitecturalDiagnostics.PropertyDeclaredSymbolName].Should().Be("SyrupEntity");
-		violation.Properties[ArchitecturalDiagnostics.PropertyInheritanceViolationKind].Should().Be("MissingRequiredBaseType");
-		violation.GetMessage().Should().Contain("requires a base type matching Entity");
-	}
+        var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InheritanceNotAllowed).Subject;
+        violation.Properties[ArchitecturalDiagnostics.PropertyDeclaredSymbolName].Should().Be("SyrupEntity");
+        violation.Properties[ArchitecturalDiagnostics.PropertyInheritanceViolationKind].Should().Be("MissingRequiredBaseType");
+        violation.GetMessage().Should().Contain("requires a base type matching Entity");
+    }
 
-	[Fact]
-	public async Task ParentAndChildInheritancePolicies_AreCumulativeAndOuterFailureWins()
-	{
-		const string source = """
+    [Fact]
+    public async Task ParentAndChildInheritancePolicies_AreCumulativeAndOuterFailureWins()
+    {
+        const string source = """
 			namespace Demo.Framework
 			{
 				public abstract class Entity { }
@@ -54,7 +54,7 @@ public sealed class InheritancePolicyAnalyzerTests
 				public class CandyEntity { }
 			}
 			""";
-		const string config = """
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Persistence">
 			    <Namespace startsWith="Demo.Persistence" />
@@ -73,21 +73,21 @@ public sealed class InheritancePolicyAnalyzerTests
 			</ArchitecturalLevels>
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InheritanceNotAllowed).Subject;
-		violation.Properties[ArchitecturalDiagnostics.PropertyCallerLayerName].Should().Be("Persistence/Specialized");
-		violation.GetMessage().Should().Contain("layer 'Persistence'");
-		violation.GetMessage().Should().Contain("requires a base type matching Entity");
-	}
+        var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.InheritanceNotAllowed).Subject;
+        violation.Properties[ArchitecturalDiagnostics.PropertyCallerLayerName].Should().Be("Persistence/Specialized");
+        violation.GetMessage().Should().Contain("layer 'Persistence'");
+        violation.GetMessage().Should().Contain("requires a base type matching Entity");
+    }
 
-	[Theory]
-	[InlineData("""<InheritancePolicy requiredBaseTypes="Entity" />""")]
-	[InlineData("""<InheritancePolicy typeKinds="Class" />""")]
-	[InlineData("""<InheritancePolicy typeKinds="Unknown" requiredBaseTypes="Entity" />""")]
-	public async Task InvalidPolicies_ReportConfigurationIssue(string policy)
-	{
-		var config = $"""
+    [Theory]
+    [InlineData("""<InheritancePolicy requiredBaseTypes="Entity" />""")]
+    [InlineData("""<InheritancePolicy typeKinds="Class" />""")]
+    [InlineData("""<InheritancePolicy typeKinds="Unknown" requiredBaseTypes="Entity" />""")]
+    public async Task InvalidPolicies_ReportConfigurationIssue(string policy)
+    {
+        var config = $"""
 			<ArchitecturalLevels>
 			  <Layer name="PersistenceEntities">
 			    <Namespace startsWith="Demo.Persistence" />
@@ -96,20 +96,20 @@ public sealed class InheritancePolicyAnalyzerTests
 			</ArchitecturalLevels>
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("namespace Demo.Persistence; public class CandyEntity { }", config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("namespace Demo.Persistence; public class CandyEntity { }", config);
 
-		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.InheritanceNotAllowed);
-	}
+        diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
+        diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.InheritanceNotAllowed);
+    }
 
-	[Fact]
-	public async Task ConfigurationWithoutInheritancePolicy_RemainsUnchanged()
-	{
-		const string source = """
+    [Fact]
+    public async Task ConfigurationWithoutInheritancePolicy_RemainsUnchanged()
+    {
+        const string source = """
 			namespace Demo.Persistence;
 			public class CandyEntity { }
 			""";
-		const string config = """
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="PersistenceEntities">
 			    <Namespace startsWith="Demo.Persistence" />
@@ -117,8 +117,8 @@ public sealed class InheritancePolicyAnalyzerTests
 			</ArchitecturalLevels>
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.InheritanceNotAllowed);
-	}
+        diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.InheritanceNotAllowed);
+    }
 }

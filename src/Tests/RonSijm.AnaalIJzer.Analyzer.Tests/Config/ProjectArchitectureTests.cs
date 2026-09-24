@@ -5,10 +5,10 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Config;
 
 public sealed class ProjectArchitectureTests
 {
-	[Fact]
-	public async Task ProjectMatcher_WithSemanticAttribute_ReportsARCH_CONF_003()
-	{
-		const string config = """
+    [Fact]
+    public async Task ProjectMatcher_WithSemanticAttribute_ReportsARCH_CONF_003()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                        <ProjectArchitecture>
 		                          <ProjectGroup name="Domain">
@@ -18,9 +18,9 @@ public sealed class ProjectArchitectureTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class Placeholder { }", config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class Placeholder { }", config);
 
-		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
-	}
+        diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
+    }
 
 }

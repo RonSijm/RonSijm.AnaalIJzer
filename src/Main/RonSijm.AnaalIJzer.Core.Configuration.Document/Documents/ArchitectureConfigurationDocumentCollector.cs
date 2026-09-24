@@ -9,149 +9,154 @@ namespace RonSijm.AnaalIJzer.Core.Configuration.Document.Documents;
 
 public static class ArchitectureConfigurationDocumentCollector
 {
-	public static ArchitectureConfigurationCollectionResult Collect(
-		string content,
-		string configPath,
-		ImmutableArray<AdditionalText> additionalFiles,
-		IReadOnlyDictionary<string, AdditionalText> additionalFileLookup,
-		CancellationToken cancellationToken,
-		Func<XDocument, string, ImmutableArray<ConfigurationIssue>> validateDocument,
-		string inlineSettingsMetadataKey,
-		bool isInlineConfiguration)
-	{
-		var documents = ImmutableArray.CreateBuilder<ArchitectureConfigurationCollectedDocument>();
-		var elements = ImmutableArray.CreateBuilder<ArchitectureConfigurationCollectedElement>();
-		var documentationItems = ImmutableArray.CreateBuilder<ArchitectureDocumentationItem>();
-		var issues = ImmutableArray.CreateBuilder<ConfigurationIssue>();
+    public static ArchitectureConfigurationCollectionResult Collect(
+        string content,
+        string configPath,
+        ImmutableArray<AdditionalText> additionalFiles,
+        IReadOnlyDictionary<string, AdditionalText> additionalFileLookup,
+        CancellationToken cancellationToken,
+        Func<XDocument, string, ImmutableArray<ConfigurationIssue>> validateDocument,
+        string inlineSettingsMetadataKey,
+        bool isInlineConfiguration)
+    {
+        var documents = ImmutableArray.CreateBuilder<ArchitectureConfigurationCollectedDocument>();
+        var elements = ImmutableArray.CreateBuilder<ArchitectureConfigurationCollectedElement>();
+        var documentationItems = ImmutableArray.CreateBuilder<ArchitectureDocumentationItem>();
+        var issues = ImmutableArray.CreateBuilder<ConfigurationIssue>();
 
-		CollectCore(
-			content,
-			configPath,
-			additionalFiles,
-			additionalFileLookup,
-			cancellationToken,
-			validateDocument,
-			inlineSettingsMetadataKey,
-			isInlineConfiguration,
-			documents,
-			elements,
-			documentationItems,
-			issues,
-			new HashSet<string>(StringComparer.OrdinalIgnoreCase),
-			new HashSet<string>(StringComparer.OrdinalIgnoreCase));
+        CollectCore(
+            content,
+            configPath,
+            additionalFiles,
+            additionalFileLookup,
+            cancellationToken,
+            validateDocument,
+            inlineSettingsMetadataKey,
+            isInlineConfiguration,
+            documents,
+            elements,
+            documentationItems,
+            issues,
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase),
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase));
 
-		var result = new ArchitectureConfigurationCollectionResult(
-			documents.ToImmutable(),
-			elements.ToImmutable(),
-			documentationItems.ToImmutable(),
-			issues.ToImmutable());
+        var result = new ArchitectureConfigurationCollectionResult(
+            documents.ToImmutable(),
+            elements.ToImmutable(),
+            documentationItems.ToImmutable(),
+            issues.ToImmutable());
 
-		return result;
-	}
+        return result;
+    }
 
-	private static void CollectCore(
-		string content,
-		string configPath,
-		ImmutableArray<AdditionalText> additionalFiles,
-		IReadOnlyDictionary<string, AdditionalText> additionalFileLookup,
-		CancellationToken cancellationToken,
-		Func<XDocument, string, ImmutableArray<ConfigurationIssue>> validateDocument,
-		string inlineSettingsMetadataKey,
-		bool isInlineConfiguration,
-		ImmutableArray<ArchitectureConfigurationCollectedDocument>.Builder documents,
-		ImmutableArray<ArchitectureConfigurationCollectedElement>.Builder elements,
-		ImmutableArray<ArchitectureDocumentationItem>.Builder documentationItems,
-		ImmutableArray<ConfigurationIssue>.Builder issues,
-		HashSet<string> activePaths,
-		HashSet<string> visitedPaths)
-	{
-		var normalizedPath = ArchitectureConfigurationSourceLookup.NormalizePath(configPath);
-		if (!activePaths.Add(normalizedPath))
-		{
-			return;
-		}
+    private static void CollectCore(
+        string content,
+        string configPath,
+        ImmutableArray<AdditionalText> additionalFiles,
+        IReadOnlyDictionary<string, AdditionalText> additionalFileLookup,
+        CancellationToken cancellationToken,
+        Func<XDocument, string, ImmutableArray<ConfigurationIssue>> validateDocument,
+        string inlineSettingsMetadataKey,
+        bool isInlineConfiguration,
+        ImmutableArray<ArchitectureConfigurationCollectedDocument>.Builder documents,
+        ImmutableArray<ArchitectureConfigurationCollectedElement>.Builder elements,
+        ImmutableArray<ArchitectureDocumentationItem>.Builder documentationItems,
+        ImmutableArray<ConfigurationIssue>.Builder issues,
+        HashSet<string> activePaths,
+        HashSet<string> visitedPaths)
+    {
+        var normalizedPath = ArchitectureConfigurationSourceLookup.NormalizePath(configPath);
+        if (!activePaths.Add(normalizedPath))
+        {
+            return;
+        }
 
-		if (!visitedPaths.Add(normalizedPath))
-		{
-			activePaths.Remove(normalizedPath);
+        if (!visitedPaths.Add(normalizedPath))
+        {
+            activePaths.Remove(normalizedPath);
 
-			return;
-		}
+            return;
+        }
 
-		var document = XDocument.Parse(content, LoadOptions.SetLineInfo);
-		issues.AddRange(validateDocument(document, configPath));
-		if (document.Root is null)
-		{
-			activePaths.Remove(normalizedPath);
+        var document = XDocument.Parse(content, LoadOptions.SetLineInfo);
+        issues.AddRange(validateDocument(document, configPath));
+        if (document.Root is null)
+        {
+            activePaths.Remove(normalizedPath);
 
-			return;
-		}
+            return;
+        }
 
-		documents.Add(new ArchitectureConfigurationCollectedDocument(document.Root, configPath, isInlineConfiguration));
+        documents.Add(new ArchitectureConfigurationCollectedDocument(document.Root, configPath, isInlineConfiguration));
 
-		foreach (var child in document.Root.Elements())
-		{
-			ArchitectureConfigurationDocumentationBuilder.AddDocumentationItems(child, configPath, 0, string.Empty, documentationItems);
+        foreach (var child in document.Root.Elements())
+        {
+            ArchitectureConfigurationDocumentationBuilder.AddDocumentationItems(child, configPath, 0, string.Empty, documentationItems);
 
-			if (child.Name.LocalName != "Include")
-			{
-				elements.Add(new ArchitectureConfigurationCollectedElement(child, configPath, isInlineConfiguration));
+            if (child.Name.LocalName != "Include")
+            {
+                elements.Add(new ArchitectureConfigurationCollectedElement(child, configPath, isInlineConfiguration));
 
-				continue;
-			}
+                continue;
+            }
 
-			if (child.Attribute("path")?.Value is not { } includePath || string.IsNullOrWhiteSpace(includePath))
-			{
-				AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, "Include requires a non-empty path.", child, configPath);
+            if (child.Attribute("path")?.Value is not { } includePath || string.IsNullOrWhiteSpace(includePath))
+            {
+                AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, "Include requires a non-empty path.", child, configPath);
 
-				continue;
-			}
+                continue;
+            }
 
-			var allowFileNameFallback = isInlineConfiguration || string.Equals(configPath, inlineSettingsMetadataKey, StringComparison.Ordinal)
-			                            || string.IsNullOrEmpty(Path.GetDirectoryName(configPath));
-			var includedFiles = ArchitectureConfigurationIncludeResolver.ResolveAdditionalFiles(additionalFiles, additionalFileLookup, configPath, includePath, allowFileNameFallback);
-			if (includedFiles.Length == 0)
-			{
-				AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, ArchitectureConfigurationIncludeResolver.CreateMissingIncludeMessage(includePath), child, configPath);
+            var allowFileNameFallback = isInlineConfiguration || string.Equals(configPath, inlineSettingsMetadataKey, StringComparison.Ordinal)
+                                        || string.IsNullOrEmpty(Path.GetDirectoryName(configPath));
+            var includedFiles = ArchitectureConfigurationIncludeResolver.ResolveAdditionalFiles(additionalFiles, additionalFileLookup, configPath, includePath, allowFileNameFallback);
+            if (includedFiles.Length == 0)
+            {
+                if (ArchitectureConfigurationIncludeResolver.AllowsNoMatches(child))
+                {
+                    continue;
+                }
 
-				continue;
-			}
+                AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, ArchitectureConfigurationIncludeResolver.CreateMissingIncludeMessage(includePath), child, configPath);
 
-			foreach (var includeFile in includedFiles)
-			{
-				var includeText = includeFile.GetText(cancellationToken);
-				var includeContent = includeText?.ToString();
-				if (string.IsNullOrWhiteSpace(includeContent))
-				{
-					AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, $"Included architecture configuration is empty: {includeFile.Path}.", child, configPath);
+                continue;
+            }
 
-					continue;
-				}
+            foreach (var includeFile in includedFiles)
+            {
+                var includeText = includeFile.GetText(cancellationToken);
+                var includeContent = includeText?.ToString();
+                if (string.IsNullOrWhiteSpace(includeContent))
+                {
+                    AddIssue(issues, ConfigurationIssueKind.InvalidConfiguration, $"Included architecture configuration is empty: {includeFile.Path}.", child, configPath);
 
-				CollectCore(
-					includeContent!,
-					includeFile.Path,
-					additionalFiles,
-					additionalFileLookup,
-					cancellationToken,
-					validateDocument,
-					inlineSettingsMetadataKey,
-					false,
-					documents,
-					elements,
-					documentationItems,
-					issues,
-					activePaths,
-					visitedPaths);
-			}
-		}
+                    continue;
+                }
 
-		activePaths.Remove(normalizedPath);
-	}
+                CollectCore(
+                    includeContent!,
+                    includeFile.Path,
+                    additionalFiles,
+                    additionalFileLookup,
+                    cancellationToken,
+                    validateDocument,
+                    inlineSettingsMetadataKey,
+                    false,
+                    documents,
+                    elements,
+                    documentationItems,
+                    issues,
+                    activePaths,
+                    visitedPaths);
+            }
+        }
 
-	private static void AddIssue(ImmutableArray<ConfigurationIssue>.Builder issues, ConfigurationIssueKind kind, string message, XElement element, string path)
-	{
-		var line = (IXmlLineInfo)element;
-		issues.Add(new ConfigurationIssue(kind, message, path, line.HasLineInfo() ? line.LineNumber : 0, line.HasLineInfo() ? line.LinePosition : 0));
-	}
+        activePaths.Remove(normalizedPath);
+    }
+
+    private static void AddIssue(ImmutableArray<ConfigurationIssue>.Builder issues, ConfigurationIssueKind kind, string message, XElement element, string path)
+    {
+        var line = (IXmlLineInfo)element;
+        issues.Add(new ConfigurationIssue(kind, message, path, line.HasLineInfo() ? line.LineNumber : 0, line.HasLineInfo() ? line.LinePosition : 0));
+    }
 }

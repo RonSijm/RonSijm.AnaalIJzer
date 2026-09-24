@@ -6,52 +6,52 @@ namespace RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
 
 public static partial class ArchitectureConfigurationEditService
 {
-	public static ArchitectureConfigurationEditResult RemoveDependency(ArchitectureDependencyRuleEditHandle handle)
-	{
-		var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureDependencyRuleEditor.RemoveDependency(handle));
+    public static ArchitectureConfigurationEditResult RemoveDependency(ArchitectureDependencyRuleEditHandle handle)
+    {
+        var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureDependencyRuleEditor.RemoveDependency(handle));
 
-		return result;
-	}
+        return result;
+    }
 
-	public static ArchitectureConfigurationEditResult SetDependencySites(ArchitectureDependencyRuleEditHandle handle, ArchitectureSiteFilterEditMode mode, ImmutableArray<string> sites)
-	{
-		var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureDependencyRuleEditor.SetDependencySites(handle, mode, sites));
+    public static ArchitectureConfigurationEditResult SetDependencySites(ArchitectureDependencyRuleEditHandle handle, ArchitectureSiteFilterEditMode mode, ImmutableArray<string> sites)
+    {
+        var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureDependencyRuleEditor.SetDependencySites(handle, mode, sites));
 
-		return result;
-	}
+        return result;
+    }
 
-	public static ArchitectureConfigurationEditResult SetDependencyKind(ArchitectureDependencyRuleEditHandle handle, string elementKind)
-	{
-		var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureDependencyRuleEditor.SetDependencyKind(handle, elementKind));
+    public static ArchitectureConfigurationEditResult SetDependencyKind(ArchitectureDependencyRuleEditHandle handle, string elementKind)
+    {
+        var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureDependencyRuleEditor.SetDependencyKind(handle, elementKind));
 
-		return result;
-	}
+        return result;
+    }
 
-	public static ArchitectureConfigurationEditResult SetDependencyAppliesToDescendants(ArchitectureDependencyRuleEditHandle handle, bool appliesToDescendants)
-	{
-		var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureDependencyRuleEditor.SetDependencyAppliesToDescendants(handle, appliesToDescendants));
+    public static ArchitectureConfigurationEditResult SetDependencyAppliesToDescendants(ArchitectureDependencyRuleEditHandle handle, bool appliesToDescendants)
+    {
+        var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureDependencyRuleEditor.SetDependencyAppliesToDescendants(handle, appliesToDescendants));
 
-		return result;
-	}
+        return result;
+    }
 
-	public static ArchitectureConfigurationEditResult SetDependencyDescription(ArchitectureDependencyRuleEditHandle handle, string? description)
-	{
-		var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureDependencyRuleEditor.SetDependencyDescription(handle, description));
+    public static ArchitectureConfigurationEditResult SetDependencyDescription(ArchitectureDependencyRuleEditHandle handle, string? description)
+    {
+        var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureDependencyRuleEditor.SetDependencyDescription(handle, description));
 
-		return result;
-	}
+        return result;
+    }
 
-	public static ArchitectureConfigurationEditResult AddAllowedDependency(ArchitectureConfigurationSource source, string from, string to)
-	{
-		var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureDependencyRuleEditor.AddAllowedDependency(source, from, to));
+    public static ArchitectureConfigurationEditResult AddAllowedDependency(ArchitectureConfigurationSource source, string from, string to)
+    {
+        var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureDependencyRuleEditor.AddAllowedDependency(source, from, to));
 
-		return result;
-	}
+        return result;
+    }
 
-	public static ArchitectureConfigurationEditResult AddDependency(ArchitectureConfigurationSource source, string from, string to, string elementKind)
-	{
-		var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureDependencyRuleEditor.AddDependency(source, from, to, elementKind));
+    public static ArchitectureConfigurationEditResult AddDependency(ArchitectureConfigurationSource source, string from, string to, string elementKind)
+    {
+        var result = ArchitectureConfigurationEditResult.FromDocumentResult(ArchitectureDependencyRuleEditor.AddDependency(source, from, to, elementKind));
 
-		return result;
-	}
+        return result;
+    }
 }

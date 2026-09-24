@@ -10,7 +10,6 @@
         <UseWPF>true</UseWPF>
         <EnableWindowsTargeting>true</EnableWindowsTargeting>
         <IsPackable>false</IsPackable>
-        <EnableArchitecturalLevelAnalyzer>false</EnableArchitecturalLevelAnalyzer>
         <GraphingWpfProjectTargetFramework Condition="'$(TargetFramework)' == 'net472'">net472</GraphingWpfProjectTargetFramework>
         <GraphingWpfProjectTargetFramework Condition="'$(GraphingWpfProjectTargetFramework)' == ''">net10.0-windows</GraphingWpfProjectTargetFramework>
     </PropertyGroup>

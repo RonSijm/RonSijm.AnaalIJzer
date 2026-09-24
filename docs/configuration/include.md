@@ -70,6 +70,18 @@ Wildcard patterns are also supported. A bare file-name wildcard such as `<Includ
 </ArchitecturalLevels>
 ```
 
+By default, a wildcard that matches nothing reports `ARCH_CONF_003`. That catches misspelled paths and forgotten MSBuild registration. For a deliberately optional drop-in folder, use `allowNoMatches="true"`:
+
+```xml
+<ArchitecturalLevels>
+  <Include path="OptionalRules/*.anl" allowNoMatches="true" />
+</ArchitecturalLevels>
+```
+
+This opt-out belongs to wildcard includes only. `<Include path="MissingRules.anl" allowNoMatches="true" />` still reports the missing exact file, because silently accepting a misspelled explicit filename would hide a broken configuration.
+
+Boolean values follow XML Schema rules, so `true`, `false`, `1`, and `0` are valid. The default is `false`.
+
 That is most useful when the project or solution registers a rule-pack folder, for example:
 
 ```xml

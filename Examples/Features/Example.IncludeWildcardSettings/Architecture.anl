@@ -1,4 +1,5 @@
 <ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                      xsi:noNamespaceSchemaLocation="../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd">
+  <Include path="OptionalRules/*.anl" allowNoMatches="true" />
   <Include path="*.anl" />
 </ArchitecturalLevels>

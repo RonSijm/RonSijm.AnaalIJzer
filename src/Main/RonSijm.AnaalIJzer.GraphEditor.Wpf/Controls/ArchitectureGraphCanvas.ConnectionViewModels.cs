@@ -14,174 +14,174 @@ namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
 
 internal sealed partial class ArchitectureGraphCanvas
 {
-	private sealed partial class NodifyGraphConnectionViewModel : INotifyPropertyChanged
-	{
-		private readonly IArchitectureGraphEditService _editService;
-		private readonly Action<ArchitectureConfigurationEditResult, bool>? _editResultHandler;
-		private readonly Action<ArchitectureGraphSelection>? _selectionHandler;
-		private readonly Func<string, bool>? _confirmationHandler;
-		private readonly ArchitectureGraphCanvasTheme _theme;
-		private ImmutableArray<string> _allowedSites;
-		private ImmutableArray<string> _blockedSites;
-		private string _labelText;
-		private string _toolTip;
+    private sealed partial class NodifyGraphConnectionViewModel : INotifyPropertyChanged
+    {
+        private readonly IArchitectureGraphEditService _editService;
+        private readonly Action<ArchitectureConfigurationEditResult, bool>? _editResultHandler;
+        private readonly Action<ArchitectureGraphSelection>? _selectionHandler;
+        private readonly Func<string, bool>? _confirmationHandler;
+        private readonly ArchitectureGraphCanvasTheme _theme;
+        private ImmutableArray<string> _allowedSites;
+        private ImmutableArray<string> _blockedSites;
+        private string _labelText;
+        private string _toolTip;
 
-		private NodifyGraphConnectionViewModel(
-			ArchitectureGraphEdgeViewModel edge,
-			NodifyGraphConnectorViewModel output,
-			NodifyGraphConnectorViewModel input,
-			IArchitectureGraphEditService editService,
-			Action<ArchitectureConfigurationEditResult, bool>? editResultHandler,
-			Action<ArchitectureGraphSelection>? selectionHandler,
-			Func<string, bool>? confirmationHandler,
-			ArchitectureGraphCanvasTheme theme)
-		{
-			this._editService = editService;
-			this._editResultHandler = editResultHandler;
-			this._selectionHandler = selectionHandler;
-			this._confirmationHandler = confirmationHandler;
-			this._theme = theme;
-			Output = output;
-			Input = input;
-			From = edge.From;
-			To = edge.To;
-			EditHandle = edge.EditHandle;
-			Kind = edge.Kind;
-			SiteText = edge.SiteText;
-			AppliesToDescendants = edge.AppliesToDescendants;
-			IsActive = edge.IsActive;
-			IsBlocked = edge.IsBlocked;
-			IsSolutionTopologyRule = edge.IsSolutionTopologyRule;
-			IsEvidence = edge.IsEvidence;
-			ViolationCount = edge.ViolationCount;
-			ObservedUsageCount = edge.ObservedUsageCount;
-			EvidenceDetails = edge.Description ?? string.Empty;
-			_allowedSites = edge.AllowedSites;
-			_blockedSites = edge.BlockedSites;
-			_labelText = IsEvidence ? edge.SiteText : FormatLabelText(edge.SiteText, edge.AppliesToDescendants);
-			_toolTip = IsEvidence
-				? FormatEvidenceToolTip(edge.From, edge.To, edge.SiteText, EvidenceDetails)
-				: FormatEdgeToolTip(edge.Kind, edge.From, edge.To, edge.SiteText, edge.AppliesToDescendants);
-			RemoveCommand = new DelegateCommand(_ => Remove(), _ => !IsEvidence && EditHandle.CanEdit);
-			AllowAllSitesCommand = new DelegateCommand(_ => SetSites(ArchitectureSiteFilterEditMode.All, ImmutableArray<string>.Empty), _ => !IsEvidence && EditHandle.CanEdit);
-			ShowConfigurationFixesCommand = new DelegateCommand(_ => ShowConfigurationFixes(), _ => _selectionHandler is not null);
-			AllowedSiteOptions = ArchitectureDependencySiteNames.All.Select(site => new NodifySiteFilterOptionViewModel(site, _allowedSites.Contains(site, StringComparer.Ordinal), new DelegateCommand(_ => ToggleAllowedSite(site)))).ToImmutableArray();
-			BlockedSiteOptions = ArchitectureDependencySiteNames.All.Select(site => new NodifySiteFilterOptionViewModel(site, _blockedSites.Contains(site, StringComparer.Ordinal), new DelegateCommand(_ => ToggleBlockedSite(site)))).ToImmutableArray();
-		}
+        private NodifyGraphConnectionViewModel(
+            ArchitectureGraphEdgeViewModel edge,
+            NodifyGraphConnectorViewModel output,
+            NodifyGraphConnectorViewModel input,
+            IArchitectureGraphEditService editService,
+            Action<ArchitectureConfigurationEditResult, bool>? editResultHandler,
+            Action<ArchitectureGraphSelection>? selectionHandler,
+            Func<string, bool>? confirmationHandler,
+            ArchitectureGraphCanvasTheme theme)
+        {
+            this._editService = editService;
+            this._editResultHandler = editResultHandler;
+            this._selectionHandler = selectionHandler;
+            this._confirmationHandler = confirmationHandler;
+            this._theme = theme;
+            Output = output;
+            Input = input;
+            From = edge.From;
+            To = edge.To;
+            EditHandle = edge.EditHandle;
+            Kind = edge.Kind;
+            SiteText = edge.SiteText;
+            AppliesToDescendants = edge.AppliesToDescendants;
+            IsActive = edge.IsActive;
+            IsBlocked = edge.IsBlocked;
+            IsSolutionTopologyRule = edge.IsSolutionTopologyRule;
+            IsEvidence = edge.IsEvidence;
+            ViolationCount = edge.ViolationCount;
+            ObservedUsageCount = edge.ObservedUsageCount;
+            EvidenceDetails = edge.Description ?? string.Empty;
+            _allowedSites = edge.AllowedSites;
+            _blockedSites = edge.BlockedSites;
+            _labelText = IsEvidence ? edge.SiteText : FormatLabelText(edge.SiteText, edge.AppliesToDescendants);
+            _toolTip = IsEvidence
+                ? FormatEvidenceToolTip(edge.From, edge.To, edge.SiteText, EvidenceDetails)
+                : FormatEdgeToolTip(edge.Kind, edge.From, edge.To, edge.SiteText, edge.AppliesToDescendants);
+            RemoveCommand = new DelegateCommand(_ => Remove(), _ => !IsEvidence && EditHandle.CanEdit);
+            AllowAllSitesCommand = new DelegateCommand(_ => SetSites(ArchitectureSiteFilterEditMode.All, ImmutableArray<string>.Empty), _ => !IsEvidence && EditHandle.CanEdit);
+            ShowConfigurationFixesCommand = new DelegateCommand(_ => ShowConfigurationFixes(), _ => _selectionHandler is not null);
+            AllowedSiteOptions = ArchitectureDependencySiteNames.All.Select(site => new NodifySiteFilterOptionViewModel(site, _allowedSites.Contains(site, StringComparer.Ordinal), new DelegateCommand(_ => ToggleAllowedSite(site)))).ToImmutableArray();
+            BlockedSiteOptions = ArchitectureDependencySiteNames.All.Select(site => new NodifySiteFilterOptionViewModel(site, _blockedSites.Contains(site, StringComparer.Ordinal), new DelegateCommand(_ => ToggleBlockedSite(site)))).ToImmutableArray();
+        }
 
-		public event PropertyChangedEventHandler? PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-		public NodifyGraphConnectorViewModel Output { get; }
+        public NodifyGraphConnectorViewModel Output { get; }
 
-		public NodifyGraphConnectorViewModel Input { get; }
+        public NodifyGraphConnectorViewModel Input { get; }
 
-		public ArchitectureDependencyRuleEditHandle EditHandle { get; }
+        public ArchitectureDependencyRuleEditHandle EditHandle { get; }
 
-		public string Kind { get; }
+        public string Kind { get; }
 
-		public string From { get; }
+        public string From { get; }
 
-		public string To { get; }
+        public string To { get; }
 
-		public string SiteText { get; }
+        public string SiteText { get; }
 
-		public bool AppliesToDescendants { get; }
+        public bool AppliesToDescendants { get; }
 
-		public bool IsActive { get; }
+        public bool IsActive { get; }
 
-		public bool IsBlocked { get; }
+        public bool IsBlocked { get; }
 
-		public bool IsSolutionTopologyRule { get; }
+        public bool IsSolutionTopologyRule { get; }
 
-		public bool IsEvidence { get; }
+        public bool IsEvidence { get; }
 
-		public int ViolationCount { get; }
+        public int ViolationCount { get; }
 
-		public int ObservedUsageCount { get; }
+        public int ObservedUsageCount { get; }
 
-		public string EvidenceDetails { get; }
+        public string EvidenceDetails { get; }
 
-		public bool CanEditRule => !IsEvidence && EditHandle.CanEdit;
+        public bool CanEditRule => !IsEvidence && EditHandle.CanEdit;
 
-		public ArchitectureGraphSelection CreateSelection()
-		{
-			if (IsEvidence)
-			{
-				var evidenceSelection = ArchitectureGraphSelection.ForCodeEvidence(From, To, LabelText, EvidenceDetails);
+        public ArchitectureGraphSelection CreateSelection()
+        {
+            if (IsEvidence)
+            {
+                var evidenceSelection = ArchitectureGraphSelection.ForCodeEvidence(From, To, LabelText, EvidenceDetails);
 
-				return evidenceSelection;
-			}
+                return evidenceSelection;
+            }
 
-			var result = IsSolutionTopologyRule
-				? ArchitectureGraphSelection.ForSolutionTopologyRule(EditHandle)
-				: ArchitectureGraphSelection.ForDependency(EditHandle);
+            var result = IsSolutionTopologyRule
+                ? ArchitectureGraphSelection.ForSolutionTopologyRule(EditHandle)
+                : ArchitectureGraphSelection.ForDependency(EditHandle);
 
-			return result;
-		}
+            return result;
+        }
 
-		public string LabelText
-		{
-			get { return _labelText; }
-			private set
-			{
-				if (_labelText == value)
-				{
-					return;
-				}
+        public string LabelText
+        {
+            get { return _labelText; }
+            private set
+            {
+                if (_labelText == value)
+                {
+                    return;
+                }
 
-				_labelText = value;
-				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LabelText)));
-			}
-		}
+                _labelText = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LabelText)));
+            }
+        }
 
-		public string ToolTip
-		{
-			get { return _toolTip; }
-			private set
-			{
-				if (_toolTip == value)
-				{
-					return;
-				}
+        public string ToolTip
+        {
+            get { return _toolTip; }
+            private set
+            {
+                if (_toolTip == value)
+                {
+                    return;
+                }
 
-				_toolTip = value;
-				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ToolTip)));
-			}
-		}
+                _toolTip = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ToolTip)));
+            }
+        }
 
-		public ICommand RemoveCommand { get; }
+        public ICommand RemoveCommand { get; }
 
-		public ICommand AllowAllSitesCommand { get; }
+        public ICommand AllowAllSitesCommand { get; }
 
-		public ICommand ShowConfigurationFixesCommand { get; }
+        public ICommand ShowConfigurationFixesCommand { get; }
 
-		public ImmutableArray<NodifySiteFilterOptionViewModel> AllowedSiteOptions { get; }
+        public ImmutableArray<NodifySiteFilterOptionViewModel> AllowedSiteOptions { get; }
 
-		public ImmutableArray<NodifySiteFilterOptionViewModel> BlockedSiteOptions { get; }
+        public ImmutableArray<NodifySiteFilterOptionViewModel> BlockedSiteOptions { get; }
 
-		public bool UsesAllSites => _allowedSites.Length == 0 && _blockedSites.Length == 0;
+        public bool UsesAllSites => _allowedSites.Length == 0 && _blockedSites.Length == 0;
 
-		public Brush Stroke => IsEvidence && ViolationCount > 0 ? _theme.ErrorConnection : IsBlocked ? _theme.ErrorConnection : IsActive ? _theme.ActiveConnection : _theme.Connection;
+        public Brush Stroke => IsEvidence && ViolationCount > 0 ? _theme.ErrorConnection : IsBlocked ? _theme.ErrorConnection : IsActive ? _theme.ActiveConnection : _theme.Connection;
 
-		public double StrokeThickness => IsEvidence && ViolationCount > 0 ? 3.2 : IsEvidence ? 2.2 : IsActive ? 2.8 : 1.9;
+        public double StrokeThickness => IsEvidence && ViolationCount > 0 ? 3.2 : IsEvidence ? 2.2 : IsActive ? 2.8 : 1.9;
 
-		public DoubleCollection? StrokeDashArray => IsEvidence ? new DoubleCollection([2, 3]) : IsBlocked ? new DoubleCollection([4, 3]) : null;
+        public DoubleCollection? StrokeDashArray => IsEvidence ? new DoubleCollection([2, 3]) : IsBlocked ? new DoubleCollection([4, 3]) : null;
 
-		public Brush TextBackground => IsEvidence && ViolationCount > 0 ? _theme.ErrorConnection : IsBlocked ? _theme.ErrorConnection : IsActive ? _theme.ActiveConnection : _theme.Connection;
+        public Brush TextBackground => IsEvidence && ViolationCount > 0 ? _theme.ErrorConnection : IsBlocked ? _theme.ErrorConnection : IsActive ? _theme.ActiveConnection : _theme.Connection;
 
-		public static NodifyGraphConnectionViewModel Create(
-			ArchitectureGraphEdgeViewModel edge,
-			NodifyGraphConnectorViewModel output,
-			NodifyGraphConnectorViewModel input,
-			IArchitectureGraphEditService editService,
-			Action<ArchitectureConfigurationEditResult, bool>? editResultHandler,
-			Action<ArchitectureGraphSelection>? selectionHandler,
-			Func<string, bool>? confirmationHandler,
-			ArchitectureGraphCanvasTheme theme)
-		{
-			var result = new NodifyGraphConnectionViewModel(edge, output, input, editService, editResultHandler, selectionHandler, confirmationHandler, theme);
+        public static NodifyGraphConnectionViewModel Create(
+            ArchitectureGraphEdgeViewModel edge,
+            NodifyGraphConnectorViewModel output,
+            NodifyGraphConnectorViewModel input,
+            IArchitectureGraphEditService editService,
+            Action<ArchitectureConfigurationEditResult, bool>? editResultHandler,
+            Action<ArchitectureGraphSelection>? selectionHandler,
+            Func<string, bool>? confirmationHandler,
+            ArchitectureGraphCanvasTheme theme)
+        {
+            var result = new NodifyGraphConnectionViewModel(edge, output, input, editService, editResultHandler, selectionHandler, confirmationHandler, theme);
 
-			return result;
-		}
-	}
+            return result;
+        }
+    }
 }

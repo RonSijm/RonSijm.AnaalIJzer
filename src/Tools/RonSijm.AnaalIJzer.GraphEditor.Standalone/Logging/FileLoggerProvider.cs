@@ -5,91 +5,91 @@ namespace RonSijm.AnaalIJzer.GraphEditor.Standalone.Logging;
 
 internal sealed class FileLoggerProvider : ILoggerProvider
 {
-	private readonly object _syncRoot = new();
-	private readonly StreamWriter _writer;
+    private readonly object _syncRoot = new();
+    private readonly StreamWriter _writer;
 
-	public FileLoggerProvider(string path)
-	{
-		Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-		_writer = new StreamWriter(new FileStream(path, FileMode.Append, FileAccess.Write, FileShare.ReadWrite))
-		{
-			AutoFlush = true
-		};
-	}
+    public FileLoggerProvider(string path)
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+        _writer = new StreamWriter(new FileStream(path, FileMode.Append, FileAccess.Write, FileShare.ReadWrite))
+        {
+            AutoFlush = true
+        };
+    }
 
-	public ILogger CreateLogger(string categoryName)
-	{
-		var result = new FileLogger(categoryName, Write);
+    public ILogger CreateLogger(string categoryName)
+    {
+        var result = new FileLogger(categoryName, Write);
 
-		return result;
-	}
+        return result;
+    }
 
-	public void Dispose()
-	{
-		lock (_syncRoot)
-		{
-			_writer.Dispose();
-		}
-	}
+    public void Dispose()
+    {
+        lock (_syncRoot)
+        {
+            _writer.Dispose();
+        }
+    }
 
-	private void Write(string categoryName, LogLevel logLevel, EventId eventId, string message, Exception? exception)
-	{
-		lock (_syncRoot)
-		{
-			_writer.Write(DateTimeOffset.Now.ToString("yyyy-MM-dd HH:mm:ss.fff zzz"));
-			_writer.Write(" [");
-			_writer.Write(logLevel);
-			_writer.Write("] ");
-			_writer.Write(categoryName);
-			if (eventId.Id != 0 || !string.IsNullOrWhiteSpace(eventId.Name))
-			{
-				_writer.Write(" ");
-				_writer.Write(eventId.Id);
-				if (!string.IsNullOrWhiteSpace(eventId.Name))
-				{
-					_writer.Write(":");
-					_writer.Write(eventId.Name);
-				}
-			}
+    private void Write(string categoryName, LogLevel logLevel, EventId eventId, string message, Exception? exception)
+    {
+        lock (_syncRoot)
+        {
+            _writer.Write(DateTimeOffset.Now.ToString("yyyy-MM-dd HH:mm:ss.fff zzz"));
+            _writer.Write(" [");
+            _writer.Write(logLevel);
+            _writer.Write("] ");
+            _writer.Write(categoryName);
+            if (eventId.Id != 0 || !string.IsNullOrWhiteSpace(eventId.Name))
+            {
+                _writer.Write(" ");
+                _writer.Write(eventId.Id);
+                if (!string.IsNullOrWhiteSpace(eventId.Name))
+                {
+                    _writer.Write(":");
+                    _writer.Write(eventId.Name);
+                }
+            }
 
-			_writer.Write(" - ");
-			_writer.WriteLine(message);
-			if (exception is not null)
-			{
-				_writer.WriteLine(exception);
-			}
-		}
-	}
+            _writer.Write(" - ");
+            _writer.WriteLine(message);
+            if (exception is not null)
+            {
+                _writer.WriteLine(exception);
+            }
+        }
+    }
 
-	private sealed class FileLogger(string categoryName, Action<string, LogLevel, EventId, string, Exception?> write)
+    private sealed class FileLogger(string categoryName, Action<string, LogLevel, EventId, string, Exception?> write)
         : ILogger
     {
         public IDisposable? BeginScope<TState>(TState state) where TState : notnull
-		{
-			return null;
-		}
+        {
+            return null;
+        }
 
-		public bool IsEnabled(LogLevel logLevel)
-		{
-			var result = logLevel != LogLevel.None;
+        public bool IsEnabled(LogLevel logLevel)
+        {
+            var result = logLevel != LogLevel.None;
 
-			return result;
-		}
+            return result;
+        }
 
-		public void Log<TState>(
-			LogLevel logLevel,
-			EventId eventId,
-			TState state,
-			Exception? exception,
-			Func<TState, Exception?, string> formatter)
-		{
-			if (!IsEnabled(logLevel))
-			{
-				return;
-			}
+        public void Log<TState>(
+            LogLevel logLevel,
+            EventId eventId,
+            TState state,
+            Exception? exception,
+            Func<TState, Exception?, string> formatter)
+        {
+            if (!IsEnabled(logLevel))
+            {
+                return;
+            }
 
-			var message = formatter(state, exception);
-			write(categoryName, logLevel, eventId, message, exception);
-		}
-	}
+            var message = formatter(state, exception);
+            write(categoryName, logLevel, eventId, message, exception);
+        }
+    }
 }

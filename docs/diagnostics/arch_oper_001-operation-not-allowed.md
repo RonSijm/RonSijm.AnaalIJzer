@@ -30,7 +30,7 @@ Typical fixes:
 - move service resolution to the composition root rather than locating a dependency in application code;
 - narrow the policy only when that exact operation is intentionally allowed in the owning layer.
 
-There is no automatic code fix. AnaalIjzer can identify the selected forbidden operation, but the correct architectural replacement belongs to the application.
+There is no automatic code fix. AnaalIJzer can identify the selected forbidden operation, but the correct architectural replacement belongs to the application.
 
 **Focused examples:** [`Example.Arch_OPER_001.ClockAccess`](../../Examples/Diagnostics/OPER/Example.Arch_OPER_001.ClockAccess), [`Example.Arch_OPER_001.BlockingTaskAccess`](../../Examples/Diagnostics/OPER/Example.Arch_OPER_001.BlockingTaskAccess), [`Example.Arch_OPER_001.ServiceLocation`](../../Examples/Diagnostics/OPER/Example.Arch_OPER_001.ServiceLocation), and [`Example.Arch_OPER_001.SelectedEnvironmentMember`](../../Examples/Diagnostics/OPER/Example.Arch_OPER_001.SelectedEnvironmentMember).
 

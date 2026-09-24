@@ -7,13 +7,13 @@ namespace RonSijm.AnaalIJzer.Core.Observations.Tests;
 
 public sealed class DependencySiteObservationScannerTests
 {
-	[Fact]
-	public void Scan_RecognizesEveryArchitecturalDependencySite()
-	{
-		var cancellationToken = TestContext.Current.CancellationToken;
-		var compilation = CSharpCompilation.Create(
-			"DependencySites",
-			[CSharpSyntaxTree.ParseText(SourceText.From("""
+    [Fact]
+    public void Scan_RecognizesEveryArchitecturalDependencySite()
+    {
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var compilation = CSharpCompilation.Create(
+            "DependencySites",
+            [CSharpSyntaxTree.ParseText(SourceText.From("""
 				using System;
 				[Marker]
 				public class Caller : Base, IContract
@@ -36,14 +36,14 @@ public sealed class DependencySiteObservationScannerTests
 				public class GenericType<T> { }
 				public static class GenericMethods { public static void Generic<T>() { } }
 				"""), path: "DependencySites.cs", cancellationToken: cancellationToken)],
-			[MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
+            [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
 
-		var observations = DependencySiteObservationScanner.Scan(compilation, cancellationToken);
-		var sites = observations.Select(observation => observation.Site).Distinct(StringComparer.Ordinal).ToArray();
-		var layerObservations = ProjectDependencyScanner.Scan(compilation, _ => "Layer", cancellationToken);
-		var layerSites = layerObservations.Select(observation => observation.Site).Distinct(StringComparer.Ordinal).ToArray();
+        var observations = DependencySiteObservationScanner.Scan(compilation, cancellationToken);
+        var sites = observations.Select(observation => observation.Site).Distinct(StringComparer.Ordinal).ToArray();
+        var layerObservations = ProjectDependencyScanner.Scan(compilation, _ => "Layer", cancellationToken);
+        var layerSites = layerObservations.Select(observation => observation.Site).Distinct(StringComparer.Ordinal).ToArray();
 
-		sites.Should().Contain(DependencySites.All);
-		layerSites.Should().Contain(DependencySites.All);
-	}
+        sites.Should().Contain(DependencySites.All);
+        layerSites.Should().Contain(DependencySites.All);
+    }
 }

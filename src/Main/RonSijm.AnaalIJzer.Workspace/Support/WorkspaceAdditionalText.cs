@@ -5,30 +5,30 @@ namespace RonSijm.AnaalIJzer.Workspace.Support;
 
 internal sealed class WorkspaceAdditionalText(string path, SourceText text) : AdditionalText
 {
-	public override string Path { get; } = path;
+    public override string Path { get; } = path;
 
-	public override SourceText GetText(CancellationToken cancellationToken = default)
-	{
-		var result = text;
+    public override SourceText GetText(CancellationToken cancellationToken = default)
+    {
+        var result = text;
 
-		return result;
-	}
+        return result;
+    }
 
-	public static WorkspaceAdditionalText FromFile(string path, CancellationToken cancellationToken)
-	{
-		var content = File.ReadAllText(path);
-		cancellationToken.ThrowIfCancellationRequested();
-		var text = SourceText.From(content);
-		var result = new WorkspaceAdditionalText(path, text);
+    public static WorkspaceAdditionalText FromFile(string path, CancellationToken cancellationToken)
+    {
+        var content = File.ReadAllText(path);
+        cancellationToken.ThrowIfCancellationRequested();
+        var text = SourceText.From(content);
+        var result = new WorkspaceAdditionalText(path, text);
 
-		return result;
-	}
+        return result;
+    }
 
-	public static WorkspaceAdditionalText FromText(string path, string content)
-	{
-		var text = SourceText.From(content);
-		var result = new WorkspaceAdditionalText(path, text);
+    public static WorkspaceAdditionalText FromText(string path, string content)
+    {
+        var text = SourceText.From(content);
+        var result = new WorkspaceAdditionalText(path, text);
 
-		return result;
-	}
+        return result;
+    }
 }

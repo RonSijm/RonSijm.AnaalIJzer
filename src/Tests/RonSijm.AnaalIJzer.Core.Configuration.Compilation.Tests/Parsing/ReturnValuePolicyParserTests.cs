@@ -8,10 +8,10 @@ namespace RonSijm.AnaalIJzer.Core.Configuration.Compilation.Tests.Parsing;
 
 public sealed class ReturnValuePolicyParserTests
 {
-	[Fact]
-	public void Parser_ReadsGenericReturnValueMatchers()
-	{
-		const string configText = """
+    [Fact]
+    public void Parser_ReadsGenericReturnValueMatchers()
+    {
+        const string configText = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Namespace startsWith="Shop.Application" />
@@ -24,23 +24,23 @@ public sealed class ReturnValuePolicyParserTests
 			</ArchitecturalLevels>
 			""";
 
-		var config = ParseConfig(configText);
+        var config = ParseConfig(configText);
 
-		config.HasReturnValuePolicies.Should().BeTrue();
-		var policy = config.Layers.Should().ContainSingle().Which.ReturnValuePolicies.Should().ContainSingle().Subject;
-		policy.Description.Should().Be("Application methods return a handled pizza.");
-		policy.Rules.Should().HaveCount(3);
-		policy.Rules[0].Matcher.Target.Should().Be(CodeObservationMatchTarget.Literal);
-		policy.Rules[0].DisplayName.Should().Be("literal value=\"null\"");
-		policy.Rules[1].Matcher.Conditions.Should().ContainSingle().Which.Value.Should().BeEmpty();
-		policy.Rules[2].Matcher.Target.Should().Be(CodeObservationMatchTarget.Invocation);
-		policy.Rules[2].Matcher.Conditions.Should().ContainSingle().Which.Value.Should().Be("CanBeNull");
-	}
+        config.HasReturnValuePolicies.Should().BeTrue();
+        var policy = config.Layers.Should().ContainSingle().Which.ReturnValuePolicies.Should().ContainSingle().Subject;
+        policy.Description.Should().Be("Application methods return a handled pizza.");
+        policy.Rules.Should().HaveCount(3);
+        policy.Rules[0].Matcher.Target.Should().Be(CodeObservationMatchTarget.Literal);
+        policy.Rules[0].DisplayName.Should().Be("literal value=\"null\"");
+        policy.Rules[1].Matcher.Conditions.Should().ContainSingle().Which.Value.Should().BeEmpty();
+        policy.Rules[2].Matcher.Target.Should().Be(CodeObservationMatchTarget.Invocation);
+        policy.Rules[2].Matcher.Conditions.Should().ContainSingle().Which.Value.Should().Be("CanBeNull");
+    }
 
-	[Fact]
-	public void Parser_ReadsAllowedReturnMatchers()
-	{
-		const string configText = """
+    [Fact]
+    public void Parser_ReadsAllowedReturnMatchers()
+    {
+        const string configText = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Namespace startsWith="Shop.Application" />
@@ -54,19 +54,19 @@ public sealed class ReturnValuePolicyParserTests
 			</ArchitecturalLevels>
 			""";
 
-		var config = ParseConfig(configText);
+        var config = ParseConfig(configText);
 
-		var policy = config.Layers.Should().ContainSingle().Which.ReturnValuePolicies.Should().ContainSingle().Subject;
-		policy.Rules.Should().BeEmpty();
-		policy.AllowedRules.Should().HaveCount(2);
-		policy.AllowedRules[0].Matcher.Target.Should().Be(CodeObservationMatchTarget.Identifier);
-		policy.AllowedRules[1].Matcher.Target.Should().Be(CodeObservationMatchTarget.MemberAccess);
-	}
+        var policy = config.Layers.Should().ContainSingle().Which.ReturnValuePolicies.Should().ContainSingle().Subject;
+        policy.Rules.Should().BeEmpty();
+        policy.AllowedRules.Should().HaveCount(2);
+        policy.AllowedRules[0].Matcher.Target.Should().Be(CodeObservationMatchTarget.Identifier);
+        policy.AllowedRules[1].Matcher.Target.Should().Be(CodeObservationMatchTarget.MemberAccess);
+    }
 
-	[Fact]
-	public void Parser_ReadsGlobalReturnValuePolicyWithoutLayers()
-	{
-		const string configText = """
+    [Fact]
+    public void Parser_ReadsGlobalReturnValuePolicyWithoutLayers()
+    {
+        const string configText = """
 			<ArchitecturalLevels>
 			  <ReturnValuePolicy description="Every kitchen names its hand-off.">
 			    <AllowedReturn>
@@ -76,27 +76,27 @@ public sealed class ReturnValuePolicyParserTests
 			</ArchitecturalLevels>
 			""";
 
-		var config = ParseConfig(configText);
+        var config = ParseConfig(configText);
 
-		config.Layers.Should().BeEmpty();
-		config.HasReturnValuePolicies.Should().BeTrue();
-		var policy = config.GlobalReturnValuePolicies.Should().ContainSingle().Subject;
-		policy.IsGlobal.Should().BeTrue();
-		policy.Description.Should().Be("Every kitchen names its hand-off.");
-		policy.AllowedRules.Should().ContainSingle().Which.Matcher.Target.Should().Be(CodeObservationMatchTarget.Identifier);
-	}
+        config.Layers.Should().BeEmpty();
+        config.HasReturnValuePolicies.Should().BeTrue();
+        var policy = config.GlobalReturnValuePolicies.Should().ContainSingle().Subject;
+        policy.IsGlobal.Should().BeTrue();
+        policy.Description.Should().Be("Every kitchen names its hand-off.");
+        policy.AllowedRules.Should().ContainSingle().Which.Matcher.Target.Should().Be(CodeObservationMatchTarget.Identifier);
+    }
 
-	[Theory]
-	[InlineData("""<ReturnValuePolicy />""")]
-	[InlineData("""<ReturnValuePolicy disallowExplicitNull="true"><Literal value="null" /></ReturnValuePolicy>""")]
-	[InlineData("""<ReturnValuePolicy><Throw /></ReturnValuePolicy>""")]
-	[InlineData("""<ReturnValuePolicy><Literal value="null" unexpected="pizza" /></ReturnValuePolicy>""")]
-	[InlineData("""<ReturnValuePolicy><AllowedReturn /></ReturnValuePolicy>""")]
-	[InlineData("""<ReturnValuePolicy><AllowedReturn><Throw /></AllowedReturn></ReturnValuePolicy>""")]
-	[InlineData("""<ReturnValuePolicy><AllowedReturn><Identifier /></AllowedReturn><AllowedReturn><MemberAccess /></AllowedReturn></ReturnValuePolicy>""")]
-	public void Parser_RejectsInvalidReturnValuePolicy(string policyXml)
-	{
-		var configText = $"""
+    [Theory]
+    [InlineData("""<ReturnValuePolicy />""")]
+    [InlineData("""<ReturnValuePolicy disallowExplicitNull="true"><Literal value="null" /></ReturnValuePolicy>""")]
+    [InlineData("""<ReturnValuePolicy><Throw /></ReturnValuePolicy>""")]
+    [InlineData("""<ReturnValuePolicy><Literal value="null" unexpected="pizza" /></ReturnValuePolicy>""")]
+    [InlineData("""<ReturnValuePolicy><AllowedReturn /></ReturnValuePolicy>""")]
+    [InlineData("""<ReturnValuePolicy><AllowedReturn><Throw /></AllowedReturn></ReturnValuePolicy>""")]
+    [InlineData("""<ReturnValuePolicy><AllowedReturn><Identifier /></AllowedReturn><AllowedReturn><MemberAccess /></AllowedReturn></ReturnValuePolicy>""")]
+    public void Parser_RejectsInvalidReturnValuePolicy(string policyXml)
+    {
+        var configText = $"""
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Namespace startsWith="Shop.Application" />
@@ -105,20 +105,20 @@ public sealed class ReturnValuePolicyParserTests
 			</ArchitecturalLevels>
 			""";
 
-		var config = ParseConfig(configText);
+        var config = ParseConfig(configText);
 
-		config.ConfigurationIssues.Should().Contain(issue => issue.Kind == ConfigurationIssueKind.InvalidConfiguration);
-		config.Layers.Should().ContainSingle().Which.ReturnValuePolicies.Should().BeEmpty();
-	}
+        config.ConfigurationIssues.Should().Contain(issue => issue.Kind == ConfigurationIssueKind.InvalidConfiguration);
+        config.Layers.Should().ContainSingle().Which.ReturnValuePolicies.Should().BeEmpty();
+    }
 
-	private static AnalyzerConfiguration ParseConfig(string configText)
-	{
-		var result = ArchitecturalConfigParser.Parse(
-			[
-				new TestAdditionalText(@"D:\repo\Architecture.anl", configText)
-			],
-			CancellationToken.None);
+    private static AnalyzerConfiguration ParseConfig(string configText)
+    {
+        var result = ArchitecturalConfigParser.Parse(
+            [
+                new TestAdditionalText(@"D:\repo\Architecture.anl", configText)
+            ],
+            CancellationToken.None);
 
-		return result;
-	}
+        return result;
+    }
 }

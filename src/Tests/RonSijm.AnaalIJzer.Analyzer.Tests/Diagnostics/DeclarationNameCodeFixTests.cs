@@ -5,10 +5,10 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Diagnostics;
 
 public sealed class DeclarationNameCodeFixTests
 {
-	[Fact]
-	public async Task DeclarationNameMismatch_RenamesDeclarationToTypeName()
-	{
-		const string config = """
+    [Fact]
+    public async Task DeclarationNameMismatch_RenamesDeclarationToTypeName()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="AspEndpoints">
 			    <Class endsWith="Controller" />
@@ -20,7 +20,7 @@ public sealed class DeclarationNameCodeFixTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			interface IHonestType { }
 			sealed class PatientId : IHonestType { }
 
@@ -30,19 +30,19 @@ public sealed class DeclarationNameCodeFixTests
 			}
 			""";
 
-		var newSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
-			source,
-			config,
-			ArchitecturalDiagnosticIds.NameShapeMismatch,
-			"Rename 'patient' to 'PatientId'");
+        var newSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
+            source,
+            config,
+            ArchitecturalDiagnosticIds.NameShapeMismatch,
+            "Rename 'patient' to 'PatientId'");
 
-		newSource.Should().Contain("GetPatient(PatientId PatientId)");
-	}
+        newSource.Should().Contain("GetPatient(PatientId PatientId)");
+    }
 
-	[Fact]
-	public async Task RequireMatchingNames_DoesNotOfferDeclarationRenameFix()
-	{
-		const string config = """
+    [Fact]
+    public async Task RequireMatchingNames_DoesNotOfferDeclarationRenameFix()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Class endsWith="Service" />
@@ -55,7 +55,7 @@ public sealed class DeclarationNameCodeFixTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			class OrderService
 			{
 				public void Run(int fruitId, int animalId)
@@ -69,8 +69,8 @@ public sealed class DeclarationNameCodeFixTests
 			}
 			""";
 
-		var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(source, config, ArchitecturalDiagnosticIds.NameShapeMismatch);
+        var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(source, config, ArchitecturalDiagnosticIds.NameShapeMismatch);
 
-		titles.Should().NotContain(title => title.StartsWith("Rename '", StringComparison.Ordinal));
-	}
+        titles.Should().NotContain(title => title.StartsWith("Rename '", StringComparison.Ordinal));
+    }
 }

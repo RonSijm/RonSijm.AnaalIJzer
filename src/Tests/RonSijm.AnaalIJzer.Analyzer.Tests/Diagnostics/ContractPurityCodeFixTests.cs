@@ -5,10 +5,10 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Diagnostics;
 
 public sealed class ContractPurityCodeFixTests
 {
-	[Fact]
-	public async Task DisallowedPropertyAccessor_RemovesSetter()
-	{
-		const string config = """
+    [Fact]
+    public async Task DisallowedPropertyAccessor_RemovesSetter()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Contracts">
 			    <Class endsWith="Contract" typeKind="Interface" />
@@ -19,27 +19,27 @@ public sealed class ContractPurityCodeFixTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			public interface IOrderContract
 			{
 				string Name { get; set; }
 			}
 			""";
 
-		var newSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
-			source,
-			config,
-			ArchitecturalDiagnosticIds.ContractShapeMismatch,
-			"Remove disallowed set accessor");
+        var newSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
+            source,
+            config,
+            ArchitecturalDiagnosticIds.ContractShapeMismatch,
+            "Remove disallowed set accessor");
 
-		newSource.Should().Contain("string Name { get; }");
-		newSource.Should().NotContain("set;");
-	}
+        newSource.Should().Contain("string Name { get; }");
+        newSource.Should().NotContain("set;");
+    }
 
-	[Fact]
-	public async Task MethodBodyViolation_DoesNotOfferAccessorRemovalFix()
-	{
-		const string config = """
+    [Fact]
+    public async Task MethodBodyViolation_DoesNotOfferAccessorRemovalFix()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Contracts">
 			    <Class endsWith="Contract" typeKind="Interface" />
@@ -50,7 +50,7 @@ public sealed class ContractPurityCodeFixTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			public interface IOrderContract
 			{
 				public void Run()
@@ -59,8 +59,8 @@ public sealed class ContractPurityCodeFixTests
 			}
 			""";
 
-		var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(source, config, ArchitecturalDiagnosticIds.ContractShapeMismatch);
+        var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(source, config, ArchitecturalDiagnosticIds.ContractShapeMismatch);
 
-		titles.Should().BeEmpty();
-	}
+        titles.Should().BeEmpty();
+    }
 }

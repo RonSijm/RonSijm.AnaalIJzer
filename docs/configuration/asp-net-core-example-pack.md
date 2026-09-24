@@ -1,6 +1,6 @@
 ## ASP.NET Core example pack
 
-AnaalIjzer does not need an ASP.NET Core dependency to enforce many useful Web API rules. Roslyn resolves the symbols in your application; the ordinary matcher and policy vocabulary can then select facts such as `[ApiController]`, `ControllerBase`, action parameters, public return types, and direct method calls.
+AnaalIJzer does not need an ASP.NET Core dependency to enforce many useful Web API rules. Roslyn resolves the symbols in your application; the ordinary matcher and policy vocabulary can then select facts such as `[ApiController]`, `ControllerBase`, action parameters, public return types, and direct method calls.
 
 The runnable [`Example.AspNetCore`](../../Examples/Scenarios/Example.AspNetCore) pack uses real `Microsoft.NET.Sdk.Web` projects to show four framework-neutral rules:
 

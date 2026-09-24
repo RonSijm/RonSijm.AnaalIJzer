@@ -2,43 +2,43 @@ namespace RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
 
 internal static class ArchitectureConfigurationLayerPaths
 {
-	internal static string[] SplitLayerPath(string layerPath)
-	{
-		var result = layerPath.Split(['/'], StringSplitOptions.RemoveEmptyEntries);
+    internal static string[] SplitLayerPath(string layerPath)
+    {
+        var result = layerPath.Split(['/'], StringSplitOptions.RemoveEmptyEntries);
 
-		return result;
-	}
+        return result;
+    }
 
-	internal static int GetCommonPrefixLength(string[] left, string[] right)
-	{
-		var count = Math.Min(left.Length, right.Length);
-		for (var index = 0; index < count; index++)
-		{
-			if (!string.Equals(left[index], right[index], StringComparison.Ordinal))
-			{
-				return index;
-			}
-		}
+    internal static int GetCommonPrefixLength(string[] left, string[] right)
+    {
+        var count = Math.Min(left.Length, right.Length);
+        for (var index = 0; index < count; index++)
+        {
+            if (!string.Equals(left[index], right[index], StringComparison.Ordinal))
+            {
+                return index;
+            }
+        }
 
-		return count;
-	}
+        return count;
+    }
 
-	internal static string FormatRootLayerReference(string layerPath)
-	{
-		if (layerPath == "*" || !layerPath.Contains("/"))
-		{
-			return layerPath;
-		}
+    internal static string FormatRootLayerReference(string layerPath)
+    {
+        if (layerPath == "*" || !layerPath.Contains("/"))
+        {
+            return layerPath;
+        }
 
-		var result = "/" + layerPath;
+        var result = "/" + layerPath;
 
-		return result;
-	}
+        return result;
+    }
 
-	internal static string FormatScopeName(string scopePath)
-	{
-		var result = string.IsNullOrWhiteSpace(scopePath) ? "root" : scopePath;
+    internal static string FormatScopeName(string scopePath)
+    {
+        var result = string.IsNullOrWhiteSpace(scopePath) ? "root" : scopePath;
 
-		return result;
-	}
+        return result;
+    }
 }

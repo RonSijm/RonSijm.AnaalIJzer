@@ -5,10 +5,10 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Diagnostics;
 
 public sealed class VisibilityPolicyCodeFixTests
 {
-	[Fact]
-	public async Task AllowListPolicy_AddsReportedAccessibility()
-	{
-		const string config = """
+    [Fact]
+    public async Task AllowListPolicy_AddsReportedAccessibility()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Policy">
 			    <Class typeName="PublicQueryable" />
@@ -16,21 +16,21 @@ public sealed class VisibilityPolicyCodeFixTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = "public class PublicQueryable { }";
+        const string source = "public class PublicQueryable { }";
 
-		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
-			source,
-			config,
-			ArchitecturalDiagnosticIds.VisibilityNotAllowed,
-			"Allow visibility 'Public' in VisibilityPolicy");
+        var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
+            source,
+            config,
+            ArchitecturalDiagnosticIds.VisibilityNotAllowed,
+            "Allow visibility 'Public' in VisibilityPolicy");
 
-		updatedConfig.Should().Contain("allowedAccessibilities=\"Public, Internal, File\"");
-	}
+        updatedConfig.Should().Contain("allowedAccessibilities=\"Public, Internal, File\"");
+    }
 
-	[Fact]
-	public async Task BlockListPolicy_RemovesReportedAccessibility()
-	{
-		const string config = """
+    [Fact]
+    public async Task BlockListPolicy_RemovesReportedAccessibility()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Policy">
 			    <Class typeName="PublicQueryable" />
@@ -38,21 +38,21 @@ public sealed class VisibilityPolicyCodeFixTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = "public class PublicQueryable { }";
+        const string source = "public class PublicQueryable { }";
 
-		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
-			source,
-			config,
-			ArchitecturalDiagnosticIds.VisibilityNotAllowed,
-			"Remove visibility 'Public' from blockedAccessibilities");
+        var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
+            source,
+            config,
+            ArchitecturalDiagnosticIds.VisibilityNotAllowed,
+            "Remove visibility 'Public' from blockedAccessibilities");
 
-		updatedConfig.Should().Contain("blockedAccessibilities=\"Internal\"");
-	}
+        updatedConfig.Should().Contain("blockedAccessibilities=\"Internal\"");
+    }
 
-	[Fact]
-	public async Task SingleBlockedAccessibility_RemovesWholeVisibilityPolicy()
-	{
-		const string config = """
+    [Fact]
+    public async Task SingleBlockedAccessibility_RemovesWholeVisibilityPolicy()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Policy">
 			    <Class typeName="PublicQueryable" />
@@ -60,21 +60,21 @@ public sealed class VisibilityPolicyCodeFixTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""";
-		const string source = "public class PublicQueryable { }";
+        const string source = "public class PublicQueryable { }";
 
-		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
-			source,
-			config,
-			ArchitecturalDiagnosticIds.VisibilityNotAllowed,
-			"Remove VisibilityPolicy that only blocks 'Public'");
+        var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
+            source,
+            config,
+            ArchitecturalDiagnosticIds.VisibilityNotAllowed,
+            "Remove VisibilityPolicy that only blocks 'Public'");
 
-		updatedConfig.Should().NotContain("<VisibilityPolicy");
-	}
+        updatedConfig.Should().NotContain("<VisibilityPolicy");
+    }
 
-	[Fact]
-	public async Task AllowListPolicy_InlineSettings_UpdatesAssemblyMetadata()
-	{
-		const string source = """"
+    [Fact]
+    public async Task AllowListPolicy_InlineSettings_UpdatesAssemblyMetadata()
+    {
+        const string source = """"
 			using System.Reflection;
 
 			[assembly: AssemblyMetadata("AnaalIJzerSettings", """
@@ -89,11 +89,11 @@ public sealed class VisibilityPolicyCodeFixTests
 			public class PublicQueryable { }
 			"""";
 
-		var updatedSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
-			source,
-			ArchitecturalDiagnosticIds.VisibilityNotAllowed,
-			"Allow visibility 'Public' in VisibilityPolicy");
+        var updatedSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
+            source,
+            ArchitecturalDiagnosticIds.VisibilityNotAllowed,
+            "Allow visibility 'Public' in VisibilityPolicy");
 
-		updatedSource.Should().Contain("allowedAccessibilities=\"Public, Internal, File\"");
-	}
+        updatedSource.Should().Contain("allowedAccessibilities=\"Public, Internal, File\"");
+    }
 }

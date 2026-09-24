@@ -5,9 +5,9 @@ namespace RonSijm.AnaalIJzer.Outputs.Inspection;
 
 internal sealed class ArchitectureHealthReport(string markdown, int findingCount, ImmutableArray<ArchitectureFinding> findings)
 {
-	public string Markdown { get; } = markdown;
+    public string Markdown { get; } = markdown;
 
-	public int FindingCount { get; } = findingCount;
+    public int FindingCount { get; } = findingCount;
 
-	public ImmutableArray<ArchitectureFinding> Findings { get; } = findings;
+    public ImmutableArray<ArchitectureFinding> Findings { get; } = findings;
 }

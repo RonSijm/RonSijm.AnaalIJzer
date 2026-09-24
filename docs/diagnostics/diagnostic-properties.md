@@ -1,24 +1,31 @@
 ### Diagnostic properties
 
-Every dependency diagnostic (ARCH_DEP_001, ARCH_DEP_004, ARCH_DEP_005), name-rule diagnostic (ARCH_NAME_008), and API-surface diagnostic (ARCH_API_001 and ARCH_API_010) carries a `Site` property in `Diagnostic.Properties` indicating where the issue was found. This lets code-fix providers, custom reporters and CI dashboards filter or group by dependency style without re-parsing the source - which beats a dashboard built on regexes over diagnostic messages that breaks the day the wording improves.
+Dependency diagnostics (`ARCH_DEP_001`, `ARCH_DEP_004`, and `ARCH_DEP_005`), `ARCH_NAME_008`, and the API-surface diagnostics carry a `Site` property in `Diagnostic.Properties`. Code-fix providers, reporters, and CI dashboards can group findings without parsing message text, which beats a regex dashboard that breaks the day the wording improves.
 
-ARCH_VIS_001 describes declarations rather than dependency sites. It exposes `DeclarationTarget`, `DeclaredAccessibility`, and `DeclaredSymbolName` alongside the caller layer and rule-origin properties.
+The policy families add their own properties:
 
-ARCH_INH_001 also describes declarations rather than dependency sites. It exposes `DeclaredSymbolName` and `InheritanceViolationKind` alongside the caller layer and rule-origin properties.
-
-ARCH_RET_001 exposes `Site` as `MethodReturn`, together with `DeclaredSymbolName`, `ReturnValueRuleTarget`, `ReturnValueRule`, and `ReturnValueRuleMode`. `ReturnValueRuleMode` is `Forbidden` for a matching direct forbidden matcher and `Allowed` when the returned expression did not match an `<AllowedReturn>` shape allow-list.
-
-ARCH_OPER_001 exposes `Site`, `OperationKind`, `OperationDisplayName`, and `OperationPolicyRule` so reports can distinguish, for example, a forbidden `DateTime.UtcNow` property read from a forbidden `Task.Wait()` invocation.
-
-`ARCH_OPER_002`, `ARCH_OPER_011`, and `ARCH_OPER_012` expose `Site`, `DeclaredSymbolName`, `OperationKind`, `OperationDisplayName`, `OperationPolicyRule`, `BehavioralOperationViolationKind`, and `BehavioralOperationOrdering`. A missing required operation uses the owning declaration location and its ordinary declaration site; a selected failing operation uses that operation's source site.
-
-ARCH_ASSM_001 describes emitted assembly metadata rather than a dependency site. It exposes `AssemblyAttributeTypeName` and `AssemblyAttributePolicyRule` alongside the normal caller, rule-origin, and configuration-location properties. SDK-generated attributes can have no source span, because the project SDK created the final attribute.
-
-ARCH_NS_007 exposes `CallerNamespace`, `DependencyNamespace`, `NamespaceHierarchyRoot`, `NamespaceHierarchyRelation`, `NamespaceHierarchyRuleXmlPath`, `NamespaceHierarchyRuleXmlLine`, and `NamespaceHierarchyRuleXmlCol`. Its `Site` identifies the resolved source dependency that crossed the configured namespace-ownership boundary.
-
-ARCH_API_001 additionally exposes `ApiMemberName`, identifying the externally visible declaration that published the dependency type.
-
-ARCH_API_010 adds `ExposureRootMember`, `ExposurePath`, `ExposureDepth`, `NestedMemberName`, and `NestedMemberContainingType`. Its `Site` identifies the nested public member that exposed the forbidden type rather than the root signature site.
+- `ARCH_VIS_001`
+  - `DeclarationTarget`, `DeclaredAccessibility`, and `DeclaredSymbolName`;
+- `ARCH_INH_001`
+  - `DeclaredSymbolName` and `InheritanceViolationKind`;
+- `ARCH_RET_001`
+  - `Site=MethodReturn`, `DeclaredSymbolName`, `ReturnValueRuleTarget`, `ReturnValueRule`, and `ReturnValueRuleMode`;
+  - `ReturnValueRuleMode` is `Forbidden` for a matching forbidden expression and `Allowed` when no `<AllowedReturn>` shape matched;
+- `ARCH_OPER_001`
+  - `Site`, `OperationKind`, `OperationDisplayName`, and `OperationPolicyRule`;
+- `ARCH_OPER_002`, `ARCH_OPER_011`, and `ARCH_OPER_012`
+  - `Site`, `DeclaredSymbolName`, `OperationKind`, `OperationDisplayName`, `OperationPolicyRule`, `BehavioralOperationViolationKind`, and `BehavioralOperationOrdering`;
+  - a missing operation points at its owning declaration, while a selected failing operation points at the operation itself;
+- `ARCH_ASSM_001`
+  - `AssemblyAttributeTypeName` and `AssemblyAttributePolicyRule`, plus the normal caller and rule-origin properties;
+  - an SDK-generated attribute may have no source span because the SDK emitted it;
+- `ARCH_NS_007`
+  - `CallerNamespace`, `DependencyNamespace`, `NamespaceHierarchyRoot`, `NamespaceHierarchyRelation`, and the rule XML path/line/column properties;
+- `ARCH_API_001`
+  - `ApiMemberName`, identifying the declaration that published the dependency type;
+- `ARCH_API_010`
+  - `ExposureRootMember`, `ExposurePath`, `ExposureDepth`, `NestedMemberName`, and `NestedMemberContainingType`;
+  - its `Site` identifies the nested public member that exposed the forbidden type.
 
 | `Site` value        | Where the dependency was introduced                                        |
 |---------------------|----------------------------------------------------------------------------|

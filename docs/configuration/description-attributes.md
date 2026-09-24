@@ -1,6 +1,23 @@
 ### `description` attributes
 
-Every XML element that participates in the ruleset can carry a `description` attribute: `<ArchitecturalLevels>`, `<Include>`, `<Layer>`, `<Class>`, `<Namespace>`, `<Assembly>`, `<Allowed>`, `<Forbidden>`, `<Exceptions>`, `<Fix>`, `<AllowedDependency>`, `<BlockedDependency>`, `<NamespaceHierarchyPolicy>`, `<BlockedRelation>`, `<Operations>`, `<Operation>`, `<Owner>`, `<Request>`, `<Response>`, `<EntryPoint>`, `<NameRules>`, `<RequireMatchingNames>`, `<RequireDeclarationNameMatchesType>`, `<VisibilityPolicy>`, `<InheritancePolicy>`, `<ReturnValuePolicy>`, `<AllowedReturn>`, `<ForbiddenOperations>`, `<ForbiddenOperation>`, `<BehavioralOperations>`, `<RequiredOperation>`, `<RequiredOperationBefore>`, `<ForbiddenOperationAfter>`, `<MaximumOperationCount>`, `<DeclarationMatcher>`, `<BeforeOperation>`, `<AfterOperation>`, `<OperationMatcher>`, `<ContainingType>`, `<Member>`, `<ApiSurface>`, `<AllowedLayer>`, `<BlockedLayer>`, `<Type>`, `<NestedType>`, `<Constructor>`, `<Method>`, `<Property>`, `<Field>`, `<Event>`, `<Operator>`, `<Conversion>`, `<Name>`, `<Source>`, `<Target>` and `<Allow>`. Descriptions do not affect diagnostics. They exist so generated documentation can explain why a rule exists while preserving the same order as the XML. It is the cheapest available place to record intent: without it, a future reviewer has to guess why a rule is there, and guesswork usually resolves in favour of deleting it.
+Every XML element that participates in the ruleset can carry a `description` attribute. That includes:
+
+- **Structure**
+  - `<ArchitecturalLevels>`, `<Include>`, and `<Layer>`;
+- **Matchers and exceptions**
+  - `<Class>`, `<Namespace>`, `<Assembly>`, `<Type>`, `<NestedType>`, `<ContainingType>`, `<Member>`, `<Name>`, `<Source>`, `<Target>`, `<Exceptions>`, and `<Fix>`;
+- **Type and dependency policies**
+  - `<Allowed>`, `<Forbidden>`, `<AllowedDependency>`, `<BlockedDependency>`, `<ApiSurface>`, `<AllowedLayer>`, and `<BlockedLayer>`;
+- **Namespace and operation contracts**
+  - `<NamespaceHierarchyPolicy>`, `<BlockedRelation>`, `<Operations>`, `<Operation>`, `<Owner>`, `<Request>`, `<Response>`, and `<EntryPoint>`;
+- **Name, visibility, inheritance, and return policies**
+  - `<NameRules>`, `<RequireMatchingNames>`, `<RequireDeclarationNameMatchesType>`, `<Allow>`, `<VisibilityPolicy>`, `<InheritancePolicy>`, `<ReturnValuePolicy>`, and `<AllowedReturn>`;
+- **Operation policies**
+  - `<ForbiddenOperations>`, `<ForbiddenOperation>`, `<BehavioralOperations>`, `<RequiredOperation>`, `<RequiredOperationBefore>`, `<ForbiddenOperationAfter>`, `<MaximumOperationCount>`, `<DeclarationMatcher>`, `<BeforeOperation>`, `<AfterOperation>`, and `<OperationMatcher>`;
+- **Declaration matchers**
+  - `<Constructor>`, `<Method>`, `<Property>`, `<Field>`, `<Event>`, `<Operator>`, and `<Conversion>`.
+
+Descriptions do not affect diagnostics. They are the cheapest place to record intent: without one, a future reviewer has to guess why a rule exists, and guesswork usually resolves in favour of deleting it.
 
 ```xml
 <Layer name="QuerySurface"

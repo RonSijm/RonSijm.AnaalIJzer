@@ -6,79 +6,79 @@ namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
 
 internal sealed partial class ArchitectureGraphCanvas
 {
-	private sealed partial class NodifyGraphConnectionViewModel
-	{
-		private void RefreshSitePresentation()
-		{
-			foreach (var option in AllowedSiteOptions)
-			{
-				option.IsChecked = _allowedSites.Contains(option.Site, StringComparer.Ordinal);
-			}
+    private sealed partial class NodifyGraphConnectionViewModel
+    {
+        private void RefreshSitePresentation()
+        {
+            foreach (var option in AllowedSiteOptions)
+            {
+                option.IsChecked = _allowedSites.Contains(option.Site, StringComparer.Ordinal);
+            }
 
-			foreach (var option in BlockedSiteOptions)
-			{
-				option.IsChecked = _blockedSites.Contains(option.Site, StringComparer.Ordinal);
-			}
+            foreach (var option in BlockedSiteOptions)
+            {
+                option.IsChecked = _blockedSites.Contains(option.Site, StringComparer.Ordinal);
+            }
 
-			var siteText = FormatSiteText(_allowedSites, _blockedSites);
-			LabelText = FormatLabelText(siteText, AppliesToDescendants);
-			ToolTip = FormatEdgeToolTip(Kind, From, To, siteText, AppliesToDescendants);
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(UsesAllSites)));
-		}
+            var siteText = FormatSiteText(_allowedSites, _blockedSites);
+            LabelText = FormatLabelText(siteText, AppliesToDescendants);
+            ToolTip = FormatEdgeToolTip(Kind, From, To, siteText, AppliesToDescendants);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(UsesAllSites)));
+        }
 
-		private static ImmutableArray<string> ToggleSite(ImmutableArray<string> currentSites, string site)
-		{
-			var builder = ImmutableArray.CreateBuilder<string>();
-			builder.AddRange(currentSites.Where(current => !string.Equals(current, site, StringComparison.Ordinal)));
-			if (builder.Count == currentSites.Length)
-			{
-				builder.Add(site);
-			}
+        private static ImmutableArray<string> ToggleSite(ImmutableArray<string> currentSites, string site)
+        {
+            var builder = ImmutableArray.CreateBuilder<string>();
+            builder.AddRange(currentSites.Where(current => !string.Equals(current, site, StringComparison.Ordinal)));
+            if (builder.Count == currentSites.Length)
+            {
+                builder.Add(site);
+            }
 
-			var result = ArchitectureDependencySiteNames.All.Where(builder.Contains).ToImmutableArray();
+            var result = ArchitectureDependencySiteNames.All.Where(builder.Contains).ToImmutableArray();
 
-			return result;
-		}
+            return result;
+        }
 
-		private static string FormatLabelText(string siteText, bool appliesToDescendants)
-		{
-			var result = siteText + (appliesToDescendants ? ", cascades" : string.Empty);
+        private static string FormatLabelText(string siteText, bool appliesToDescendants)
+        {
+            var result = siteText + (appliesToDescendants ? ", cascades" : string.Empty);
 
-			return result;
-		}
+            return result;
+        }
 
-		private static string FormatSiteText(ImmutableArray<string> allowedSites, ImmutableArray<string> blockedSites)
-		{
-			if (allowedSites.Length > 0)
-			{
-				return "allowed sites: " + string.Join(", ", allowedSites);
-			}
+        private static string FormatSiteText(ImmutableArray<string> allowedSites, ImmutableArray<string> blockedSites)
+        {
+            if (allowedSites.Length > 0)
+            {
+                return "allowed sites: " + string.Join(", ", allowedSites);
+            }
 
-			if (blockedSites.Length > 0)
-			{
-				return "blocked sites: " + string.Join(", ", blockedSites);
-			}
+            if (blockedSites.Length > 0)
+            {
+                return "blocked sites: " + string.Join(", ", blockedSites);
+            }
 
-			return "all sites";
-		}
+            return "all sites";
+        }
 
-		private static string FormatEdgeToolTip(string kind, string from, string to, string siteText, bool appliesToDescendants)
-		{
-			var cascade = appliesToDescendants ? Environment.NewLine + "Applies to descendants." : string.Empty;
-			var result = kind + ": " + from + " -> " + to + Environment.NewLine + siteText + cascade;
+        private static string FormatEdgeToolTip(string kind, string from, string to, string siteText, bool appliesToDescendants)
+        {
+            var cascade = appliesToDescendants ? Environment.NewLine + "Applies to descendants." : string.Empty;
+            var result = kind + ": " + from + " -> " + to + Environment.NewLine + siteText + cascade;
 
-			return result;
-		}
+            return result;
+        }
 
-		private static string FormatEvidenceToolTip(string from, string to, string siteText, string details)
-		{
-			var detailText = string.IsNullOrWhiteSpace(details) ? string.Empty : Environment.NewLine + details;
-			var evidenceKind = siteText.Contains("project reference", StringComparison.OrdinalIgnoreCase)
-				? "Observed project reference"
-				: "Observed code dependency";
-			var result = evidenceKind + ": " + from + " -> " + to + Environment.NewLine + siteText + detailText;
+        private static string FormatEvidenceToolTip(string from, string to, string siteText, string details)
+        {
+            var detailText = string.IsNullOrWhiteSpace(details) ? string.Empty : Environment.NewLine + details;
+            var evidenceKind = siteText.IndexOf("project reference", StringComparison.OrdinalIgnoreCase) >= 0
+                ? "Observed project reference"
+                : "Observed code dependency";
+            var result = evidenceKind + ": " + from + " -> " + to + Environment.NewLine + siteText + detailText;
 
-			return result;
-		}
-	}
+            return result;
+        }
+    }
 }

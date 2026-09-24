@@ -12,241 +12,241 @@ namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests.Controls;
 
 public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 {
-	[Fact]
-	public void MatcherAddEditor_UsesAttributeDropdown()
-	{
-		RunOnStaThread(() =>
-		{
-			var path = WriteTempFile(
-				"Architecture.anl",
-				"""
+    [Fact]
+    public void MatcherAddEditor_UsesAttributeDropdown()
+    {
+        RunOnStaThread(() =>
+        {
+            var path = WriteTempFile(
+                "Architecture.anl",
+                """
 				<ArchitecturalLevels>
 				  <Layer name="Customer"><Class typeName="CustomerType" /></Layer>
 				</ArchitecturalLevels>
 				""");
-			var snapshot = ArchitectureGraphXmlSnapshotLoader.Load(path);
-			var control = CreateControl(snapshot);
+            var snapshot = ArchitectureGraphXmlSnapshotLoader.Load(path);
+            var control = CreateControl(snapshot);
 
-			control.Select(ArchitectureGraphSelection.ForLayer(snapshot.Layers.Single().EditHandle));
-			DrainDispatcher();
+            control.Select(ArchitectureGraphSelection.ForLayer(snapshot.Layers.Single().EditHandle));
+            DrainDispatcher();
 
-			FindVisualDescendants<TextBox>(control).Should().NotContain(textBox => string.Equals(textBox.Text, "endsWith=", StringComparison.Ordinal));
-			FindVisualDescendants<ComboBox>(control)
-				.Where(comboBox => comboBox.Items.Cast<object>().Any(item => string.Equals(item.ToString(), "endsWith", StringComparison.Ordinal)))
-				.Should()
-				.Contain(comboBox => comboBox.Items.Cast<object>().Any(item => string.Equals(item.ToString(), "typeKind", StringComparison.Ordinal)));
-		});
-	}
+            FindVisualDescendants<TextBox>(control).Should().NotContain(textBox => string.Equals(textBox.Text, "endsWith=", StringComparison.Ordinal));
+            FindVisualDescendants<ComboBox>(control)
+                .Where(comboBox => comboBox.Items.Cast<object>().Any(item => string.Equals(item.ToString(), "endsWith", StringComparison.Ordinal)))
+                .Should()
+                .Contain(comboBox => comboBox.Items.Cast<object>().Any(item => string.Equals(item.ToString(), "typeKind", StringComparison.Ordinal)));
+        });
+    }
 
-	[Fact]
-	public void MatcherAddEditor_UsesAttributeDropdownForInlineAssemblyMetadata()
-	{
-		RunOnStaThread(() =>
-		{
-			var path = WriteInlineConfigurationFile(
-				"""
+    [Fact]
+    public void MatcherAddEditor_UsesAttributeDropdownForInlineAssemblyMetadata()
+    {
+        RunOnStaThread(() =>
+        {
+            var path = WriteInlineConfigurationFile(
+                """
 				<ArchitecturalLevels>
 				  <Layer name="Customer"><Class typeName="CustomerType" /></Layer>
 				</ArchitecturalLevels>
 				""");
-			var snapshot = LoadInlineSnapshot(path);
-			var control = CreateControl(snapshot);
+            var snapshot = LoadInlineSnapshot(path);
+            var control = CreateControl(snapshot);
 
-			control.Select(ArchitectureGraphSelection.ForLayer(snapshot.Layers.Single().EditHandle));
-			DrainDispatcher();
+            control.Select(ArchitectureGraphSelection.ForLayer(snapshot.Layers.Single().EditHandle));
+            DrainDispatcher();
 
-			FindVisualDescendants<TextBox>(control).Should().NotContain(textBox => string.Equals(textBox.Text, "endsWith=", StringComparison.Ordinal));
-			FindVisualDescendants<ComboBox>(control)
-				.Where(comboBox => comboBox.Items.Cast<object>().Any(item => string.Equals(item.ToString(), "endsWith", StringComparison.Ordinal)))
-				.Should()
-				.Contain(comboBox => comboBox.Items.Cast<object>().Any(item => string.Equals(item.ToString(), "typeKind", StringComparison.Ordinal)));
-		});
-	}
+            FindVisualDescendants<TextBox>(control).Should().NotContain(textBox => string.Equals(textBox.Text, "endsWith=", StringComparison.Ordinal));
+            FindVisualDescendants<ComboBox>(control)
+                .Where(comboBox => comboBox.Items.Cast<object>().Any(item => string.Equals(item.ToString(), "endsWith", StringComparison.Ordinal)))
+                .Should()
+                .Contain(comboBox => comboBox.Items.Cast<object>().Any(item => string.Equals(item.ToString(), "typeKind", StringComparison.Ordinal)));
+        });
+    }
 
-	[Fact]
-	public void GraphLayoutRefresh_PreservesMovedNodePositionAndWritesUserSettings()
-	{
-		RunOnStaThread(() =>
-		{
-			var path = WriteTempFile(
-				"Architecture.anl",
-				"""
-				<ArchitecturalLevels>
-				  <Layer name="Customer"><Class typeName="CustomerType" /></Layer>
-				  <Layer name="Waiter"><Class typeName="WaiterType" /></Layer>
-				  <AllowedDependency from="Customer" to="Waiter" />
-				</ArchitecturalLevels>
-				""");
-			var control = CreateControl(
-				ArchitectureGraphXmlSnapshotLoader.Load(path),
-				_ => ArchitectureGraphXmlSnapshotLoader.Load(path));
-			var customer = FindGraphItemDataContext(control, "Customer");
-			var movedLocation = new Point(333, 177);
-
-			SetObjectProperty(customer, "Location", movedLocation);
-			control.UpdateSnapshot(ArchitectureGraphXmlSnapshotLoader.Load(path), ArchitectureGraphFocusMode.ShowAll);
-			DrainDispatcher();
-
-			GetObjectProperty(FindGraphItemDataContext(control, "Customer"), "Location").Should().Be(movedLocation);
-			File.Exists(path + ".usersettings").Should().BeTrue();
-			File.ReadAllText(path + ".usersettings").Should().Contain("path=\"Customer\"");
-		});
-	}
-
-	[Fact]
-	public void GraphLayoutRefresh_PreservesMovedInlineNodePositionAndWritesUserSettings()
-	{
-		RunOnStaThread(() =>
-		{
-			var path = WriteInlineConfigurationFile(
-				"""
+    [Fact]
+    public void GraphLayoutRefresh_PreservesMovedNodePositionAndWritesUserSettings()
+    {
+        RunOnStaThread(() =>
+        {
+            var path = WriteTempFile(
+                "Architecture.anl",
+                """
 				<ArchitecturalLevels>
 				  <Layer name="Customer"><Class typeName="CustomerType" /></Layer>
 				  <Layer name="Waiter"><Class typeName="WaiterType" /></Layer>
 				  <AllowedDependency from="Customer" to="Waiter" />
 				</ArchitecturalLevels>
 				""");
-			var control = CreateControl(
-				LoadInlineSnapshot(path),
-				_ => LoadInlineSnapshot(path));
-			var customer = FindGraphItemDataContext(control, "Customer");
-			var movedLocation = new Point(333, 177);
+            var control = CreateControl(
+                ArchitectureGraphXmlSnapshotLoader.Load(path),
+                _ => ArchitectureGraphXmlSnapshotLoader.Load(path));
+            var customer = FindGraphItemDataContext(control, "Customer");
+            var movedLocation = new Point(333, 177);
 
-			SetObjectProperty(customer, "Location", movedLocation);
-			control.UpdateSnapshot(LoadInlineSnapshot(path), ArchitectureGraphFocusMode.ShowAll);
-			DrainDispatcher();
+            SetObjectProperty(customer, "Location", movedLocation);
+            control.UpdateSnapshot(ArchitectureGraphXmlSnapshotLoader.Load(path), ArchitectureGraphFocusMode.ShowAll);
+            DrainDispatcher();
 
-			GetObjectProperty(FindGraphItemDataContext(control, "Customer"), "Location").Should().Be(movedLocation);
-			File.Exists(path + ".usersettings").Should().BeTrue();
-			File.ReadAllText(path + ".usersettings").Should().Contain("path=\"Customer\"");
-		});
-	}
+            GetObjectProperty(FindGraphItemDataContext(control, "Customer"), "Location").Should().Be(movedLocation);
+            File.Exists(path + ".usersettings").Should().BeTrue();
+            File.ReadAllText(path + ".usersettings").Should().Contain("path=\"Customer\"");
+        });
+    }
 
-	[Fact]
-	public void GraphLayoutUserSettings_RehydrateMovedNodePositionInNewEditor()
-	{
-		RunOnStaThread(() =>
-		{
-			var path = WriteTempFile(
-				"Architecture.anl",
-				"""
+    [Fact]
+    public void GraphLayoutRefresh_PreservesMovedInlineNodePositionAndWritesUserSettings()
+    {
+        RunOnStaThread(() =>
+        {
+            var path = WriteInlineConfigurationFile(
+                """
 				<ArchitecturalLevels>
 				  <Layer name="Customer"><Class typeName="CustomerType" /></Layer>
 				  <Layer name="Waiter"><Class typeName="WaiterType" /></Layer>
 				  <AllowedDependency from="Customer" to="Waiter" />
 				</ArchitecturalLevels>
 				""");
-			var firstControl = CreateControl(ArchitectureGraphXmlSnapshotLoader.Load(path));
-			var movedLocation = new Point(410, 208);
+            var control = CreateControl(
+                LoadInlineSnapshot(path),
+                _ => LoadInlineSnapshot(path));
+            var customer = FindGraphItemDataContext(control, "Customer");
+            var movedLocation = new Point(333, 177);
 
-			SetObjectProperty(FindGraphItemDataContext(firstControl, "Customer"), "Location", movedLocation);
-			firstControl.UpdateSnapshot(ArchitectureGraphXmlSnapshotLoader.Load(path), ArchitectureGraphFocusMode.ShowAll);
-			DrainDispatcher();
-			var secondControl = CreateControl(ArchitectureGraphXmlSnapshotLoader.Load(path));
+            SetObjectProperty(customer, "Location", movedLocation);
+            control.UpdateSnapshot(LoadInlineSnapshot(path), ArchitectureGraphFocusMode.ShowAll);
+            DrainDispatcher();
 
-			GetObjectProperty(FindGraphItemDataContext(secondControl, "Customer"), "Location").Should().Be(movedLocation);
-		});
-	}
+            GetObjectProperty(FindGraphItemDataContext(control, "Customer"), "Location").Should().Be(movedLocation);
+            File.Exists(path + ".usersettings").Should().BeTrue();
+            File.ReadAllText(path + ".usersettings").Should().Contain("path=\"Customer\"");
+        });
+    }
 
-	[Fact]
-	public void GraphLayoutUserSettings_RehydrateMovedInlineNodePositionInNewEditor()
-	{
-		RunOnStaThread(() =>
-		{
-			var path = WriteInlineConfigurationFile(
-				"""
+    [Fact]
+    public void GraphLayoutUserSettings_RehydrateMovedNodePositionInNewEditor()
+    {
+        RunOnStaThread(() =>
+        {
+            var path = WriteTempFile(
+                "Architecture.anl",
+                """
 				<ArchitecturalLevels>
 				  <Layer name="Customer"><Class typeName="CustomerType" /></Layer>
 				  <Layer name="Waiter"><Class typeName="WaiterType" /></Layer>
 				  <AllowedDependency from="Customer" to="Waiter" />
 				</ArchitecturalLevels>
 				""");
-			var firstControl = CreateControl(LoadInlineSnapshot(path));
-			var movedLocation = new Point(410, 208);
+            var firstControl = CreateControl(ArchitectureGraphXmlSnapshotLoader.Load(path));
+            var movedLocation = new Point(410, 208);
 
-			SetObjectProperty(FindGraphItemDataContext(firstControl, "Customer"), "Location", movedLocation);
-			firstControl.UpdateSnapshot(LoadInlineSnapshot(path), ArchitectureGraphFocusMode.ShowAll);
-			DrainDispatcher();
-			var secondControl = CreateControl(LoadInlineSnapshot(path));
+            SetObjectProperty(FindGraphItemDataContext(firstControl, "Customer"), "Location", movedLocation);
+            firstControl.UpdateSnapshot(ArchitectureGraphXmlSnapshotLoader.Load(path), ArchitectureGraphFocusMode.ShowAll);
+            DrainDispatcher();
+            var secondControl = CreateControl(ArchitectureGraphXmlSnapshotLoader.Load(path));
 
-			GetObjectProperty(FindGraphItemDataContext(secondControl, "Customer"), "Location").Should().Be(movedLocation);
-		});
-	}
+            GetObjectProperty(FindGraphItemDataContext(secondControl, "Customer"), "Location").Should().Be(movedLocation);
+        });
+    }
 
-	[Fact]
-	public void GraphGroupCollapse_PersistsAcrossRefreshAndUserSettings()
-	{
-		RunOnStaThread(() =>
-		{
-			var path = WriteTempFile(
-				"Architecture.anl",
-				"""
+    [Fact]
+    public void GraphLayoutUserSettings_RehydrateMovedInlineNodePositionInNewEditor()
+    {
+        RunOnStaThread(() =>
+        {
+            var path = WriteInlineConfigurationFile(
+                """
 				<ArchitecturalLevels>
 				  <Layer name="Customer"><Class typeName="CustomerType" /></Layer>
 				  <Layer name="Waiter"><Class typeName="WaiterType" /></Layer>
 				  <AllowedDependency from="Customer" to="Waiter" />
 				</ArchitecturalLevels>
 				""");
-			var control = CreateControl(
-				ArchitectureGraphXmlSnapshotLoader.Load(path),
-				_ => ArchitectureGraphXmlSnapshotLoader.Load(path));
-			var group = FindExpanderByHeader(control, "Graph 1: Customer, Waiter");
+            var firstControl = CreateControl(LoadInlineSnapshot(path));
+            var movedLocation = new Point(410, 208);
 
-			group.IsExpanded = false;
-			DrainDispatcher();
-			control.UpdateSnapshot(ArchitectureGraphXmlSnapshotLoader.Load(path), ArchitectureGraphFocusMode.ShowAll);
-			DrainDispatcher();
+            SetObjectProperty(FindGraphItemDataContext(firstControl, "Customer"), "Location", movedLocation);
+            firstControl.UpdateSnapshot(LoadInlineSnapshot(path), ArchitectureGraphFocusMode.ShowAll);
+            DrainDispatcher();
+            var secondControl = CreateControl(LoadInlineSnapshot(path));
 
-			FindExpanderByHeader(control, "Graph 1: Customer, Waiter").IsExpanded.Should().BeFalse();
-			File.ReadAllText(path + ".usersettings").Should().Contain("collapsed=\"true\"");
-		});
-	}
+            GetObjectProperty(FindGraphItemDataContext(secondControl, "Customer"), "Location").Should().Be(movedLocation);
+        });
+    }
 
-	[Fact]
-	public void GraphGroupCollapse_PersistsAcrossInlineRefreshAndUserSettings()
-	{
-		RunOnStaThread(() =>
-		{
-			var path = WriteInlineConfigurationFile(
-				"""
+    [Fact]
+    public void GraphGroupCollapse_PersistsAcrossRefreshAndUserSettings()
+    {
+        RunOnStaThread(() =>
+        {
+            var path = WriteTempFile(
+                "Architecture.anl",
+                """
 				<ArchitecturalLevels>
 				  <Layer name="Customer"><Class typeName="CustomerType" /></Layer>
 				  <Layer name="Waiter"><Class typeName="WaiterType" /></Layer>
 				  <AllowedDependency from="Customer" to="Waiter" />
 				</ArchitecturalLevels>
 				""");
-			var control = CreateControl(
-				LoadInlineSnapshot(path),
-				_ => LoadInlineSnapshot(path));
-			var group = FindExpanderByHeader(control, "Graph 1: Customer, Waiter");
+            var control = CreateControl(
+                ArchitectureGraphXmlSnapshotLoader.Load(path),
+                _ => ArchitectureGraphXmlSnapshotLoader.Load(path));
+            var group = FindExpanderByHeader(control, "Graph 1: Customer, Waiter");
 
-			group.IsExpanded = false;
-			DrainDispatcher();
-			control.UpdateSnapshot(LoadInlineSnapshot(path), ArchitectureGraphFocusMode.ShowAll);
-			DrainDispatcher();
+            group.IsExpanded = false;
+            DrainDispatcher();
+            control.UpdateSnapshot(ArchitectureGraphXmlSnapshotLoader.Load(path), ArchitectureGraphFocusMode.ShowAll);
+            DrainDispatcher();
 
-			FindExpanderByHeader(control, "Graph 1: Customer, Waiter").IsExpanded.Should().BeFalse();
-			File.ReadAllText(path + ".usersettings").Should().Contain("collapsed=\"true\"");
-		});
-	}
+            FindExpanderByHeader(control, "Graph 1: Customer, Waiter").IsExpanded.Should().BeFalse();
+            File.ReadAllText(path + ".usersettings").Should().Contain("collapsed=\"true\"");
+        });
+    }
 
-	[Fact]
-	public void GraphGroupUserSettings_RehydrateSavedGraphHeight()
-	{
-		RunOnStaThread(() =>
-		{
-			var path = WriteTempFile(
-				"Architecture.anl",
-				"""
+    [Fact]
+    public void GraphGroupCollapse_PersistsAcrossInlineRefreshAndUserSettings()
+    {
+        RunOnStaThread(() =>
+        {
+            var path = WriteInlineConfigurationFile(
+                """
 				<ArchitecturalLevels>
 				  <Layer name="Customer"><Class typeName="CustomerType" /></Layer>
 				  <Layer name="Waiter"><Class typeName="WaiterType" /></Layer>
 				  <AllowedDependency from="Customer" to="Waiter" />
 				</ArchitecturalLevels>
 				""");
-			File.WriteAllText(
-				path + ".usersettings",
-				"""
+            var control = CreateControl(
+                LoadInlineSnapshot(path),
+                _ => LoadInlineSnapshot(path));
+            var group = FindExpanderByHeader(control, "Graph 1: Customer, Waiter");
+
+            group.IsExpanded = false;
+            DrainDispatcher();
+            control.UpdateSnapshot(LoadInlineSnapshot(path), ArchitectureGraphFocusMode.ShowAll);
+            DrainDispatcher();
+
+            FindExpanderByHeader(control, "Graph 1: Customer, Waiter").IsExpanded.Should().BeFalse();
+            File.ReadAllText(path + ".usersettings").Should().Contain("collapsed=\"true\"");
+        });
+    }
+
+    [Fact]
+    public void GraphGroupUserSettings_RehydrateSavedGraphHeight()
+    {
+        RunOnStaThread(() =>
+        {
+            var path = WriteTempFile(
+                "Architecture.anl",
+                """
+				<ArchitecturalLevels>
+				  <Layer name="Customer"><Class typeName="CustomerType" /></Layer>
+				  <Layer name="Waiter"><Class typeName="WaiterType" /></Layer>
+				  <AllowedDependency from="Customer" to="Waiter" />
+				</ArchitecturalLevels>
+				""");
+            File.WriteAllText(
+                path + ".usersettings",
+                """
 				<AnaalIJzerGraphUserSettings version="1">
 				  <GraphLayout />
 				  <GraphGroups>
@@ -254,28 +254,28 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 				  </GraphGroups>
 				</AnaalIJzerGraphUserSettings>
 				""");
-			var control = CreateControl(ArchitectureGraphXmlSnapshotLoader.Load(path));
+            var control = CreateControl(ArchitectureGraphXmlSnapshotLoader.Load(path));
 
-			FindVisualDescendant<ArchitectureGraphCanvas>(control).Height.Should().Be(390);
-		});
-	}
+            FindVisualDescendant<ArchitectureGraphCanvas>(control).Height.Should().Be(390);
+        });
+    }
 
-	[Fact]
-	public void GraphGroupUserSettings_RehydrateSavedInlineGraphHeight()
-	{
-		RunOnStaThread(() =>
-		{
-			var path = WriteInlineConfigurationFile(
-				"""
+    [Fact]
+    public void GraphGroupUserSettings_RehydrateSavedInlineGraphHeight()
+    {
+        RunOnStaThread(() =>
+        {
+            var path = WriteInlineConfigurationFile(
+                """
 				<ArchitecturalLevels>
 				  <Layer name="Customer"><Class typeName="CustomerType" /></Layer>
 				  <Layer name="Waiter"><Class typeName="WaiterType" /></Layer>
 				  <AllowedDependency from="Customer" to="Waiter" />
 				</ArchitecturalLevels>
 				""");
-			File.WriteAllText(
-				path + ".usersettings",
-				"""
+            File.WriteAllText(
+                path + ".usersettings",
+                """
 				<AnaalIJzerGraphUserSettings version="1">
 				  <GraphLayout />
 				  <GraphGroups>
@@ -283,9 +283,9 @@ public sealed partial class ArchitectureGraphEditorControlPersistenceTests
 				  </GraphGroups>
 				</AnaalIJzerGraphUserSettings>
 				""");
-			var control = CreateControl(LoadInlineSnapshot(path));
+            var control = CreateControl(LoadInlineSnapshot(path));
 
-			FindVisualDescendant<ArchitectureGraphCanvas>(control).Height.Should().Be(390);
-		});
-	}
+            FindVisualDescendant<ArchitectureGraphCanvas>(control).Height.Should().Be(390);
+        });
+    }
 }

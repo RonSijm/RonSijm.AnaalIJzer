@@ -5,10 +5,10 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Matching;
 
 public sealed partial class SemanticMatcherTests
 {
-	[Fact]
-	public async Task WithAttribute_MatchesWithoutAttributeSuffix()
-	{
-		const string config = """
+    [Fact]
+    public async Task WithAttribute_MatchesWithoutAttributeSuffix()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Manager" />
@@ -20,23 +20,23 @@ public sealed partial class SemanticMatcherTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      using System;
 		                      [Obsolete] public class OldRegistry { }
 		                      public class OrderManager(OldRegistry reg) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
-			.Should().ContainSingle();
-	}
+        diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
+            .Should().ContainSingle();
+    }
 
-	[Fact]
-	public async Task WithAttribute_MatchesWithAttributeSuffix()
-	{
-		const string config = """
+    [Fact]
+    public async Task WithAttribute_MatchesWithAttributeSuffix()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Manager" />
@@ -47,23 +47,23 @@ public sealed partial class SemanticMatcherTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      using System;
 		                      [Obsolete] public class OldRegistry { }
 		                      public class OrderManager(OldRegistry reg) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
-			.Should().ContainSingle();
-	}
+        diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
+            .Should().ContainSingle();
+    }
 
-	[Fact]
-	public async Task WithAttribute_MatchesFullyQualifiedAttributeName()
-	{
-		const string config = """
+    [Fact]
+    public async Task WithAttribute_MatchesFullyQualifiedAttributeName()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Manager" />
@@ -74,7 +74,7 @@ public sealed partial class SemanticMatcherTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      using System;
 		                      namespace App.Markers
 		                      {
@@ -90,17 +90,17 @@ public sealed partial class SemanticMatcherTests
 		                      }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
-			.Should().ContainSingle();
-	}
+        diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
+            .Should().ContainSingle();
+    }
 
-	[Fact]
-	public async Task WithAttribute_DoesNotMatchUndecoratedType()
-	{
-		const string config = """
+    [Fact]
+    public async Task WithAttribute_DoesNotMatchUndecoratedType()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Manager" />
@@ -111,16 +111,16 @@ public sealed partial class SemanticMatcherTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public class CleanRegistry { }
 		                      public class OrderManager(CleanRegistry reg) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().BeEmpty();
-	}
+        diagnostics.Should().BeEmpty();
+    }
 
-	// ---- withAccessModifier ----
+    // ---- withAccessModifier ----
 
 }

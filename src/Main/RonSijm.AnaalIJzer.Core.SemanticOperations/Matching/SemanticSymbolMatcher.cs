@@ -7,159 +7,159 @@ namespace RonSijm.AnaalIJzer.Core.SemanticOperations.Matching;
 
 /// <summary>Matches a resolved member or declaration using the shared semantic matcher vocabulary.</summary>
 public readonly struct SemanticSymbolMatcher(
-	ImmutableArray<MatchCondition> containingTypeConditions,
-	ImmutableArray<MatchCondition> memberConditions,
-	ImmutableHashSet<SemanticOperationMemberKind>? memberKinds = null)
+    ImmutableArray<MatchCondition> containingTypeConditions,
+    ImmutableArray<MatchCondition> memberConditions,
+    ImmutableHashSet<SemanticOperationMemberKind>? memberKinds = null)
 {
-	public ImmutableArray<MatchCondition> ContainingTypeConditions { get; } = containingTypeConditions;
+    public ImmutableArray<MatchCondition> ContainingTypeConditions { get; } = containingTypeConditions;
 
-	public ImmutableArray<MatchCondition> MemberConditions { get; } = memberConditions;
+    public ImmutableArray<MatchCondition> MemberConditions { get; } = memberConditions;
 
-	public ImmutableHashSet<SemanticOperationMemberKind> MemberKinds { get; } = memberKinds ?? ImmutableHashSet<SemanticOperationMemberKind>.Empty;
+    public ImmutableHashSet<SemanticOperationMemberKind> MemberKinds { get; } = memberKinds ?? ImmutableHashSet<SemanticOperationMemberKind>.Empty;
 
-	public bool Matches(ISymbol? symbol)
-	{
-		if (symbol is null)
-		{
-			return false;
-		}
+    public bool Matches(ISymbol? symbol)
+    {
+        if (symbol is null)
+        {
+            return false;
+        }
 
-		var matchSymbol = GetMatchSymbol(symbol);
-		if (!MatchesContainingType(matchSymbol.ContainingType))
-		{
-			return false;
-		}
+        var matchSymbol = GetMatchSymbol(symbol);
+        if (!MatchesContainingType(matchSymbol.ContainingType))
+        {
+            return false;
+        }
 
-		if (!MatchesMemberKind(matchSymbol))
-		{
-			return false;
-		}
+        if (!MatchesMemberKind(matchSymbol))
+        {
+            return false;
+        }
 
-		var result = MatchesMember(matchSymbol);
+        var result = MatchesMember(matchSymbol);
 
-		return result;
-	}
+        return result;
+    }
 
-	private bool MatchesMemberKind(ISymbol symbol)
-	{
-		if (MemberKinds.Count == 0)
-		{
-			return true;
-		}
+    private bool MatchesMemberKind(ISymbol symbol)
+    {
+        if (MemberKinds.Count == 0)
+        {
+            return true;
+        }
 
-		if (!symbol.TryGetSemanticOperationMemberKind(out var memberKind))
-		{
-			return false;
-		}
+        if (!symbol.TryGetSemanticOperationMemberKind(out var memberKind))
+        {
+            return false;
+        }
 
-		var result = MemberKinds.Contains(memberKind);
+        var result = MemberKinds.Contains(memberKind);
 
-		return result;
-	}
+        return result;
+    }
 
-	private bool MatchesContainingType(INamedTypeSymbol? containingType)
-	{
-		if (ContainingTypeConditions.IsDefaultOrEmpty)
-		{
-			return true;
-		}
+    private bool MatchesContainingType(INamedTypeSymbol? containingType)
+    {
+        if (ContainingTypeConditions.IsDefaultOrEmpty)
+        {
+            return true;
+        }
 
-		if (containingType is null)
-		{
-			return false;
-		}
+        if (containingType is null)
+        {
+            return false;
+        }
 
-		var namespaceName = GetNamespaceName(containingType);
-		var context = new MatchContext(
-			containingType.Name,
-			namespaceName,
-			containingType,
-			containingType.Name,
-			namespaceName,
-			containingType);
-		var result = MatchesAll(context, ContainingTypeConditions);
+        var namespaceName = GetNamespaceName(containingType);
+        var context = new MatchContext(
+            containingType.Name,
+            namespaceName,
+            containingType,
+            containingType.Name,
+            namespaceName,
+            containingType);
+        var result = MatchesAll(context, ContainingTypeConditions);
 
-		return result;
-	}
+        return result;
+    }
 
-	private bool MatchesMember(ISymbol symbol)
-	{
-		if (MemberConditions.IsDefaultOrEmpty)
-		{
-			return true;
-		}
+    private bool MatchesMember(ISymbol symbol)
+    {
+        if (MemberConditions.IsDefaultOrEmpty)
+        {
+            return true;
+        }
 
-		var associatedType = GetAssociatedType(symbol);
-		var context = new MatchContext(
-			GetMemberName(symbol),
-			GetNamespaceName(symbol),
-			symbol,
-			associatedType?.Name,
-			associatedType is null ? null : GetNamespaceName(associatedType),
-			associatedType);
-		var result = MatchesAll(context, MemberConditions);
+        var associatedType = GetAssociatedType(symbol);
+        var context = new MatchContext(
+            GetMemberName(symbol),
+            GetNamespaceName(symbol),
+            symbol,
+            associatedType?.Name,
+            associatedType is null ? null : GetNamespaceName(associatedType),
+            associatedType);
+        var result = MatchesAll(context, MemberConditions);
 
-		return result;
-	}
+        return result;
+    }
 
-	private static bool MatchesAll(MatchContext context, ImmutableArray<MatchCondition> conditions)
-	{
-		foreach (var condition in conditions)
-		{
-			if (!condition.Matches(context))
-			{
-				return false;
-			}
-		}
+    private static bool MatchesAll(MatchContext context, ImmutableArray<MatchCondition> conditions)
+    {
+        foreach (var condition in conditions)
+        {
+            if (!condition.Matches(context))
+            {
+                return false;
+            }
+        }
 
-		var result = true;
+        var result = true;
 
-		return result;
-	}
+        return result;
+    }
 
-	private static ISymbol GetMatchSymbol(ISymbol symbol)
-	{
-		var result = symbol is IMethodSymbol { AssociatedSymbol: not null } method
-			? method.AssociatedSymbol
-			: symbol;
+    private static ISymbol GetMatchSymbol(ISymbol symbol)
+    {
+        var result = symbol is IMethodSymbol { AssociatedSymbol: not null } method
+            ? method.AssociatedSymbol
+            : symbol;
 
-		return result;
-	}
+        return result;
+    }
 
-	private static string GetMemberName(ISymbol symbol)
-	{
-		var result = symbol is IMethodSymbol { MethodKind: MethodKind.Constructor or MethodKind.StaticConstructor } constructor
-			? constructor.ContainingType.Name
-			: symbol.Name;
+    private static string GetMemberName(ISymbol symbol)
+    {
+        var result = symbol is IMethodSymbol { MethodKind: MethodKind.Constructor or MethodKind.StaticConstructor } constructor
+            ? constructor.ContainingType.Name
+            : symbol.Name;
 
-		return result;
-	}
+        return result;
+    }
 
-	private static string GetNamespaceName(ISymbol symbol)
-	{
-		var result = symbol.ContainingNamespace.IsGlobalNamespace
-			? string.Empty
-			: symbol.ContainingNamespace.ToDisplayString();
+    private static string GetNamespaceName(ISymbol symbol)
+    {
+        var result = symbol.ContainingNamespace.IsGlobalNamespace
+            ? string.Empty
+            : symbol.ContainingNamespace.ToDisplayString();
 
-		return result;
-	}
+        return result;
+    }
 
-	private static ITypeSymbol? GetAssociatedType(ISymbol symbol)
-	{
-		var result = symbol switch
-		{
-			INamedTypeSymbol type => type,
-			IPropertySymbol property => property.Type,
-			IFieldSymbol field => field.Type,
-			IEventSymbol @event => @event.Type,
-			IParameterSymbol parameter => parameter.Type,
-			IMethodSymbol method => method.MethodKind is MethodKind.Constructor or MethodKind.StaticConstructor
-				? method.ContainingType
-				: method.ReturnType,
-			_ => null
-		};
+    private static ITypeSymbol? GetAssociatedType(ISymbol symbol)
+    {
+        var result = symbol switch
+        {
+            INamedTypeSymbol type => type,
+            IPropertySymbol property => property.Type,
+            IFieldSymbol field => field.Type,
+            IEventSymbol @event => @event.Type,
+            IParameterSymbol parameter => parameter.Type,
+            IMethodSymbol method => method.MethodKind is MethodKind.Constructor or MethodKind.StaticConstructor
+                ? method.ContainingType
+                : method.ReturnType,
+            _ => null
+        };
 
-		return result;
-	}
+        return result;
+    }
 
 }

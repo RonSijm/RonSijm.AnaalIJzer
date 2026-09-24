@@ -8,460 +8,460 @@ namespace RonSijm.AnaalIJzer.IntegrationTests;
 
 public sealed class ExamplesIntegrationTests
 {
-	[Fact]
-	public async Task ExampleProjects_BuildWithExpectedAnalyzerDiagnostics()
-	{
-		var context = ExampleRepositoryContext.Discover();
-		var failures = new List<string>();
-		ExampleSettingsValidation.ValidateExampleSettingsConfigs(context, failures);
+    [Fact]
+    public async Task ExampleProjects_BuildWithExpectedAnalyzerDiagnostics()
+    {
+        var context = ExampleRepositoryContext.Discover();
+        var failures = new List<string>();
+        ExampleSettingsValidation.ValidateExampleSettingsConfigs(context, failures);
 
-		using var generatedFiles = new GeneratedExampleFilesScope(context);
-		using var host = new ExampleProjectAnalysisHost();
+        using var generatedFiles = new GeneratedExampleFilesScope(context);
+        using var host = new ExampleProjectAnalysisHost();
 
-		foreach (var expectation in ExampleBuildExpectationCatalog.All)
-		{
-			await ValidateExampleProjectAsync(context, host, expectation, failures);
-		}
+        foreach (var expectation in ExampleBuildExpectationCatalog.All)
+        {
+            await ValidateExampleProjectAsync(context, host, expectation, failures);
+        }
 
-		failures.Should().BeEmpty("all example projects should produce their documented analyzer diagnostics:{0}{1}", Environment.NewLine, string.Join(Environment.NewLine + Environment.NewLine, failures));
-	}
+        failures.Should().BeEmpty("all example projects should produce their documented analyzer diagnostics:{0}{1}", Environment.NewLine, string.Join(Environment.NewLine + Environment.NewLine, failures));
+    }
 
-	[Fact]
-	public void ExamplesDirectoryBuildProps_EnableExamplesByDefaultAndAttachEngineAnalyzer()
-	{
-		var context = ExampleRepositoryContext.Discover();
-		var propsPath = Path.Combine(context.ExamplesRoot, "Directory.Build.props");
-		var document = System.Xml.Linq.XDocument.Load(propsPath);
-		var projectReferences = document
-			.Descendants()
-			.Where(element => string.Equals(element.Name.LocalName, "ProjectReference", StringComparison.Ordinal))
-			.Select(element => element.Attribute("Include")?.Value)
-			.Where(value => !string.IsNullOrWhiteSpace(value))
-			.ToArray();
-		var analyzerBuildTargets = document
-			.Descendants()
-			.Where(element => string.Equals(element.Name.LocalName, "MSBuild", StringComparison.Ordinal))
-			.Select(element => element.Attribute("Projects")?.Value)
-			.Where(value => !string.IsNullOrWhiteSpace(value))
-			.ToArray();
-		var analyzerIncludes = document
-			.Descendants()
-			.Where(element => string.Equals(element.Name.LocalName, "Analyzer", StringComparison.Ordinal))
-			.Select(element => element.Attribute("Include")?.Value)
-			.Where(value => !string.IsNullOrWhiteSpace(value))
-			.ToArray();
-		var enableAnalyzerOnDebug = document
-			.Descendants()
-			.FirstOrDefault(element => string.Equals(element.Name.LocalName, "EnableAnalyzerOnDebug", StringComparison.Ordinal))
-			?.Value
-			?.Trim();
-		var additionalFiles = document
-			.Descendants()
-			.Where(element => string.Equals(element.Name.LocalName, "AdditionalFiles", StringComparison.Ordinal))
-			.Select(element => element.Attribute("Include")?.Value)
-			.Where(value => !string.IsNullOrWhiteSpace(value))
-			.ToArray();
+    [Fact]
+    public void ExamplesDirectoryBuildProps_EnableExamplesByDefaultAndAttachEngineAnalyzer()
+    {
+        var context = ExampleRepositoryContext.Discover();
+        var propsPath = Path.Combine(context.ExamplesRoot, "Directory.Build.props");
+        var document = System.Xml.Linq.XDocument.Load(propsPath);
+        var projectReferences = document
+            .Descendants()
+            .Where(element => string.Equals(element.Name.LocalName, "ProjectReference", StringComparison.Ordinal))
+            .Select(element => element.Attribute("Include")?.Value)
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .ToArray();
+        var analyzerBuildTargets = document
+            .Descendants()
+            .Where(element => string.Equals(element.Name.LocalName, "MSBuild", StringComparison.Ordinal))
+            .Select(element => element.Attribute("Projects")?.Value)
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .ToArray();
+        var analyzerIncludes = document
+            .Descendants()
+            .Where(element => string.Equals(element.Name.LocalName, "Analyzer", StringComparison.Ordinal))
+            .Select(element => element.Attribute("Include")?.Value)
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .ToArray();
+        var enableAnalyzerOnDebug = document
+            .Descendants()
+            .FirstOrDefault(element => string.Equals(element.Name.LocalName, "EnableAnalyzerOnDebug", StringComparison.Ordinal))
+            ?.Value
+            ?.Trim();
+        var additionalFiles = document
+            .Descendants()
+            .Where(element => string.Equals(element.Name.LocalName, "AdditionalFiles", StringComparison.Ordinal))
+            .Select(element => element.Attribute("Include")?.Value)
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .ToArray();
 
-		enableAnalyzerOnDebug.Should().Be("true", "examples should show their analyzer behavior in ordinary Debug IDE builds by default");
-		projectReferences.Should().BeEmpty("example projects should not inherit analyzer implementation projects as visible project dependencies");
-		analyzerBuildTargets.Should().Contain("$(AnaalIJzerEngineProjectPath)",
-			"the shared example props should build the Engine analyzer entry point via the centralized path property before attaching its analyzer DLLs");
-		analyzerIncludes.Should().Contain("$([System.IO.Path]::GetDirectoryName('$(AnaalIJzerEngineProjectPath)'))\\bin\\$(Configuration)\\netstandard2.0\\RonSijm.AnaalIJzer*.dll",
-			"the analyzer closure must be attached after MSBuild has selected the project Configuration, so C# can load the Engine and its sibling runtime assemblies");
-		additionalFiles.Should().Contain("$(MSBuildProjectDirectory)\\**\\*.anl",
-			"example projects should be able to keep drop-in rule packs in project-local subfolders");
-	}
+        enableAnalyzerOnDebug.Should().Be("true", "examples should show their analyzer behavior in ordinary Debug IDE builds by default");
+        projectReferences.Should().BeEmpty("example projects should not inherit analyzer implementation projects as visible project dependencies");
+        analyzerBuildTargets.Should().Contain("$(AnaalIJzerEngineProjectPath)",
+            "the shared example props should build the Engine analyzer entry point via the centralized path property before attaching its analyzer DLLs");
+        analyzerIncludes.Should().Contain("$([System.IO.Path]::GetDirectoryName('$(AnaalIJzerEngineProjectPath)'))\\bin\\$(Configuration)\\netstandard2.0\\RonSijm.AnaalIJzer*.dll",
+            "the analyzer closure must be attached after MSBuild has selected the project Configuration, so C# can load the Engine and its sibling runtime assemblies");
+        additionalFiles.Should().Contain("$(MSBuildProjectDirectory)\\**\\*.anl",
+            "example projects should be able to keep drop-in rule packs in project-local subfolders");
+    }
 
-	[Fact]
-	public void AspNetCoreExamplePack_UsesRealWebSdkProjects()
-	{
-		var context = ExampleRepositoryContext.Discover();
-		var expectedProjectDirectories = new[]
-		{
-			"Scenarios/Example.AspNetCore/Example.AspNetCore.ApiSurface",
-			"Scenarios/Example.AspNetCore/Example.AspNetCore.LayerBoundaries",
-			"Scenarios/Example.AspNetCore/Example.AspNetCore.ModelBindingNames",
-			"Scenarios/Example.AspNetCore/Example.AspNetCore.OperationContracts"
-		};
-		var actualProjectDirectories = context.FindAllExampleProjectPaths()
-			.Select(projectPath => Path.GetRelativePath(context.ExamplesRoot, Path.GetDirectoryName(projectPath)!).Replace('\\', '/'))
-			.Where(projectDirectory => projectDirectory.StartsWith("Scenarios/Example.AspNetCore/", StringComparison.Ordinal))
-			.OrderBy(projectDirectory => projectDirectory, StringComparer.Ordinal)
-			.ToArray();
+    [Fact]
+    public void AspNetCoreExamplePack_UsesRealWebSdkProjects()
+    {
+        var context = ExampleRepositoryContext.Discover();
+        var expectedProjectDirectories = new[]
+        {
+            "Scenarios/Example.AspNetCore/Example.AspNetCore.ApiSurface",
+            "Scenarios/Example.AspNetCore/Example.AspNetCore.LayerBoundaries",
+            "Scenarios/Example.AspNetCore/Example.AspNetCore.ModelBindingNames",
+            "Scenarios/Example.AspNetCore/Example.AspNetCore.OperationContracts"
+        };
+        var actualProjectDirectories = context.FindAllExampleProjectPaths()
+            .Select(projectPath => Path.GetRelativePath(context.ExamplesRoot, Path.GetDirectoryName(projectPath)!).Replace('\\', '/'))
+            .Where(projectDirectory => projectDirectory.StartsWith("Scenarios/Example.AspNetCore/", StringComparison.Ordinal))
+            .OrderBy(projectDirectory => projectDirectory, StringComparer.Ordinal)
+            .ToArray();
 
-		actualProjectDirectories.Should().BeEquivalentTo(expectedProjectDirectories);
-		foreach (var projectDirectory in actualProjectDirectories)
-		{
-			var projectPath = context.GetExampleProjectPath(projectDirectory);
-			var document = System.Xml.Linq.XDocument.Load(projectPath);
-			var sdk = document.Root?.Attribute("Sdk")?.Value;
-			var configPath = Path.Combine(Path.GetDirectoryName(projectPath)!, "Architecture.anl");
+        actualProjectDirectories.Should().BeEquivalentTo(expectedProjectDirectories);
+        foreach (var projectDirectory in actualProjectDirectories)
+        {
+            var projectPath = context.GetExampleProjectPath(projectDirectory);
+            var document = System.Xml.Linq.XDocument.Load(projectPath);
+            var sdk = document.Root?.Attribute("Sdk")?.Value;
+            var configPath = Path.Combine(Path.GetDirectoryName(projectPath)!, "Architecture.anl");
 
-			sdk.Should().Be("Microsoft.NET.Sdk.Web", $"{projectDirectory} should exercise real ASP.NET Core symbols from the shared framework");
-			File.Exists(configPath).Should().BeTrue($"{projectDirectory} is a broader scenario and should keep its configuration in Architecture.anl");
-		}
-	}
+            sdk.Should().Be("Microsoft.NET.Sdk.Web", $"{projectDirectory} should exercise real ASP.NET Core symbols from the shared framework");
+            File.Exists(configPath).Should().BeTrue($"{projectDirectory} is a broader scenario and should keep its configuration in Architecture.anl");
+        }
+    }
 
-	[Fact]
-	public void EntityFrameworkCoreExamplePack_UsesRealEfCoreProjects()
-	{
-		var context = ExampleRepositoryContext.Discover();
-		var expectedProjectDirectories = new[]
-		{
-			"Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.ContextBoundary",
-			"Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.ContextCreation",
-			"Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.DomainPurity",
-			"Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.MigrationPlacement",
-			"Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.ModelConfigurationPlacement",
-			"Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.QuerySurface"
-		};
-		var actualProjectDirectories = context.FindAllExampleProjectPaths()
-			.Select(projectPath => Path.GetRelativePath(context.ExamplesRoot, Path.GetDirectoryName(projectPath)!).Replace('\\', '/'))
-			.Where(projectDirectory => projectDirectory.StartsWith("Scenarios/Example.EntityFrameworkCore/", StringComparison.Ordinal))
-			.OrderBy(projectDirectory => projectDirectory, StringComparer.Ordinal)
-			.ToArray();
+    [Fact]
+    public void EntityFrameworkCoreExamplePack_UsesRealEfCoreProjects()
+    {
+        var context = ExampleRepositoryContext.Discover();
+        var expectedProjectDirectories = new[]
+        {
+            "Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.ContextBoundary",
+            "Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.ContextCreation",
+            "Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.DomainPurity",
+            "Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.MigrationPlacement",
+            "Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.ModelConfigurationPlacement",
+            "Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.QuerySurface"
+        };
+        var actualProjectDirectories = context.FindAllExampleProjectPaths()
+            .Select(projectPath => Path.GetRelativePath(context.ExamplesRoot, Path.GetDirectoryName(projectPath)!).Replace('\\', '/'))
+            .Where(projectDirectory => projectDirectory.StartsWith("Scenarios/Example.EntityFrameworkCore/", StringComparison.Ordinal))
+            .OrderBy(projectDirectory => projectDirectory, StringComparer.Ordinal)
+            .ToArray();
 
-		actualProjectDirectories.Should().BeEquivalentTo(expectedProjectDirectories);
-		foreach (var projectDirectory in actualProjectDirectories)
-		{
-			var projectPath = context.GetExampleProjectPath(projectDirectory);
-			var document = System.Xml.Linq.XDocument.Load(projectPath);
-			var packageReferences = document
-				.Descendants()
-				.Where(element => string.Equals(element.Name.LocalName, "PackageReference", StringComparison.Ordinal))
-				.Select(element => element.Attribute("Include")?.Value)
-				.Where(value => !string.IsNullOrWhiteSpace(value))
-				.ToArray();
-			var configPath = Path.Combine(Path.GetDirectoryName(projectPath)!, "Architecture.anl");
+        actualProjectDirectories.Should().BeEquivalentTo(expectedProjectDirectories);
+        foreach (var projectDirectory in actualProjectDirectories)
+        {
+            var projectPath = context.GetExampleProjectPath(projectDirectory);
+            var document = System.Xml.Linq.XDocument.Load(projectPath);
+            var packageReferences = document
+                .Descendants()
+                .Where(element => string.Equals(element.Name.LocalName, "PackageReference", StringComparison.Ordinal))
+                .Select(element => element.Attribute("Include")?.Value)
+                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .ToArray();
+            var configPath = Path.Combine(Path.GetDirectoryName(projectPath)!, "Architecture.anl");
 
-			File.Exists(configPath).Should().BeTrue($"{projectDirectory} is a broader scenario and should keep its configuration in Architecture.anl");
-			packageReferences.Should().ContainSingle(packageReference => packageReference!.StartsWith("Microsoft.EntityFrameworkCore", StringComparison.Ordinal),
-				$"{projectDirectory} should exercise actual EF Core symbols instead of lookalike local types");
-		}
-	}
+            File.Exists(configPath).Should().BeTrue($"{projectDirectory} is a broader scenario and should keep its configuration in Architecture.anl");
+            packageReferences.Should().ContainSingle(packageReference => packageReference!.StartsWith("Microsoft.EntityFrameworkCore", StringComparison.Ordinal),
+                $"{projectDirectory} should exercise actual EF Core symbols instead of lookalike local types");
+        }
+    }
 
-	[Fact]
-	public async Task InlineExampleProjects_ProvideEditorLayerSnapshots()
-	{
-		var context = ExampleRepositoryContext.Discover();
-		var projectPath = context.GetExampleProjectPath("Diagnostics/DEP/Example.Arch_DEP_001.NoEdge");
+    [Fact]
+    public async Task InlineExampleProjects_ProvideEditorLayerSnapshots()
+    {
+        var context = ExampleRepositoryContext.Discover();
+        var projectPath = context.GetExampleProjectPath("Diagnostics/DEP/Example.Arch_DEP_001.NoEdge");
 
-		using var host = new ExampleProjectAnalysisHost();
-		var snapshot = await host.CreateEditorSnapshotAsync(projectPath, "Example.cs", TestContext.Current.CancellationToken);
+        using var host = new ExampleProjectAnalysisHost();
+        var snapshot = await host.CreateEditorSnapshotAsync(projectPath, "Example.cs", TestContext.Current.CancellationToken);
 
-		snapshot.HasConfiguration.Should().BeTrue();
-		snapshot.HasConfigurationIssues.Should().BeFalse();
-		snapshot.UnclassifiedTypeIndicators.Should().BeEmpty();
-		snapshot.GraphSnapshot.ConfigurationSource.Kind.Should().Be(ArchitectureConfigurationSourceKind.InlineAssemblyMetadata);
-		snapshot.GraphSnapshot.ConfigurationSource.Path.Should().EndWith(Path.Combine("Diagnostics", "DEP", "Example.Arch_DEP_001.NoEdge", "Example.cs"));
-		snapshot.LayerIndicators.Should().Contain(indicator => indicator.TypeName == "HungryCustomer" && indicator.LayerPath == "Customer");
-		snapshot.LayerIndicators.Should().Contain(indicator => indicator.TypeName == "TableWaiter" && indicator.LayerPath == "Waiter");
-		snapshot.LayerIndicators.Should().Contain(indicator => indicator.TypeName == "IIngredientPantry" && indicator.LayerPath == "Pantry");
-	}
+        snapshot.HasConfiguration.Should().BeTrue();
+        snapshot.HasConfigurationIssues.Should().BeFalse();
+        snapshot.UnclassifiedTypeIndicators.Should().BeEmpty();
+        snapshot.GraphSnapshot.ConfigurationSource.Kind.Should().Be(ArchitectureConfigurationSourceKind.InlineAssemblyMetadata);
+        snapshot.GraphSnapshot.ConfigurationSource.Path.Should().EndWith(Path.Combine("Diagnostics", "DEP", "Example.Arch_DEP_001.NoEdge", "Example.cs"));
+        snapshot.LayerIndicators.Should().Contain(indicator => indicator.TypeName == "HungryCustomer" && indicator.LayerPath == "Customer");
+        snapshot.LayerIndicators.Should().Contain(indicator => indicator.TypeName == "TableWaiter" && indicator.LayerPath == "Waiter");
+        snapshot.LayerIndicators.Should().Contain(indicator => indicator.TypeName == "IIngredientPantry" && indicator.LayerPath == "Pantry");
+    }
 
-	[Fact]
-	public async Task VisualStudioSiteDiagnosticsExample_ProvidesEverySupportedSite()
-	{
-		var context = ExampleRepositoryContext.Discover();
-		var projectPath = context.GetExampleProjectPath("Documentation/Example.VisualStudioSiteDiagnostics");
+    [Fact]
+    public async Task VisualStudioSiteDiagnosticsExample_ProvidesEverySupportedSite()
+    {
+        var context = ExampleRepositoryContext.Discover();
+        var projectPath = context.GetExampleProjectPath("Documentation/Example.VisualStudioSiteDiagnostics");
 
-		using var host = new ExampleProjectAnalysisHost();
-		var snapshot = await host.CreateEditorSnapshotAsync(projectPath, "All_Site_Diagnostics_Showcase.cs", TestContext.Current.CancellationToken);
-		var actualSites = snapshot.SiteIndicators
-			.Where(indicator => indicator.CallerTypeName == "AllSiteDiagnosticsShowcase")
-			.Select(indicator => indicator.Site)
-			.ToHashSet(StringComparer.Ordinal);
-		var missingSites = ArchitectureDependencySites.All
-			.Where(site => !actualSites.Contains(site))
-			.ToArray();
+        using var host = new ExampleProjectAnalysisHost();
+        var snapshot = await host.CreateEditorSnapshotAsync(projectPath, "All_Site_Diagnostics_Showcase.cs", TestContext.Current.CancellationToken);
+        var actualSites = snapshot.SiteIndicators
+            .Where(indicator => indicator.CallerTypeName == "AllSiteDiagnosticsShowcase")
+            .Select(indicator => indicator.Site)
+            .ToHashSet(StringComparer.Ordinal);
+        var missingSites = ArchitectureDependencySites.All
+            .Where(site => !actualSites.Contains(site))
+            .ToArray();
 
-		snapshot.HasConfiguration.Should().BeTrue();
-		snapshot.HasConfigurationIssues.Should().BeFalse();
-		missingSites.Should().BeEmpty("the Visual Studio showcase should provide every site controlled by Layer Information and Site Diagnostics settings");
-	}
+        snapshot.HasConfiguration.Should().BeTrue();
+        snapshot.HasConfigurationIssues.Should().BeFalse();
+        missingSites.Should().BeEmpty("the Visual Studio showcase should provide every site controlled by Layer Information and Site Diagnostics settings");
+    }
 
-	[Fact]
-	public async Task StructuralDeclarationMatchersExample_BuildsWithExpectedDiagnostic()
-	{
-		var context = ExampleRepositoryContext.Discover();
-		var expectation = ExampleBuildExpectationCatalog.All.Single(item => string.Equals(item.RelativeProjectPath, "Features/Example.StructuralDeclarationMatchers", StringComparison.Ordinal));
-		var projectPath = context.GetExampleProjectPath(expectation.RelativeProjectPath);
+    [Fact]
+    public async Task StructuralDeclarationMatchersExample_BuildsWithExpectedDiagnostic()
+    {
+        var context = ExampleRepositoryContext.Discover();
+        var expectation = ExampleBuildExpectationCatalog.All.Single(item => string.Equals(item.RelativeProjectPath, "Features/Example.StructuralDeclarationMatchers", StringComparison.Ordinal));
+        var projectPath = context.GetExampleProjectPath(expectation.RelativeProjectPath);
 
-		using var host = new ExampleProjectAnalysisHost();
-		var result = await host.AnalyzeProjectAsync(projectPath, TestContext.Current.CancellationToken);
+        using var host = new ExampleProjectAnalysisHost();
+        var result = await host.AnalyzeProjectAsync(projectPath, TestContext.Current.CancellationToken);
 
-		result.WorkspaceFailures.Should().BeEmpty();
-		result.HasConfiguration.Should().BeTrue();
-		result.CompilerErrors.Should().BeEmpty();
-		result.AnalyzerDiagnostics.Should().BeEquivalentTo(expectation.Diagnostics);
-		result.AnalyzerDiagnosticMessages.Should().ContainSingle(message => message.Contains("CreatePizzaRequest", StringComparison.Ordinal));
-	}
+        result.WorkspaceFailures.Should().BeEmpty();
+        result.HasConfiguration.Should().BeTrue();
+        result.CompilerErrors.Should().BeEmpty();
+        result.AnalyzerDiagnostics.Should().BeEquivalentTo(expectation.Diagnostics);
+        result.AnalyzerDiagnosticMessages.Should().ContainSingle(message => message.Contains("CreatePizzaRequest", StringComparison.Ordinal));
+    }
 
-	[Fact]
-	public void ExampleProjects_AreRegisteredAndDocumented()
-	{
-		var context = ExampleRepositoryContext.Discover();
-		var expectedPaths = ExampleBuildExpectationCatalog.All.Select(expectation => expectation.RelativeProjectPath).ToHashSet(StringComparer.OrdinalIgnoreCase);
-		var actualPaths = context.FindAllExampleProjectPaths()
-			.Select(projectPath => Path.GetRelativePath(context.ExamplesRoot, Path.GetDirectoryName(projectPath)!).Replace('\\', '/'))
-			.OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
-			.ToArray();
+    [Fact]
+    public void ExampleProjects_AreRegisteredAndDocumented()
+    {
+        var context = ExampleRepositoryContext.Discover();
+        var expectedPaths = ExampleBuildExpectationCatalog.All.Select(expectation => expectation.RelativeProjectPath).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var actualPaths = context.FindAllExampleProjectPaths()
+            .Select(projectPath => Path.GetRelativePath(context.ExamplesRoot, Path.GetDirectoryName(projectPath)!).Replace('\\', '/'))
+            .OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
 
-		actualPaths.Should().BeEquivalentTo(expectedPaths, "every example project should be build-verified by the integration test");
+        actualPaths.Should().BeEquivalentTo(expectedPaths, "every example project should be build-verified by the integration test");
 
-		var documentation = string.Join(Environment.NewLine, Directory.EnumerateFiles(Path.Combine(context.RepositoryRoot, "docs"), "*.md", SearchOption.AllDirectories)
-			.Concat([Path.Combine(context.ExamplesRoot, "README.md")])
-			.Select(File.ReadAllText));
-		var undocumented = ExampleBuildExpectationCatalog.All
-			.Select(expectation => GetDocumentationSubject(expectation.RelativeProjectPath))
-			.Where(projectName => !documentation.Contains(projectName, StringComparison.Ordinal))
-			.ToArray();
+        var documentation = string.Join(Environment.NewLine, Directory.EnumerateFiles(Path.Combine(context.RepositoryRoot, "docs"), "*.md", SearchOption.AllDirectories)
+            .Concat([Path.Combine(context.ExamplesRoot, "README.md")])
+            .Select(File.ReadAllText));
+        var undocumented = ExampleBuildExpectationCatalog.All
+            .Select(expectation => GetDocumentationSubject(expectation.RelativeProjectPath))
+            .Where(projectName => !documentation.Contains(projectName, StringComparison.Ordinal))
+            .ToArray();
 
-		undocumented.Should().BeEmpty("every build-verified example should be discoverable from docs or the examples index");
-	}
+        undocumented.Should().BeEmpty("every build-verified example should be discoverable from docs or the examples index");
+    }
 
-	[Fact]
-	public void DiagnosticExampleProjects_AreGroupedByDiagnosticConcern()
-	{
-		var context = ExampleRepositoryContext.Discover();
-		var invalidPaths = context.FindAllExampleProjectPaths()
-			.Select(projectPath => Path.GetRelativePath(context.ExamplesRoot, Path.GetDirectoryName(projectPath)!).Replace('\\', '/'))
-			.Where(relativePath => relativePath.StartsWith("Diagnostics/", StringComparison.Ordinal))
-			.Where(relativePath => !IsGroupedByDiagnosticConcern(relativePath))
-			.OrderBy(relativePath => relativePath, StringComparer.Ordinal)
-			.ToArray();
+    [Fact]
+    public void DiagnosticExampleProjects_AreGroupedByDiagnosticConcern()
+    {
+        var context = ExampleRepositoryContext.Discover();
+        var invalidPaths = context.FindAllExampleProjectPaths()
+            .Select(projectPath => Path.GetRelativePath(context.ExamplesRoot, Path.GetDirectoryName(projectPath)!).Replace('\\', '/'))
+            .Where(relativePath => relativePath.StartsWith("Diagnostics/", StringComparison.Ordinal))
+            .Where(relativePath => !IsGroupedByDiagnosticConcern(relativePath))
+            .OrderBy(relativePath => relativePath, StringComparer.Ordinal)
+            .ToArray();
 
-		invalidPaths.Should().BeEmpty("diagnostic examples should use Diagnostics/<CONCERN>/Example.Arch_<CONCERN>_<REASON>.<CaseName>");
-	}
+        invalidPaths.Should().BeEmpty("diagnostic examples should use Diagnostics/<CONCERN>/Example.Arch_<CONCERN>_<REASON>.<CaseName>");
+    }
 
-	private static bool IsGroupedByDiagnosticConcern(string relativePath)
-	{
-		var segments = relativePath.Split('/');
-		var result = segments.Length == 3
-			&& segments[2].StartsWith($"Example.Arch_{segments[1]}_", StringComparison.Ordinal);
+    private static bool IsGroupedByDiagnosticConcern(string relativePath)
+    {
+        var segments = relativePath.Split('/');
+        var result = segments.Length == 3
+            && segments[2].StartsWith($"Example.Arch_{segments[1]}_", StringComparison.Ordinal);
 
-		return result;
-	}
+        return result;
+    }
 
-	private static string GetDocumentationSubject(string relativeProjectPath)
-	{
-		var pathSegments = relativeProjectPath.Replace('\\', '/').Split('/');
-		var scenarioIndex = Array.FindIndex(pathSegments, segment => string.Equals(segment, "Scenarios", StringComparison.Ordinal));
-		var result = scenarioIndex >= 0 && scenarioIndex + 1 < pathSegments.Length
-			? pathSegments[scenarioIndex + 1]
-			: Path.GetFileName(relativeProjectPath);
+    private static string GetDocumentationSubject(string relativeProjectPath)
+    {
+        var pathSegments = relativeProjectPath.Replace('\\', '/').Split('/');
+        var scenarioIndex = Array.FindIndex(pathSegments, segment => string.Equals(segment, "Scenarios", StringComparison.Ordinal));
+        var result = scenarioIndex >= 0 && scenarioIndex + 1 < pathSegments.Length
+            ? pathSegments[scenarioIndex + 1]
+            : Path.GetFileName(relativeProjectPath);
 
-		return result;
-	}
+        return result;
+    }
 
-	[Fact]
-	public void ExampleProjectFiles_KeepDirectDependenciesMinimal()
-	{
-		var context = ExampleRepositoryContext.Discover();
-		var expectedProjectReferences = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
-		{
-			["Scenarios/Example.ProjectReferenceRuleSelectors/Example.ProjectReferenceRuleSelectors.Orders.Application"] =
-			[
-				@"..\Example.ProjectReferenceRuleSelectors.Orders.Contracts\Example.ProjectReferenceRuleSelectors.Orders.Contracts.csproj",
-				@"..\Example.ProjectReferenceRuleSelectors.Payments.Contracts\Example.ProjectReferenceRuleSelectors.Payments.Contracts.csproj"
-			],
-			["Scenarios/Example.ProjectReferenceBoundaries/Example.ProjectReferenceBoundaries.Application"] =
-			[
-				@"..\Example.ProjectReferenceBoundaries.Domain\Example.ProjectReferenceBoundaries.Domain.csproj"
-			],
-			["Scenarios/Example.ProjectReferenceBoundaries/Example.ProjectReferenceBoundaries.Domain"] =
-			[
-				@"..\Example.ProjectReferenceBoundaries.Infrastructure\Example.ProjectReferenceBoundaries.Infrastructure.csproj"
-			],
-			["Scenarios/Example.SolutionTopology/Example.SolutionTopology.Application"] =
-			[
-				@"..\Example.SolutionTopology.Infrastructure\Example.SolutionTopology.Infrastructure.csproj"
-			],
-			["Scenarios/Example.SolutionTopology/Example.SolutionTopology.Web"] =
-			[
-				@"..\Example.SolutionTopology.Application\Example.SolutionTopology.Application.csproj"
-			],
-			["Scenarios/Example.AssemblyReferenceBoundaries/Example.AssemblyReferenceBoundaries.Domain"] =
-			[
-				@"..\LegacyTransportFixture\LegacyTransportFixture.csproj"
-			]
-		};
-		var expectedPackageReferences = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
-		{
-			["Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.ContextBoundary"] =
-			[
-				"Microsoft.EntityFrameworkCore"
-			],
-			["Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.ContextCreation"] =
-			[
-				"Microsoft.EntityFrameworkCore"
-			],
-			["Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.DomainPurity"] =
-			[
-				"Microsoft.EntityFrameworkCore"
-			],
-			["Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.MigrationPlacement"] =
-			[
-				"Microsoft.EntityFrameworkCore.Relational"
-			],
-			["Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.ModelConfigurationPlacement"] =
-			[
-				"Microsoft.EntityFrameworkCore"
-			],
-			["Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.QuerySurface"] =
-			[
-				"Microsoft.EntityFrameworkCore"
-			],
-			["Scenarios/Example.PackageReferenceBoundaries/Example.PackageReferenceBoundaries.Data"] =
-			[
-				"Microsoft.Extensions.Logging"
-			],
-			["Scenarios/Example.PackageReferenceBoundaries/Example.PackageReferenceBoundaries.Domain"] =
-			[
-				"Microsoft.Extensions.Logging"
-			]
-		};
-		var expectedAssemblyReferences = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
-		{
-			["Scenarios/Example.AssemblyReferenceBoundaries/Example.AssemblyReferenceBoundaries.Domain"] =
-			[
-				"Legacy.Transport"
-			]
-		};
+    [Fact]
+    public void ExampleProjectFiles_KeepDirectDependenciesMinimal()
+    {
+        var context = ExampleRepositoryContext.Discover();
+        var expectedProjectReferences = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Scenarios/Example.ProjectReferenceRuleSelectors/Example.ProjectReferenceRuleSelectors.Orders.Application"] =
+            [
+                @"..\Example.ProjectReferenceRuleSelectors.Orders.Contracts\Example.ProjectReferenceRuleSelectors.Orders.Contracts.csproj",
+                @"..\Example.ProjectReferenceRuleSelectors.Payments.Contracts\Example.ProjectReferenceRuleSelectors.Payments.Contracts.csproj"
+            ],
+            ["Scenarios/Example.ProjectReferenceBoundaries/Example.ProjectReferenceBoundaries.Application"] =
+            [
+                @"..\Example.ProjectReferenceBoundaries.Domain\Example.ProjectReferenceBoundaries.Domain.csproj"
+            ],
+            ["Scenarios/Example.ProjectReferenceBoundaries/Example.ProjectReferenceBoundaries.Domain"] =
+            [
+                @"..\Example.ProjectReferenceBoundaries.Infrastructure\Example.ProjectReferenceBoundaries.Infrastructure.csproj"
+            ],
+            ["Scenarios/Example.SolutionTopology/Example.SolutionTopology.Application"] =
+            [
+                @"..\Example.SolutionTopology.Infrastructure\Example.SolutionTopology.Infrastructure.csproj"
+            ],
+            ["Scenarios/Example.SolutionTopology/Example.SolutionTopology.Web"] =
+            [
+                @"..\Example.SolutionTopology.Application\Example.SolutionTopology.Application.csproj"
+            ],
+            ["Scenarios/Example.AssemblyReferenceBoundaries/Example.AssemblyReferenceBoundaries.Domain"] =
+            [
+                @"..\LegacyTransportFixture\LegacyTransportFixture.csproj"
+            ]
+        };
+        var expectedPackageReferences = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.ContextBoundary"] =
+            [
+                "Microsoft.EntityFrameworkCore"
+            ],
+            ["Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.ContextCreation"] =
+            [
+                "Microsoft.EntityFrameworkCore"
+            ],
+            ["Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.DomainPurity"] =
+            [
+                "Microsoft.EntityFrameworkCore"
+            ],
+            ["Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.MigrationPlacement"] =
+            [
+                "Microsoft.EntityFrameworkCore.Relational"
+            ],
+            ["Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.ModelConfigurationPlacement"] =
+            [
+                "Microsoft.EntityFrameworkCore"
+            ],
+            ["Scenarios/Example.EntityFrameworkCore/Example.EntityFrameworkCore.QuerySurface"] =
+            [
+                "Microsoft.EntityFrameworkCore"
+            ],
+            ["Scenarios/Example.PackageReferenceBoundaries/Example.PackageReferenceBoundaries.Data"] =
+            [
+                "Microsoft.Extensions.Logging"
+            ],
+            ["Scenarios/Example.PackageReferenceBoundaries/Example.PackageReferenceBoundaries.Domain"] =
+            [
+                "Microsoft.Extensions.Logging"
+            ]
+        };
+        var expectedAssemblyReferences = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Scenarios/Example.AssemblyReferenceBoundaries/Example.AssemblyReferenceBoundaries.Domain"] =
+            [
+                "Legacy.Transport"
+            ]
+        };
 
-		foreach (var projectPath in context.FindAllExampleProjectPaths())
-		{
-			var relativeProjectDirectory = Path.GetRelativePath(context.ExamplesRoot, Path.GetDirectoryName(projectPath)!).Replace('\\', '/');
-			var document = System.Xml.Linq.XDocument.Load(projectPath);
-			var projectReferences = document
-				.Descendants()
-				.Where(element => string.Equals(element.Name.LocalName, "ProjectReference", StringComparison.Ordinal))
-				.Select(element => element.Attribute("Include")?.Value)
-				.Where(value => !string.IsNullOrWhiteSpace(value))
-				.ToArray();
-			var packageReferences = document
-				.Descendants()
-				.Where(element => string.Equals(element.Name.LocalName, "PackageReference", StringComparison.Ordinal))
-				.Select(element => element.Attribute("Include")?.Value)
-				.Where(value => !string.IsNullOrWhiteSpace(value))
-				.ToArray();
-			var analyzerReferences = document
-				.Descendants()
-				.Where(element => string.Equals(element.Name.LocalName, "Analyzer", StringComparison.Ordinal))
-				.Select(element => element.Attribute("Include")?.Value)
-				.Where(value => !string.IsNullOrWhiteSpace(value))
-				.ToArray();
-			var assemblyReferences = document
-				.Descendants()
-				.Where(element => string.Equals(element.Name.LocalName, "Reference", StringComparison.Ordinal))
-				.Select(element => element.Attribute("Include")?.Value)
-				.Where(value => !string.IsNullOrWhiteSpace(value))
-				.ToArray();
+        foreach (var projectPath in context.FindAllExampleProjectPaths())
+        {
+            var relativeProjectDirectory = Path.GetRelativePath(context.ExamplesRoot, Path.GetDirectoryName(projectPath)!).Replace('\\', '/');
+            var document = System.Xml.Linq.XDocument.Load(projectPath);
+            var projectReferences = document
+                .Descendants()
+                .Where(element => string.Equals(element.Name.LocalName, "ProjectReference", StringComparison.Ordinal))
+                .Select(element => element.Attribute("Include")?.Value)
+                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .ToArray();
+            var packageReferences = document
+                .Descendants()
+                .Where(element => string.Equals(element.Name.LocalName, "PackageReference", StringComparison.Ordinal))
+                .Select(element => element.Attribute("Include")?.Value)
+                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .ToArray();
+            var analyzerReferences = document
+                .Descendants()
+                .Where(element => string.Equals(element.Name.LocalName, "Analyzer", StringComparison.Ordinal))
+                .Select(element => element.Attribute("Include")?.Value)
+                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .ToArray();
+            var assemblyReferences = document
+                .Descendants()
+                .Where(element => string.Equals(element.Name.LocalName, "Reference", StringComparison.Ordinal))
+                .Select(element => element.Attribute("Include")?.Value)
+                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .ToArray();
 
-			projectReferences.Should().BeEquivalentTo(
-				expectedProjectReferences.TryGetValue(relativeProjectDirectory, out var expectedProjects) ? expectedProjects : [],
-				$"{relativeProjectDirectory} should only declare direct project references when the scenario itself is demonstrating project-boundary rules");
-			packageReferences.Should().BeEquivalentTo(
-				expectedPackageReferences.TryGetValue(relativeProjectDirectory, out var expectedPackages) ? expectedPackages : [],
-				$"{relativeProjectDirectory} should only declare direct package references when the scenario itself is demonstrating package-boundary rules");
-			analyzerReferences.Should().BeEmpty($"{relativeProjectDirectory} should not hard-code analyzer DLL references in its own project file");
-			assemblyReferences.Should().BeEquivalentTo(
-				expectedAssemblyReferences.TryGetValue(relativeProjectDirectory, out var expectedAssemblies) ? expectedAssemblies : [],
-				$"{relativeProjectDirectory} should only declare an assembly reference when the scenario itself is demonstrating raw assembly-reference rules");
-		}
-	}
+            projectReferences.Should().BeEquivalentTo(
+                expectedProjectReferences.TryGetValue(relativeProjectDirectory, out var expectedProjects) ? expectedProjects : [],
+                $"{relativeProjectDirectory} should only declare direct project references when the scenario itself is demonstrating project-boundary rules");
+            packageReferences.Should().BeEquivalentTo(
+                expectedPackageReferences.TryGetValue(relativeProjectDirectory, out var expectedPackages) ? expectedPackages : [],
+                $"{relativeProjectDirectory} should only declare direct package references when the scenario itself is demonstrating package-boundary rules");
+            analyzerReferences.Should().BeEmpty($"{relativeProjectDirectory} should not hard-code analyzer DLL references in its own project file");
+            assemblyReferences.Should().BeEquivalentTo(
+                expectedAssemblyReferences.TryGetValue(relativeProjectDirectory, out var expectedAssemblies) ? expectedAssemblies : [],
+                $"{relativeProjectDirectory} should only declare an assembly reference when the scenario itself is demonstrating raw assembly-reference rules");
+        }
+    }
 
-	private static async Task ValidateExampleProjectAsync(ExampleRepositoryContext context, ExampleProjectAnalysisHost host, ExampleBuildExpectation expectation, List<string> failures)
-	{
-		var projectPath = context.GetExampleProjectPath(expectation.RelativeProjectPath);
-		if (!File.Exists(projectPath))
-		{
-			failures.Add($"{expectation.RelativeProjectPath}: missing project file at {projectPath}");
+    private static async Task ValidateExampleProjectAsync(ExampleRepositoryContext context, ExampleProjectAnalysisHost host, ExampleBuildExpectation expectation, List<string> failures)
+    {
+        var projectPath = context.GetExampleProjectPath(expectation.RelativeProjectPath);
+        if (!File.Exists(projectPath))
+        {
+            failures.Add($"{expectation.RelativeProjectPath}: missing project file at {projectPath}");
 
-			return;
-		}
+            return;
+        }
 
-		var projectDirectory = Path.GetDirectoryName(projectPath)!;
-		var fileConfigPath = ExampleApplicationOperations.FindLinkedFileConfigurationPath(projectPath);
-		var inlineSettingsPath = Path.Combine(projectDirectory, "Properties", "AnaalIJzerSettings.cs");
-		if (File.Exists(inlineSettingsPath))
-		{
-			failures.Add($"{expectation.RelativeProjectPath}: inline settings should live in the example source file for simple examples, or Architecture.anl for broader examples; remove {inlineSettingsPath}.");
-		}
+        var projectDirectory = Path.GetDirectoryName(projectPath)!;
+        var fileConfigPath = ExampleApplicationOperations.FindLinkedFileConfigurationPath(projectPath);
+        var inlineSettingsPath = Path.Combine(projectDirectory, "Properties", "AnaalIJzerSettings.cs");
+        if (File.Exists(inlineSettingsPath))
+        {
+            failures.Add($"{expectation.RelativeProjectPath}: inline settings should live in the example source file for simple examples, or Architecture.anl for broader examples; remove {inlineSettingsPath}.");
+        }
 
-		var oldInlineSettingsPath = Path.Combine(projectDirectory, "ArchitecturalLevels.cs");
-		if (File.Exists(oldInlineSettingsPath))
-		{
-			failures.Add($"{expectation.RelativeProjectPath}: inline settings should live in the example source file, not {oldInlineSettingsPath}.");
-		}
+        var oldInlineSettingsPath = Path.Combine(projectDirectory, "ArchitecturalLevels.cs");
+        if (File.Exists(oldInlineSettingsPath))
+        {
+            failures.Add($"{expectation.RelativeProjectPath}: inline settings should live in the example source file, not {oldInlineSettingsPath}.");
+        }
 
-		var result = await host.AnalyzeProjectAsync(projectPath, TestContext.Current.CancellationToken);
-		if (result.WorkspaceFailures.Length > 0)
-		{
-			failures.Add($"{expectation.RelativeProjectPath}: workspace load failures:{Environment.NewLine}{string.Join(Environment.NewLine, result.WorkspaceFailures)}");
-		}
+        var result = await host.AnalyzeProjectAsync(projectPath, TestContext.Current.CancellationToken);
+        if (result.WorkspaceFailures.Length > 0)
+        {
+            failures.Add($"{expectation.RelativeProjectPath}: workspace load failures:{Environment.NewLine}{string.Join(Environment.NewLine, result.WorkspaceFailures)}");
+        }
 
-		if (!result.HasConfiguration)
-		{
-			failures.Add($"{expectation.RelativeProjectPath}: no architectural configuration rules were loaded for the project. Analyzer diagnostics:{Environment.NewLine}{string.Join(Environment.NewLine, result.AnalyzerDiagnosticMessages)}");
-		}
+        if (!result.HasConfiguration)
+        {
+            failures.Add($"{expectation.RelativeProjectPath}: no architectural configuration rules were loaded for the project. Analyzer diagnostics:{Environment.NewLine}{string.Join(Environment.NewLine, result.AnalyzerDiagnosticMessages)}");
+        }
 
-		if (result.CompilerErrors.Length > 0)
-		{
-			failures.Add($"{expectation.RelativeProjectPath}: unexpected compiler errors:{Environment.NewLine}{string.Join(Environment.NewLine, result.CompilerErrors)}");
-		}
+        if (result.CompilerErrors.Length > 0)
+        {
+            failures.Add($"{expectation.RelativeProjectPath}: unexpected compiler errors:{Environment.NewLine}{string.Join(Environment.NewLine, result.CompilerErrors)}");
+        }
 
-		if (!DictionariesEqual(result.AnalyzerDiagnostics, expectation.Diagnostics))
-		{
-			failures.Add($"{expectation.RelativeProjectPath}: expected diagnostics {FormatDiagnostics(expectation.Diagnostics)}, got {FormatDiagnostics(result.AnalyzerDiagnostics)}.{Environment.NewLine}{string.Join(Environment.NewLine, result.AnalyzerDiagnosticMessages)}");
-		}
+        if (!DictionariesEqual(result.AnalyzerDiagnostics, expectation.Diagnostics))
+        {
+            failures.Add($"{expectation.RelativeProjectPath}: expected diagnostics {FormatDiagnostics(expectation.Diagnostics)}, got {FormatDiagnostics(result.AnalyzerDiagnostics)}.{Environment.NewLine}{string.Join(Environment.NewLine, result.AnalyzerDiagnosticMessages)}");
+        }
 
-		if (expectation.ConfigStyle == ExampleConfigStyle.InlineInExample)
-		{
-			if (fileConfigPath is not null)
-			{
-				failures.Add($"{expectation.RelativeProjectPath}: simple one-file examples should keep settings inline in the example source file; remove {fileConfigPath}.");
-			}
+        if (expectation.ConfigStyle == ExampleConfigStyle.InlineInExample)
+        {
+            if (fileConfigPath is not null)
+            {
+                failures.Add($"{expectation.RelativeProjectPath}: simple one-file examples should keep settings inline in the example source file; remove {fileConfigPath}.");
+            }
 
-			var inlineSourceFiles = ExampleSettingsValidation.FindInlineSettingsSourceFiles(projectDirectory);
-			if (inlineSourceFiles.Length == 0)
-			{
-				failures.Add($"{expectation.RelativeProjectPath}: missing AssemblyMetadata(\"AnaalIJzerSettings\", ...) in an example source file.");
-			}
-			else if (inlineSourceFiles.Length > 1)
-			{
-				failures.Add($"{expectation.RelativeProjectPath}: simple inline examples should keep exactly one AssemblyMetadata(\"AnaalIJzerSettings\", ...) source file, found {inlineSourceFiles.Length}.");
-			}
+            var inlineSourceFiles = ExampleSettingsValidation.FindInlineSettingsSourceFiles(projectDirectory);
+            if (inlineSourceFiles.Length == 0)
+            {
+                failures.Add($"{expectation.RelativeProjectPath}: missing AssemblyMetadata(\"AnaalIJzerSettings\", ...) in an example source file.");
+            }
+            else if (inlineSourceFiles.Length > 1)
+            {
+                failures.Add($"{expectation.RelativeProjectPath}: simple inline examples should keep exactly one AssemblyMetadata(\"AnaalIJzerSettings\", ...) source file, found {inlineSourceFiles.Length}.");
+            }
 
-			if (string.IsNullOrWhiteSpace(result.InlineConfigXml))
-			{
-				failures.Add($"{expectation.RelativeProjectPath}: missing AssemblyMetadata(\"AnaalIJzerSettings\", ...) inline settings.");
-			}
-			else
-			{
-				ExampleSettingsValidation.ValidateInlineConfigXml($"{expectation.RelativeProjectPath}: AnaalIJzerSettings", result.InlineConfigXml, context.SchemaPath, failures);
-			}
+            if (string.IsNullOrWhiteSpace(result.InlineConfigXml))
+            {
+                failures.Add($"{expectation.RelativeProjectPath}: missing AssemblyMetadata(\"AnaalIJzerSettings\", ...) inline settings.");
+            }
+            else
+            {
+                ExampleSettingsValidation.ValidateInlineConfigXml($"{expectation.RelativeProjectPath}: AnaalIJzerSettings", result.InlineConfigXml, context.SchemaPath, failures);
+            }
 
-			return;
-		}
+            return;
+        }
 
-		if (fileConfigPath is null)
-		{
-			failures.Add($"{expectation.RelativeProjectPath}: broader examples should use Architecture.anl.");
-		}
-	}
+        if (fileConfigPath is null)
+        {
+            failures.Add($"{expectation.RelativeProjectPath}: broader examples should use Architecture.anl.");
+        }
+    }
 
-	private static bool DictionariesEqual(IReadOnlyDictionary<string, int> left, IReadOnlyDictionary<string, int> right)
-	{
-		var result = left.Count == right.Count && left.All(pair => right.TryGetValue(pair.Key, out var count) && count == pair.Value);
+    private static bool DictionariesEqual(IReadOnlyDictionary<string, int> left, IReadOnlyDictionary<string, int> right)
+    {
+        var result = left.Count == right.Count && left.All(pair => right.TryGetValue(pair.Key, out var count) && count == pair.Value);
 
-		return result;
-	}
+        return result;
+    }
 
-	private static string FormatDiagnostics(IReadOnlyDictionary<string, int> diagnostics)
-	{
-		var result = diagnostics.Count == 0 ? "<none>" : string.Join(", ", diagnostics.OrderBy(pair => pair.Key, StringComparer.Ordinal).Select(pair => $"{pair.Key}={pair.Value}"));
+    private static string FormatDiagnostics(IReadOnlyDictionary<string, int> diagnostics)
+    {
+        var result = diagnostics.Count == 0 ? "<none>" : string.Join(", ", diagnostics.OrderBy(pair => pair.Key, StringComparer.Ordinal).Select(pair => $"{pair.Key}={pair.Value}"));
 
-		return result;
-	}
+        return result;
+    }
 }

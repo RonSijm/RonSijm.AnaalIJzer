@@ -1,19 +1,19 @@
 namespace RonSijm.AnaalIJzer.Core.SourceLocations;
 
 public readonly struct SourceLocationEvaluation(
-	SourceLocationPolicy policy,
-	string sourceFilePath,
-	string normalizedSourcePath,
-	string sourceAssemblyName,
-	string reason)
+    SourceLocationPolicy policy,
+    string sourceFilePath,
+    string normalizedSourcePath,
+    string sourceAssemblyName,
+    string reason)
 {
-	public SourceLocationPolicy Policy { get; } = policy;
+    public SourceLocationPolicy Policy { get; } = policy;
 
-	public string SourceFilePath { get; } = sourceFilePath;
+    public string SourceFilePath { get; } = sourceFilePath;
 
-	public string NormalizedSourcePath { get; } = normalizedSourcePath;
+    public string NormalizedSourcePath { get; } = normalizedSourcePath;
 
-	public string SourceAssemblyName { get; } = sourceAssemblyName;
+    public string SourceAssemblyName { get; } = sourceAssemblyName;
 
-	public string Reason { get; } = reason;
+    public string Reason { get; } = reason;
 }

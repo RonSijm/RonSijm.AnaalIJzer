@@ -5,3 +5,4 @@
 - Keep method signatures on one line: `private static bool IsExcepted(ImmutableArray<PatternMatcher> exceptions, string typeName, string namespaceName, ITypeSymbol? symbol)`
 - For single-expression method returns, assign the expression to a local `result` variable, add a blank line, then `return result;`.
 - Place `GlobalUsings.cs` in a `Properties` folder instead of the project root.
+- When writing documentation or other prose, preserve first-person ownership, project-specific humor, honest uncertainty, and the maintainer's opinions. Remove generic AI mannerisms, not the author's voice.

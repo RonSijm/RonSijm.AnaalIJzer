@@ -5,154 +5,154 @@ namespace RonSijm.AnaalIJzer.ConfigurationEditing.Editing.Xml;
 
 internal static partial class ArchitectureConfigurationXmlNavigator
 {
-	private static IEnumerable<XElement> GetConfigurationElementCandidates(XDocument document, ArchitectureConfigurationElementEditHandle handle)
-	{
-		var containerRoot = GetConfigurationElementContainerRoot(document, handle);
-		if (containerRoot is null)
-		{
-			return [];
-		}
+    private static IEnumerable<XElement> GetConfigurationElementCandidates(XDocument document, ArchitectureConfigurationElementEditHandle handle)
+    {
+        var containerRoot = GetConfigurationElementContainerRoot(document, handle);
+        if (containerRoot is null)
+        {
+            return [];
+        }
 
-		if (handle.ContainerKind == ArchitectureConfigurationXmlNames.IncludeElementName)
-		{
-			var result = containerRoot
-				.Elements(ArchitectureConfigurationXmlNames.IncludeElementName)
-				.Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
+        if (handle.ContainerKind == ArchitectureConfigurationXmlNames.IncludeElementName)
+        {
+            var result = containerRoot
+                .Elements(ArchitectureConfigurationXmlNames.IncludeElementName)
+                .Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
 
-			return result;
-		}
+            return result;
+        }
 
-		if (handle.ContainerKind == ArchitectureConfigurationXmlNames.OperationsElementName)
-		{
-			var result = containerRoot
-				.Elements(ArchitectureConfigurationXmlNames.OperationsElementName)
-				.Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
+        if (handle.ContainerKind == ArchitectureConfigurationXmlNames.OperationsElementName)
+        {
+            var result = containerRoot
+                .Elements(ArchitectureConfigurationXmlNames.OperationsElementName)
+                .Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
 
-			return result;
-		}
+            return result;
+        }
 
-		if (handle.ContainerKind == ArchitectureConfigurationXmlNames.AssemblyAttributePolicyElementName)
-		{
-			var result = containerRoot
-				.Elements(ArchitectureConfigurationXmlNames.AssemblyAttributePolicyElementName)
-				.Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
+        if (handle.ContainerKind == ArchitectureConfigurationXmlNames.AssemblyAttributePolicyElementName)
+        {
+            var result = containerRoot
+                .Elements(ArchitectureConfigurationXmlNames.AssemblyAttributePolicyElementName)
+                .Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
 
-			return result;
-		}
+            return result;
+        }
 
-		if (handle.ContainerKind == ArchitectureConfigurationXmlNames.NamespaceHierarchyPolicyElementName)
-		{
-			var result = containerRoot
-				.Elements(ArchitectureConfigurationXmlNames.NamespaceHierarchyPolicyElementName)
-				.Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
+        if (handle.ContainerKind == ArchitectureConfigurationXmlNames.NamespaceHierarchyPolicyElementName)
+        {
+            var result = containerRoot
+                .Elements(ArchitectureConfigurationXmlNames.NamespaceHierarchyPolicyElementName)
+                .Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
 
-			return result;
-		}
+            return result;
+        }
 
-		if (handle.ContainerKind == "LayerMatcher")
-		{
-			var result = containerRoot
-				.Elements()
-				.Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal) && ArchitectureConfigurationXmlEditor.IsMatcherElement(element));
+        if (handle.ContainerKind == "LayerMatcher")
+        {
+            var result = containerRoot
+                .Elements()
+                .Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal) && ArchitectureConfigurationXmlEditor.IsMatcherElement(element));
 
-			return result;
-		}
+            return result;
+        }
 
-		if (handle.ContainerKind == ArchitectureConfigurationXmlNames.ExceptionsElementName)
-		{
-			var result = GetExceptionElementCandidates(containerRoot, string.IsNullOrWhiteSpace(handle.LayerPath))
-				.Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
+        if (handle.ContainerKind == ArchitectureConfigurationXmlNames.ExceptionsElementName)
+        {
+            var result = GetExceptionElementCandidates(containerRoot, string.IsNullOrWhiteSpace(handle.LayerPath))
+                .Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
 
-			return result;
-		}
+            return result;
+        }
 
-		if (handle.ContainerKind is ArchitectureConfigurationXmlNames.AllowedElementName or ArchitectureConfigurationXmlNames.ForbiddenElementName)
-		{
-			var result = containerRoot
-				.Elements(handle.ContainerKind)
-				.SelectMany(container => container.Elements())
-				.Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
+        if (handle.ContainerKind is ArchitectureConfigurationXmlNames.AllowedElementName or ArchitectureConfigurationXmlNames.ForbiddenElementName)
+        {
+            var result = containerRoot
+                .Elements(handle.ContainerKind)
+                .SelectMany(container => container.Elements())
+                .Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
 
-			return result;
-		}
+            return result;
+        }
 
-		if (handle.ContainerKind == ArchitectureConfigurationXmlNames.NameRulesElementName)
-		{
-			var result = containerRoot
-				.Elements(ArchitectureConfigurationXmlNames.NameRulesElementName)
-				.SelectMany(container => container.Elements())
-				.Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
+        if (handle.ContainerKind == ArchitectureConfigurationXmlNames.NameRulesElementName)
+        {
+            var result = containerRoot
+                .Elements(ArchitectureConfigurationXmlNames.NameRulesElementName)
+                .SelectMany(container => container.Elements())
+                .Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
 
-			return result;
-		}
+            return result;
+        }
 
-		if (handle.ContainerKind == ArchitectureConfigurationXmlNames.VisibilityPolicyElementName)
-		{
-			var result = containerRoot
-				.Elements(ArchitectureConfigurationXmlNames.VisibilityPolicyElementName)
-				.Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
+        if (handle.ContainerKind == ArchitectureConfigurationXmlNames.VisibilityPolicyElementName)
+        {
+            var result = containerRoot
+                .Elements(ArchitectureConfigurationXmlNames.VisibilityPolicyElementName)
+                .Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
 
-			return result;
-		}
+            return result;
+        }
 
-		if (handle.ContainerKind == ArchitectureConfigurationXmlNames.InheritancePolicyElementName)
-		{
-			var result = containerRoot
-				.Elements(ArchitectureConfigurationXmlNames.InheritancePolicyElementName)
-				.Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
+        if (handle.ContainerKind == ArchitectureConfigurationXmlNames.InheritancePolicyElementName)
+        {
+            var result = containerRoot
+                .Elements(ArchitectureConfigurationXmlNames.InheritancePolicyElementName)
+                .Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
 
-			return result;
-		}
+            return result;
+        }
 
-		if (handle.ContainerKind == ArchitectureConfigurationXmlNames.ReturnValuePolicyElementName)
-		{
-			var result = containerRoot
-				.Elements(ArchitectureConfigurationXmlNames.ReturnValuePolicyElementName)
-				.Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
+        if (handle.ContainerKind == ArchitectureConfigurationXmlNames.ReturnValuePolicyElementName)
+        {
+            var result = containerRoot
+                .Elements(ArchitectureConfigurationXmlNames.ReturnValuePolicyElementName)
+                .Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
 
-			return result;
-		}
+            return result;
+        }
 
-		if (handle.ContainerKind == ArchitectureConfigurationXmlNames.ForbiddenOperationsElementName)
-		{
-			var result = containerRoot
-				.Elements(ArchitectureConfigurationXmlNames.ForbiddenOperationsElementName)
-				.Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
+        if (handle.ContainerKind == ArchitectureConfigurationXmlNames.ForbiddenOperationsElementName)
+        {
+            var result = containerRoot
+                .Elements(ArchitectureConfigurationXmlNames.ForbiddenOperationsElementName)
+                .Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
 
-			return result;
-		}
+            return result;
+        }
 
-		if (handle.ContainerKind == ArchitectureConfigurationXmlNames.BehavioralOperationsElementName)
-		{
-			var result = containerRoot
-				.Elements(ArchitectureConfigurationXmlNames.BehavioralOperationsElementName)
-				.Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
+        if (handle.ContainerKind == ArchitectureConfigurationXmlNames.BehavioralOperationsElementName)
+        {
+            var result = containerRoot
+                .Elements(ArchitectureConfigurationXmlNames.BehavioralOperationsElementName)
+                .Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
 
-			return result;
-		}
+            return result;
+        }
 
-		if (handle.ContainerKind == ArchitectureConfigurationXmlNames.ApiSurfaceElementName)
-		{
-			var result = containerRoot
-				.Elements(ArchitectureConfigurationXmlNames.ApiSurfaceElementName)
-				.Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
+        if (handle.ContainerKind == ArchitectureConfigurationXmlNames.ApiSurfaceElementName)
+        {
+            var result = containerRoot
+                .Elements(ArchitectureConfigurationXmlNames.ApiSurfaceElementName)
+                .Where(element => string.Equals(element.Name.LocalName, handle.ElementKind, StringComparison.Ordinal));
 
-			return result;
-		}
+            return result;
+        }
 
-		return [];
-	}
+        return [];
+    }
 
-	private static XElement? GetConfigurationElementContainerRoot(XDocument document, ArchitectureConfigurationElementEditHandle handle)
-	{
-		if (string.IsNullOrWhiteSpace(handle.LayerPath))
-		{
-			return document.Root;
-		}
+    private static XElement? GetConfigurationElementContainerRoot(XDocument document, ArchitectureConfigurationElementEditHandle handle)
+    {
+        if (string.IsNullOrWhiteSpace(handle.LayerPath))
+        {
+            return document.Root;
+        }
 
-		var layerHandle = new ArchitectureLayerEditHandle(handle.SourceKind, handle.SourcePath, 0, handle.LayerPath, string.Empty, GetParentPath(handle.LayerPath), null);
-		var result = FindLayerElement(document, layerHandle);
+        var layerHandle = new ArchitectureLayerEditHandle(handle.SourceKind, handle.SourcePath, 0, handle.LayerPath, string.Empty, GetParentPath(handle.LayerPath), null);
+        var result = FindLayerElement(document, layerHandle);
 
-		return result;
-	}
+        return result;
+    }
 }

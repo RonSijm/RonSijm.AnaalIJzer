@@ -22,7 +22,6 @@
     <RepositoryUrl>https://github.com/RonSijm/RonSijm.AnaalIJzer</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <EnableArchitecturalLevelAnalyzer>false</EnableArchitecturalLevelAnalyzer>
   </PropertyGroup>
 
   <ItemGroup>

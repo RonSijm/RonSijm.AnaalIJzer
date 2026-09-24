@@ -6,18 +6,18 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Diagnostics;
 
 public sealed class PackagePolicyCodeFixTests
 {
-	[Fact]
-	public void PackageReferenceViolation_IsListedAsFixable()
-	{
-		new ArchitecturalLevelCodeFixProvider()
-			.FixableDiagnosticIds
-			.Should().Contain(ArchitecturalDiagnosticIds.PackageReferenceNotAllowed);
-	}
+    [Fact]
+    public void PackageReferenceViolation_IsListedAsFixable()
+    {
+        new ArchitecturalLevelCodeFixProvider()
+            .FixableDiagnosticIds
+            .Should().Contain(ArchitecturalDiagnosticIds.PackageReferenceNotAllowed);
+    }
 
-	[Fact]
-	public async Task AllowedPackageListMiss_AddsExactPackageMatcherToConfiguration()
-	{
-		const string config = """
+    [Fact]
+    public async Task AllowedPackageListMiss_AddsExactPackageMatcherToConfiguration()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <ProjectArchitecture requireRecognizedProjects="true">
 			    <ProjectGroup name="Domain">
@@ -31,26 +31,26 @@ public sealed class PackagePolicyCodeFixTests
 			  </ProjectArchitecture>
 			</ArchitecturalLevels>
 			""";
-		var manifest = string.Join(
-			"\n",
-			ArchitectureReferenceManifest.Header,
-			@"Package	D:\repo\Shop.Domain.csproj	Microsoft.Extensions.Logging	9.0.0	Direct");
-		const string source = "public sealed class Placeholder { }";
+        var manifest = string.Join(
+            "\n",
+            ArchitectureReferenceManifest.Header,
+            @"Package	D:\repo\Shop.Domain.csproj	Microsoft.Extensions.Logging	9.0.0	Direct");
+        const string source = "public sealed class Placeholder { }";
 
-		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
-			source,
-			[("Architecture.anl", config), (ArchitectureReferenceManifest.FileName, manifest)],
-			ArchitecturalDiagnosticIds.PackageReferenceNotAllowed,
-			"Allow package 'Microsoft.Extensions.Logging' for project group 'Domain'",
-			"Architecture.anl");
+        var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
+            source,
+            [("Architecture.anl", config), (ArchitectureReferenceManifest.FileName, manifest)],
+            ArchitecturalDiagnosticIds.PackageReferenceNotAllowed,
+            "Allow package 'Microsoft.Extensions.Logging' for project group 'Domain'",
+            "Architecture.anl");
 
-		updatedConfig.Should().Contain("<Package exactName=\"Microsoft.Extensions.Logging\" />");
-	}
+        updatedConfig.Should().Contain("<Package exactName=\"Microsoft.Extensions.Logging\" />");
+    }
 
-	[Fact]
-	public async Task ForbiddenPackagePolicy_DoesNotOfferAnIncorrectAllowListFix()
-	{
-		const string config = """
+    [Fact]
+    public async Task ForbiddenPackagePolicy_DoesNotOfferAnIncorrectAllowListFix()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <ProjectArchitecture requireRecognizedProjects="true">
 			    <ProjectGroup name="Domain">
@@ -64,28 +64,28 @@ public sealed class PackagePolicyCodeFixTests
 			  </ProjectArchitecture>
 			</ArchitecturalLevels>
 			""";
-		var manifest = string.Join(
-			"\n",
-			ArchitectureReferenceManifest.Header,
-			@"Package	D:\repo\Shop.Domain.csproj	Microsoft.Extensions.Logging	9.0.0	Direct");
-		const string source = "public sealed class Placeholder { }";
+        var manifest = string.Join(
+            "\n",
+            ArchitectureReferenceManifest.Header,
+            @"Package	D:\repo\Shop.Domain.csproj	Microsoft.Extensions.Logging	9.0.0	Direct");
+        const string source = "public sealed class Placeholder { }";
 
-		var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(
-			source,
-			[("Architecture.anl", config), (ArchitectureReferenceManifest.FileName, manifest)],
-			ArchitecturalDiagnosticIds.PackageReferenceNotAllowed);
+        var titles = await AnalyzerTestHelper.GetCodeFixTitlesAsync(
+            source,
+            [("Architecture.anl", config), (ArchitectureReferenceManifest.FileName, manifest)],
+            ArchitecturalDiagnosticIds.PackageReferenceNotAllowed);
 
-		titles.Should().BeEmpty();
-	}
+        titles.Should().BeEmpty();
+    }
 
-	[Fact]
-	public async Task AllowedPackageListMiss_InlineSettings_UpdatesAssemblyMetadata()
-	{
-		var manifest = string.Join(
-			"\n",
-			ArchitectureReferenceManifest.Header,
-			@"Package	D:\repo\Shop.Domain.csproj	Microsoft.Extensions.Logging	9.0.0	Direct");
-		const string source = """"
+    [Fact]
+    public async Task AllowedPackageListMiss_InlineSettings_UpdatesAssemblyMetadata()
+    {
+        var manifest = string.Join(
+            "\n",
+            ArchitectureReferenceManifest.Header,
+            @"Package	D:\repo\Shop.Domain.csproj	Microsoft.Extensions.Logging	9.0.0	Direct");
+        const string source = """"
 			using System.Reflection;
 
 			[assembly: AssemblyMetadata("AnaalIJzerSettings", """
@@ -108,12 +108,12 @@ public sealed class PackagePolicyCodeFixTests
 			}
 			"""";
 
-		var updatedSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
-			source,
-			[(ArchitectureReferenceManifest.FileName, manifest)],
-			ArchitecturalDiagnosticIds.PackageReferenceNotAllowed,
-			"Allow package 'Microsoft.Extensions.Logging' for project group 'Domain'");
+        var updatedSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
+            source,
+            [(ArchitectureReferenceManifest.FileName, manifest)],
+            ArchitecturalDiagnosticIds.PackageReferenceNotAllowed,
+            "Allow package 'Microsoft.Extensions.Logging' for project group 'Domain'");
 
-		updatedSource.Should().Contain("<Package exactName=\"Microsoft.Extensions.Logging\" />");
-	}
+        updatedSource.Should().Contain("<Package exactName=\"Microsoft.Extensions.Logging\" />");
+    }
 }

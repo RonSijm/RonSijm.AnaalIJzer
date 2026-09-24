@@ -12,67 +12,67 @@ namespace RonSijm.AnaalIJzer.Engine.Analysis.BoundaryRules.LayerDependencies;
 
 public static partial class LayerDependencyAnalyzer
 {
-	private static void AnalyzeParameters(SyntaxNodeAnalysisContext context, AnalyzerConfig config, ConcurrentBag<ViolationRecord> violations, ObservedDependencyCollector? observedDependencies, TypeDeclarationSyntax typeDeclaration, SeparatedSyntaxList<ParameterSyntax> parameters, string site)
-	{
-		var caller = TryGetCallerContext(context, config, typeDeclaration);
-		if (caller is null)
-		{
-			return;
-		}
+    private static void AnalyzeParameters(SyntaxNodeAnalysisContext context, AnalyzerConfig config, ConcurrentBag<ViolationRecord> violations, ObservedDependencyCollector? observedDependencies, TypeDeclarationSyntax typeDeclaration, SeparatedSyntaxList<ParameterSyntax> parameters, string site)
+    {
+        var caller = TryGetCallerContext(context, config, typeDeclaration);
+        if (caller is null)
+        {
+            return;
+        }
 
-		foreach (var param in parameters)
-		{
-			var paramSymbol = context.SemanticModel.GetDeclaredSymbol(param, context.CancellationToken);
-			if (paramSymbol is null)
-			{
-				continue;
-			}
+        foreach (var param in parameters)
+        {
+            var paramSymbol = context.SemanticModel.GetDeclaredSymbol(param, context.CancellationToken);
+            if (paramSymbol is null)
+            {
+                continue;
+            }
 
-			AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value, param.GetLocation(), paramSymbol.Type, site);
-		}
-	}
+            AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value, param.GetLocation(), paramSymbol.Type, site);
+        }
+    }
 
-	private static CallerDependencyContext? TryGetCallerContext(SyntaxNodeAnalysisContext context, AnalyzerConfig config, SyntaxNode node)
-	{
-		var typeDeclaration = node.FirstAncestorOrSelf<TypeDeclarationSyntax>();
-		if (typeDeclaration is null)
-		{
-			return null;
-		}
+    private static CallerDependencyContext? TryGetCallerContext(SyntaxNodeAnalysisContext context, AnalyzerConfig config, SyntaxNode node)
+    {
+        var typeDeclaration = node.FirstAncestorOrSelf<TypeDeclarationSyntax>();
+        if (typeDeclaration is null)
+        {
+            return null;
+        }
 
-		if (context.SemanticModel.GetDeclaredSymbol(typeDeclaration, context.CancellationToken) is not ITypeSymbol callerSymbol)
-		{
-			return null;
-		}
+        if (context.SemanticModel.GetDeclaredSymbol(typeDeclaration, context.CancellationToken) is not ITypeSymbol callerSymbol)
+        {
+            return null;
+        }
 
-		var callerName = callerSymbol.Name;
-		var callerNamespace = callerSymbol.ContainingNamespace?.ToDisplayString() ?? GetContainingNamespace(typeDeclaration);
-		var layerMatch = config.Engine.FindLayer(callerName, callerNamespace, callerSymbol);
-		if (layerMatch is { } match && match.Layer.IsForbidden)
-		{
-			return null;
-		}
+        var callerName = callerSymbol.Name;
+        var callerNamespace = callerSymbol.ContainingNamespace?.ToDisplayString() ?? GetContainingNamespace(typeDeclaration);
+        var layerMatch = config.Engine.FindLayer(callerName, callerNamespace, callerSymbol);
+        if (layerMatch is { } match && match.Layer.IsForbidden)
+        {
+            return null;
+        }
 
-		if (layerMatch is null && !config.HasNamespaceHierarchyPolicies)
-		{
-			return null;
-		}
+        if (layerMatch is null && !config.HasNamespaceHierarchyPolicies)
+        {
+            return null;
+        }
 
-		var result = new CallerDependencyContext(callerName, callerNamespace, callerSymbol, layerMatch);
+        var result = new CallerDependencyContext(callerName, callerNamespace, callerSymbol, layerMatch);
 
-		return result;
-	}
+        return result;
+    }
 
-	public static (string TypeName, LayerMatch Match)? TryGetCallerLayer(SyntaxNodeAnalysisContext context, AnalyzerConfig config, SyntaxNode node)
-	{
-		var caller = TryGetCallerContext(context, config, node);
-		if (caller?.LayerMatch is not { } match)
-		{
-			return null;
-		}
+    public static (string TypeName, LayerMatch Match)? TryGetCallerLayer(SyntaxNodeAnalysisContext context, AnalyzerConfig config, SyntaxNode node)
+    {
+        var caller = TryGetCallerContext(context, config, node);
+        if (caller?.LayerMatch is not { } match)
+        {
+            return null;
+        }
 
-		var result = (caller.Value.TypeName, match);
+        var result = (caller.Value.TypeName, match);
 
-		return result;
-	}
+        return result;
+    }
 }

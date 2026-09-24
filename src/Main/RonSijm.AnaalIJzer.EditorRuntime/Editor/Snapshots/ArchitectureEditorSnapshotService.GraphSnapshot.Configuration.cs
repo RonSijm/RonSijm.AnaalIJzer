@@ -7,17 +7,17 @@ namespace RonSijm.AnaalIJzer.EditorRuntime.Editor.Snapshots;
 
 public static partial class ArchitectureEditorSnapshotService
 {
-	private static ArchitectureConfigurationSource FindConfigurationSource(Document document, ImmutableArray<AdditionalText> additionalFiles, Compilation compilation, CancellationToken cancellationToken)
-	{
-		var result = ArchitectureConfigurationSourceDiscovery.FindConfigurationSource(document.FilePath, additionalFiles, compilation, cancellationToken);
+    private static ArchitectureConfigurationSource FindConfigurationSource(Document document, ImmutableArray<AdditionalText> additionalFiles, Compilation compilation, CancellationToken cancellationToken)
+    {
+        var result = ArchitectureConfigurationSourceDiscovery.FindConfigurationSource(document.FilePath, additionalFiles, compilation, cancellationToken);
 
-		return result;
-	}
+        return result;
+    }
 
-	private static ImmutableArray<ArchitectureConfigurationCreationTarget> CreateConfigurationCreationTargets(Document document)
-	{
-		var result = ArchitectureConfigurationSourceDiscovery.CreateConfigurationCreationTargets(document.Project.FilePath, document.Project.Solution.FilePath);
+    private static ImmutableArray<ArchitectureConfigurationCreationTarget> CreateConfigurationCreationTargets(Document document)
+    {
+        var result = ArchitectureConfigurationSourceDiscovery.CreateConfigurationCreationTargets(document.Project.FilePath, document.Project.Solution.FilePath);
 
-		return result;
-	}
+        return result;
+    }
 }

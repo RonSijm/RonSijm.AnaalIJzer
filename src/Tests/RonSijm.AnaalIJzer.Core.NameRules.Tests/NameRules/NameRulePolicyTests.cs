@@ -7,99 +7,99 @@ namespace RonSijm.AnaalIJzer.Core.NameRules.Tests.NameRules;
 
 public sealed class NameRulePolicyTests
 {
-	[Fact]
-	public void Evaluate_ReturnsTheFirstViolationForTheMatchingTrigger()
-	{
-		var firstRule = CreateRule(
-			NameRuleKind.RequireMatchingNames,
-			NameRuleTrigger.ValueMovement,
-			layerName: "Application");
-		var secondRule = CreateRule(
-			NameRuleKind.RequireMatchingNames,
-			NameRuleTrigger.ValueMovement,
-			layerName: "Application/Inner");
-		var policy = new NameRulePolicy([firstRule, secondRule]);
-		var source = CreateValueSubject("patientId");
-		var target = CreateValueSubject("doctorId");
+    [Fact]
+    public void Evaluate_ReturnsTheFirstViolationForTheMatchingTrigger()
+    {
+        var firstRule = CreateRule(
+            NameRuleKind.RequireMatchingNames,
+            NameRuleTrigger.ValueMovement,
+            layerName: "Application");
+        var secondRule = CreateRule(
+            NameRuleKind.RequireMatchingNames,
+            NameRuleTrigger.ValueMovement,
+            layerName: "Application/Inner");
+        var policy = new NameRulePolicy([firstRule, secondRule]);
+        var source = CreateValueSubject("patientId");
+        var target = CreateValueSubject("doctorId");
 
-		var result = policy.Evaluate(NameRuleTrigger.ValueMovement, source, target, DependencySites.Method);
+        var result = policy.Evaluate(NameRuleTrigger.ValueMovement, source, target, DependencySites.Method);
 
-		result.Should().NotBeNull();
-		result.Value.LayerName.Should().Be("Application");
-	}
+        result.Should().NotBeNull();
+        result.Value.LayerName.Should().Be("Application");
+    }
 
-	[Fact]
-	public void Evaluate_IgnoresRulesForOtherTriggers()
-	{
-		var rule = CreateRule(
-			NameRuleKind.RequireMatchingNames,
-			NameRuleTrigger.Declaration,
-			layerName: "Application");
-		var policy = new NameRulePolicy([rule]);
-		var source = CreateValueSubject("patientId");
-		var target = CreateValueSubject("doctorId");
+    [Fact]
+    public void Evaluate_IgnoresRulesForOtherTriggers()
+    {
+        var rule = CreateRule(
+            NameRuleKind.RequireMatchingNames,
+            NameRuleTrigger.Declaration,
+            layerName: "Application");
+        var policy = new NameRulePolicy([rule]);
+        var source = CreateValueSubject("patientId");
+        var target = CreateValueSubject("doctorId");
 
-		var result = policy.Evaluate(NameRuleTrigger.ValueMovement, source, target, DependencySites.Method);
+        var result = policy.Evaluate(NameRuleTrigger.ValueMovement, source, target, DependencySites.Method);
 
-		result.Should().BeNull();
-	}
+        result.Should().BeNull();
+    }
 
-	[Fact]
-	public void Evaluate_ReturnsNullWhenTheComparedNamesAlreadyMatch()
-	{
-		var rule = CreateRule(
-			NameRuleKind.RequireMatchingNames,
-			NameRuleTrigger.ValueMovement,
-			layerName: "Application");
-		var policy = new NameRulePolicy([rule]);
-		var source = CreateValueSubject("patientId");
-		var target = CreateValueSubject("patientId");
+    [Fact]
+    public void Evaluate_ReturnsNullWhenTheComparedNamesAlreadyMatch()
+    {
+        var rule = CreateRule(
+            NameRuleKind.RequireMatchingNames,
+            NameRuleTrigger.ValueMovement,
+            layerName: "Application");
+        var policy = new NameRulePolicy([rule]);
+        var source = CreateValueSubject("patientId");
+        var target = CreateValueSubject("patientId");
 
-		var result = policy.Evaluate(NameRuleTrigger.ValueMovement, source, target, DependencySites.Method);
+        var result = policy.Evaluate(NameRuleTrigger.ValueMovement, source, target, DependencySites.Method);
 
-		result.Should().BeNull();
-	}
+        result.Should().BeNull();
+    }
 
-	[Fact]
-	public void Evaluate_CanSelectOnlyIntraProceduralRules()
-	{
-		var directRule = CreateRule(NameRuleKind.RequireMatchingNames, NameRuleTrigger.ValueMovement, "Application", NameRuleValueTrackingMode.Direct);
-		var intraProceduralRule = CreateRule(NameRuleKind.RequireMatchingNames, NameRuleTrigger.ValueMovement, "Application/Intra", NameRuleValueTrackingMode.IntraProcedural);
-		var policy = new NameRulePolicy([directRule, intraProceduralRule]);
-		var source = CreateValueSubject("patientId");
-		var target = CreateValueSubject("doctorId");
+    [Fact]
+    public void Evaluate_CanSelectOnlyIntraProceduralRules()
+    {
+        var directRule = CreateRule(NameRuleKind.RequireMatchingNames, NameRuleTrigger.ValueMovement, "Application", NameRuleValueTrackingMode.Direct);
+        var intraProceduralRule = CreateRule(NameRuleKind.RequireMatchingNames, NameRuleTrigger.ValueMovement, "Application/Intra", NameRuleValueTrackingMode.IntraProcedural);
+        var policy = new NameRulePolicy([directRule, intraProceduralRule]);
+        var source = CreateValueSubject("patientId");
+        var target = CreateValueSubject("doctorId");
 
-		var result = policy.Evaluate(NameRuleTrigger.ValueMovement, source, target, DependencySites.Method, NameRuleValueTrackingMode.IntraProcedural);
+        var result = policy.Evaluate(NameRuleTrigger.ValueMovement, source, target, DependencySites.Method, NameRuleValueTrackingMode.IntraProcedural);
 
-		result.Should().NotBeNull();
-		result.Value.LayerName.Should().Be("Application/Intra");
-		policy.HasIntraProceduralRules.Should().BeTrue();
-	}
+        result.Should().NotBeNull();
+        result.Value.LayerName.Should().Be("Application/Intra");
+        policy.HasIntraProceduralRules.Should().BeTrue();
+    }
 
-	private static NameMatchingRule CreateRule(NameRuleKind kind, NameRuleTrigger trigger, string layerName, NameRuleValueTrackingMode valueTracking = NameRuleValueTrackingMode.Direct)
-	{
-		var result = new NameMatchingRule(
-			kind,
-			trigger,
-			ImmutableArray<PatternMatcher>.Empty,
-			ImmutableArray<PatternMatcher>.Empty,
-			ImmutableArray<PatternMatcher>.Empty,
-			ImmutableArray<NameRuleAllowMapping>.Empty,
-			DependencySiteFilter.All,
-			layerName,
-			null,
-			"Architecture.anl",
-			12,
-			3,
-			valueTracking);
+    private static NameMatchingRule CreateRule(NameRuleKind kind, NameRuleTrigger trigger, string layerName, NameRuleValueTrackingMode valueTracking = NameRuleValueTrackingMode.Direct)
+    {
+        var result = new NameMatchingRule(
+            kind,
+            trigger,
+            ImmutableArray<PatternMatcher>.Empty,
+            ImmutableArray<PatternMatcher>.Empty,
+            ImmutableArray<PatternMatcher>.Empty,
+            ImmutableArray<NameRuleAllowMapping>.Empty,
+            DependencySiteFilter.All,
+            layerName,
+            null,
+            "Architecture.anl",
+            12,
+            3,
+            valueTracking);
 
-		return result;
-	}
+        return result;
+    }
 
-	private static NameRuleSubject CreateValueSubject(string name)
-	{
-		var result = new NameRuleSubject(name, [name], symbol: null);
+    private static NameRuleSubject CreateValueSubject(string name)
+    {
+        var result = new NameRuleSubject(name, [name], symbol: null);
 
-		return result;
-	}
+        return result;
+    }
 }

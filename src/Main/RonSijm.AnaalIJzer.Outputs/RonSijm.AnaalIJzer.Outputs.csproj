@@ -5,7 +5,6 @@
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <EnableArchitecturalLevelAnalyzer>false</EnableArchitecturalLevelAnalyzer>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 

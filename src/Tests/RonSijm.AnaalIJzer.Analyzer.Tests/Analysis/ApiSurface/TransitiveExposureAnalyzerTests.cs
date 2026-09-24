@@ -6,10 +6,10 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Analysis.ApiSurface;
 
 public sealed class TransitiveExposureAnalyzerTests
 {
-	[Fact]
-	public async Task PublicContractProperty_ReportsShortestTransitivePath()
-	{
-		const string source = """
+    [Fact]
+    public async Task PublicContractProperty_ReportsShortestTransitivePath()
+    {
+        const string source = """
 			public class LollyQueryable { }
 			public class CandyReceipt
 			{
@@ -21,21 +21,21 @@ public sealed class TransitiveExposureAnalyzerTests
 			}
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig());
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig());
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure).Subject;
-		violation.Properties[ArchitecturalDiagnostics.PropertyExposureDepth].Should().Be("1");
-		violation.Properties[ArchitecturalDiagnostics.PropertyExposurePath].Should().Contain("CandyService.Order");
-		violation.Properties[ArchitecturalDiagnostics.PropertyExposurePath].Should().Contain("CandyReceipt.RawQuery");
-		violation.Properties[ArchitecturalDiagnostics.PropertyExposurePath].Should().EndWith("LollyQueryable");
-		violation.Properties[ArchitecturalDiagnostics.PropertySite].Should().Be(DependencySites.Property);
-		violation.AdditionalLocations.Should().ContainSingle();
-	}
+        var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure).Subject;
+        violation.Properties[ArchitecturalDiagnostics.PropertyExposureDepth].Should().Be("1");
+        violation.Properties[ArchitecturalDiagnostics.PropertyExposurePath].Should().Contain("CandyService.Order");
+        violation.Properties[ArchitecturalDiagnostics.PropertyExposurePath].Should().Contain("CandyReceipt.RawQuery");
+        violation.Properties[ArchitecturalDiagnostics.PropertyExposurePath].Should().EndWith("LollyQueryable");
+        violation.Properties[ArchitecturalDiagnostics.PropertySite].Should().Be(DependencySites.Property);
+        violation.AdditionalLocations.Should().ContainSingle();
+    }
 
-	[Fact]
-	public async Task DirectForbiddenType_ReportsArch009Only()
-	{
-		const string source = """
+    [Fact]
+    public async Task DirectForbiddenType_ReportsArch009Only()
+    {
+        const string source = """
 			public class LollyQueryable { }
 			public class CandyService
 			{
@@ -43,16 +43,16 @@ public sealed class TransitiveExposureAnalyzerTests
 			}
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig());
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig());
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed);
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure);
-	}
+        diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiExposureNotAllowed);
+        diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure);
+    }
 
-	[Fact]
-	public async Task TwoLevelObjectGraph_RespectsMaximumDepth()
-	{
-		const string source = """
+    [Fact]
+    public async Task TwoLevelObjectGraph_RespectsMaximumDepth()
+    {
+        const string source = """
 			public class LollyQueryable { }
 			public class ReceiptDetails
 			{
@@ -68,18 +68,18 @@ public sealed class TransitiveExposureAnalyzerTests
 			}
 			""";
 
-		var shallowDiagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig(1));
-		var deepDiagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig(2));
+        var shallowDiagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig(1));
+        var deepDiagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig(2));
 
-		shallowDiagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure);
-		var violation = deepDiagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure).Subject;
-		violation.Properties[ArchitecturalDiagnostics.PropertyExposureDepth].Should().Be("2");
-	}
+        shallowDiagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure);
+        var violation = deepDiagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure).Subject;
+        violation.Properties[ArchitecturalDiagnostics.PropertyExposureDepth].Should().Be("2");
+    }
 
-	[Fact]
-	public async Task RecursiveContract_DoesNotLoop()
-	{
-		const string source = """
+    [Fact]
+    public async Task RecursiveContract_DoesNotLoop()
+    {
+        const string source = """
 			public class LollyQueryable { }
 			public class CandyReceipt
 			{
@@ -92,15 +92,15 @@ public sealed class TransitiveExposureAnalyzerTests
 			}
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig(10));
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig(10));
 
-		diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure);
-	}
+        diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure);
+    }
 
-	[Fact]
-	public async Task PrivateNestedMember_IsIgnored()
-	{
-		const string source = """
+    [Fact]
+    public async Task PrivateNestedMember_IsIgnored()
+    {
+        const string source = """
 			public class LollyQueryable { }
 			public class CandyReceipt
 			{
@@ -112,15 +112,15 @@ public sealed class TransitiveExposureAnalyzerTests
 			}
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig());
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig());
 
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure);
-	}
+        diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure);
+    }
 
-	[Fact]
-	public async Task MissingTransitiveExposureOption_KeepsDirectOnlyBehavior()
-	{
-		const string source = """
+    [Fact]
+    public async Task MissingTransitiveExposureOption_KeepsDirectOnlyBehavior()
+    {
+        const string source = """
 			public class LollyQueryable { }
 			public class CandyReceipt
 			{
@@ -132,15 +132,15 @@ public sealed class TransitiveExposureAnalyzerTests
 			}
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig(includeTransitive: false));
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig(includeTransitive: false));
 
-		diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure);
-	}
+        diagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure);
+    }
 
-	[Fact]
-	public async Task NestedMemberSiteFilter_UsesNestedSite()
-	{
-		const string source = """
+    [Fact]
+    public async Task NestedMemberSiteFilter_UsesNestedSite()
+    {
+        const string source = """
 			public class LollyQueryable { }
 			public class CandyReceipt
 			{
@@ -152,17 +152,17 @@ public sealed class TransitiveExposureAnalyzerTests
 			}
 			""";
 
-		var methodOnlyDiagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig(blockedRuleAttributes: "allowedSites=\"Method\"", includeAllowedLayer: false));
-		var propertyDiagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig(blockedRuleAttributes: "allowedSites=\"Property\"", includeAllowedLayer: false));
+        var methodOnlyDiagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig(blockedRuleAttributes: "allowedSites=\"Method\"", includeAllowedLayer: false));
+        var propertyDiagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig(blockedRuleAttributes: "allowedSites=\"Property\"", includeAllowedLayer: false));
 
-		methodOnlyDiagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure);
-		propertyDiagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure);
-	}
+        methodOnlyDiagnostics.Should().NotContain(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure);
+        propertyDiagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure);
+    }
 
-	[Fact]
-	public async Task RequiredRecognition_AppliesToNestedTypes()
-	{
-		const string source = """
+    [Fact]
+    public async Task RequiredRecognition_AppliesToNestedTypes()
+    {
+        const string source = """
 			public class MysteryIngredient { }
 			public class CandyReceipt
 			{
@@ -174,16 +174,16 @@ public sealed class TransitiveExposureAnalyzerTests
 			}
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig(requireRecognizedTypes: true));
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig(requireRecognizedTypes: true));
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure).Subject;
-		violation.Properties[ArchitecturalDiagnostics.PropertyDepLayerName].Should().Be("unrecognized");
-	}
+        var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure).Subject;
+        violation.Properties[ArchitecturalDiagnostics.PropertyDepLayerName].Should().Be("unrecognized");
+    }
 
-	[Fact]
-	public async Task GenericArgumentsAndArrays_AreTraversed()
-	{
-		const string source = """
+    [Fact]
+    public async Task GenericArgumentsAndArrays_AreTraversed()
+    {
+        const string source = """
 			using System.Collections.Generic;
 
 			public class LollyQueryable { }
@@ -197,17 +197,17 @@ public sealed class TransitiveExposureAnalyzerTests
 			}
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig());
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig());
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure).Subject;
-		violation.Properties[ArchitecturalDiagnostics.PropertyExposurePath].Should().Contain("CandyReceipt.Queries");
-		violation.Properties[ArchitecturalDiagnostics.PropertyExposurePath].Should().EndWith("LollyQueryable");
-	}
+        var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure).Subject;
+        violation.Properties[ArchitecturalDiagnostics.PropertyExposurePath].Should().Contain("CandyReceipt.Queries");
+        violation.Properties[ArchitecturalDiagnostics.PropertyExposurePath].Should().EndWith("LollyQueryable");
+    }
 
-	[Fact]
-	public async Task TwoTypeCycle_DoesNotLoopAndFindsShortestPath()
-	{
-		const string source = """
+    [Fact]
+    public async Task TwoTypeCycle_DoesNotLoopAndFindsShortestPath()
+    {
+        const string source = """
 			public class LollyQueryable { }
 			public class ReceiptDetails
 			{
@@ -224,17 +224,17 @@ public sealed class TransitiveExposureAnalyzerTests
 			}
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig(10));
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig(10));
 
-		var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure).Subject;
-		violation.Properties[ArchitecturalDiagnostics.PropertyExposureDepth].Should().Be("2");
-		violation.Properties[ArchitecturalDiagnostics.PropertyExposurePath].Should().Contain("ReceiptDetails.RawQuery");
-	}
+        var violation = diagnostics.Should().ContainSingle(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure).Subject;
+        violation.Properties[ArchitecturalDiagnostics.PropertyExposureDepth].Should().Be("2");
+        violation.Properties[ArchitecturalDiagnostics.PropertyExposurePath].Should().Contain("ReceiptDetails.RawQuery");
+    }
 
-	[Fact]
-	public async Task SeparateRootMembers_ReportSeparately()
-	{
-		const string source = """
+    [Fact]
+    public async Task SeparateRootMembers_ReportSeparately()
+    {
+        const string source = """
 			public class LollyQueryable { }
 			public class CandyReceipt
 			{
@@ -247,39 +247,39 @@ public sealed class TransitiveExposureAnalyzerTests
 			}
 			""";
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig());
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, CreateConfig());
 
-		diagnostics.Count(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure).Should().Be(2);
-	}
+        diagnostics.Count(item => item.Id == ArchitecturalDiagnosticIds.ApiTransitiveExposure).Should().Be(2);
+    }
 
-	[Theory]
-	[InlineData("0")]
-	[InlineData("11")]
-	[InlineData("many")]
-	public async Task InvalidMaximumDepth_ReportsConfigurationIssue(string value)
-	{
-		var config = CreateConfig(transitiveValue: value);
+    [Theory]
+    [InlineData("0")]
+    [InlineData("11")]
+    [InlineData("many")]
+    public async Task InvalidMaximumDepth_ReportsConfigurationIssue(string value)
+    {
+        var config = CreateConfig(transitiveValue: value);
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class CandyService { }", config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync("public class CandyService { }", config);
 
-		diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
-	}
+        diagnostics.Should().Contain(item => item.Id == ArchitecturalDiagnosticIds.ConfigurationInvalid);
+    }
 
-	private static string CreateConfig(
-		int maxDepth = 3,
-		bool includeTransitive = true,
-		string? transitiveValue = null,
-		string? blockedRuleAttributes = null,
-		bool requireRecognizedTypes = false,
-		bool includeAllowedLayer = true)
-	{
-		var transitive = includeTransitive
-			? $"<TransitiveExposure maxDepth=\"{transitiveValue ?? maxDepth.ToString(CultureInfo.InvariantCulture)}\" />"
-			: string.Empty;
-		var recognition = requireRecognizedTypes ? " requireRecognizedTypes=\"true\"" : string.Empty;
-		var blockedAttributes = string.IsNullOrWhiteSpace(blockedRuleAttributes) ? string.Empty : " " + blockedRuleAttributes;
-		var allowedLayer = includeAllowedLayer ? """<AllowedLayer path="/Contracts" />""" : string.Empty;
-		var result = $$"""
+    private static string CreateConfig(
+        int maxDepth = 3,
+        bool includeTransitive = true,
+        string? transitiveValue = null,
+        string? blockedRuleAttributes = null,
+        bool requireRecognizedTypes = false,
+        bool includeAllowedLayer = true)
+    {
+        var transitive = includeTransitive
+            ? $"<TransitiveExposure maxDepth=\"{transitiveValue ?? maxDepth.ToString(CultureInfo.InvariantCulture)}\" />"
+            : string.Empty;
+        var recognition = requireRecognizedTypes ? " requireRecognizedTypes=\"true\"" : string.Empty;
+        var blockedAttributes = string.IsNullOrWhiteSpace(blockedRuleAttributes) ? string.Empty : " " + blockedRuleAttributes;
+        var allowedLayer = includeAllowedLayer ? """<AllowedLayer path="/Contracts" />""" : string.Empty;
+        var result = $$"""
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Class endsWith="Service" />
@@ -299,6 +299,6 @@ public sealed class TransitiveExposureAnalyzerTests
 			</ArchitecturalLevels>
 			""";
 
-		return result;
-	}
+        return result;
+    }
 }

@@ -6,22 +6,22 @@ namespace RonSijm.AnaalIJzer.Application.Tests.ApplicationOperations;
 
 public sealed partial class ApplicationOperationsTests
 {
-	[Fact]
-	public async Task ApplicationRunner_Inspect_ReturnsStructuredExceptionReviewFindingsWithStates()
-	{
-		var cancellationToken = TestContext.Current.CancellationToken;
-		var tempDirectory = CreateRepositoryTempDirectory("AnaalIJzer-inspect-exception-policy");
+    [Fact]
+    public async Task ApplicationRunner_Inspect_ReturnsStructuredExceptionReviewFindingsWithStates()
+    {
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var tempDirectory = CreateRepositoryTempDirectory("AnaalIJzer-inspect-exception-policy");
 
-		try
-		{
-			var projectPath = Path.Combine(tempDirectory, "Example.csproj");
-			var sourcePath = Path.Combine(tempDirectory, "Kitchen.cs");
-			var configPath = Path.Combine(tempDirectory, "Architecture.anl");
-			var today = ArchitectureClock.UtcToday;
-			var expiringSoonDate = today.AddDays(2).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-			var expiredDate = today.AddDays(-1).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-			var futureDate = today.AddDays(30).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-			await File.WriteAllTextAsync(projectPath, """
+        try
+        {
+            var projectPath = Path.Combine(tempDirectory, "Example.csproj");
+            var sourcePath = Path.Combine(tempDirectory, "Kitchen.cs");
+            var configPath = Path.Combine(tempDirectory, "Architecture.anl");
+            var today = ArchitectureClock.UtcToday;
+            var expiringSoonDate = today.AddDays(2).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            var expiredDate = today.AddDays(-1).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            var futureDate = today.AddDays(30).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            await File.WriteAllTextAsync(projectPath, """
 			                                          <Project Sdk="Microsoft.NET.Sdk">
 			                                            <PropertyGroup>
 			                                              <TargetFramework>net10.0</TargetFramework>
@@ -32,14 +32,14 @@ public sealed partial class ApplicationOperationsTests
 			                                            </ItemGroup>
 			                                          </Project>
 			                                          """, cancellationToken);
-			await File.WriteAllTextAsync(sourcePath, """
+            await File.WriteAllTextAsync(sourcePath, """
 			                                         public class MissingMetadataKitchen { }
 			                                         public class SoonKitchen { }
 			                                         public class ExpiredKitchen { }
 			                                         """, cancellationToken);
-			await File.WriteAllTextAsync(
-				configPath,
-				$"""
+            await File.WriteAllTextAsync(
+                configPath,
+                $"""
 				<ArchitecturalLevels>
 				  <ExceptionPolicy requireReason="true" requireOwner="true" requireExpiresOn="true" warnBeforeDays="14" />
 				  <Layer name="Kitchen">
@@ -54,25 +54,24 @@ public sealed partial class ApplicationOperationsTests
 				  </Layer>
 				</ArchitecturalLevels>
 				""",
-				cancellationToken);
+                cancellationToken);
 
-			var result = await new ApplicationRunner().ExecuteAsync(new ApplicationRequest(ApplicationOperationKind.Inspect)
-			{
-				InputKind = ApplicationInputKind.Project,
-				InputPaths = [projectPath],
-				WriteOutput = false
-			}, cancellationToken);
-			var exceptionFindings = result.Findings.Where(finding => finding.Code == ArchitecturalDiagnosticIds.ExceptionReviewLifecycle).ToArray();
+            var result = await new ApplicationRunner().ExecuteAsync(new ApplicationRequest(ApplicationOperationKind.Inspect)
+            {
+                InputKind = ApplicationInputKind.Project,
+                InputPaths = [projectPath],
+                WriteOutput = false
+            }, cancellationToken);
+            var exceptionFindings = result.Findings.Where(finding => finding.Code == ArchitecturalDiagnosticIds.ExceptionReviewLifecycle).ToArray();
 
-			exceptionFindings.Should().NotBeEmpty();
-			exceptionFindings.Select(finding => finding.State).Should().Contain(["Invalid", "ExpiringSoon", "Expired", "Stale"]);
-			exceptionFindings.Should().Contain(finding => finding.State == "Stale" && finding.Message.Contains("GhostKitchen", StringComparison.Ordinal));
-			result.Content.Should().Contain("ARCH_EXC_009");
-		}
-		finally
-		{
-			Directory.Delete(tempDirectory, recursive: true);
-		}
-	}
+            exceptionFindings.Should().NotBeEmpty();
+            exceptionFindings.Select(finding => finding.State).Should().Contain(["Invalid", "ExpiringSoon", "Expired", "Stale"]);
+            exceptionFindings.Should().Contain(finding => finding.State == "Stale" && finding.Message.Contains("GhostKitchen", StringComparison.Ordinal));
+            result.Content.Should().Contain("ARCH_EXC_009");
+        }
+        finally
+        {
+            Directory.Delete(tempDirectory, recursive: true);
+        }
+    }
 }
-

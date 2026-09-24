@@ -5,12 +5,12 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Matching;
 
 public sealed class ExceptionsTests
 {
-	// ---- <Exceptions>: ratchet pattern ----
+    // ---- <Exceptions>: ratchet pattern ----
 
-	[Fact]
-	public async Task Exceptions_Forbidden_StartsWithLegacy_ExemptsMatchingType()
-	{
-		const string config = """
+    [Fact]
+    public async Task Exceptions_Forbidden_StartsWithLegacy_ExemptsMatchingType()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Manager" />
@@ -26,20 +26,20 @@ public sealed class ExceptionsTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public class LegacyPatientStore { }
 		                      public class OrderHistoryManager(LegacyPatientStore store) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().BeEmpty();
-	}
+        diagnostics.Should().BeEmpty();
+    }
 
-	[Fact]
-	public async Task Exceptions_Forbidden_NewOffender_StillReportsARCH_TYPE_001()
-	{
-		const string config = """
+    [Fact]
+    public async Task Exceptions_Forbidden_NewOffender_StillReportsARCH_TYPE_001()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Manager" />
@@ -55,22 +55,22 @@ public sealed class ExceptionsTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public interface IPaymentStore { }
 		                      public class PaymentManager(IPaymentStore store) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
-			.Should().ContainSingle();
-	}
+        diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
+            .Should().ContainSingle();
+    }
 
-	[Fact]
-	public async Task Exceptions_Forbidden_TypeNameMatcher_ExemptsExactName()
-	{
-		const string config = """
+    [Fact]
+    public async Task Exceptions_Forbidden_TypeNameMatcher_ExemptsExactName()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Manager" />
@@ -85,26 +85,26 @@ public sealed class ExceptionsTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public class ThirdPartyStore { }
 		                      public class PartnerStore { }
 		                      public class PartnerManager(ThirdPartyStore allowed, PartnerStore blocked) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var forbidden = diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
-			.ToList();
+        var forbidden = diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
+            .ToList();
 
-		forbidden.Should().ContainSingle();
-		forbidden[0].GetMessage(CultureInfo.InvariantCulture).Should().Contain("PartnerStore");
-	}
+        forbidden.Should().ContainSingle();
+        forbidden[0].GetMessage(CultureInfo.InvariantCulture).Should().Contain("PartnerStore");
+    }
 
-	[Fact]
-	public async Task Exceptions_Forbidden_ExactNameMatcher_ExemptsExactName()
-	{
-		const string config = """
+    [Fact]
+    public async Task Exceptions_Forbidden_ExactNameMatcher_ExemptsExactName()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Manager" />
@@ -119,26 +119,26 @@ public sealed class ExceptionsTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public class ThirdPartyStore { }
 		                      public class PartnerStore { }
 		                      public class PartnerManager(ThirdPartyStore allowed, PartnerStore blocked) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var forbidden = diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
-			.ToList();
+        var forbidden = diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
+            .ToList();
 
-		forbidden.Should().ContainSingle();
-		forbidden[0].GetMessage(CultureInfo.InvariantCulture).Should().Contain("PartnerStore");
-	}
+        forbidden.Should().ContainSingle();
+        forbidden[0].GetMessage(CultureInfo.InvariantCulture).Should().Contain("PartnerStore");
+    }
 
-	[Fact]
-	public async Task Exceptions_Forbidden_NamespaceException_ExemptsTypesInNamespace()
-	{
-		const string config = """
+    [Fact]
+    public async Task Exceptions_Forbidden_NamespaceException_ExemptsTypesInNamespace()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Manager" />
@@ -153,7 +153,7 @@ public sealed class ExceptionsTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      namespace App.Vendor.Sdk { public class VendorStore { } }
 		                      namespace App.Core { public class OrderStore { } }
 		                      namespace App
@@ -164,24 +164,24 @@ public sealed class ExceptionsTests
 		                      }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var forbidden = diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
-			.ToList();
+        var forbidden = diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
+            .ToList();
 
-		forbidden.Should().ContainSingle();
-		forbidden[0].GetMessage(CultureInfo.InvariantCulture).Should().Contain("OrderStore");
-	}
+        forbidden.Should().ContainSingle();
+        forbidden[0].GetMessage(CultureInfo.InvariantCulture).Should().Contain("OrderStore");
+    }
 
-	[Fact]
-	public async Task Exceptions_Layer_ExceptedType_FallsThroughToNextRule()
-	{
-		// A Repository-suffixed type that is exempted from the Repository layer falls
-		// through to the next matcher, which classifies it as Infrastructure instead.
-		// The Manager -> Infrastructure edge is allowed, so no diagnostic fires.
-		// PatientRepository (not exempted) stays in Repository — also allowed.
-		const string config = """
+    [Fact]
+    public async Task Exceptions_Layer_ExceptedType_FallsThroughToNextRule()
+    {
+        // A Repository-suffixed type that is exempted from the Repository layer falls
+        // through to the next matcher, which classifies it as Infrastructure instead.
+        // The Manager -> Infrastructure edge is allowed, so no diagnostic fires.
+        // PatientRepository (not exempted) stays in Repository — also allowed.
+        const string config = """
 		                      <ArchitecturalLevels requireRecognizedDependencies="Constructor">
 		                          <Layer name="Application">
 		                              <Class endsWith="Manager" />
@@ -201,21 +201,21 @@ public sealed class ExceptionsTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public class InMemoryFakeRepository { }
 		                      public class PatientRepository { }
 		                      public class PatientManager(PatientRepository repo, InMemoryFakeRepository fake) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().BeEmpty();
-	}
+        diagnostics.Should().BeEmpty();
+    }
 
-	[Fact]
-	public async Task Exceptions_Layer_NestedExceptionsAlternateExclusionByDepth()
-	{
-		const string config = """
+    [Fact]
+    public async Task Exceptions_Layer_NestedExceptionsAlternateExclusionByDepth()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Controller">
 		                              <Class endsWith="Controller" />
@@ -238,7 +238,7 @@ public sealed class ExceptionsTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public class PatientRepository { }
 		                      public class InMemoryRepository { }
 		                      public class CheeseInMemoryRepository { }
@@ -246,29 +246,29 @@ public sealed class ExceptionsTests
 		                      public class PizzaController(PatientRepository patient, InMemoryRepository memory, CheeseInMemoryRepository cheese, CreamCheeseInMemoryRepository cream) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var arch001Messages = diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
-			.Select(d => d.GetMessage(CultureInfo.InvariantCulture))
-			.ToList();
+        var arch001Messages = diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
+            .Select(d => d.GetMessage(CultureInfo.InvariantCulture))
+            .ToList();
 
-		arch001Messages.Should().HaveCount(2);
-		arch001Messages.Should().Contain(message => message.Contains("PatientRepository", StringComparison.Ordinal));
-		arch001Messages.Should().Contain(message => message.Contains("CheeseInMemoryRepository", StringComparison.Ordinal));
-		arch001Messages.Should().NotContain(message => message.Contains("InMemoryRepository", StringComparison.Ordinal) && !message.Contains("CheeseInMemoryRepository", StringComparison.Ordinal));
-		arch001Messages.Should().NotContain(message => message.Contains("CreamCheeseInMemoryRepository", StringComparison.Ordinal));
-	}
+        arch001Messages.Should().HaveCount(2);
+        arch001Messages.Should().Contain(message => message.Contains("PatientRepository", StringComparison.Ordinal));
+        arch001Messages.Should().Contain(message => message.Contains("CheeseInMemoryRepository", StringComparison.Ordinal));
+        arch001Messages.Should().NotContain(message => message.Contains("InMemoryRepository", StringComparison.Ordinal) && !message.Contains("CheeseInMemoryRepository", StringComparison.Ordinal));
+        arch001Messages.Should().NotContain(message => message.Contains("CreamCheeseInMemoryRepository", StringComparison.Ordinal));
+    }
 
-	// ---- One exception-bypass test per ARCH violation kind ----
+    // ---- One exception-bypass test per ARCH violation kind ----
 
-	[Fact]
-	public async Task Exceptions_ARCH_DEP_001_ExceptedTargetType_DoesNotFireIllegalDependency()
-	{
-		// Controller -> Repository normally fires ARCH_DEP_001 (no AllowedDependency edge).
-		// The exception removes BootstrapRepository from the Repository layer so it's
-		// unlayered, and ARCH_DEP_001 only fires for type pairs where both sides have layers.
-		const string config = """
+    [Fact]
+    public async Task Exceptions_ARCH_DEP_001_ExceptedTargetType_DoesNotFireIllegalDependency()
+    {
+        // Controller -> Repository normally fires ARCH_DEP_001 (no AllowedDependency edge).
+        // The exception removes BootstrapRepository from the Repository layer so it's
+        // unlayered, and ARCH_DEP_001 only fires for type pairs where both sides have layers.
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Controller">
 		                              <Class endsWith="Controller" />
@@ -283,32 +283,32 @@ public sealed class ExceptionsTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public class BootstrapRepository { }
 		                      public class PatientRepository { }
 		                      public class HomeController(BootstrapRepository ok, PatientRepository bad) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var arch001 = diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
-			.ToList();
+        var arch001 = diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyNotAllowed)
+            .ToList();
 
-		arch001.Should().ContainSingle();
-		arch001[0].GetMessage(CultureInfo.InvariantCulture).Should().Contain("PatientRepository");
-	}
+        arch001.Should().ContainSingle();
+        arch001[0].GetMessage(CultureInfo.InvariantCulture).Should().Contain("PatientRepository");
+    }
 
-	[Fact]
-	public async Task Exceptions_ARCH_DEP_002_CannotBeBypassedByExceptions_ByDesign()
-	{
-		// ARCH_DEP_002 fires precisely BECAUSE no layer rule matched. An <Exceptions>
-		// block makes a matched type fall through to "no layer" — which is exactly
-		// the ARCH_DEP_002 condition. Excepting an unknown type from a non-matching rule
-		// changes nothing. The supported bypass is positive classification (add the
-		// type to a layer via <Class typeName="..." />) or relaxing the recognized-site
-		// requirement for the current site. Exceptions are still not the bypass.
-		const string config = """
+    [Fact]
+    public async Task Exceptions_ARCH_DEP_002_CannotBeBypassedByExceptions_ByDesign()
+    {
+        // ARCH_DEP_002 fires precisely BECAUSE no layer rule matched. An <Exceptions>
+        // block makes a matched type fall through to "no layer" — which is exactly
+        // the ARCH_DEP_002 condition. Excepting an unknown type from a non-matching rule
+        // changes nothing. The supported bypass is positive classification (add the
+        // type to a layer via <Class typeName="..." />) or relaxing the recognized-site
+        // requirement for the current site. Exceptions are still not the bypass.
+        const string config = """
 		                      <ArchitecturalLevels requireRecognizedDependencies="Constructor">
 		                          <Layer name="Application">
 		                              <Class endsWith="Manager">
@@ -324,28 +324,28 @@ public sealed class ExceptionsTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public interface ISomeUnknownHelper { }
 		                      public class OrderManager(ISomeUnknownHelper helper) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyRequiredMissing)
-			.Should().ContainSingle();
+        diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyRequiredMissing)
+            .Should().ContainSingle();
 
-		new ArchitecturalLevelCodeFixProvider()
-			.FixableDiagnosticIds
-			.Should().Contain(ArchitecturalDiagnosticIds.DependencyRequiredMissing);
-	}
+        new ArchitecturalLevelCodeFixProvider()
+            .FixableDiagnosticIds
+            .Should().Contain(ArchitecturalDiagnosticIds.DependencyRequiredMissing);
+    }
 
-	[Fact]
-	public async Task Exceptions_ARCH_TYPE_001_ExceptedType_DoesNotFireForbiddenDependency()
-	{
-		// Single-rule restatement of the broader Exceptions_Forbidden_* coverage,
-		// kept here so the per-ARCH grid is symmetric and obvious.
-		const string config = """
+    [Fact]
+    public async Task Exceptions_ARCH_TYPE_001_ExceptedType_DoesNotFireForbiddenDependency()
+    {
+        // Single-rule restatement of the broader Exceptions_Forbidden_* coverage,
+        // kept here so the per-ARCH grid is symmetric and obvious.
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Manager" />
@@ -360,25 +360,25 @@ public sealed class ExceptionsTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public class ThirdPartyPatientStore { }
 		                      public class OrderHistoryManager(ThirdPartyPatientStore store) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
-			.Should().BeEmpty();
-	}
+        diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
+            .Should().BeEmpty();
+    }
 
-	[Fact]
-	public async Task Exceptions_ARCH_DEP_004_ExceptedTargetType_DoesNotFireWrongDirection()
-	{
-		// Application -> Controller normally fires ARCH_DEP_004 (reverse of configured
-		// Controller -> Application edge). Excepting IBootstrapController demotes it
-		// to unlayered, so the wrong-direction check no longer applies.
-		const string config = """
+    [Fact]
+    public async Task Exceptions_ARCH_DEP_004_ExceptedTargetType_DoesNotFireWrongDirection()
+    {
+        // Application -> Controller normally fires ARCH_DEP_004 (reverse of configured
+        // Controller -> Application edge). Excepting IBootstrapController demotes it
+        // to unlayered, so the wrong-direction check no longer applies.
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Controller">
 		                              <Class endsWith="Controller">
@@ -394,28 +394,28 @@ public sealed class ExceptionsTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public interface IBootstrapController { }
 		                      public interface IPatientController { }
 		                      public class OrderManager(IBootstrapController ok, IPatientController bad) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var arch004 = diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyReverseDirection)
-			.ToList();
+        var arch004 = diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyReverseDirection)
+            .ToList();
 
-		arch004.Should().ContainSingle();
-		arch004[0].GetMessage(CultureInfo.InvariantCulture).Should().Contain("IPatientController");
-	}
+        arch004.Should().ContainSingle();
+        arch004[0].GetMessage(CultureInfo.InvariantCulture).Should().Contain("IPatientController");
+    }
 
-	[Fact]
-	public async Task Exceptions_ARCH_DEP_005_ExceptedTargetType_DoesNotFireSameLayer()
-	{
-		// Manager -> Manager normally fires ARCH_DEP_005. Excepting IDispatcherManager
-		// from the Application layer removes it from the same-layer comparison.
-		const string config = """
+    [Fact]
+    public async Task Exceptions_ARCH_DEP_005_ExceptedTargetType_DoesNotFireSameLayer()
+    {
+        // Manager -> Manager normally fires ARCH_DEP_005. Excepting IDispatcherManager
+        // from the Application layer removes it from the same-layer comparison.
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Manager">
@@ -427,19 +427,19 @@ public sealed class ExceptionsTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public interface IDispatcherManager { }
 		                      public interface IPatientManager { }
 		                      public class OrderManager(IDispatcherManager ok, IPatientManager bad) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var arch005 = diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyPeerScope)
-			.ToList();
+        var arch005 = diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.DependencyPeerScope)
+            .ToList();
 
-		arch005.Should().ContainSingle();
-		arch005[0].GetMessage(CultureInfo.InvariantCulture).Should().Contain("IPatientManager");
-	}
+        arch005.Should().ContainSingle();
+        arch005[0].GetMessage(CultureInfo.InvariantCulture).Should().Contain("IPatientManager");
+    }
 }

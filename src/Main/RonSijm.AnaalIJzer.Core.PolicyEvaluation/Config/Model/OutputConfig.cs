@@ -7,13 +7,13 @@ namespace RonSijm.AnaalIJzer.Core.PolicyEvaluation.Config.Model;
 ///     that were previously inlined on <see cref="AnalyzerConfig" />.
 /// </summary>
 public readonly struct OutputConfig(
-	bool enableReport,
-	string reportPath,
-	bool enableDocumentation,
-	string documentationPath)
+    bool enableReport,
+    string reportPath,
+    bool enableDocumentation,
+    string documentationPath)
 {
-	public bool EnableReport { get; } = enableReport;
-	public string ReportPath { get; } = reportPath;
-	public bool EnableDocumentation { get; } = enableDocumentation;
-	public string DocumentationPath { get; } = documentationPath;
+    public bool EnableReport { get; } = enableReport;
+    public string ReportPath { get; } = reportPath;
+    public bool EnableDocumentation { get; } = enableDocumentation;
+    public string DocumentationPath { get; } = documentationPath;
 }

@@ -5,92 +5,92 @@ namespace RonSijm.AnaalIJzer.Graphing.Building;
 
 internal static partial class ArchitectureGraphViewModelBuilder
 {
-	private sealed class LayerTreeNode(ArchitectureGraphLayer layer, ImmutableArray<LayerTreeNode> children)
-	{
-		public ArchitectureGraphLayer Layer { get; } = layer;
+    private sealed class LayerTreeNode(ArchitectureGraphLayer layer, ImmutableArray<LayerTreeNode> children)
+    {
+        public ArchitectureGraphLayer Layer { get; } = layer;
 
-		public ImmutableArray<LayerTreeNode> Children { get; } = children;
-	}
+        public ImmutableArray<LayerTreeNode> Children { get; } = children;
+    }
 
-	private sealed class LayoutRow
-	{
-		private readonly List<(double Left, double Right, int MinimumLevel)> _spans = [];
+    private sealed class LayoutRow
+    {
+        private readonly List<(double Left, double Right, int MinimumLevel)> _spans = [];
 
-		public List<LayoutItem> Items { get; } = [];
+        public List<LayoutItem> Items { get; } = [];
 
-		public double Height { get; private set; }
+        public double Height { get; private set; }
 
-		public bool TryPlace(LayoutItem item, out LayoutItem placed)
-		{
-			var shift = 0d;
-			while (true)
-			{
-				placed = item.ShiftX(shift);
-				var placedLeft = placed.Left;
-				var placedRight = placed.Right;
-				var overlaps = _spans.Where(span => SpansOverlap(placedLeft, placedRight, span.Left, span.Right)).ToImmutableArray();
-				if (overlaps.Length == 0)
-				{
-					return true;
-				}
+        public bool TryPlace(LayoutItem item, out LayoutItem placed)
+        {
+            var shift = 0d;
+            while (true)
+            {
+                placed = item.ShiftX(shift);
+                var placedLeft = placed.Left;
+                var placedRight = placed.Right;
+                var overlaps = _spans.Where(span => SpansOverlap(placedLeft, placedRight, span.Left, span.Right)).ToImmutableArray();
+                if (overlaps.Length == 0)
+                {
+                    return true;
+                }
 
-				if (overlaps.Any(span => span.MinimumLevel > item.MinimumLevel))
-				{
-					return false;
-				}
+                if (overlaps.Any(span => span.MinimumLevel > item.MinimumLevel))
+                {
+                    return false;
+                }
 
-				shift = overlaps.Max(span => span.Right + BlockHorizontalGap - item.Left);
-			}
-		}
+                shift = overlaps.Max(span => span.Right + BlockHorizontalGap - item.Left);
+            }
+        }
 
-		public LayoutItem Add(LayoutItem item)
-		{
-			if (!TryPlace(item, out var placed))
-			{
-				placed = item;
-			}
+        public LayoutItem Add(LayoutItem item)
+        {
+            if (!TryPlace(item, out var placed))
+            {
+                placed = item;
+            }
 
-			Items.Add(placed);
-			_spans.Add((placed.Left, placed.Right, placed.MinimumLevel));
-			Height = Math.Max(Height, placed.Height);
+            Items.Add(placed);
+            _spans.Add((placed.Left, placed.Right, placed.MinimumLevel));
+            Height = Math.Max(Height, placed.Height);
 
-			return placed;
-		}
-	}
+            return placed;
+        }
+    }
 
-	private readonly struct LayoutItem(LayoutResult result, int minimumLevel, int minimumOrder, int preferredLane)
-	{
-		public LayoutResult Result { get; } = result;
+    private readonly struct LayoutItem(LayoutResult result, int minimumLevel, int minimumOrder, int preferredLane)
+    {
+        public LayoutResult Result { get; } = result;
 
-		public int MinimumLevel { get; } = minimumLevel;
+        public int MinimumLevel { get; } = minimumLevel;
 
-		public int MinimumOrder { get; } = minimumOrder;
+        public int MinimumOrder { get; } = minimumOrder;
 
-		public int PreferredLane { get; } = preferredLane;
+        public int PreferredLane { get; } = preferredLane;
 
-		public double Left => Result.Left;
+        public double Left => Result.Left;
 
-		public double Right => Result.Right;
+        public double Right => Result.Right;
 
-		public double Height => Result.Height;
+        public double Height => Result.Height;
 
-		public static LayoutItem FromResult(LayoutResult result, int minimumLevel, int minimumOrder, int preferredLane)
-		{
-			var item = new LayoutItem(result, Math.Min(minimumLevel, result.MinimumLevel), Math.Min(minimumOrder, result.MinimumOrder), preferredLane);
+        public static LayoutItem FromResult(LayoutResult result, int minimumLevel, int minimumOrder, int preferredLane)
+        {
+            var item = new LayoutItem(result, Math.Min(minimumLevel, result.MinimumLevel), Math.Min(minimumOrder, result.MinimumOrder), preferredLane);
 
-			return item;
-		}
+            return item;
+        }
 
-		public LayoutItem ShiftX(double delta)
-		{
-			if (delta == 0)
-			{
-				return this;
-			}
+        public LayoutItem ShiftX(double delta)
+        {
+            if (delta == 0)
+            {
+                return this;
+            }
 
-			var result = new LayoutItem(Result.ShiftX(delta), MinimumLevel, MinimumOrder, PreferredLane);
+            var result = new LayoutItem(Result.ShiftX(delta), MinimumLevel, MinimumOrder, PreferredLane);
 
-			return result;
-		}
-	}
+            return result;
+        }
+    }
 }

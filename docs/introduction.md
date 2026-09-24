@@ -8,11 +8,15 @@ An **A**nalyzer for **N**-dimensional **A**dvanced **A**rchitectural **L**ayerin
 
 ## Introduction
 
-A Roslyn analyzer that enforces architectural layering rules in your codebase. You define named layers and explicit allowed dependency edges in an XML file, and the analyzer ensures each type only depends on types in permitted layers - catching illegal dependencies at compile time.
+I built Anaal IJzer to turn architecture rules from review comments into compiler diagnostics. You define named layers and explicit allowed dependency edges in an XML file, and the analyzer checks that types only depend on permitted layers. That is mostly it. The rest of the project is what happened after "just check a few layers" acquired tooling, diagrams, fixers, and quite a lot more XML.
 
-## Readme Meta
+## How this README is built
 
-This README is composed from the standalone notes in [`docs/`](../docs/). The generated README is generated as one full document - also because to embed this in the NuGet package and the Visual Studio landing page.
+I keep the documentation as standalone notes in [`docs/`](../docs/) and assemble them into this README. That gives me:
+
+- one place to edit each subject;
+- the same document on GitHub, NuGet, and the Visual Studio landing page;
+- no three-way contest over which almost-identical copy is currently the real one.
 
 The compose order is defined in [`docs/_readme-order.txt`](../docs/_readme-order.txt). After changing the individual notes, run [`docs/build-readme.ps1`](../docs/build-readme.ps1) to regenerate this readme.
 ## Legend
@@ -42,29 +46,24 @@ The compose order is defined in [`docs/_readme-order.txt`](../docs/_readme-order
 
 ## Naming
 
-"IJzer" is the Dutch word for Iron. I - Ron, the creator (of this project) - have therefore decided to name this project "IJzer".
-
-Consider: a "layered" architecture is usually drawn as a stack of horizontal bands - Controller on top, Repository at the bottom, gravity in between. This is a 1-dimensional projection, and already something of a lie. The moment you add a second axis - deployment tier, bounded context, tenant, feature module - you have a grid. Add a third and the whiteboard contains a cube. Add a fourth and you are now reasoning about a **tesseract**: 16 vertices, 32 edges, no faithful embedding in 3-space, and absolutely no chance of fitting next to the standup-room coffee machine.
-
-A penteract has 32 vertices and 80 edges. A hexeract has 64 and 192. By the 23rd dimension you have stopped doing software architecture and started doing something closer to differential topology, or possibly mysticism - the distinction is left as an exercise for the reader.
-
-The point, such as there is one, is that the XML config does not care about your visual limitations. It cheerfully encodes whatever lower-dimensional projection of the underlying hypercube you have conveniently decided to enforce this time, this sprint. The generated documentation shows you that projection with Mermaid diagrams and rule descriptions. This should not be mistaken for understanding. The other dimensions you forgot to project are still there, watching, waiting, occasionally producing an ARCH00X at 4:47 PM on a Friday.
-
-ANAAL IJzer forges the shadow. The hypercube compiles in silent apathy.
-
----
-
-Ok maybe not.
+"IJzer" is the Dutch word for iron. I - Ron, the creator of this project - have therefore decided to name it "IJzer".
 
 ---
 
 ## The problem it solves
 
-### Meta: Why a restaurant?
+### Meta - The Examples - Why a restaurant?
 
-Architecture terms such as `Controller`, `ViewModel`, `Handler`, or `Slice` come with prior knowledge and expectations about MVC, MVVM, vertical slices, and other specific styles. Using them in the introductory examples could make an incidental name look like a rule or imply that Anaal IJzer prefers one of those architectures.
+Before explaining the problem, let me explain how I'm explaining the problems. In a lot of cases I'm using 'A restaurant' as an example.
 
-The restaurant is therefore a deliberately opinionated **example domain**, not a prescribed software architecture. Its roles are familiar enough to discuss boundaries without framework knowledge: a Customer depends on a Waiter, a Waiter depends on a Chef, and a Chef depends on the Pantry. In these examples the roles are simply layer names, and an arrow always means **“may depend on.”** Your own configuration can use whatever layers and architectural style fit your application.
+This is because architecture terms such as `Controller`, `ViewModel`, `Handler`, or `Slice` come with prior knowledge and expectations about MVC, MVVM, vertical slices, and other specific styles. Using them in the introductory examples could make an incidental name look like a rule or imply that Anaal IJzer prefers one of those architectures.
+
+I use a restaurant as the deliberately opinionated **example domain**, not as a prescribed software architecture.
+
+- The roles are familiar without requiring MVC, MVVM, or vertical-slice knowledge.
+- `Customer`, `Waiter`, `Chef`, and `Pantry` are only layer names.
+- An arrow always means **“may depend on.”** It does not describe runtime request or data flow.
+- Your own configuration can use whichever layers and architectural style fit your application.
 
 Imagine a restaurant with four roles:
 
@@ -73,15 +72,26 @@ Imagine a restaurant with four roles:
 - A **Chef** may use the **Pantry**
 - Peers in the same role should not command each other unless that role explicitly allows it
 
-Without tooling, these rules live only in code-review comments and tribal knowledge. Tribal knowledge has a habit of accepting an offer elsewhere and leaving with all of the reasoning and none of the documentation. This analyzer turns them into compile errors.
+Without tooling, these rules live only in code-review comments and tribal knowledge. Tribal knowledge has a habit of accepting an offer elsewhere and leaving with all of the reasoning and none of the documentation. This analyzer turns the rules into compile errors.
 
-How this is usually solved without this project is by creating a separate unit or integration test project to verify these concerns. This analyzer removes that need entirely - violations are reported inline as you type.
+Architecture test projects can verify some of these concerns after a test run. Anaal IJzer reports configured violations in the editor and during compilation. Architecture tests remain useful for checks over built assemblies and external binaries.
 
 ---
 
 ## How it works
 
-You define named layers and the edges between them in an XML file. The analyzer reads that file and checks every dependency a class, record, struct, or interface introduces - constructor and method parameters, method return types, fields, properties, local variables, inheritance, attributes, static member access, `new` expressions, and generic service-locator invocations. When a type in layer A introduces a dependency on a type whose layer is not permitted for A, an error is reported on the offending syntax.
+You define named layers and the edges between them in an XML file. The analyzer then checks the places where a class, record, struct, or interface can introduce another type:
+
+- **Declarations**
+  - inheritance, interface implementation, and attributes;
+- **Signatures**
+  - constructors, method parameters, and method returns;
+- **Stored or temporary values**
+  - fields, properties, and local variables;
+- **Operations**
+  - object creation, static member access, generic arguments, and generic service-locator calls.
+
+When layer A introduces a dependency that its rules do not permit, the error appears on that syntax. You do not have to reconstruct it from a failed architecture test in another project.
 
 ```
 Customer ──► Waiter    ✅ allowed
@@ -108,7 +118,7 @@ flowchart LR
     Syntax --> Semantics["SemanticModel and ITypeSymbol resolution"]
     Config --> Rules["Layer and dependency graph"]
     Semantics --> Rules
-    Rules --> Diagnostics["ARCH00X diagnostics at source locations"]
+    Rules --> Diagnostics["ARCH_* diagnostics at source locations"]
 ```
 
 The integration points are:
@@ -125,7 +135,7 @@ Because the same analyzer participates in design-time and command-line compilati
 ---
 ## Why compiler-level enforcement matters
 
-Anaal IJzer is a compile-time architecture and structural-policy guard for .NET. It overlaps with test-runner architecture checks such as NetArchTest and ArchUnitNET, heavyweight static-analysis platforms such as NDepend, and the old Visual Studio layer-diagram validation. It is not merely another way to write the same tests.
+Anaal IJzer is a compile-time architecture and structural-policy guard for .NET. It overlaps with test-runner architecture checks such as NetArchTest and ArchUnitNET, static-analysis platforms such as NDepend, and the old Visual Studio layer-diagram validation. Its compiler integration also supports policies that ordinary runtime tests do not inspect.
 
 ### Architecture tests are useful, but solve a different problem
 
@@ -147,7 +157,7 @@ public void Presentation_Should_Not_Depend_On_Persistence()
 
 That is valuable for broad assertions about an assembly or a set of published types. It is not equivalent to compiler-level enforcement:
 
-1. **Feedback and location are different.** A test reports from the test project after somebody runs it. Anaal IJzer reports on the exact source construct during design-time analysis and compilation, so the editor squiggle and CI error point to the same dependency, return expression, or declaration.
+1. **Feedback and location are different.** A test reports from the test project when the test suite runs. Anaal IJzer reports on the exact source construct during design-time analysis and compilation, so the editor squiggle and CI error point to the same dependency, return expression, or declaration.
 
 2. **Behavioural tests only see executed paths.** A `return null`, a sentinel return value, or a `throw` deep in a branch can remain invisible until a test happens to execute that path. Static type-level architecture tests can assert a relationship between types, but they do not automatically inspect every method body and every relevant syntax site.
 
@@ -159,11 +169,20 @@ That is valuable for broad assertions about an assembly or a set of published ty
 
 ### What Anaal IJzer adds
 
-Anaal IJzer uses Roslyn's semantic model while the compiler still knows the real symbols behind the source. This makes rules about aliases, inferred locals, generic arguments, implemented interfaces, attributes, and nested boundaries dependable rather than text-based guesses.
+Anaal IJzer uses Roslyn's semantic model to resolve the symbols behind the source. That gives the rules a few useful properties:
 
-It can also enforce configured policies inside a method body. A [`ReturnValuePolicy`](configuration/return-value-policies.md) can reject a direct `return null`, an empty string, an enum-zero sentinel, or the unchanged result of a method annotated as optional. A [`ForbiddenOperations` policy](configuration/forbidden-operation-policies.md) can reject one resolved API member, such as `DateTime.UtcNow` or `Task.Wait()`, while leaving other members of the same framework type available. The analyzer reports each matching source operation even when the method is never exercised by a test.
+- aliases and fully qualified names resolve to the same symbol;
+- inferred locals still have a real type;
+- generic arguments, implemented interfaces, and attributes are inspected semantically;
+- nested boundaries are evaluated from their actual configured layer paths;
+- method-body policies apply even when no test happens to execute that branch.
 
-For a rule that must hold at every relevant source site, runtime coverage cannot prove compliance unless it executes every possible path. A test can approximate that guarantee only by adding an equivalent static inspection. That is why compiler-level analysis is not a substitute for an architecture test: it is the direct enforcement mechanism for a different class of policy.
+For example:
+
+- A [`ReturnValuePolicy`](configuration/return-value-policies.md) can reject a direct `return null`, an empty string, an enum-zero sentinel, or the unchanged result of a method annotated as optional.
+- A [`ForbiddenOperations` policy](configuration/forbidden-operation-policies.md) can reject `DateTime.UtcNow` or `Task.Wait()` while leaving other members of the same framework type available.
+
+Runtime coverage cannot prove a source-site rule unless it executes every relevant path. Equivalent coverage requires static inspection. Compiler analysis therefore addresses a different class of policy from architecture tests over built assemblies.
 
 ### Complementary tools
 

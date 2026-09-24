@@ -6,13 +6,13 @@ namespace RonSijm.AnaalIJzer.ConfigurationEditing.Tests.Editing;
 
 public sealed partial class ArchitectureConfigurationEditServiceTests
 {
-	[Fact]
-	public void NameRules_AreInspectableEditableAndRemovableInXml()
-	{
-		using var directory = new TemporaryDirectory();
-		var path = directory.WriteFile(
-			"Architecture.anl",
-			"""
+    [Fact]
+    public void NameRules_AreInspectableEditableAndRemovableInXml()
+    {
+        using var directory = new TemporaryDirectory();
+        var path = directory.WriteFile(
+            "Architecture.anl",
+            """
 			<ArchitecturalLevels>
 			  <Layer name="Endpoints">
 			    <Class endsWith="Controller" />
@@ -24,31 +24,31 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""");
-		var handle = new ArchitectureLayerEditHandle(ArchitectureConfigurationSourceKind.XmlFile, path, 0, "Endpoints", "Endpoints", string.Empty, null);
+        var handle = new ArchitectureLayerEditHandle(ArchitectureConfigurationSourceKind.XmlFile, path, 0, "Endpoints", "Endpoints", string.Empty, null);
 
-		var details = ArchitectureConfigurationEditService.GetLayerDetails(handle);
-		var rule = details.NameRules.Should().ContainSingle().Which;
-		var edit = ArchitectureConfigurationEditService.SetConfigurationElementChildren(
-			rule.Handle,
-			"""
+        var details = ArchitectureConfigurationEditService.GetLayerDetails(handle);
+        var rule = details.NameRules.Should().ContainSingle().Which;
+        var edit = ArchitectureConfigurationEditService.SetConfigurationElementChildren(
+            rule.Handle,
+            """
 			<Type implements="IHonestType" />
 			<Name endsWith="Id" />
 			""");
 
-		edit.Succeeded.Should().BeTrue(edit.Message);
-		File.ReadAllText(path).Should().Contain("<Name endsWith=\"Id\" />");
-		var updatedRule = ArchitectureConfigurationEditService.GetLayerDetails(handle).NameRules.Should().ContainSingle().Which;
-		ArchitectureConfigurationEditService.RemoveConfigurationElement(updatedRule.Handle).Succeeded.Should().BeTrue();
-		File.ReadAllText(path).Should().NotContain("NameRules");
-	}
+        edit.Succeeded.Should().BeTrue(edit.Message);
+        File.ReadAllText(path).Should().Contain("<Name endsWith=\"Id\" />");
+        var updatedRule = ArchitectureConfigurationEditService.GetLayerDetails(handle).NameRules.Should().ContainSingle().Which;
+        ArchitectureConfigurationEditService.RemoveConfigurationElement(updatedRule.Handle).Succeeded.Should().BeTrue();
+        File.ReadAllText(path).Should().NotContain("NameRules");
+    }
 
-	[Fact]
-	public void AddNameRule_PreservesInlineAssemblyMetadataAndNameofInterpolation()
-	{
-		using var directory = new TemporaryDirectory();
-		var path = directory.WriteFile(
-			"Example.cs",
-			""""
+    [Fact]
+    public void AddNameRule_PreservesInlineAssemblyMetadataAndNameofInterpolation()
+    {
+        using var directory = new TemporaryDirectory();
+        var path = directory.WriteFile(
+            "Example.cs",
+            """"
 			using System.Reflection;
 
 			[assembly: AssemblyMetadata("AnaalIJzerSettings", $"""
@@ -61,24 +61,24 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 
 			public class PatientController { }
 			"""");
-		var handle = new ArchitectureLayerEditHandle(ArchitectureConfigurationSourceKind.InlineAssemblyMetadata, path, 0, "PatientController", "PatientController", string.Empty, null);
+        var handle = new ArchitectureLayerEditHandle(ArchitectureConfigurationSourceKind.InlineAssemblyMetadata, path, 0, "PatientController", "PatientController", string.Empty, null);
 
-		var result = ArchitectureConfigurationEditService.AddNameRule(handle, "RequireDeclarationNameMatchesType", Attributes(("allowedSites", "Method, Property")));
+        var result = ArchitectureConfigurationEditService.AddNameRule(handle, "RequireDeclarationNameMatchesType", Attributes(("allowedSites", "Method, Property")));
 
-		result.Succeeded.Should().BeTrue(result.Message);
-		var content = File.ReadAllText(path);
-		content.Should().Contain("<RequireDeclarationNameMatchesType allowedSites=\"Method, Property\" />");
-		content.Should().Contain("{nameof(PatientController)}");
-		ArchitectureConfigurationEditService.GetLayerDetails(handle).NameRules.Should().ContainSingle();
-	}
+        result.Succeeded.Should().BeTrue(result.Message);
+        var content = File.ReadAllText(path);
+        content.Should().Contain("<RequireDeclarationNameMatchesType allowedSites=\"Method, Property\" />");
+        content.Should().Contain("{nameof(PatientController)}");
+        ArchitectureConfigurationEditService.GetLayerDetails(handle).NameRules.Should().ContainSingle();
+    }
 
-	[Fact]
-	public void RequireMatchingNames_ValueTrackingIsInspectableAndEditable()
-	{
-		using var directory = new TemporaryDirectory();
-		var path = directory.WriteFile(
-			"Architecture.anl",
-			"""
+    [Fact]
+    public void RequireMatchingNames_ValueTrackingIsInspectableAndEditable()
+    {
+        using var directory = new TemporaryDirectory();
+        var path = directory.WriteFile(
+            "Architecture.anl",
+            """
 			<ArchitecturalLevels>
 			  <Layer name="Application">
 			    <Class endsWith="Service" />
@@ -91,15 +91,15 @@ public sealed partial class ArchitectureConfigurationEditServiceTests
 			  </Layer>
 			</ArchitecturalLevels>
 			""");
-		var handle = new ArchitectureLayerEditHandle(ArchitectureConfigurationSourceKind.XmlFile, path, 0, "Application", "Application", string.Empty, null);
-		var rule = ArchitectureConfigurationEditService.GetLayerDetails(handle).NameRules.Should().ContainSingle().Which;
+        var handle = new ArchitectureLayerEditHandle(ArchitectureConfigurationSourceKind.XmlFile, path, 0, "Application", "Application", string.Empty, null);
+        var rule = ArchitectureConfigurationEditService.GetLayerDetails(handle).NameRules.Should().ContainSingle().Which;
 
-		rule.Attributes["valueTracking"].Should().Be("Direct");
-		var edit = ArchitectureConfigurationEditService.SetConfigurationElementAttributes(
-			rule.Handle,
-			Attributes(("valueTracking", "IntraProcedural")));
+        rule.Attributes["valueTracking"].Should().Be("Direct");
+        var edit = ArchitectureConfigurationEditService.SetConfigurationElementAttributes(
+            rule.Handle,
+            Attributes(("valueTracking", "IntraProcedural")));
 
-		edit.Succeeded.Should().BeTrue(edit.Message);
-		File.ReadAllText(path).Should().Contain("valueTracking=\"IntraProcedural\"");
-	}
+        edit.Succeeded.Should().BeTrue(edit.Message);
+        File.ReadAllText(path).Should().Contain("valueTracking=\"IntraProcedural\"");
+    }
 }

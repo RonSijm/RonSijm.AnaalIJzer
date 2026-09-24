@@ -5,12 +5,12 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Matching;
 
 public sealed partial class SemanticMatcherTests
 {
-	// ---- exactName / exactFullName ----
+    // ---- exactName / exactFullName ----
 
-	[Fact]
-	public async Task ExactName_OnClass_IsSynonymOfTypeName()
-	{
-		const string config = """
+    [Fact]
+    public async Task ExactName_OnClass_IsSynonymOfTypeName()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Manager" />
@@ -22,22 +22,22 @@ public sealed partial class SemanticMatcherTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public interface IIdentityContext { }
 		                      public class PatientManager(IIdentityContext id) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
-			.Should().ContainSingle();
-	}
+        diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
+            .Should().ContainSingle();
+    }
 
-	[Fact]
-	public async Task ExactFullName_MatchesNamespaceQualifiedType()
-	{
-		const string config = """
+    [Fact]
+    public async Task ExactFullName_MatchesNamespaceQualifiedType()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Manager" />
@@ -49,7 +49,7 @@ public sealed partial class SemanticMatcherTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      namespace App.Legacy { public class LegacyHelper { } }
 		                      namespace App
 		                      {
@@ -58,18 +58,18 @@ public sealed partial class SemanticMatcherTests
 		                      }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
-			.Should().ContainSingle();
-	}
+        diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
+            .Should().ContainSingle();
+    }
 
-	[Fact]
-	public async Task ExactFullName_DoesNotMatchSimpleName()
-	{
-		// 'LegacyHelper' is in App.Core, but the rule requires App.Legacy.LegacyHelper.
-		const string config = """
+    [Fact]
+    public async Task ExactFullName_DoesNotMatchSimpleName()
+    {
+        // 'LegacyHelper' is in App.Core, but the rule requires App.Legacy.LegacyHelper.
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Manager" />
@@ -80,7 +80,7 @@ public sealed partial class SemanticMatcherTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      namespace App.Core { public class LegacyHelper { } }
 		                      namespace App
 		                      {
@@ -89,17 +89,17 @@ public sealed partial class SemanticMatcherTests
 		                      }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
-			.Should().BeEmpty();
-	}
+        diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
+            .Should().BeEmpty();
+    }
 
-	[Fact]
-	public async Task ExactName_OnNamespace_MatchesExactNamespaceString()
-	{
-		const string config = """
+    [Fact]
+    public async Task ExactName_OnNamespace_MatchesExactNamespaceString()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Manager" />
@@ -110,7 +110,7 @@ public sealed partial class SemanticMatcherTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      namespace App.Legacy { public class Helper { } }
 		                      namespace App.LegacyShared { public class OtherHelper { } }
 		                      namespace App
@@ -121,23 +121,23 @@ public sealed partial class SemanticMatcherTests
 		                      }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		var forbidden = diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
-			.ToList();
+        var forbidden = diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
+            .ToList();
 
-		forbidden.Should().ContainSingle();
-		forbidden[0].GetMessage(CultureInfo.InvariantCulture).Should().Contain("Helper");
-		forbidden[0].GetMessage(CultureInfo.InvariantCulture).Should().NotContain("OtherHelper");
-	}
+        forbidden.Should().ContainSingle();
+        forbidden[0].GetMessage(CultureInfo.InvariantCulture).Should().Contain("Helper");
+        forbidden[0].GetMessage(CultureInfo.InvariantCulture).Should().NotContain("OtherHelper");
+    }
 
-	// ---- inherits ----
+    // ---- inherits ----
 
-	[Fact]
-	public async Task Inherits_MatchesDirectBaseType()
-	{
-		const string config = """
+    [Fact]
+    public async Task Inherits_MatchesDirectBaseType()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Manager" />
@@ -148,23 +148,23 @@ public sealed partial class SemanticMatcherTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public class LegacyBase { }
 		                      public class OldThing : LegacyBase { }
 		                      public class OrderManager(OldThing thing) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
-			.Should().ContainSingle();
-	}
+        diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
+            .Should().ContainSingle();
+    }
 
-	[Fact]
-	public async Task Inherits_MatchesTransitiveBaseType()
-	{
-		const string config = """
+    [Fact]
+    public async Task Inherits_MatchesTransitiveBaseType()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Manager" />
@@ -175,24 +175,24 @@ public sealed partial class SemanticMatcherTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public class LegacyBase { }
 		                      public class Intermediate : LegacyBase { }
 		                      public class GrandChild : Intermediate { }
 		                      public class OrderManager(GrandChild child) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
-			.Should().ContainSingle();
-	}
+        diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
+            .Should().ContainSingle();
+    }
 
-	[Fact]
-	public async Task Inherits_DoesNotMatchUnrelatedType()
-	{
-		const string config = """
+    [Fact]
+    public async Task Inherits_DoesNotMatchUnrelatedType()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Manager" />
@@ -203,23 +203,23 @@ public sealed partial class SemanticMatcherTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public class LegacyBase { }
 		                      public class CleanThing { }
 		                      public class OrderManager(CleanThing thing) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics.Should().BeEmpty();
-	}
+        diagnostics.Should().BeEmpty();
+    }
 
-	// ---- implements ----
+    // ---- implements ----
 
-	[Fact]
-	public async Task Implements_MatchesDirectInterface()
-	{
-		const string config = """
+    [Fact]
+    public async Task Implements_MatchesDirectInterface()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Manager" />
@@ -231,24 +231,24 @@ public sealed partial class SemanticMatcherTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public interface IDomainEvent { }
 		                      public class PatientAdmitted : IDomainEvent { }
 		                      public class OrderManager(PatientAdmitted ev) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
-			.Should().ContainSingle();
-	}
+        diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
+            .Should().ContainSingle();
+    }
 
-	[Fact]
-	public async Task Implements_MatchesTransitiveInterface()
-	{
-		// IFoo : IBase, ConcreteFoo : IFoo -> ConcreteFoo transitively implements IBase.
-		const string config = """
+    [Fact]
+    public async Task Implements_MatchesTransitiveInterface()
+    {
+        // IFoo : IBase, ConcreteFoo : IFoo -> ConcreteFoo transitively implements IBase.
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Manager" />
@@ -259,24 +259,24 @@ public sealed partial class SemanticMatcherTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public interface IBase { }
 		                      public interface IFoo : IBase { }
 		                      public class ConcreteFoo : IFoo { }
 		                      public class OrderManager(ConcreteFoo foo) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
-			.Should().ContainSingle();
-	}
+        diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
+            .Should().ContainSingle();
+    }
 
-	[Fact]
-	public async Task Implements_DoesNotMatchUnrelatedInterface()
-	{
-		const string config = """
+    [Fact]
+    public async Task Implements_DoesNotMatchUnrelatedInterface()
+    {
+        const string config = """
 		                      <ArchitecturalLevels>
 		                          <Layer name="Application">
 		                              <Class endsWith="Manager" />
@@ -287,20 +287,20 @@ public sealed partial class SemanticMatcherTests
 		                      </ArchitecturalLevels>
 		                      """;
 
-		const string source = """
+        const string source = """
 		                      public interface IDomainEvent { }
 		                      public interface IQueryModel { }
 		                      public class ReadModel : IQueryModel { }
 		                      public class OrderManager(ReadModel model) { }
 		                      """;
 
-		var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(source, config);
 
-		diagnostics
-			.Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
-			.Should().BeEmpty();
-	}
+        diagnostics
+            .Where(d => d.Id == ArchitecturalDiagnosticIds.TypeNotAllowed)
+            .Should().BeEmpty();
+    }
 
-	// ---- withAttribute ----
+    // ---- withAttribute ----
 
 }

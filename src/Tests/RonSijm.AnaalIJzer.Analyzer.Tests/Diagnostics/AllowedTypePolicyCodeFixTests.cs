@@ -6,10 +6,10 @@ namespace RonSijm.AnaalIJzer.Analyzer.Tests.Diagnostics;
 
 public sealed class AllowedTypePolicyCodeFixTests
 {
-	[Fact]
-	public async Task LayerScopedAllowedListFailure_AddsExactTypeMatcher()
-	{
-		const string config = """
+    [Fact]
+    public async Task LayerScopedAllowedListFailure_AddsExactTypeMatcher()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Layer name="Caller">
 			    <Class typeName="PizzaWaiter" />
@@ -23,25 +23,25 @@ public sealed class AllowedTypePolicyCodeFixTests
 			  <AllowedDependency from="Caller" to="Ingredients" />
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			public class PizzaChef { }
 			public class CheeseShelf { }
 			public class PizzaWaiter(CheeseShelf shelf) { }
 			""";
 
-		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
-			source,
-			config,
-			ArchitecturalDiagnosticIds.TypeNotAllowed,
-			"Allow 'CheeseShelf' in applicable <Allowed> lists");
+        var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
+            source,
+            config,
+            ArchitecturalDiagnosticIds.TypeNotAllowed,
+            "Allow 'CheeseShelf' in applicable <Allowed> lists");
 
-		updatedConfig.Should().Contain("<Class typeName=\"CheeseShelf\" />");
-	}
+        updatedConfig.Should().Contain("<Class typeName=\"CheeseShelf\" />");
+    }
 
-	[Fact]
-	public async Task GlobalAndLayerAllowedListFailure_UpdatesEveryApplicableList()
-	{
-		const string config = """
+    [Fact]
+    public async Task GlobalAndLayerAllowedListFailure_UpdatesEveryApplicableList()
+    {
+        const string config = """
 			<ArchitecturalLevels>
 			  <Allowed>
 			    <Class typeName="PizzaChef" />
@@ -58,31 +58,31 @@ public sealed class AllowedTypePolicyCodeFixTests
 			  <AllowedDependency from="Caller" to="Ingredients" />
 			</ArchitecturalLevels>
 			""";
-		const string source = """
+        const string source = """
 			public class PizzaChef { }
 			public class CheeseShelf { }
 			public class PizzaWaiter(CheeseShelf shelf) { }
 			""";
 
-		var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
-			source,
-			config,
-			ArchitecturalDiagnosticIds.TypeNotAllowed,
-			"Allow 'CheeseShelf' in applicable <Allowed> lists");
+        var updatedConfig = await AnalyzerTestHelper.ApplyConfigurationCodeFixAsync(
+            source,
+            config,
+            ArchitecturalDiagnosticIds.TypeNotAllowed,
+            "Allow 'CheeseShelf' in applicable <Allowed> lists");
 
-		var document = XDocument.Parse(updatedConfig);
-		var allowedOccurrences = document
-			.Descendants("Allowed")
-			.Elements("Class")
-			.Count(element => string.Equals(element.Attribute("typeName")?.Value, "CheeseShelf", StringComparison.Ordinal));
+        var document = XDocument.Parse(updatedConfig);
+        var allowedOccurrences = document
+            .Descendants("Allowed")
+            .Elements("Class")
+            .Count(element => string.Equals(element.Attribute("typeName")?.Value, "CheeseShelf", StringComparison.Ordinal));
 
-		allowedOccurrences.Should().Be(2);
-	}
+        allowedOccurrences.Should().Be(2);
+    }
 
-	[Fact]
-	public async Task AllowedListFailure_InlineSettings_UpdatesAssemblyMetadata()
-	{
-		const string source = """"
+    [Fact]
+    public async Task AllowedListFailure_InlineSettings_UpdatesAssemblyMetadata()
+    {
+        const string source = """"
 			using System.Reflection;
 
 			[assembly: AssemblyMetadata("AnaalIJzerSettings", """
@@ -105,11 +105,11 @@ public sealed class AllowedTypePolicyCodeFixTests
 			public class PizzaWaiter(CheeseShelf shelf) { }
 			"""";
 
-		var updatedSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
-			source,
-			ArchitecturalDiagnosticIds.TypeNotAllowed,
-			"Allow 'CheeseShelf' in applicable <Allowed> lists");
+        var updatedSource = await AnalyzerTestHelper.ApplyCodeFixAsync(
+            source,
+            ArchitecturalDiagnosticIds.TypeNotAllowed,
+            "Allow 'CheeseShelf' in applicable <Allowed> lists");
 
-		updatedSource.Should().Contain("<Class typeName=\"CheeseShelf\" />");
-	}
+        updatedSource.Should().Contain("<Class typeName=\"CheeseShelf\" />");
+    }
 }

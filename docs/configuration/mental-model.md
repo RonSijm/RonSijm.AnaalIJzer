@@ -1,6 +1,16 @@
 ## Configuration mental model
 
-The settings are not one large list of competing rules. They answer seven different questions. Imagine that every type is a person entering a restaurant: the analyzer checks whether the restaurant's namespace ownership permits a reference, gives each person a job badge, checks whether that kind of person and their public visibility are permitted, checks who their role may depend on and how, then checks whether important names keep their meaning.
+The settings are not one large list of competing rules. They answer seven different questions:
+
+1. What role does this type have?
+2. Is this kind of type permitted?
+3. Is this declaration visible to the right audience?
+4. Which roles may depend on which?
+5. Does namespace ownership permit this reference?
+6. Where may the dependency appear?
+7. Do important value names still mean the same thing?
+
+The restaurant model gives those questions something concrete to talk about: namespace ownership controls which room may reach which other room, layers provide job badges, type and visibility policies check who is permitted, dependency rules say which jobs may rely on each other, and name rules stop `customerId` quietly turning into `animalId` somewhere along the way.
 
 ### 1. What role does this type have?
 
@@ -8,7 +18,13 @@ A [`<Layer>`](#layer) assigns the job badge. A type might be classified as a `Cu
 
 Nested layers make the badge more specific. A type in `Restaurant/Kitchen/Chef` must obey the broad `Restaurant` and `Kitchen` boundary rules as well as the specific `Chef` rules. An inner boundary can add restrictions; it cannot cancel a restriction imposed by an outer boundary.
 
-An [`<Exceptions>`](#exceptions) block tells one matcher to ignore a particular type. It does **not** grant that type permission to break one dependency rule. For example, excepting `TemporaryChef` from a `<Class endsWith="Chef">` matcher means that matcher no longer gives it the `Chef` badge. Another matcher may still classify it; if none does, the type is outside the layer graph. That makes a layer exception a broad classification exemption, not a narrow allowed edge. This is the most common misreading in the whole configuration: an exception says "this type is not a Chef", never "this Chef is excused from the rules".
+An [`<Exceptions>`](#exceptions) block tells one matcher to ignore a particular type. It does **not** grant permission to break a dependency rule.
+
+- Excepting `TemporaryChef` from `<Class endsWith="Chef">` means that matcher no longer gives it the `Chef` badge.
+- Another matcher may still classify it.
+- If no other matcher does, the type is outside the layer graph.
+
+This is the most common misreading in the whole configuration: an exception says "this type is not a Chef", never "this Chef is excused from the rules".
 
 [`requireRecognizedDependencies`](#requirerecognizeddependencies-attribute) lists the code sites where a dependency must receive a configured badge. Put it on the root to apply everywhere, or on a `<Layer>` to apply only to callers in that layer and its descendants. For example, `requireRecognizedDependencies="Constructor, Local"` reports ARCH_DEP_002 for unknown constructor and local-variable types. At sites not listed, unknown types remain outside the layer graph without producing ARCH_DEP_002.
 
@@ -87,7 +103,7 @@ flowchart TD
     Edges["5. Check dependency rules<br/>Blocked, then AllowedDependency"]
     Sites["6. Check the dependency site"]
     Names["7. Check NameRules<br/>For named value movements"]
-    Result["8. Permit the code<br/>or report ARCH00X"]
+    Result["8. Permit the code<br/>or report ARCH_*"]
 
     NamespaceOwnership --- Classify
     Classify --- TypePolicy

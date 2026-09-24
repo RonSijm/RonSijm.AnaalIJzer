@@ -6,13 +6,13 @@ namespace RonSijm.AnaalIJzer.Engine;
 
 public sealed partial class ArchitecturalLevelAnalyzer
 {
-	private static void AnalyzeSyntaxNodeWhenInScope(SyntaxNodeAnalysisContext context, AnalyzerConfig config, Action analyze)
-	{
-		if (!GeneratedCodeAnalysisGate.ShouldAnalyze(context.Node.SyntaxTree, config, context.CancellationToken))
-		{
-			return;
-		}
+    private static void AnalyzeSyntaxNodeWhenInScope(SyntaxNodeAnalysisContext context, AnalyzerConfig config, Action analyze)
+    {
+        if (!GeneratedCodeAnalysisGate.ShouldAnalyze(context.Node.SyntaxTree, config, context.CancellationToken))
+        {
+            return;
+        }
 
-		analyze();
-	}
+        analyze();
+    }
 }

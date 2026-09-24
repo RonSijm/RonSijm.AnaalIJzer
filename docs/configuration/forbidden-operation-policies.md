@@ -2,7 +2,7 @@
 
 `<ForbiddenOperations>` rejects one selected resolved API operation inside an owning layer and its descendants. It is intentionally narrower than `<Forbidden>`: you can forbid `DateTime.UtcNow` without forbidding `DateTime`, or forbid `Environment.MachineName` while still allowing `Environment.NewLine`.
 
-This is a semantic policy. AnaalIjzer compares Roslyn symbols, so an alias and a fully qualified spelling resolve to the same member. It does not need, and does not take, a dependency on the assembly that defines the selected member or attribute.
+This is a semantic policy. AnaalIJzer compares Roslyn symbols, so an alias and a fully qualified spelling resolve to the same member. It does not need, and does not take, a dependency on the assembly that defines the selected member or attribute.
 
 ```xml
 <Layer name="Kitchen">

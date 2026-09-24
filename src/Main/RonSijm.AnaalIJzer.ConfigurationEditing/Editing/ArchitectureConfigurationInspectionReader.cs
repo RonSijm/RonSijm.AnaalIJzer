@@ -6,17 +6,17 @@ namespace RonSijm.AnaalIJzer.ConfigurationEditing.Editing;
 
 internal static class ArchitectureConfigurationInspectionReader
 {
-	internal static ArchitectureLayerInspectionResult GetLayerDetails(ArchitectureLayerEditHandle handle)
-	{
-		var result = ArchitectureLayerInspectionReader.GetLayerDetails(handle);
+    internal static ArchitectureLayerInspectionResult GetLayerDetails(ArchitectureLayerEditHandle handle)
+    {
+        var result = ArchitectureLayerInspectionReader.GetLayerDetails(handle);
 
-		return result;
-	}
+        return result;
+    }
 
-	internal static ArchitectureRootInspectionResult GetRootDetails(ArchitectureConfigurationSource source)
-	{
-		var result = ArchitectureRootInspectionReader.GetRootDetails(source);
+    internal static ArchitectureRootInspectionResult GetRootDetails(ArchitectureConfigurationSource source)
+    {
+        var result = ArchitectureRootInspectionReader.GetRootDetails(source);
 
-		return result;
-	}
+        return result;
+    }
 }

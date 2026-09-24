@@ -2,7 +2,21 @@
 
 `<BehavioralOperations>` adds narrow, mechanically provable rules about the resolved operations inside a selected declaration body. It belongs to a layer, applies to that layer and its descendants, and reports `ARCH_OPER_002`, `ARCH_OPER_011`, or `ARCH_OPER_012` according to whether a required operation is missing, a count is exceeded, or ordering is invalid.
 
-This is deliberately more precise than an ordinary dependency rule and deliberately less ambitious than a business-process proof. AnaalIjzer can prove that a configured `PizzaSafetyCheck.Validate()` call dominates a configured `PizzaOven.Bake()` call in C# control flow. It cannot prove that the validator accepted the pizza, that the oven completed at runtime, or that another service did not mutate the order elsewhere.
+This is deliberately more precise than an ordinary dependency rule and less ambitious than a business-process proof.
+
+AnaalIJzer can prove that:
+
+- a configured `PizzaSafetyCheck.Validate()` call exists;
+- it dominates a configured `PizzaOven.Bake()` call in C# control flow;
+- a configured operation occurs no more than the permitted number of times.
+
+It cannot prove that:
+
+- the validator accepted the pizza;
+- the oven completed at runtime;
+- another service did not mutate the order elsewhere.
+
+That boundary is intentional. This feature inspects source operations; it has not secretly become a theorem prover for lunch.
 
 ```xml
 <Layer name="Kitchen">
@@ -81,7 +95,13 @@ Ordering rules add a related target:
 - It does not analyse generated code by default.
 - It does not offer automatic code fixes for the `ARCH_OPER_*` diagnostics; adding a call, changing its order, or removing an extra operation is a domain decision.
 
-Arse can validate, document, merge, split, and report these policies through the shared configuration model. The WPF and Visual Studio graph editors preserve and edit the layer-scoped policy as XML; the Visual Studio companion surfaces the concrete `ARCH_OPER_*` result through opt-in Sites Diagnostics and QuickInfo without reimplementing the evaluator.
+The surrounding tools reuse the same configuration model:
+
+- Arse validates, documents, merges, splits, and reports the policies.
+- The WPF and Visual Studio graph editors preserve and edit the layer-scoped XML.
+- The Visual Studio companion shows concrete `ARCH_OPER_*` results through Sites Diagnostics and QuickInfo.
+
+None of those hosts reimplements the evaluator.
 
 **Focused examples:**
 

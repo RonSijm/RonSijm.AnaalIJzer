@@ -1,0 +1,7 @@
+<Project>
+
+  <ItemGroup Condition="'$(AnaalIJzerRepositoryBootstrapEnabled)' == 'true' and '$(EnableArchitecturalLevelAnalyzer)' == 'true'">
+    <Analyzer Include="$(NuGetPackageRoot)ronsijm.anaalijzer\$(AnaalIJzerBootstrapVersion)\analyzers\dotnet\cs\*.dll" />
+  </ItemGroup>
+
+</Project>

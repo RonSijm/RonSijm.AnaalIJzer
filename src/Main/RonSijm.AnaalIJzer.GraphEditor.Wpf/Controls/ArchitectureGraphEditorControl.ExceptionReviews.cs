@@ -8,158 +8,158 @@ namespace RonSijm.AnaalIJzer.GraphEditor.Wpf.Controls;
 
 public sealed partial class ArchitectureGraphEditorControl
 {
-	private bool _showActiveExceptionReviews = true;
-	private bool _showInvalidExceptionReviews = true;
-	private bool _showExpiringSoonExceptionReviews = true;
-	private bool _showExpiredExceptionReviews = true;
-	private bool _showStaleExceptionReviews = true;
+    private bool _showActiveExceptionReviews = true;
+    private bool _showInvalidExceptionReviews = true;
+    private bool _showExpiringSoonExceptionReviews = true;
+    private bool _showExpiredExceptionReviews = true;
+    private bool _showStaleExceptionReviews = true;
 
-	private void AddExceptionReviewSection(StackPanel panel, string? ownerLayerPath)
-	{
-		var reviews = GetVisibleExceptionReviews(ownerLayerPath);
-		panel.Children.Add(CreateSectionTitle("Exception reviews"));
-		panel.Children.Add(CreateHintTextBlock("These are ARCH_EXC_009 review items. Filter by status to focus on invalid, expiring, expired, or stale exceptions.", new Thickness(0, 0, 0, 4)));
-		panel.Children.Add(CreateExceptionReviewFilterPanel());
-		if (reviews.Length == 0)
-		{
-			panel.Children.Add(CreateHintTextBlock("No exception reviews match the current filter.", new Thickness(0, 4, 0, 4)));
-			return;
-		}
+    private void AddExceptionReviewSection(StackPanel panel, string? ownerLayerPath)
+    {
+        var reviews = GetVisibleExceptionReviews(ownerLayerPath);
+        panel.Children.Add(CreateSectionTitle("Exception reviews"));
+        panel.Children.Add(CreateHintTextBlock("These are ARCH_EXC_009 review items. Filter by status to focus on invalid, expiring, expired, or stale exceptions.", new Thickness(0, 0, 0, 4)));
+        panel.Children.Add(CreateExceptionReviewFilterPanel());
+        if (reviews.Length == 0)
+        {
+            panel.Children.Add(CreateHintTextBlock("No exception reviews match the current filter.", new Thickness(0, 4, 0, 4)));
+            return;
+        }
 
-		foreach (var review in reviews)
-		{
-			panel.Children.Add(CreateExceptionReviewEditor(review));
-		}
-	}
+        foreach (var review in reviews)
+        {
+            panel.Children.Add(CreateExceptionReviewEditor(review));
+        }
+    }
 
-	private UIElement CreateExceptionReviewFilterPanel()
-	{
-		var panel = new WrapPanel { Margin = new Thickness(0, 0, 0, 4) };
-		panel.Children.Add(CreateExceptionStatusCheckBox("Active", _showActiveExceptionReviews, value => _showActiveExceptionReviews = value));
-		panel.Children.Add(CreateExceptionStatusCheckBox("Invalid", _showInvalidExceptionReviews, value => _showInvalidExceptionReviews = value));
-		panel.Children.Add(CreateExceptionStatusCheckBox("ExpiringSoon", _showExpiringSoonExceptionReviews, value => _showExpiringSoonExceptionReviews = value));
-		panel.Children.Add(CreateExceptionStatusCheckBox("Expired", _showExpiredExceptionReviews, value => _showExpiredExceptionReviews = value));
-		panel.Children.Add(CreateExceptionStatusCheckBox("Stale", _showStaleExceptionReviews, value => _showStaleExceptionReviews = value));
+    private UIElement CreateExceptionReviewFilterPanel()
+    {
+        var panel = new WrapPanel { Margin = new Thickness(0, 0, 0, 4) };
+        panel.Children.Add(CreateExceptionStatusCheckBox("Active", _showActiveExceptionReviews, value => _showActiveExceptionReviews = value));
+        panel.Children.Add(CreateExceptionStatusCheckBox("Invalid", _showInvalidExceptionReviews, value => _showInvalidExceptionReviews = value));
+        panel.Children.Add(CreateExceptionStatusCheckBox("ExpiringSoon", _showExpiringSoonExceptionReviews, value => _showExpiringSoonExceptionReviews = value));
+        panel.Children.Add(CreateExceptionStatusCheckBox("Expired", _showExpiredExceptionReviews, value => _showExpiredExceptionReviews = value));
+        panel.Children.Add(CreateExceptionStatusCheckBox("Stale", _showStaleExceptionReviews, value => _showStaleExceptionReviews = value));
 
-		return panel;
-	}
+        return panel;
+    }
 
-	private CheckBox CreateExceptionStatusCheckBox(string label, bool isChecked, Action<bool> setter)
-	{
-		var checkBox = new CheckBox
-		{
-			Content = label,
-			IsChecked = isChecked,
-			Margin = new Thickness(0, 0, 8, 4)
-		};
-		checkBox.Checked += (_, _) =>
-		{
-			setter(true);
-			RenderSelection(_currentSelection);
-		};
-		checkBox.Unchecked += (_, _) =>
-		{
-			setter(false);
-			RenderSelection(_currentSelection);
-		};
+    private CheckBox CreateExceptionStatusCheckBox(string label, bool isChecked, Action<bool> setter)
+    {
+        var checkBox = new CheckBox
+        {
+            Content = label,
+            IsChecked = isChecked,
+            Margin = new Thickness(0, 0, 8, 4)
+        };
+        checkBox.Checked += (_, _) =>
+        {
+            setter(true);
+            RenderSelection(_currentSelection);
+        };
+        checkBox.Unchecked += (_, _) =>
+        {
+            setter(false);
+            RenderSelection(_currentSelection);
+        };
 
-		return checkBox;
-	}
+        return checkBox;
+    }
 
-	private UIElement CreateExceptionReviewEditor(ArchitectureGraphExceptionReview review)
-	{
-		var statusBrush = GetExceptionStatusBrush(review.Status);
-		var header = $"[{review.Status}] {review.MatcherKind} {review.MatcherLabel}";
-		var expander = new Expander
-		{
-			Header = header,
-			IsExpanded = review.Status is "Invalid" or "Expired",
-			Margin = new Thickness(0, 4, 0, 0),
-			Foreground = statusBrush
-		};
-		var panel = new StackPanel();
-		if (!string.IsNullOrWhiteSpace(review.OwnerLayerPath))
-		{
-			AddReadOnlyRow(panel, "Owner layer", review.OwnerLayerPath);
-		}
+    private UIElement CreateExceptionReviewEditor(ArchitectureGraphExceptionReview review)
+    {
+        var statusBrush = GetExceptionStatusBrush(review.Status);
+        var header = $"[{review.Status}] {review.MatcherKind} {review.MatcherLabel}";
+        var expander = new Expander
+        {
+            Header = header,
+            IsExpanded = review.Status is "Invalid" or "Expired",
+            Margin = new Thickness(0, 4, 0, 0),
+            Foreground = statusBrush
+        };
+        var panel = new StackPanel();
+        if (!string.IsNullOrWhiteSpace(review.OwnerLayerPath))
+        {
+            AddReadOnlyRow(panel, "Owner layer", review.OwnerLayerPath);
+        }
 
-		AddReadOnlyRow(panel, "Message", review.Message);
-		AddReadOnlyRow(panel, "Reason", string.IsNullOrWhiteSpace(review.Reason) ? "(none)" : review.Reason!);
-		AddReadOnlyRow(panel, "Owner", string.IsNullOrWhiteSpace(review.Owner) ? "(none)" : review.Owner!);
-		AddReadOnlyRow(panel, "Expires on", string.IsNullOrWhiteSpace(review.ExpiresOn) ? "(none)" : review.ExpiresOn!);
-		AddReadOnlyRow(panel, "Source", review.SourcePath + (review.XmlLineNumber > 0 ? ":" + review.XmlLineNumber : string.Empty));
-		expander.Content = panel;
+        AddReadOnlyRow(panel, "Message", review.Message);
+        AddReadOnlyRow(panel, "Reason", string.IsNullOrWhiteSpace(review.Reason) ? "(none)" : review.Reason!);
+        AddReadOnlyRow(panel, "Owner", string.IsNullOrWhiteSpace(review.Owner) ? "(none)" : review.Owner!);
+        AddReadOnlyRow(panel, "Expires on", string.IsNullOrWhiteSpace(review.ExpiresOn) ? "(none)" : review.ExpiresOn!);
+        AddReadOnlyRow(panel, "Source", review.SourcePath + (review.XmlLineNumber > 0 ? ":" + review.XmlLineNumber : string.Empty));
+        expander.Content = panel;
 
-		return expander;
-	}
+        return expander;
+    }
 
-	private Brush GetExceptionStatusBrush(string status)
-	{
-		var result = status switch
-		{
-			"Invalid" => _theme.ErrorForeground,
-			"Expired" => _theme.ErrorForeground,
-			"ExpiringSoon" => Brushes.DarkOrange,
-			"Stale" => Brushes.DarkOrange,
-			_ => _theme.SuccessForeground
-		};
+    private Brush GetExceptionStatusBrush(string status)
+    {
+        var result = status switch
+        {
+            "Invalid" => _theme.ErrorForeground,
+            "Expired" => _theme.ErrorForeground,
+            "ExpiringSoon" => Brushes.DarkOrange,
+            "Stale" => Brushes.DarkOrange,
+            _ => _theme.SuccessForeground
+        };
 
-		return result;
-	}
+        return result;
+    }
 
-	private ImmutableArray<ArchitectureGraphExceptionReview> GetVisibleExceptionReviews(string? ownerLayerPath)
-	{
-		var result = _snapshot.ExceptionReviews
-			.Where(review => MatchesExceptionReviewOwner(review.OwnerLayerPath, ownerLayerPath))
-			.Where(IsExceptionReviewVisible)
-			.OrderBy(review => GetExceptionStatusSortOrder(review.Status))
-			.ThenBy(review => review.OwnerLayerPath, StringComparer.Ordinal)
-			.ThenBy(review => review.MatcherLabel, StringComparer.Ordinal)
-			.ToImmutableArray();
+    private ImmutableArray<ArchitectureGraphExceptionReview> GetVisibleExceptionReviews(string? ownerLayerPath)
+    {
+        var result = _snapshot.ExceptionReviews
+            .Where(review => MatchesExceptionReviewOwner(review.OwnerLayerPath, ownerLayerPath))
+            .Where(IsExceptionReviewVisible)
+            .OrderBy(review => GetExceptionStatusSortOrder(review.Status))
+            .ThenBy(review => review.OwnerLayerPath, StringComparer.Ordinal)
+            .ThenBy(review => review.MatcherLabel, StringComparer.Ordinal)
+            .ToImmutableArray();
 
-		return result;
-	}
+        return result;
+    }
 
-	private bool IsExceptionReviewVisible(ArchitectureGraphExceptionReview review)
-	{
-		var result = review.Status switch
-		{
-			"Active" => _showActiveExceptionReviews,
-			"Invalid" => _showInvalidExceptionReviews,
-			"ExpiringSoon" => _showExpiringSoonExceptionReviews,
-			"Expired" => _showExpiredExceptionReviews,
-			"Stale" => _showStaleExceptionReviews,
-			_ => true
-		};
+    private bool IsExceptionReviewVisible(ArchitectureGraphExceptionReview review)
+    {
+        var result = review.Status switch
+        {
+            "Active" => _showActiveExceptionReviews,
+            "Invalid" => _showInvalidExceptionReviews,
+            "ExpiringSoon" => _showExpiringSoonExceptionReviews,
+            "Expired" => _showExpiredExceptionReviews,
+            "Stale" => _showStaleExceptionReviews,
+            _ => true
+        };
 
-		return result;
-	}
+        return result;
+    }
 
-	private static bool MatchesExceptionReviewOwner(string reviewOwnerLayerPath, string? selectedOwnerLayerPath)
-	{
-		if (string.IsNullOrWhiteSpace(selectedOwnerLayerPath))
-		{
-			return true;
-		}
+    private static bool MatchesExceptionReviewOwner(string reviewOwnerLayerPath, string? selectedOwnerLayerPath)
+    {
+        if (string.IsNullOrWhiteSpace(selectedOwnerLayerPath))
+        {
+            return true;
+        }
 
-		var result = string.Equals(reviewOwnerLayerPath, selectedOwnerLayerPath, StringComparison.Ordinal)
-		             || reviewOwnerLayerPath.StartsWith(selectedOwnerLayerPath + "/", StringComparison.Ordinal);
+        var result = string.Equals(reviewOwnerLayerPath, selectedOwnerLayerPath, StringComparison.Ordinal)
+                     || reviewOwnerLayerPath.StartsWith(selectedOwnerLayerPath + "/", StringComparison.Ordinal);
 
-		return result;
-	}
+        return result;
+    }
 
-	private static int GetExceptionStatusSortOrder(string status)
-	{
-		var result = status switch
-		{
-			"Invalid" => 0,
-			"Expired" => 1,
-			"ExpiringSoon" => 2,
-			"Stale" => 3,
-			"Active" => 4,
-			_ => 5
-		};
+    private static int GetExceptionStatusSortOrder(string status)
+    {
+        var result = status switch
+        {
+            "Invalid" => 0,
+            "Expired" => 1,
+            "ExpiringSoon" => 2,
+            "Stale" => 3,
+            "Active" => 4,
+            _ => 5
+        };
 
-		return result;
-	}
+        return result;
+    }
 }

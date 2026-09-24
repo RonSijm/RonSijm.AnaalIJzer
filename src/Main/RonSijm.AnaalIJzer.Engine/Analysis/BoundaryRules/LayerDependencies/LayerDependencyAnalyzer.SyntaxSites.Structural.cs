@@ -11,70 +11,70 @@ namespace RonSijm.AnaalIJzer.Engine.Analysis.BoundaryRules.LayerDependencies;
 
 public static partial class LayerDependencyAnalyzer
 {
-	internal static void AnalyzeTypeDeclaration(SyntaxNodeAnalysisContext context, AnalyzerConfig config, ConcurrentBag<ViolationRecord> violations, ObservedDependencyCollector? observedDependencies)
-	{
-		var typeDeclaration = (TypeDeclarationSyntax)context.Node;
-		var parameterList = typeDeclaration switch
-		{
-			ClassDeclarationSyntax classDeclaration => classDeclaration.ParameterList,
-			StructDeclarationSyntax structDeclaration => structDeclaration.ParameterList,
-			RecordDeclarationSyntax recordDeclaration => recordDeclaration.ParameterList,
-			_ => null
-		};
+    internal static void AnalyzeTypeDeclaration(SyntaxNodeAnalysisContext context, AnalyzerConfig config, ConcurrentBag<ViolationRecord> violations, ObservedDependencyCollector? observedDependencies)
+    {
+        var typeDeclaration = (TypeDeclarationSyntax)context.Node;
+        var parameterList = typeDeclaration switch
+        {
+            ClassDeclarationSyntax classDeclaration => classDeclaration.ParameterList,
+            StructDeclarationSyntax structDeclaration => structDeclaration.ParameterList,
+            RecordDeclarationSyntax recordDeclaration => recordDeclaration.ParameterList,
+            _ => null
+        };
 
-		if (parameterList is not null && parameterList.Parameters.Count > 0)
-		{
-			AnalyzeParameters(context, config, violations, observedDependencies, typeDeclaration, parameterList.Parameters, DependencySites.Constructor);
-			NamingRules.LayerDependencyAnalyzer.AnalyzeParameterDeclarationNameRules(context, config, violations, parameterList.Parameters, DependencySites.Constructor);
-		}
+        if (parameterList is not null && parameterList.Parameters.Count > 0)
+        {
+            AnalyzeParameters(context, config, violations, observedDependencies, typeDeclaration, parameterList.Parameters, DependencySites.Constructor);
+            NamingRules.LayerDependencyAnalyzer.AnalyzeParameterDeclarationNameRules(context, config, violations, parameterList.Parameters, DependencySites.Constructor);
+        }
 
-		if (typeDeclaration.BaseList is null)
-		{
-			return;
-		}
+        if (typeDeclaration.BaseList is null)
+        {
+            return;
+        }
 
-		var caller = TryGetCallerContext(context, config, typeDeclaration);
-		if (caller is null)
-		{
-			return;
-		}
+        var caller = TryGetCallerContext(context, config, typeDeclaration);
+        if (caller is null)
+        {
+            return;
+        }
 
-		foreach (var baseType in typeDeclaration.BaseList.Types)
-		{
-			var type = context.SemanticModel.GetTypeInfo(baseType.Type, context.CancellationToken).Type;
-			if (type is null)
-			{
-				continue;
-			}
+        foreach (var baseType in typeDeclaration.BaseList.Types)
+        {
+            var type = context.SemanticModel.GetTypeInfo(baseType.Type, context.CancellationToken).Type;
+            if (type is null)
+            {
+                continue;
+            }
 
-			var site = GetBaseListDependencySite(typeDeclaration, type);
-			AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value, baseType.Type.GetLocation(), type, site);
-		}
-	}
+            var site = GetBaseListDependencySite(typeDeclaration, type);
+            AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value, baseType.Type.GetLocation(), type, site);
+        }
+    }
 
-	internal static void AnalyzeAttribute(SyntaxNodeAnalysisContext context, AnalyzerConfig config, ConcurrentBag<ViolationRecord> violations, ObservedDependencyCollector? observedDependencies)
-	{
-		var attribute = (AttributeSyntax)context.Node;
-		var caller = TryGetCallerContext(context, config, attribute);
-		if (caller is null)
-		{
-			return;
-		}
+    internal static void AnalyzeAttribute(SyntaxNodeAnalysisContext context, AnalyzerConfig config, ConcurrentBag<ViolationRecord> violations, ObservedDependencyCollector? observedDependencies)
+    {
+        var attribute = (AttributeSyntax)context.Node;
+        var caller = TryGetCallerContext(context, config, attribute);
+        if (caller is null)
+        {
+            return;
+        }
 
-		if (context.SemanticModel.GetSymbolInfo(attribute, context.CancellationToken).Symbol is not IMethodSymbol constructor)
-		{
-			return;
-		}
+        if (context.SemanticModel.GetSymbolInfo(attribute, context.CancellationToken).Symbol is not IMethodSymbol constructor)
+        {
+            return;
+        }
 
-		AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value, attribute.Name.GetLocation(), constructor.ContainingType, DependencySites.Attribute);
-	}
+        AnalyzeTypeReference(context, config, violations, observedDependencies, caller.Value, attribute.Name.GetLocation(), constructor.ContainingType, DependencySites.Attribute);
+    }
 
-	private static string GetBaseListDependencySite(TypeDeclarationSyntax typeDeclaration, ITypeSymbol type)
-	{
-		var result = type.TypeKind == TypeKind.Interface && typeDeclaration is not InterfaceDeclarationSyntax
-			? DependencySites.InterfaceImplementation
-			: DependencySites.Inheritance;
+    private static string GetBaseListDependencySite(TypeDeclarationSyntax typeDeclaration, ITypeSymbol type)
+    {
+        var result = type.TypeKind == TypeKind.Interface && typeDeclaration is not InterfaceDeclarationSyntax
+            ? DependencySites.InterfaceImplementation
+            : DependencySites.Inheritance;
 
-		return result;
-	}
+        return result;
+    }
 }
