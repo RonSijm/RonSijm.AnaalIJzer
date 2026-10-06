@@ -10,6 +10,8 @@
 
   <Layer name="Foundation"
          description="Shared architectural vocabulary, matcher logic, findings, policies, and configuration primitives.">
+    <Assembly exactName="RonSijm.AnaalIJzer.Annotations" />
+    <Assembly exactName="RonSijm.AnaalIJzer.IaC" />
     <Assembly startsWith="RonSijm.AnaalIJzer.Core.">
       <Exceptions>
         <Assembly exactName="RonSijm.AnaalIJzer.Core.Editor" />

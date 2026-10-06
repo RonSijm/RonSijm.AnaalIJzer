@@ -4,6 +4,7 @@ The XML root element is `<ArchitecturalLevels>`. It supports the child elements 
 
 | Feature | Doc file |
 |---|---|
+| C# infrastructure-as-code authoring | `infrastructure-as-code.md` |
 | Configuration fixers | `config-fixers.md` |
 | Include files | `include.md` |
 | Layers and matchers | `layers.md` |
@@ -16,6 +17,7 @@ The XML root element is `<ArchitecturalLevels>`. It supports the child elements 
 | Exception review policy | `exception-policy.md` |
 | Name rules | `name-rules.md` |
 | Visibility policies | `visibility-policies.md` |
+| Architectural-internal annotations | `architectural-internal-annotations.md` |
 | Inheritance policies | `inheritance-policies.md` |
 | Contract purity | `contract-policies.md` |
 | Return-value policies | `return-value-policies.md` |

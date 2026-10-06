@@ -1,5 +1,8 @@
 <Solution>
   <Folder Name="/Main/" />
+  <Folder Name="/Main/Annotations/">
+    <Project Path="Main/RonSijm.AnaalIJzer.Annotations/RonSijm.AnaalIJzer.Annotations.csproj" />
+  </Folder>
   <Folder Name="/Main/Analyzer/">
     <Project Path="Main/RonSijm.AnaalIJzer/RonSijm.AnaalIJzer.csproj" />
     <Project Path="Main/RonSijm.AnaalIJzer.Diagnostics/RonSijm.AnaalIJzer.Diagnostics.csproj" />
@@ -11,6 +14,7 @@
     <Project Path="Main/RonSijm.AnaalIJzer.Outputs/RonSijm.AnaalIJzer.Outputs.csproj" />
   </Folder>
   <Folder Name="/Main/Configuration/">
+    <Project Path="Main/RonSijm.AnaalIJzer.IaC/RonSijm.AnaalIJzer.IaC.csproj" />
     <Project Path="Main/RonSijm.AnaalIJzer.Core.BuildMetadata/RonSijm.AnaalIJzer.Core.BuildMetadata.csproj" />
     <Project Path="Main/RonSijm.AnaalIJzer.Core.Configuration.Compilation/RonSijm.AnaalIJzer.Core.Configuration.Compilation.csproj" />
     <Project Path="Main/RonSijm.AnaalIJzer.Core.Configuration.Document/RonSijm.AnaalIJzer.Core.Configuration.Document.csproj" />
@@ -69,6 +73,7 @@
     <Project Path="Main/RonSijm.AnaalIJzer.Statistics.GitHistory/RonSijm.AnaalIJzer.Statistics.GitHistory.csproj" />
   </Folder>
   <Folder Name="/Tests/">
+    <Project Path="Tests/RonSijm.AnaalIJzer.IaC.Tests/RonSijm.AnaalIJzer.IaC.Tests.csproj" />
     <Project Path="Tests/RonSijm.AnaalIJzer.ConfigurationEditing.Tests/RonSijm.AnaalIJzer.ConfigurationEditing.Tests.csproj" />
     <Project Path="Tests/RonSijm.AnaalIJzer.Core.BuildMetadata.Tests/RonSijm.AnaalIJzer.Core.BuildMetadata.Tests.csproj" />
     <Project Path="Tests/RonSijm.AnaalIJzer.Core.Configuration.Compilation.Tests/RonSijm.AnaalIJzer.Core.Configuration.Compilation.Tests.csproj" />

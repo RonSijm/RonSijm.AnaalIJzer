@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArchitecturalLevels description="Kitchens receive a clock dependency instead of reading the system clock directly." xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd">
+  <Layer name="Application">
+    <Class endsWith="Kitchen" />
+    <ForbiddenOperations description="Application code may not inspect the machine's clock.">
+      <ForbiddenOperation description="Direct system-clock reads hide a time dependency." allowedSites="StaticMember">
+        <OperationMatcher kind="PropertyRead" staticAccess="true">
+          <ContainingType exactFullName="System.DateTime" />
+          <Member exactName="UtcNow" memberKind="Property" />
+        </OperationMatcher>
+        <OperationMatcher kind="PropertyRead" staticAccess="true">
+          <ContainingType exactFullName="System.DateTime" />
+          <Member exactName="Now" memberKind="Property" />
+        </OperationMatcher>
+        <OperationMatcher kind="PropertyRead" staticAccess="true">
+          <ContainingType exactFullName="System.DateTime" />
+          <Member exactName="Today" memberKind="Property" />
+        </OperationMatcher>
+      </ForbiddenOperation>
+    </ForbiddenOperations>
+  </Layer>
+</ArchitecturalLevels>

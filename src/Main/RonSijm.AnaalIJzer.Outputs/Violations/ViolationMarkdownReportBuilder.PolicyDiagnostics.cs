@@ -72,6 +72,28 @@ internal static partial class ViolationMarkdownReportBuilder
         sb.AppendLine();
     }
 
+    private static void AppendArchitecturalInternalBoundary(StringBuilder sb, List<ViolationRecord> violations)
+    {
+        if (violations.Count == 0)
+        {
+            return;
+        }
+
+        sb.AppendLine("## ARCH_VIS_007 — Architectural-Internal Boundary Violations");
+        sb.AppendLine();
+        sb.AppendLine("These references or public signatures cross a boundary declared by an AnaalIJzer annotation.");
+        sb.AppendLine();
+        sb.AppendLine("| Caller (layer) | Restricted declaration (layer) | Scope | Reason |");
+        sb.AppendLine("|----------------|----------------------------|-------|--------|");
+
+        foreach (var violation in violations)
+        {
+            sb.AppendLine($"| `{violation.CallerTypeName}` ({violation.CallerLayerName}) | `{violation.DependencyTypeName}` ({violation.DepLayerName}) | `{violation.DeclarationTarget}` | {EscapeTable(violation.ViolationReason)} |");
+        }
+
+        sb.AppendLine();
+    }
+
     private static void AppendContractShapeMismatch(StringBuilder sb, List<ViolationRecord> violations)
     {
         if (violations.Count == 0)

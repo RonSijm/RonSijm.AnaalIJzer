@@ -263,6 +263,7 @@ public sealed class ReportGenerationTests
             new ViolationRecord(ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed, "Shop.Web", "Presentation", "Shop.Domain", "Domain", "no AllowedProjectReference permits project group 'Presentation' to reference project group 'Domain'", null, sourceProjectName: "Shop.Web", sourceProjectGroup: "Presentation", targetProjectName: "Shop.Domain", targetProjectGroup: "Domain"),
             new ViolationRecord(ArchitecturalDiagnosticIds.PackageReferenceNotAllowed, "Shop.Domain", "Domain", "Microsoft.Extensions.Logging", "9.0.0", "Domain may not reference infrastructure packages", null, sourceProjectName: "Shop.Domain", sourceProjectGroup: "Domain", packageId: "Microsoft.Extensions.Logging", packageVersion: "9.0.0", packageReferenceKind: "Direct"),
             new ViolationRecord(ArchitecturalDiagnosticIds.VisibilityNotAllowed, "LollyQueryable", "RepositoryQuerySurface", "LollyQueryable.CurrentQuery", string.Empty, "public properties are blocked", null, "Property", "Public"),
+            new ViolationRecord(ArchitecturalDiagnosticIds.ArchitecturalInternalBoundary, "OrderingService", "Application", "EntityProjection", "Persistence", "LayerInternal keeps the projection in Persistence", null, "Layer"),
             new ViolationRecord(ArchitecturalDiagnosticIds.ContractShapeMismatch, "IPizzaContract.Name", "Contracts", "IPizzaContract.Name", string.Empty, "contracts expose getters only", null, "DisallowedPropertyAccessor"),
             new ViolationRecord(ArchitecturalDiagnosticIds.ApiTransitiveExposure, "CandyOrderingService", "Application", "LollyQueryable", "RepositoryQuerySurface", "nested query surfaces are blocked", null, "Property", null, "CandyOrderingService.OrderRawLolly", "CandyOrderingService.OrderRawLolly -> CandyReceipt.RawQuery -> LollyQueryable", 1, "CandyReceipt.RawQuery"),
             new ViolationRecord(ArchitecturalDiagnosticIds.SourceBoundaryPlacement, "CandyOrderingService", "Ordering/Application", string.Empty, string.Empty, "source file 'Infrastructure/CandyOrderingService.cs' does not match an allowed SourceLocations rule for layer 'Ordering'", null, sourceFilePath: @"D:\repo\Shop\Infrastructure\CandyOrderingService.cs", normalizedSourcePath: "Infrastructure/CandyOrderingService.cs", sourceAssemblyName: "Shop.Application"),
@@ -277,7 +278,7 @@ public sealed class ReportGenerationTests
             null);
 
         report.Should().NotContain("**Assembly**");
-        report.Should().Contain("| **Total** | **15** |");
+        report.Should().Contain("| **Total** | **16** |");
         report.Should().Contain("## ARCH_DEP_001");
         report.Should().Contain("| `MenuController` (Controller) | `ICheeseRepository` (Repository) | no Controller -> Repository edge |");
         report.Should().Contain("## ARCH_DEP_002");
@@ -298,6 +299,8 @@ public sealed class ReportGenerationTests
         report.Should().Contain("| `Shop.Domain` (Domain) | `Microsoft.Extensions.Logging` | `9.0.0` | `Direct` | Domain may not reference infrastructure packages |");
         report.Should().Contain("## ARCH_VIS_001");
         report.Should().Contain("| `RepositoryQuerySurface` | `LollyQueryable.CurrentQuery` | `Property` | `Public` | public properties are blocked |");
+        report.Should().Contain("## ARCH_VIS_007");
+        report.Should().Contain("| `OrderingService` (Application) | `EntityProjection` (Persistence) | `Layer` | LayerInternal keeps the projection in Persistence |");
         report.Should().Contain("## ARCH_CONT_008");
         report.Should().Contain("| `Contracts` | `IPizzaContract.Name` | `DisallowedPropertyAccessor` | contracts expose getters only |");
         report.Should().Contain("## ARCH_API_010");

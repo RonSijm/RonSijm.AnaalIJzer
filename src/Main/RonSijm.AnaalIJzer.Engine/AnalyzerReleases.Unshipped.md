@@ -23,6 +23,7 @@ ARCH_SRC_007 | Architecture.Source | Error | Type declaration violates source pl
 ARCH_API_001 | Architecture.Api | Error | Direct public API exposure is not allowed
 ARCH_API_010 | Architecture.Api | Error | Transitive public API exposure is not allowed
 ARCH_VIS_001 | Architecture.Visibility | Error | Declared accessibility is not allowed
+ARCH_VIS_007 | Architecture.Visibility | Error | Architectural-internal declaration crosses its boundary
 ARCH_CONT_008 | Architecture.Contract | Error | Contract declaration shape does not match policy
 ARCH_INH_001 | Architecture.Inheritance | Error | Inheritance or interface implementation is not allowed
 ARCH_NAME_008 | Architecture.Name | Error | Name does not match the configured semantic or structural rule

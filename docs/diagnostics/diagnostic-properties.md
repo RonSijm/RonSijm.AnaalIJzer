@@ -6,6 +6,8 @@ The policy families add their own properties:
 
 - `ARCH_VIS_001`
   - `DeclarationTarget`, `DeclaredAccessibility`, and `DeclaredSymbolName`;
+- `ARCH_VIS_007`
+  - `CallerTypeName`, `CallerLayerName`, `DependencyTypeName`, `DependencyLayerName`, `Site`, `ArchitecturalInternalScope`, `ArchitecturalInternalAttribute`, and `ViolationReason`;
 - `ARCH_INH_001`
   - `DeclaredSymbolName` and `InheritanceViolationKind`;
 - `ARCH_RET_001`

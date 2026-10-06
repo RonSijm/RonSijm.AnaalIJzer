@@ -14,6 +14,7 @@ public static class ArchitectureDiagnosticCatalog
     public static ArchitectureDiagnosticDefinition ProjectReferenceNotAllowed { get; } = Create(ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed, ArchitectureDiagnosticConcern.Project, ArchitectureDiagnosticReason.NotAllowed, "Architectural project reference is not allowed", "diagnostics/arch_proj_001-project-reference-not-allowed", ArchitectureDiagnosticDefaultSeverity.Error, ArchitectureDiagnosticSurface.All);
     public static ArchitectureDiagnosticDefinition PackageReferenceNotAllowed { get; } = Create(ArchitecturalDiagnosticIds.PackageReferenceNotAllowed, ArchitectureDiagnosticConcern.Package, ArchitectureDiagnosticReason.NotAllowed, "Architectural package reference is not allowed", "diagnostics/arch_pkg_001-package-reference-not-allowed", ArchitectureDiagnosticDefaultSeverity.Error, ArchitectureDiagnosticSurface.All);
     public static ArchitectureDiagnosticDefinition VisibilityNotAllowed { get; } = Create(ArchitecturalDiagnosticIds.VisibilityNotAllowed, ArchitectureDiagnosticConcern.Visibility, ArchitectureDiagnosticReason.NotAllowed, "Architectural visibility is not allowed", "diagnostics/arch_vis_001-visibility-not-allowed", ArchitectureDiagnosticDefaultSeverity.Error);
+    public static ArchitectureDiagnosticDefinition ArchitecturalInternalBoundary { get; } = Create(ArchitecturalDiagnosticIds.ArchitecturalInternalBoundary, ArchitectureDiagnosticConcern.Visibility, ArchitectureDiagnosticReason.BoundaryPlacement, "Architectural-internal boundary violation", "diagnostics/arch_vis_007-architectural-internal-boundary", ArchitectureDiagnosticDefaultSeverity.Error);
     public static ArchitectureDiagnosticDefinition ContractShapeMismatch { get; } = Create(ArchitecturalDiagnosticIds.ContractShapeMismatch, ArchitectureDiagnosticConcern.Contract, ArchitectureDiagnosticReason.ShapeMismatch, "Architectural contract shape mismatch", "diagnostics/arch_cont_008-contract-shape-mismatch", ArchitectureDiagnosticDefaultSeverity.Error);
     public static ArchitectureDiagnosticDefinition ApiTransitiveExposure { get; } = Create(ArchitecturalDiagnosticIds.ApiTransitiveExposure, ArchitectureDiagnosticConcern.Api, ArchitectureDiagnosticReason.TransitiveReachability, "Forbidden transitive API exposure", "diagnostics/arch_api_010-transitive-api-exposure", ArchitectureDiagnosticDefaultSeverity.Error);
     public static ArchitectureDiagnosticDefinition SourceBoundaryPlacement { get; } = Create(ArchitecturalDiagnosticIds.SourceBoundaryPlacement, ArchitectureDiagnosticConcern.Source, ArchitectureDiagnosticReason.BoundaryPlacement, "Architectural source placement violation", "diagnostics/arch_src_007-source-placement", ArchitectureDiagnosticDefaultSeverity.Error);
@@ -53,6 +54,7 @@ public static class ArchitectureDiagnosticCatalog
         ProjectReferenceNotAllowed,
         PackageReferenceNotAllowed,
         VisibilityNotAllowed,
+        ArchitecturalInternalBoundary,
         ContractShapeMismatch,
         ApiTransitiveExposure,
         SourceBoundaryPlacement,

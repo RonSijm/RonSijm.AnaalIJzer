@@ -587,6 +587,7 @@ For the broader mental model, ownership rules, and risk labels, see [Configurati
 | `ARCH_PROJ_001` | add a missing group-level `<AllowedProjectReference>`; add a narrow exact-project rule with `<From>` and `<To>` selectors; add an explicit same-group self-edge; remove the matching blocking `<BlockedProjectReference>` rule | `ProjectArchitectureCodeFixTests.cs` |
 | `ARCH_PKG_001` | append an exact `<Package exactName="..."/>` matcher to the matched allowed package list | `PackagePolicyCodeFixTests.cs` |
 | `ARCH_VIS_001` | add the reported visibility to `allowedAccessibilities`; remove it from `blockedAccessibilities`; remove a single-value blocking policy entirely | `VisibilityPolicyCodeFixTests.cs` |
+| `ARCH_VIS_007` | no automatic fix: changing an architectural boundary, moving a caller, or replacing a public contract requires an ownership decision | `ArchitecturalInternalAnalyzerTests.cs` |
 | `ARCH_CONT_008` | remove a disallowed property setter when the violation is exactly that accessor | `ContractPurityCodeFixTests.cs` |
 | `ARCH_API_010` | the same `ApiSurface` configuration fixes as `ARCH_API_001` | `ApiSurfacePolicyCodeFixTests.cs` |
 | `ARCH_SRC_007` | add an exact `<Source exactName="..."/>` rule to the owning layer | `SourceLocationCodeFixTests.cs` |
@@ -603,7 +604,7 @@ For the broader mental model, ownership rules, and risk labels, see [Configurati
 ### Deliberate limits
 
 - `ARCH_PROJ_001` and `ARCH_PKG_001` are compilation-end diagnostics. The config edits exist and are covered by analyzer tests, but whether an IDE host shows them as ordinary editor light bulbs depends on how that host surfaces `Location.None` diagnostics.
-- `ARCH_CONT_008`, `ARCH_INH_001`, `ARCH_RET_001`, `ARCH_OPER_*`, `ARCH_OPCT_*`, `ARCH_ASSM_001`, and `ARCH_NS_007` stay intentionally narrow. If the analyzer cannot tell which one deterministic edit is the right one, it does not guess. A confidently wrong automatic fix is harder to spot in review than no fix at all.
+- `ARCH_VIS_007`, `ARCH_CONT_008`, `ARCH_INH_001`, `ARCH_RET_001`, `ARCH_OPER_*`, `ARCH_OPCT_*`, `ARCH_ASSM_001`, and `ARCH_NS_007` stay intentionally narrow. If the analyzer cannot tell which one deterministic edit is the right one, it does not guess. A confidently wrong automatic fix is harder to spot in review than no fix at all.
 - Configuration fixers preserve the owning source where possible:
   - if a rule came from an included `.anl`, that included file is edited;
   - if the config came from inline `AssemblyMetadata`, the source file containing the assembly attribute is rewritten.
@@ -1347,6 +1348,7 @@ The XML root element is `<ArchitecturalLevels>`. It supports the child elements 
 
 | Feature | Doc file |
 |---|---|
+| C# infrastructure-as-code authoring | `infrastructure-as-code.md` |
 | Configuration fixers | `config-fixers.md` |
 | Include files | `include.md` |
 | Layers and matchers | `layers.md` |
@@ -1359,6 +1361,7 @@ The XML root element is `<ArchitecturalLevels>`. It supports the child elements 
 | Exception review policy | `exception-policy.md` |
 | Name rules | `name-rules.md` |
 | Visibility policies | `visibility-policies.md` |
+| Architectural-internal annotations | `architectural-internal-annotations.md` |
 | Inheritance policies | `inheritance-policies.md` |
 | Contract purity | `contract-policies.md` |
 | Return-value policies | `return-value-policies.md` |
@@ -1379,6 +1382,64 @@ The XML root element is `<ArchitecturalLevels>`. It supports the child elements 
 | Report output settings | `report-attributes.md` |
 | Documentation output settings | `documentation-attributes.md` |
 | Descriptions | `description-attributes.md` |
+
+## Infrastructure as code
+
+Large `.anl` files can become awkward to maintain by hand. `RonSijm.AnaalIJzer.IaC` provides the same configuration vocabulary as a dependency-free C# object model and exports it to the XML-based `.anl` format.
+
+Install the authoring package in a small generator project:
+
+```cmd
+dotnet add package RonSijm.AnaalIJzer.IaC
+```
+
+Then describe the configuration in C#:
+
+```csharp
+using RonSijm.AnaalIJzer.IaC;
+
+var configuration = new ArchitectureConfiguration
+{
+    Description = "A customer asks a waiter, and the waiter asks a chef.",
+    Elements =
+    {
+        new Layer(nameof(Customer))
+        {
+            Elements = { new ClassMatcher { ExactName = nameof(Customer) } }
+        },
+        new Layer(nameof(Waiter))
+        {
+            Elements = { new ClassMatcher { ExactName = nameof(Waiter) } }
+        },
+        new Layer(nameof(Chef))
+        {
+            Elements = { new ClassMatcher { ExactName = nameof(Chef) } }
+        },
+        new AllowedDependency(nameof(Customer), nameof(Waiter)),
+        new AllowedDependency(nameof(Waiter), nameof(Chef))
+    }
+};
+
+configuration.Save("Architecture.anl");
+```
+
+This is still an `.anl` configuration. The package is an authoring API, not a second configuration language:
+
+- `nameof` keeps names attached to the code they describe.
+- Enum values cover finite choices such as dependency sites and type kinds.
+- The exported element order follows the C# collection order.
+- `ToXml()` returns XML in memory.
+- `Save()` writes a UTF-8 `.anl` file and can add an XSD hint through `ArchitectureConfigurationExportOptions.SchemaLocation`.
+- Export fails when a model contains contradictory settings such as both `allowedSites` and `blockedSites` on one rule.
+
+I recommend generating and committing the result. The analyzer then consumes the same plain file in Visual Studio, command-line builds, and CI; the application being analyzed does not need a reference to the IaC package.
+
+The examples keep each IaC use case in its own generator project:
+
+- [`Example.InfrastructureAsCode`](Examples/Features/Example.InfrastructureAsCode) is the smallest useful starting point.
+- [`Example.InfrastructureAsCode.DependencyRules`](Examples/Features/Example.InfrastructureAsCode.DependencyRules) covers allowed edges, blocked edges, and site filters.
+- [`Example.InfrastructureAsCode.NestedLayers`](Examples/Features/Example.InfrastructureAsCode.NestedLayers) covers hierarchical boundaries and cross-boundary gates.
+- [`Example.InfrastructureAsCode.OperationPolicies`](Examples/Features/Example.InfrastructureAsCode.OperationPolicies) covers semantic operation matchers.
 
 ### `<Include>`
 
@@ -2586,11 +2647,96 @@ The child policy cannot override a parent failure. The first failing policy is r
 - Visibility policies check a declaration's own accessibility. A public nested class inside an internal parent is still declared `Public`.
 - Whether a declaration is effectively visible outside all its containing types is exposed to documentation and editor tooling for context, but it does not change `ARCH_VIS_001`.
 - Whether a public signature exposes a forbidden layer is a separate API-surface concern (`ARCH_API_001`).
+- Whether a CLR-public declaration should remain internal to a class, assembly, or layer is handled by [architectural-internal annotations](docs/configuration/architectural-internal-annotations.md) (`ARCH_VIS_007`).
 - Whether an interface or contract contains an allowed kind of member is a separate contract-purity concern (`ARCH_CONT_008`).
 
 Arse includes visibility findings in `inspect`, `report`, generated documentation, and code evidence. The standalone WPF editor and Visual Studio graph inspector provide checkable target/accessibility controls and autosave the same `.anl` or inline metadata source.
 
 **Example project:** [`Example.Arch_VIS_001.VisibilityPolicy`](Examples/Diagnostics/VIS/Example.Arch_VIS_001.VisibilityPolicy)
+
+### Architectural-internal annotations
+
+Sometimes `internal` is exactly what you want. Sometimes a framework has other ideas.
+
+An entity projection may need to stay `public` because Entity Framework, a serializer, or reflection needs to construct it. That CLR requirement does not mean the rest of the application should start passing the projection around as a public contract.
+
+Install the small annotations package in the project that owns such declarations:
+
+```shell
+dotnet add package RonSijm.AnaalIJzer.Annotations
+```
+
+The package has no analyzer, Roslyn, or runtime dependencies. The normal `RonSijm.AnaalIJzer` analyzer recognizes its attributes by their full metadata names.
+
+#### Pick the boundary you mean
+
+| Attribute | Who may reference the declaration? | Needs layers? |
+|---|---|---|
+| `[ClassInternal]` | The declaring or annotated type and its nested type family | No |
+| `[AssemblyInternal]` | Code in the declaring assembly | No |
+| `[LayerInternal]` | Code in the declaration's deepest configured layer and descendant layers | Yes |
+
+`ClassInternal` is useful for a reflection-only public class without making you invent a one-class layer:
+
+```csharp
+using RonSijm.AnaalIJzer.Annotations;
+
+[ClassInternal]
+public sealed class ReflectionProjection
+{
+    public static ReflectionProjection Create() => new();
+}
+```
+
+Code inside `ReflectionProjection`, including nested types, may use it. Another top-level class may not directly name or construct it.
+
+For the entity-projection case, a layer boundary is usually the better fit:
+
+```csharp
+[LayerInternal]
+public sealed record PatientEntityProjection(int PatientId, string DisplayName);
+```
+
+```xml
+<Layer name="Persistence">
+  <Class endsWith="EntityProjection" />
+  <Class endsWith="Repository" />
+</Layer>
+```
+
+A repository in `Persistence` may use the projection. An application service may not, even when an ordinary `<AllowedDependency from="Application" to="Persistence" />` edge exists. The edge permits the layer dependency; `[LayerInternal]` narrows this particular declaration.
+
+#### Public signatures count too
+
+The restriction is checked at both ends:
+
+- code outside the boundary may not reference the annotated declaration;
+- public API inside the boundary may not leak it to outside callers.
+
+This is rejected:
+
+```csharp
+[AssemblyInternal]
+public sealed class EntityProjection { }
+
+public sealed class ProjectionFacade
+{
+    public EntityProjection Leak() => new();
+}
+```
+
+Protect the facade with an equivalent or narrower annotation, or return a proper public contract instead.
+
+#### What the attributes do not do
+
+- They do not rewrite `public` to `internal` in IL.
+- They do not change reflection or framework behavior.
+- They do not replace ordinary C# accessibility when `internal` or `private` already works.
+- `[LayerInternal]` fails closed when its declaration is not classified into a layer.
+
+There is deliberately no automatic code fix. Removing a reference, changing a return contract, or widening a boundary are different design decisions, and the light bulb cannot honestly pick one for you.
+
+**Example project:** [`Example.Arch_VIS_007.ArchitecturalInternal`](Examples/Diagnostics/VIS/Example.Arch_VIS_007.ArchitecturalInternal)
 
 ### Inheritance policies
 
@@ -4215,7 +4361,7 @@ Descriptions do not affect diagnostics. They are the cheapest place to record in
 
 ## Diagnostics
 
-The analyzer ships with twenty-nine compiler diagnostic IDs. IDs follow `ARCH_<CONCERN>_<REASON>`: the concern names the policy family and the shared three-digit reason identifies the kind of failure. Dependency, name-rule, API-surface, return-value, operation-policy, and namespace-hierarchy diagnostics expose their syntactic site through the `Site` property where applicable.
+The analyzer ships with thirty compiler diagnostic IDs. IDs follow `ARCH_<CONCERN>_<REASON>`: the concern names the policy family and the shared three-digit reason identifies the kind of failure. Dependency, name-rule, API-surface, return-value, operation-policy, and namespace-hierarchy diagnostics expose their syntactic site through the `Site` property where applicable.
 
 | ID      | Meaning                                                      |
 |---------|--------------------------------------------------------------|
@@ -4231,6 +4377,7 @@ The analyzer ships with twenty-nine compiler diagnostic IDs. IDs follow `ARCH_<C
 | ARCH_PROJ_001 | Direct project reference violates `ProjectArchitecture`      |
 | ARCH_PKG_001 | Direct package reference violates `ProjectArchitecture`      |
 | ARCH_VIS_001 | Declared accessibility violates a layer visibility policy    |
+| ARCH_VIS_007 | Architectural-internal declaration crosses its selected boundary |
 | ARCH_CONT_008 | Contract declaration shape violates a layer contract policy  |
 | ARCH_API_010 | Allowed API root transitively exposes a type rejected by its layer policy |
 | ARCH_SRC_007 | Layer source declaration is outside an allowed source location |
@@ -4797,6 +4944,44 @@ For configuration-backed fixes, the IDE can add the reported accessibility to `a
 - Keep repository query builders and persistence helpers `internal` so they cannot become accidental application contracts.
 - Require implementation-only handlers, factories, or composition-root types to stay hidden even when a developer reaches for `public` during a refactor.
 
+### ARCH_VIS_007 - Architectural-internal boundary violation
+
+Reported when code references or publicly exposes a declaration marked with an AnaalIJzer architectural-internal annotation from outside its selected boundary.
+
+The available boundaries are:
+
+- `[ClassInternal]`: the annotated declaration's owning type and nested type family;
+- `[AssemblyInternal]`: the declaring assembly;
+- `[LayerInternal]`: the declaration's deepest configured layer and descendant layers.
+
+Example:
+
+```text
+'OrderingService' may not reference architectural-internal 'EntityProjection':
+[LayerInternal] permits references only from layer 'Persistence' or its descendants;
+caller layer is 'Application'
+```
+
+Diagnostic properties include:
+
+- `CallerTypeName` and `CallerLayerName`;
+- `DependencyTypeName` and `DependencyLayerName`;
+- `Site`;
+- `ArchitecturalInternalScope`;
+- `ArchitecturalInternalAttribute`;
+- `ViolationReason`.
+
+Typical fixes:
+
+- replace the restricted type with a public contract or projection;
+- move the caller inside the intended boundary when it genuinely belongs there;
+- choose a wider annotation when the original boundary was too narrow;
+- use ordinary `internal` or `private` accessibility when no framework requires the declaration to stay public.
+
+No automatic code fix is offered because those choices change ownership or API design.
+
+**Example project:** [`Example.Arch_VIS_007.ArchitecturalInternal`](Examples/Diagnostics/VIS/Example.Arch_VIS_007.ArchitecturalInternal)
+
 ### ARCH_CONT_008 - Contract purity violation
 
 Reported when a source declaration belongs to a layer with an applicable `<ContractPolicy>` and its declaration shape does not pass that policy. A contract that has acquired setters, state, and a method body is an implementation wearing a contract's job title.
@@ -5355,6 +5540,8 @@ The policy families add their own properties:
 
 - `ARCH_VIS_001`
   - `DeclarationTarget`, `DeclaredAccessibility`, and `DeclaredSymbolName`;
+- `ARCH_VIS_007`
+  - `CallerTypeName`, `CallerLayerName`, `DependencyTypeName`, `DependencyLayerName`, `Site`, `ArchitecturalInternalScope`, `ArchitecturalInternalAttribute`, and `ViolationReason`;
 - `ARCH_INH_001`
   - `DeclaredSymbolName` and `InheritanceViolationKind`;
 - `ARCH_RET_001`

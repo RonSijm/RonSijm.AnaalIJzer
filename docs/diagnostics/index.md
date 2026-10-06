@@ -1,6 +1,6 @@
 ## Diagnostics
 
-The analyzer ships with twenty-nine compiler diagnostic IDs. IDs follow `ARCH_<CONCERN>_<REASON>`: the concern names the policy family and the shared three-digit reason identifies the kind of failure. Dependency, name-rule, API-surface, return-value, operation-policy, and namespace-hierarchy diagnostics expose their syntactic site through the `Site` property where applicable.
+The analyzer ships with thirty compiler diagnostic IDs. IDs follow `ARCH_<CONCERN>_<REASON>`: the concern names the policy family and the shared three-digit reason identifies the kind of failure. Dependency, name-rule, API-surface, return-value, operation-policy, and namespace-hierarchy diagnostics expose their syntactic site through the `Site` property where applicable.
 
 | ID      | Meaning                                                      |
 |---------|--------------------------------------------------------------|
@@ -16,6 +16,7 @@ The analyzer ships with twenty-nine compiler diagnostic IDs. IDs follow `ARCH_<C
 | ARCH_PROJ_001 | Direct project reference violates `ProjectArchitecture`      |
 | ARCH_PKG_001 | Direct package reference violates `ProjectArchitecture`      |
 | ARCH_VIS_001 | Declared accessibility violates a layer visibility policy    |
+| ARCH_VIS_007 | Architectural-internal declaration crosses its selected boundary |
 | ARCH_CONT_008 | Contract declaration shape violates a layer contract policy  |
 | ARCH_API_010 | Allowed API root transitively exposes a type rejected by its layer policy |
 | ARCH_SRC_007 | Layer source declaration is outside an allowed source location |

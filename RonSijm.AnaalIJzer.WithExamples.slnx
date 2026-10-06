@@ -65,6 +65,7 @@
   </Folder>
   <Folder Name="/Examples/Diagnostics/VIS/">
     <Project Path="Examples/Diagnostics/VIS/Example.Arch_VIS_001.VisibilityPolicy/Example.Arch_VIS_001.VisibilityPolicy.csproj" />
+    <Project Path="Examples/Diagnostics/VIS/Example.Arch_VIS_007.ArchitecturalInternal/Example.Arch_VIS_007.ArchitecturalInternal.csproj" />
   </Folder>
   <Folder Name="/Examples/Features/">
     <Project Path="Examples/Features/Example.AllowedSites/Example.AllowedSites.csproj" />
@@ -81,6 +82,10 @@
     <Project Path="Examples/Features/Example.GlobalReturnValuePolicy/Example.GlobalReturnValuePolicy.csproj" />
     <Project Path="Examples/Features/Example.IncludeSettings/Example.IncludeSettings.csproj" />
     <Project Path="Examples/Features/Example.IncludeWildcardSettings/Example.IncludeWildcardSettings.csproj" />
+    <Project Path="Examples/Features/Example.InfrastructureAsCode/Example.InfrastructureAsCode.csproj" />
+    <Project Path="Examples/Features/Example.InfrastructureAsCode.DependencyRules/Example.InfrastructureAsCode.DependencyRules.csproj" />
+    <Project Path="Examples/Features/Example.InfrastructureAsCode.NestedLayers/Example.InfrastructureAsCode.NestedLayers.csproj" />
+    <Project Path="Examples/Features/Example.InfrastructureAsCode.OperationPolicies/Example.InfrastructureAsCode.OperationPolicies.csproj" />
     <Project Path="Examples/Features/Example.InlineXml/Example.InlineXml.csproj" />
     <Project Path="Examples/Features/Example.LayerScopedRecognizedDependencies/Example.LayerScopedRecognizedDependencies.csproj" />
 	<Project Path="Examples/Features/Example.NameRuleIntraProceduralTracking/Example.NameRuleIntraProceduralTracking.csproj" />
@@ -133,6 +138,9 @@
     <Project Path="src/Extensions/RonSijm.AnaalIJzer.VisualStudio/RonSijm.AnaalIJzer.VisualStudio.csproj" />
   </Folder>
   <Folder Name="/Main/" />
+  <Folder Name="/Main/Annotations/">
+    <Project Path="src/Main/RonSijm.AnaalIJzer.Annotations/RonSijm.AnaalIJzer.Annotations.csproj" />
+  </Folder>
   <Folder Name="/Main/Analyzer/">
     <Project Path="src/Main/RonSijm.AnaalIJzer/RonSijm.AnaalIJzer.csproj" />
     <Project Path="src/Main/RonSijm.AnaalIJzer.Diagnostics/RonSijm.AnaalIJzer.Diagnostics.csproj" />
@@ -144,6 +152,7 @@
     <Project Path="src/Main/RonSijm.AnaalIJzer.Outputs/RonSijm.AnaalIJzer.Outputs.csproj" />
   </Folder>
   <Folder Name="/Main/Configuration/">
+    <Project Path="src/Main/RonSijm.AnaalIJzer.IaC/RonSijm.AnaalIJzer.IaC.csproj" />
     <Project Path="src/Main/RonSijm.AnaalIJzer.Core.BuildMetadata/RonSijm.AnaalIJzer.Core.BuildMetadata.csproj" />
     <Project Path="src/Main/RonSijm.AnaalIJzer.Core.Configuration.Compilation/RonSijm.AnaalIJzer.Core.Configuration.Compilation.csproj" />
     <Project Path="src/Main/RonSijm.AnaalIJzer.Core.Configuration.Document/RonSijm.AnaalIJzer.Core.Configuration.Document.csproj" />
@@ -204,6 +213,7 @@
     <Project Path="src/Main/RonSijm.AnaalIJzer.Statistics.GitHistory/RonSijm.AnaalIJzer.Statistics.GitHistory.csproj" />
   </Folder>
   <Folder Name="/Tests/">
+    <Project Path="src/Tests/RonSijm.AnaalIJzer.IaC.Tests/RonSijm.AnaalIJzer.IaC.Tests.csproj" />
     <Project Path="src/Tests/RonSijm.AnaalIJzer.ConfigurationEditing.Tests/RonSijm.AnaalIJzer.ConfigurationEditing.Tests.csproj" />
     <Project Path="src/Tests/RonSijm.AnaalIJzer.Core.BuildMetadata.Tests/RonSijm.AnaalIJzer.Core.BuildMetadata.Tests.csproj" />
     <Project Path="src/Tests/RonSijm.AnaalIJzer.Core.Configuration.Compilation.Tests/RonSijm.AnaalIJzer.Core.Configuration.Compilation.Tests.csproj" />

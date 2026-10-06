@@ -35,6 +35,7 @@ internal static partial class ViolationMarkdownReportBuilder
         AppendProjectReferenceNotAllowed(sb, Get(ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed));
         AppendPackageReferenceNotAllowed(sb, Get(ArchitecturalDiagnosticIds.PackageReferenceNotAllowed));
         AppendVisibilityNotAllowed(sb, Get(ArchitecturalDiagnosticIds.VisibilityNotAllowed));
+        AppendArchitecturalInternalBoundary(sb, Get(ArchitecturalDiagnosticIds.ArchitecturalInternalBoundary));
         AppendContractShapeMismatch(sb, Get(ArchitecturalDiagnosticIds.ContractShapeMismatch));
         AppendApiTransitiveExposure(sb, Get(ArchitecturalDiagnosticIds.ApiTransitiveExposure));
         AppendSourceBoundaryPlacement(sb, Get(ArchitecturalDiagnosticIds.SourceBoundaryPlacement));

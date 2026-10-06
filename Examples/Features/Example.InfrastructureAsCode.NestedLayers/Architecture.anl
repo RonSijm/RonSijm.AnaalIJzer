@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArchitecturalLevels description="Nested boundaries require both the outer relationship and the relevant inner gates." xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd">
+  <Layer description="The ordering boundary owns order workflows and storage." name="Ordering">
+    <Namespace description="Every nested ordering role remains inside the ordering namespace." startsWith="ExampleCompany.Ordering" />
+    <Layer description="Coordinates ordering use cases." name="Application">
+      <Namespace startsWith="ExampleCompany.Ordering.Application" />
+    </Layer>
+    <Layer description="Stores orders for the ordering boundary." name="Repository">
+      <Namespace startsWith="ExampleCompany.Ordering.Repository" />
+    </Layer>
+    <AllowedDependency description="Ordering use cases may use their own repositories." from="Application" to="Repository" />
+    <AllowedDependency description="Ordering may leave its boundary through Billing contracts." from="Application" to="/Billing/Contracts" />
+  </Layer>
+  <Layer description="The billing boundary exposes contracts without exposing its implementation." name="Billing">
+    <Namespace startsWith="ExampleCompany.Billing" />
+    <Layer description="The public entry point into Billing." name="Contracts">
+      <Namespace startsWith="ExampleCompany.Billing.Contracts" />
+    </Layer>
+    <Layer description="Billing details that stay behind its contracts." name="Implementation">
+      <Namespace startsWith="ExampleCompany.Billing.Implementation" />
+    </Layer>
+    <AllowedDependency description="Ordering may enter Billing through its contracts." from="/Ordering/Application" to="Contracts" />
+    <AllowedDependency description="Billing implementations may implement their own contracts." allowedSites="InterfaceImplementation" from="Implementation" to="Contracts" />
+  </Layer>
+  <AllowedDependency description="Ordering and Billing may communicate when their inner gates also permit it." from="Ordering" to="Billing" />
+</ArchitecturalLevels>

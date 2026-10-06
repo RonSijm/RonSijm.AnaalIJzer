@@ -10,6 +10,7 @@ tools/anaaltomy.md
 components/wpf-graph-editor.md
 configuration/mental-model.md
 configuration/index.md
+configuration/infrastructure-as-code.md
 configuration/include.md
 configuration/layers.md
 configuration/layer-membership-and-layout.md
@@ -21,6 +22,7 @@ configuration/exceptions.md
 configuration/exception-policy.md
 configuration/name-rules.md
 configuration/visibility-policies.md
+configuration/architectural-internal-annotations.md
 configuration/inheritance-policies.md
 configuration/contract-policies.md
 configuration/return-value-policies.md
@@ -59,6 +61,7 @@ diagnostics/arch_api_001-api-exposure-not-allowed.md
 diagnostics/arch_proj_001-project-reference-not-allowed.md
 diagnostics/arch_pkg_001-package-reference-not-allowed.md
 diagnostics/arch_vis_001-visibility-not-allowed.md
+diagnostics/arch_vis_007-architectural-internal-boundary.md
 diagnostics/arch_cont_008-contract-shape-mismatch.md
 diagnostics/arch_api_010-transitive-api-exposure.md
 diagnostics/arch_src_007-source-placement.md

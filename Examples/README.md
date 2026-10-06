@@ -99,6 +99,7 @@ Diagnostic examples are grouped by the concern segment in their diagnostic ID. T
 | [`RET`](Diagnostics/RET) | [`Example.Arch_RET_001.DirectInvocationReturn`](Diagnostics/RET/Example.Arch_RET_001.DirectInvocationReturn) | `ReturnValuePolicy` - `<Invocation />` rejects a directly returned method call without blocking literal or null returns. |
 | [`TYPE`](Diagnostics/TYPE) | [`Example.Arch_TYPE_001.ForbiddenType`](Diagnostics/TYPE/Example.Arch_TYPE_001.ForbiddenType) | [`<Forbidden>`](../README.md#forbidden) |
 | [`VIS`](Diagnostics/VIS) | [`Example.Arch_VIS_001.VisibilityPolicy`](Diagnostics/VIS/Example.Arch_VIS_001.VisibilityPolicy) | [`Visibility policies`](../README.md#visibility-policies) |
+| [`VIS`](Diagnostics/VIS) | [`Example.Arch_VIS_007.ArchitecturalInternal`](Diagnostics/VIS/Example.Arch_VIS_007.ArchitecturalInternal) | `[ClassInternal]`, `[AssemblyInternal]`, and `[LayerInternal]` keep CLR-public declarations inside an architectural boundary. |
 
 ### Features
 
@@ -120,6 +121,10 @@ Diagnostic examples are grouped by the concern segment in their diagnostic ID. T
 | [`Example.Exceptions`](Features/Example.Exceptions) | [`<Exceptions>`](../README.md#exceptions) |
 | [`Example.IncludeSettings`](Features/Example.IncludeSettings) | [`<Include>`](../README.md#include) |
 | [`Example.IncludeWildcardSettings`](Features/Example.IncludeWildcardSettings) | Wildcard [`<Include>`](../README.md#include) rules, including an optional drop-in folder that may be empty. |
+| [`Example.InfrastructureAsCode`](Features/Example.InfrastructureAsCode) | Generate a strongly typed `.anl` configuration from C# with `RonSijm.AnaalIJzer.IaC`. |
+| [`Example.InfrastructureAsCode.DependencyRules`](Features/Example.InfrastructureAsCode.DependencyRules) | Generate allowed dependencies, blocked dependencies, and site filters through the IaC model. |
+| [`Example.InfrastructureAsCode.NestedLayers`](Features/Example.InfrastructureAsCode.NestedLayers) | Generate nested boundaries with outer, egress, and ingress gates. |
+| [`Example.InfrastructureAsCode.OperationPolicies`](Features/Example.InfrastructureAsCode.OperationPolicies) | Generate semantic operation matchers for a direct system-clock policy. |
 | [`Example.GlobalReturnValuePolicy`](Features/Example.GlobalReturnValuePolicy) | A root `<ReturnValuePolicy>` imported from a wildcard rule folder and applied without layers. |
 | [`Example.InlineXml`](Features/Example.InlineXml) | [`Optional: inline settings with AssemblyMetadata`](../README.md#5-optional-inline-settings-with-assemblymetadata) |
 | [`Example.LayerScopedRecognizedDependencies`](Features/Example.LayerScopedRecognizedDependencies) | [`requireRecognizedDependencies`](../README.md#requirerecognizeddependencies-attribute) |

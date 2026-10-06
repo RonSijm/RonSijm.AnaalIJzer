@@ -8,6 +8,7 @@ using RonSijm.AnaalIJzer.Core.ApiSurface.Analysis.Model;
 using RonSijm.AnaalIJzer.Core.Configuration.Compilation.Parsing;
 using RonSijm.AnaalIJzer.Core.Observations;
 using RonSijm.AnaalIJzer.Core.Violations;
+using RonSijm.AnaalIJzer.Core.Visibility.Annotations;
 using RonSijm.AnaalIJzer.Diagnostics;
 using RonSijm.AnaalIJzer.Engine.Analysis.AssemblyAttributes;
 using RonSijm.AnaalIJzer.Engine.Analysis.BoundaryRules.LayerDependencies;
@@ -41,6 +42,7 @@ public sealed partial class ArchitecturalLevelAnalyzer : DiagnosticAnalyzer
         ArchitecturalDiagnostics.ProjectReferenceNotAllowed,
         ArchitecturalDiagnostics.PackageReferenceNotAllowed,
         ArchitecturalDiagnostics.VisibilityNotAllowed,
+        ArchitecturalDiagnostics.ArchitecturalInternalBoundary,
         ArchitecturalDiagnostics.ContractShapeMismatch,
         ArchitecturalDiagnostics.InheritanceNotAllowed,
         ArchitecturalDiagnostics.ReturnNotAllowed,
@@ -109,6 +111,45 @@ public sealed partial class ArchitecturalLevelAnalyzer : DiagnosticAnalyzer
                         ReturnValuePolicyAnalyzer.AnalyzeArrowExpressionClause(nodeContext, config);
                     }
                 }, SyntaxKind.ArrowExpressionClause);
+            }
+
+            if (compilationContext.Compilation.HasArchitectureInternalAnnotations())
+            {
+                compilationContext.RegisterSyntaxNodeAction(nodeContext =>
+                {
+                    if (GeneratedCodeAnalysisGate.ShouldAnalyze(nodeContext.Node.SyntaxTree, config, nodeContext.CancellationToken))
+                    {
+                        ArchitecturalInternalAnalyzer.AnalyzeSimpleName(nodeContext, config);
+                    }
+                }, SyntaxKind.IdentifierName, SyntaxKind.GenericName);
+                compilationContext.RegisterSyntaxNodeAction(nodeContext =>
+                {
+                    if (GeneratedCodeAnalysisGate.ShouldAnalyze(nodeContext.Node.SyntaxTree, config, nodeContext.CancellationToken))
+                    {
+                        ArchitecturalInternalAnalyzer.AnalyzeObjectCreation(nodeContext, config);
+                    }
+                }, SyntaxKind.ObjectCreationExpression, SyntaxKind.ImplicitObjectCreationExpression);
+                compilationContext.RegisterSyntaxNodeAction(nodeContext =>
+                {
+                    if (GeneratedCodeAnalysisGate.ShouldAnalyze(nodeContext.Node.SyntaxTree, config, nodeContext.CancellationToken))
+                    {
+                        ArchitecturalInternalAnalyzer.AnalyzeElementAccess(nodeContext, config);
+                    }
+                }, SyntaxKind.ElementAccessExpression);
+                compilationContext.RegisterOperationAction(operationContext =>
+                {
+                    if (GeneratedCodeAnalysisGate.ShouldAnalyze(operationContext, config))
+                    {
+                        ArchitecturalInternalAnalyzer.AnalyzeOperator(operationContext, config);
+                    }
+                }, OperationKind.BinaryOperator, OperationKind.UnaryOperator, OperationKind.Increment, OperationKind.Conversion, OperationKind.CompoundAssignment);
+                compilationContext.RegisterSymbolAction(symbolContext =>
+                {
+                    if (GeneratedCodeAnalysisGate.ShouldAnalyze(symbolContext, config))
+                    {
+                        ArchitecturalInternalAnalyzer.AnalyzePublicExposure(symbolContext, config);
+                    }
+                }, SymbolKind.NamedType, SymbolKind.Method, SymbolKind.Property, SymbolKind.Field, SymbolKind.Event);
             }
 
             if (!config.Engine.HasLayers && !config.HasNamespaceHierarchyPolicies)

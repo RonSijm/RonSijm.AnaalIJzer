@@ -35,7 +35,6 @@ param(
 $ErrorActionPreference = "Stop"
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
-$solution = Join-Path $repoRoot "src\\RonSijm.AnaalIJzer.slnx"
 $settings = Join-Path $PSScriptRoot "CodeStyle.DotSettings"
 
 if (-not (Test-Path $settings)) {

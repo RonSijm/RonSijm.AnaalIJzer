@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArchitecturalLevels description="A customer asks a waiter, and the waiter asks a chef." xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd">
+  <Layer name="Customer">
+    <Class exactName="Customer" />
+  </Layer>
+  <Layer name="Waiter">
+    <Class exactName="Waiter" />
+  </Layer>
+  <Layer name="Chef">
+    <Class exactName="Chef" />
+  </Layer>
+  <AllowedDependency description="A customer may ask a waiter for food." from="Customer" to="Waiter" />
+  <AllowedDependency description="A waiter may pass an order to a chef." from="Waiter" to="Chef" />
+</ArchitecturalLevels>

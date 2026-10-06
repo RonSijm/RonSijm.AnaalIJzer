@@ -15,6 +15,7 @@ public static class ArchitecturalDiagnosticIds
     public const string ProjectReferenceNotAllowed = "ARCH_PROJ_001";
     public const string PackageReferenceNotAllowed = "ARCH_PKG_001";
     public const string VisibilityNotAllowed = "ARCH_VIS_001";
+    public const string ArchitecturalInternalBoundary = "ARCH_VIS_007";
     public const string ContractShapeMismatch = "ARCH_CONT_008";
     public const string ApiTransitiveExposure = "ARCH_API_010";
     public const string SourceBoundaryPlacement = "ARCH_SRC_007";

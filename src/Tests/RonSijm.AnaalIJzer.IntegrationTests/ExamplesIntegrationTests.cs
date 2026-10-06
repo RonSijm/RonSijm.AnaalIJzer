@@ -260,6 +260,26 @@ public sealed class ExamplesIntegrationTests
         var context = ExampleRepositoryContext.Discover();
         var expectedProjectReferences = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
         {
+            ["Diagnostics/VIS/Example.Arch_VIS_007.ArchitecturalInternal"] =
+            [
+                @"..\..\..\..\src\Main\RonSijm.AnaalIJzer.Annotations\RonSijm.AnaalIJzer.Annotations.csproj"
+            ],
+            ["Features/Example.InfrastructureAsCode"] =
+            [
+                @"..\..\..\src\Main\RonSijm.AnaalIJzer.IaC\RonSijm.AnaalIJzer.IaC.csproj"
+            ],
+            ["Features/Example.InfrastructureAsCode.DependencyRules"] =
+            [
+                @"..\..\..\src\Main\RonSijm.AnaalIJzer.IaC\RonSijm.AnaalIJzer.IaC.csproj"
+            ],
+            ["Features/Example.InfrastructureAsCode.NestedLayers"] =
+            [
+                @"..\..\..\src\Main\RonSijm.AnaalIJzer.IaC\RonSijm.AnaalIJzer.IaC.csproj"
+            ],
+            ["Features/Example.InfrastructureAsCode.OperationPolicies"] =
+            [
+                @"..\..\..\src\Main\RonSijm.AnaalIJzer.IaC\RonSijm.AnaalIJzer.IaC.csproj"
+            ],
             ["Scenarios/Example.ProjectReferenceRuleSelectors/Example.ProjectReferenceRuleSelectors.Orders.Application"] =
             [
                 @"..\Example.ProjectReferenceRuleSelectors.Orders.Contracts\Example.ProjectReferenceRuleSelectors.Orders.Contracts.csproj",

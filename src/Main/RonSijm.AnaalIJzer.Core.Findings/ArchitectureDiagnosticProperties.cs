@@ -58,6 +58,8 @@ public static class ArchitectureDiagnosticProperties
     public const string PropertyDeclaredSymbolName = "DeclaredSymbolName";
     public const string PropertyDeclarationTarget = "DeclarationTarget";
     public const string PropertyDeclaredAccessibility = "DeclaredAccessibility";
+    public const string PropertyArchitecturalInternalScope = "ArchitecturalInternalScope";
+    public const string PropertyArchitecturalInternalAttribute = "ArchitecturalInternalAttribute";
     public const string PropertyApiMemberName = "ApiMemberName";
     public const string PropertyExposureRootMember = "ExposureRootMember";
     public const string PropertyExposurePath = "ExposurePath";

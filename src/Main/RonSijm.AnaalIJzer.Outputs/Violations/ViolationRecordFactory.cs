@@ -19,6 +19,7 @@ internal static class ViolationRecordFactory
             or ArchitecturalDiagnosticIds.ProjectReferenceNotAllowed
             or ArchitecturalDiagnosticIds.PackageReferenceNotAllowed
             or ArchitecturalDiagnosticIds.VisibilityNotAllowed
+            or ArchitecturalDiagnosticIds.ArchitecturalInternalBoundary
             or ArchitecturalDiagnosticIds.ContractShapeMismatch
             or ArchitecturalDiagnosticIds.InheritanceNotAllowed
             or ArchitecturalDiagnosticIds.ReturnNotAllowed
@@ -102,9 +103,11 @@ internal static class ViolationRecordFactory
                 ? Get(ArchitecturalDiagnostics.PropertySite)
             : diagnostic.Id == ArchitecturalDiagnosticIds.NamespaceBoundaryPlacement
                 ? Get(ArchitecturalDiagnostics.PropertySite)
-                : diagnostic.Id == ArchitecturalDiagnosticIds.ContractShapeMismatch
-                    ? Get(ArchitecturalDiagnostics.PropertyContractViolationKind)
-                    : diagnostic.Id == ArchitecturalDiagnosticIds.ReturnNotAllowed
+            : diagnostic.Id == ArchitecturalDiagnosticIds.ContractShapeMismatch
+                ? Get(ArchitecturalDiagnostics.PropertyContractViolationKind)
+                : diagnostic.Id == ArchitecturalDiagnosticIds.ArchitecturalInternalBoundary
+                    ? Get(ArchitecturalDiagnostics.PropertyArchitecturalInternalScope)
+                : diagnostic.Id == ArchitecturalDiagnosticIds.ReturnNotAllowed
                         ? Get(ArchitecturalDiagnostics.PropertyReturnedExpressionKind) ?? Get(ArchitecturalDiagnostics.PropertyReturnValueRuleTarget)
                     : diagnostic.Id == ArchitecturalDiagnosticIds.OperationNotAllowed || ArchitecturalDiagnosticIds.IsBehavioralOperationPolicy(diagnostic.Id)
                         ? Get(ArchitecturalDiagnostics.PropertyOperationKind)

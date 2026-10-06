@@ -33,6 +33,7 @@ For the broader mental model, ownership rules, and risk labels, see [Configurati
 | `ARCH_PROJ_001` | add a missing group-level `<AllowedProjectReference>`; add a narrow exact-project rule with `<From>` and `<To>` selectors; add an explicit same-group self-edge; remove the matching blocking `<BlockedProjectReference>` rule | `ProjectArchitectureCodeFixTests.cs` |
 | `ARCH_PKG_001` | append an exact `<Package exactName="..."/>` matcher to the matched allowed package list | `PackagePolicyCodeFixTests.cs` |
 | `ARCH_VIS_001` | add the reported visibility to `allowedAccessibilities`; remove it from `blockedAccessibilities`; remove a single-value blocking policy entirely | `VisibilityPolicyCodeFixTests.cs` |
+| `ARCH_VIS_007` | no automatic fix: changing an architectural boundary, moving a caller, or replacing a public contract requires an ownership decision | `ArchitecturalInternalAnalyzerTests.cs` |
 | `ARCH_CONT_008` | remove a disallowed property setter when the violation is exactly that accessor | `ContractPurityCodeFixTests.cs` |
 | `ARCH_API_010` | the same `ApiSurface` configuration fixes as `ARCH_API_001` | `ApiSurfacePolicyCodeFixTests.cs` |
 | `ARCH_SRC_007` | add an exact `<Source exactName="..."/>` rule to the owning layer | `SourceLocationCodeFixTests.cs` |
@@ -49,7 +50,7 @@ For the broader mental model, ownership rules, and risk labels, see [Configurati
 ### Deliberate limits
 
 - `ARCH_PROJ_001` and `ARCH_PKG_001` are compilation-end diagnostics. The config edits exist and are covered by analyzer tests, but whether an IDE host shows them as ordinary editor light bulbs depends on how that host surfaces `Location.None` diagnostics.
-- `ARCH_CONT_008`, `ARCH_INH_001`, `ARCH_RET_001`, `ARCH_OPER_*`, `ARCH_OPCT_*`, `ARCH_ASSM_001`, and `ARCH_NS_007` stay intentionally narrow. If the analyzer cannot tell which one deterministic edit is the right one, it does not guess. A confidently wrong automatic fix is harder to spot in review than no fix at all.
+- `ARCH_VIS_007`, `ARCH_CONT_008`, `ARCH_INH_001`, `ARCH_RET_001`, `ARCH_OPER_*`, `ARCH_OPCT_*`, `ARCH_ASSM_001`, and `ARCH_NS_007` stay intentionally narrow. If the analyzer cannot tell which one deterministic edit is the right one, it does not guess. A confidently wrong automatic fix is harder to spot in review than no fix at all.
 - Configuration fixers preserve the owning source where possible:
   - if a rule came from an included `.anl`, that included file is edited;
   - if the config came from inline `AssemblyMetadata`, the source file containing the assembly attribute is rewritten.

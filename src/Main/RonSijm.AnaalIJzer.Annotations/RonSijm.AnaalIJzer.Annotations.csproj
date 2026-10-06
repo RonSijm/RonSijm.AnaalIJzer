@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PackageId>RonSijm.AnaalIJzer.Annotations</PackageId>
+    <Description>Dependency-free architecture annotations for RonSijm.AnaalIJzer.</Description>
+    <PackageTags>architecture;annotations;analyzer;visibility</PackageTags>
+    <PackageProjectUrl>https://github.com/RonSijm/RonSijm.AnaalIJzer</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/RonSijm/RonSijm.AnaalIJzer</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon-annotations.png</PackageIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+    <None Include="..\..\..\build\Settings\icon-annotations.png" Pack="true" PackagePath="\" Visible="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
+</Project>

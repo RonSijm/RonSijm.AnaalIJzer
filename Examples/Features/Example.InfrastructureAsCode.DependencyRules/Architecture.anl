@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArchitecturalLevels description="A customer orders through a waiter while pantry access stays with the chef." xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd">
+  <Layer name="Customer">
+    <Class exactName="Customer" />
+  </Layer>
+  <Layer name="Waiter">
+    <Class exactName="Waiter" />
+  </Layer>
+  <Layer name="Chef">
+    <Class exactName="Chef" />
+  </Layer>
+  <Layer name="Pantry">
+    <Class exactName="Pantry" />
+  </Layer>
+  <AllowedDependency description="A customer may receive a waiter through a constructor or call one from a method." allowedSites="Constructor, Method" from="Customer" to="Waiter" />
+  <AllowedDependency description="A waiter may pass an order to a chef." from="Waiter" to="Chef" />
+  <AllowedDependency description="A chef may use ingredients from the pantry." from="Chef" to="Pantry" />
+  <BlockedDependency description="A customer may order ingredients, but may not rummage through the pantry." from="Customer" to="Pantry" />
+</ArchitecturalLevels>

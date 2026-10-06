@@ -15,6 +15,8 @@ $repositoryRoot = Resolve-Path (Join-Path $scriptDirectory "..\..\..")
 $artifactRoot = Join-Path $repositoryRoot "build\Artifacts"
 $packageOutput = Join-Path $artifactRoot "Packages"
 $analyzerProject = Join-Path $repositoryRoot "src\Main\RonSijm.AnaalIJzer\RonSijm.AnaalIJzer.csproj"
+$annotationsProject = Join-Path $repositoryRoot "src\Main\RonSijm.AnaalIJzer.Annotations\RonSijm.AnaalIJzer.Annotations.csproj"
+$iacProject = Join-Path $repositoryRoot "src\Main\RonSijm.AnaalIJzer.IaC\RonSijm.AnaalIJzer.IaC.csproj"
 $arseProject = Join-Path $repositoryRoot "src\Tools\RonSijm.AnaalIJzer.Arse\RonSijm.AnaalIJzer.Arse.csproj"
 $anaaltomyProject = Join-Path $repositoryRoot "src\Tools\RonSijm.Anaaltomy\RonSijm.Anaaltomy.csproj"
 $testScript = Join-Path $repositoryRoot "build\Scripts\Testing\test-all.ps1"
@@ -46,6 +48,30 @@ Invoke-Step "Build analyzer" {
     Invoke-NativeCommand "dotnet" @(
         "build",
         $analyzerProject,
+        "--configuration", $Configuration,
+        "--disable-build-servers",
+        "-m:1",
+        "-p:UseSharedCompilation=false",
+        "-p:GeneratePackageOnBuild=false"
+    )
+}
+
+Invoke-Step "Build annotations" {
+    Invoke-NativeCommand "dotnet" @(
+        "build",
+        $annotationsProject,
+        "--configuration", $Configuration,
+        "--disable-build-servers",
+        "-m:1",
+        "-p:UseSharedCompilation=false",
+        "-p:GeneratePackageOnBuild=false"
+    )
+}
+
+Invoke-Step "Build IaC authoring library" {
+    Invoke-NativeCommand "dotnet" @(
+        "build",
+        $iacProject,
         "--configuration", $Configuration,
         "--disable-build-servers",
         "-m:1",
@@ -100,6 +126,8 @@ if (-not $SkipPack -or $PublishNuGet) {
 
         New-Item -ItemType Directory -Path $packageOutput | Out-Null
         Invoke-NativeCommand "dotnet" @("pack", $analyzerProject, "--configuration", $Configuration, "--no-build", "--output", $packageOutput)
+        Invoke-NativeCommand "dotnet" @("pack", $annotationsProject, "--configuration", $Configuration, "--no-build", "--output", $packageOutput)
+        Invoke-NativeCommand "dotnet" @("pack", $iacProject, "--configuration", $Configuration, "--no-build", "--output", $packageOutput)
         Invoke-NativeCommand "dotnet" @("pack", $arseProject, "--configuration", $Configuration, "--no-build", "--output", $packageOutput)
         Invoke-NativeCommand "dotnet" @("pack", $anaaltomyProject, "--configuration", $Configuration, "--no-build", "--output", $packageOutput)
     }
@@ -114,6 +142,30 @@ if (-not $SkipPack -or $PublishNuGet) {
         }
 
         & (Join-Path $scriptDirectory "verify-analyzer-package.ps1") -PackagePath $analyzerPackage.FullName
+    }
+
+    Invoke-Step "Verify annotations package consumer" {
+        $annotationsPackage = Get-ChildItem -LiteralPath $packageOutput -Filter "RonSijm.AnaalIJzer.Annotations.*.nupkg" |
+            Where-Object { $_.Extension -eq ".nupkg" -and -not $_.Name.EndsWith(".snupkg", [StringComparison]::OrdinalIgnoreCase) } |
+            Select-Object -First 1
+
+        if ($null -eq $annotationsPackage) {
+            throw "The annotations package was not found in $packageOutput."
+        }
+
+        & (Join-Path $scriptDirectory "verify-annotations-package.ps1") -PackagePath $annotationsPackage.FullName
+    }
+
+    Invoke-Step "Verify IaC package consumer" {
+        $iacPackage = Get-ChildItem -LiteralPath $packageOutput -Filter "RonSijm.AnaalIJzer.IaC.*.nupkg" |
+            Where-Object { $_.Extension -eq ".nupkg" -and -not $_.Name.EndsWith(".snupkg", [StringComparison]::OrdinalIgnoreCase) } |
+            Select-Object -First 1
+
+        if ($null -eq $iacPackage) {
+            throw "The IaC package was not found in $packageOutput."
+        }
+
+        & (Join-Path $scriptDirectory "verify-iac-package.ps1") -PackagePath $iacPackage.FullName
     }
 
     Invoke-Step "Verify Anaaltomy global tool package" {
