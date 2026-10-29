@@ -10,8 +10,8 @@ if /i "%~1"=="--deploy-only" set "DEPLOY_ONLY=1"
 
 set "SCRIPT_DIR=%~dp0"
 for %%I in ("%SCRIPT_DIR%..\..\..") do set "ROOT=%%~fI"
-set "VSIX_PROJECT=%ROOT%\src\Extensions\RonSijm.AnaalIJzer.VisualStudio\RonSijm.AnaalIJzer.VisualStudio.csproj"
-set "VSIX_OUT=%ROOT%\src\Extensions\RonSijm.AnaalIJzer.VisualStudio\bin\Release\net472\RonSijm.AnaalIJzer.VisualStudio.vsix"
+set "VSIX_PROJECT=%ROOT%\src\Extensions\RonSijm.IJzer.VisualStudio\RonSijm.IJzer.VisualStudio.csproj"
+set "VSIX_OUT=%ROOT%\src\Extensions\RonSijm.IJzer.VisualStudio\bin\Release\net472\RonSijm.IJzer.VisualStudio.vsix"
 set "TARGET=%~1"
 if defined DETECT_ONLY set "TARGET="
 if defined DEPLOY_ONLY set "TARGET="
@@ -37,7 +37,7 @@ if not exist "%VSWHERE%" (
 set "DEVENV="
 set "MSBUILD="
 set "VS_INSTANCE_ID="
-set "VSWHERE_RESULT=%TEMP%\AnaalIJzer-vswhere-%RANDOM%-%RANDOM%.txt"
+set "VSWHERE_RESULT=%TEMP%\IJzer-vswhere-%RANDOM%-%RANDOM%.txt"
 "%VSWHERE%" -latest -prerelease -products * -version "[18.0,19.0)" -requires Microsoft.VisualStudio.Component.CoreEditor -find "Common7\IDE\devenv.exe" > "%VSWHERE_RESULT%"
 if %ERRORLEVEL% neq 0 (
     del "%VSWHERE_RESULT%" >nul 2>nul
@@ -48,7 +48,7 @@ if %ERRORLEVEL% neq 0 (
 set /p "DEVENV="<"%VSWHERE_RESULT%"
 del "%VSWHERE_RESULT%" >nul 2>nul
 
-set "VSWHERE_RESULT=%TEMP%\AnaalIJzer-vswhere-%RANDOM%-%RANDOM%.txt"
+set "VSWHERE_RESULT=%TEMP%\IJzer-vswhere-%RANDOM%-%RANDOM%.txt"
 "%VSWHERE%" -latest -prerelease -products * -version "[18.0,19.0)" -requires Microsoft.VisualStudio.Component.CoreEditor -find "MSBuild\Current\Bin\MSBuild.exe" > "%VSWHERE_RESULT%"
 if %ERRORLEVEL% neq 0 (
     del "%VSWHERE_RESULT%" >nul 2>nul
@@ -59,7 +59,7 @@ if %ERRORLEVEL% neq 0 (
 set /p "MSBUILD="<"%VSWHERE_RESULT%"
 del "%VSWHERE_RESULT%" >nul 2>nul
 
-set "VSWHERE_RESULT=%TEMP%\AnaalIJzer-vswhere-%RANDOM%-%RANDOM%.txt"
+set "VSWHERE_RESULT=%TEMP%\IJzer-vswhere-%RANDOM%-%RANDOM%.txt"
 "%VSWHERE%" -latest -prerelease -products * -version "[18.0,19.0)" -requires Microsoft.VisualStudio.Component.CoreEditor -property instanceId > "%VSWHERE_RESULT%"
 if %ERRORLEVEL% neq 0 (
     del "%VSWHERE_RESULT%" >nul 2>nul
@@ -105,7 +105,7 @@ echo close only the experimental instance for rootSuffix '%ROOT_SUFFIX%' and rer
 echo.
 )
 
-echo Building AnaalIJzer Visual Studio extension...
+echo Building IJzer Visual Studio extension...
 "%MSBUILD%" "%VSIX_PROJECT%" /nologo /restore /target:Build /verbosity:minimal /property:Configuration=Release
 if %ERRORLEVEL% neq 0 (
     echo.
@@ -121,11 +121,11 @@ if not exist "%VSIX_OUT%" (
 
 set "EXPERIMENTAL_ROOT=%LOCALAPPDATA%\Microsoft\VisualStudio\18.0_%VS_INSTANCE_ID%%ROOT_SUFFIX%"
 set "EXPERIMENTAL_EXTENSIONS=%EXPERIMENTAL_ROOT%\Extensions"
-set "ANAAL_DEV_EXT=%EXPERIMENTAL_EXTENSIONS%\RonSijm\AnaalIJzer Visual Studio Companion\Development"
+set "IJZER_DEV_EXT=%EXPERIMENTAL_EXTENSIONS%\RonSijm\IJzer Visual Studio Companion\Development"
 
 echo Deploying VSIX files to experimental hive '%ROOT_SUFFIX%'...
-echo %ANAAL_DEV_EXT%
-powershell -NoProfile -ExecutionPolicy Bypass -Command "$destination = [IO.Path]::GetFullPath($env:ANAAL_DEV_EXT); $expectedRoot = [IO.Path]::GetFullPath((Join-Path $env:LOCALAPPDATA ('Microsoft\VisualStudio\18.0_' + $env:VS_INSTANCE_ID + $env:ROOT_SUFFIX + '\Extensions'))); if (-not $destination.StartsWith($expectedRoot, [StringComparison]::OrdinalIgnoreCase)) { throw ('Refusing to deploy outside experimental Extensions root: ' + $destination) }; New-Item -ItemType Directory -Force -Path $expectedRoot | Out-Null; if (Test-Path -LiteralPath $destination) { Remove-Item -LiteralPath $destination -Recurse -Force }; New-Item -ItemType Directory -Force -Path $destination | Out-Null; Expand-Archive -LiteralPath $env:VSIX_OUT -DestinationPath $destination -Force; New-Item -ItemType File -Force -Path (Join-Path $expectedRoot 'extensions.configurationchanged') | Out-Null"
+echo %IJZER_DEV_EXT%
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$destination = [IO.Path]::GetFullPath($env:IJZER_DEV_EXT); $expectedRoot = [IO.Path]::GetFullPath((Join-Path $env:LOCALAPPDATA ('Microsoft\VisualStudio\18.0_' + $env:VS_INSTANCE_ID + $env:ROOT_SUFFIX + '\Extensions'))); if (-not $destination.StartsWith($expectedRoot, [StringComparison]::OrdinalIgnoreCase)) { throw ('Refusing to deploy outside experimental Extensions root: ' + $destination) }; New-Item -ItemType Directory -Force -Path $expectedRoot | Out-Null; if (Test-Path -LiteralPath $destination) { Remove-Item -LiteralPath $destination -Recurse -Force }; New-Item -ItemType Directory -Force -Path $destination | Out-Null; Expand-Archive -LiteralPath $env:VSIX_OUT -DestinationPath $destination -Force; New-Item -ItemType File -Force -Path (Join-Path $expectedRoot 'extensions.configurationchanged') | Out-Null"
 if %ERRORLEVEL% neq 0 (
     echo.
     echo Deployment failed while writing the experimental extension folder.
@@ -150,7 +150,7 @@ exit /b 0
 
 :afterDeployOnly
 
-set "ACTIVITY_LOG=%TEMP%\AnaalIJzer-vs-%ROOT_SUFFIX%-ActivityLog.xml"
+set "ACTIVITY_LOG=%TEMP%\IJzer-vs-%ROOT_SUFFIX%-ActivityLog.xml"
 echo.
 echo Launching Visual Studio experimental instance '%ROOT_SUFFIX%'...
 echo Activity log: %ACTIVITY_LOG%
@@ -163,7 +163,7 @@ if "%TARGET%"=="" (
 exit /b 0
 
 :help
-echo Launches Visual Studio 2026 with the AnaalIJzer VSIX installed in an experimental hive.
+echo Launches Visual Studio 2026 with the IJzer VSIX installed in an experimental hive.
 echo.
 echo Usage:
 echo   %~nx0 [solution-or-folder] [rootSuffix]
@@ -173,10 +173,10 @@ echo.
 echo Examples:
 echo   %~nx0
 echo   %~nx0 D:\source\Exquise\src\backend\core\Connect\BsExquise.Connect.slnx
-echo   %~nx0 D:\source\Exquise\src\backend\core\Connect\BsExquise.Connect.slnx AnaalIJzerExp
+echo   %~nx0 D:\source\Exquise\src\backend\core\Connect\BsExquise.Connect.slnx IJzerExp
 echo   %~nx0 --detect
 echo   %~nx0 --deploy-only
-echo   %~nx0 --deploy-only AnaalIJzerExp
+echo   %~nx0 --deploy-only IJzerExp
 echo.
 echo Defaults:
 echo   rootSuffix = Exp

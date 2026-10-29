@@ -7,7 +7,7 @@ It adds four visual workflows to Visual Studio 2026:
 - **Layer information**: badges, CodeLens-style summaries, gutter glyphs, highlights, and QuickInfo explain configured layers.
 - **Sites Diagnostics**: optional inline labels identify architectural sites such as constructors, fields, locals, inheritance, and generic arguments.
 - **Dependency graphs**: a dockable sidebar shows the configured layer graph, follows the active file, and can focus the graph that affects it.
-- **Configuration fixes**: the graph can preview and apply the same configuration-fix proposals that appear through analyzer light bulbs and Arse.
+- **Configuration fixes**: the graph can preview and apply the same configuration-fix proposals that appear through analyzer light bulbs and IJzer Forge.
 
 The screenshots below isolate a setting or tightly related set of settings so a reader can tell exactly what each control changes.
 
@@ -19,20 +19,20 @@ Build the VSIX from the repository root:
 build\Scripts\Addon\build-vs-extension.cmd
 ```
 
-The script writes `RonSijm.AnaalIJzer.VisualStudio.vsix` to `build\Artifacts\VisualStudio`. Install that VSIX into Visual Studio 2026 to enable the editor companion. Each build stamps a timestamp-based extension version so Visual Studio recognizes it as newer than the previous local build.
+The script writes `RonSijm.IJzer.VisualStudio.vsix` to `build\Artifacts\VisualStudio`. Install that VSIX into Visual Studio 2026 to enable the editor companion. Each build stamps a timestamp-based extension version so Visual Studio recognizes it as newer than the previous local build.
 
-The GitHub `build-vsix.yml` workflow builds and uploads the VSIX artifact on Windows. On pushes to `main`, it also submits the VSIX to Visual Studio Marketplace when the repository secret `VS_MARKETPLACE_TOKEN` is configured. Marketplace metadata lives in `src\Extensions\RonSijm.AnaalIJzer.VisualStudio\marketplace-publish.json`.
+The GitHub `build-vsix.yml` workflow builds and uploads the VSIX artifact on Windows. On pushes to `main`, it also submits the VSIX to Visual Studio Marketplace when the repository secret `VS_MARKETPLACE_TOKEN` is configured. Marketplace metadata lives in `src\Extensions\RonSijm.IJzer.VisualStudio\marketplace-publish.json`.
 
-The companion reads the same `Architecture.anl` or `AssemblyMetadata("AnaalIJzerSettings", ...)` configuration as the analyzer through Visual Studio's Roslyn workspace. If no AnaalIJzer config exists, it renders nothing - an empty editor means "nothing is configured", not "everything is in order". If the config is invalid, the companion stays quiet and leaves the existing `ARCH_CONF_003` analyzer diagnostic as the source of truth.
+The companion reads the same `Architecture.anl` or `AssemblyMetadata("IJzerSettings", ...)` configuration as the analyzer through Visual Studio's Roslyn workspace. If no IJzer config exists, it renders nothing - an empty editor means "nothing is configured", not "everything is in order". If the config is invalid, the companion stays quiet and leaves the existing `ARCH_CONF_003` analyzer diagnostic as the source of truth.
 
 ### Layer information on declarations
 
-Layer indicators are controlled from Visual Studio 2026 Settings under `AnaalIJzer > Editor`:
+Layer indicators are controlled from Visual Studio 2026 Settings under `IJzer > Editor`:
 
 | Option | Default | Meaning |
 |---|---:|---|
 | Show layer badges | On | Shows the resolved canonical layer path after a type declaration identifier. |
-| Show layer metadata above declarations | On | Shows a clickable CodeLens-style AnaalIJzer summary above a type declaration. |
+| Show layer metadata above declarations | On | Shows a clickable CodeLens-style IJzer summary above a type declaration. |
 | Show layer badges when not in layer | Off | Shows a neutral `not in layer` badge for a type that does not match any configured layer. |
 | Show global layer rules in badge hover | Off | Includes wildcard rules such as `* (any layer)` in badge hover details. |
 | Show mini call graph in badge hover | On | Shows a compact one-to-one dependency chain in badge hover details when the graph is linear. |
@@ -42,7 +42,7 @@ Layer indicators are controlled from Visual Studio 2026 Settings under `AnaalIJz
 
 Use this settings page to choose how much architectural context appears in the editor. Glyphs and badges support scanning; hover and CodeLens content provide additional detail on demand.
 
-![AnaalIJzer editor settings](../../Examples/Assets/VisualStudio/editor-settings.png)
+![IJzer editor settings](../../Examples/Assets/VisualStudio/editor-settings.png)
 
 **Layer badge.** A badge gives a type its configured architectural role directly beside its declaration. It is the quickest way to answer “where does this type belong?” without leaving the file.
 
@@ -138,9 +138,9 @@ When the solution has `<SolutionTopology>`, the sidebar adds a separate read-onl
 
 ### Configuration fixes from the graph
 
-When the graph comes from an active C# document in a loaded Visual Studio project, it exposes `Configuration fixes` in both the root inspector and the selected layer or connection inspector. The same shared configuration-fix proposal catalog is used by Roslyn light bulbs, `arse fixes`, and the standalone graph editor. It can:
+When the graph comes from an active C# document in a loaded Visual Studio project, it exposes `Configuration fixes` in both the root inspector and the selected layer or connection inspector. The same shared configuration-fix proposal catalog is used by Roslyn light bulbs, `ijzer fixes`, and the standalone graph editor. It can:
 
-- scan the active project for fixable AnaalIJzer diagnostics;
+- scan the active project for fixable IJzer diagnostics;
 - show the target file, risk level, and preview diff for each proposal;
 - apply one selected proposal and immediately refresh the graph.
 
@@ -152,18 +152,18 @@ Detached `.anl` files still open in the graph editor, but they do not automatica
 
 Use `Extensions > IJzer > Show Status` if the editor appears quiet. It analyzes the active document and reports whether the file is part of Visual Studio's Roslyn workspace, whether settings were found, how many layer/site indicators were produced, and whether configuration issues are suppressing visual adornments. It is faster than the traditional method of restarting Visual Studio three times and hoping.
 
-The companion writes logs to Visual Studio's Activity Log and to an Output pane named `AnaalIJzer`.
+The companion writes logs to Visual Studio's Activity Log and to an Output pane named `IJzer`.
 
 If settings, commands, or editor visuals do not appear:
 
 1. Run `Extensions > IJzer > Show Status`.
 2. Start Visual Studio with logging enabled.
 3. Reproduce the issue.
-4. Search the Activity Log and `AnaalIJzer` Output pane.
+4. Search the Activity Log and `IJzer` Output pane.
 
 The first missing event usually tells you which half is broken:
 
-- No `AnaalIJzer` entries at all means the VSIX package is not loading.
+- No `IJzer` entries at all means the VSIX package is not loading.
 - Package initialization without tagger entries means the editor MEF component is not being created for the active C# view.
 
 For local validation, use the [Visual Studio companion manual acceptance checklist](../../docs/visual-studio-companion-manual-acceptance.md).
@@ -171,7 +171,7 @@ For local validation, use the [Visual Studio companion manual acceptance checkli
 The extension looks for settings in this order:
 
 - analyzer `AdditionalFiles`;
-- inline `AssemblyMetadata("AnaalIJzerSettings", ...)`;
+- inline `AssemblyMetadata("IJzerSettings", ...)`;
 - as an editor-only convenience, the nearest `Architecture.anl` above the active document.
 
 An invalid config intentionally produces no adornments. `ARCH_CONF_003` remains the source of truth instead of decorating the editor with guesses from a half-parsed file.
@@ -182,6 +182,6 @@ The implementation uses:
 
 - MEF taggers, glyphs, and inline adornments;
 - option pages and Fonts & Colors format definitions;
-- shared snapshot logic from `RonSijm.AnaalIJzer.Editor`.
+- shared snapshot logic from `RonSijm.IJzer.Editor`.
 
 The last part matters: the extension does not maintain its own slightly different interpretation of config parsing and layer matching.

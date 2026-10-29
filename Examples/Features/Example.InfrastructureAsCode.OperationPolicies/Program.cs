@@ -1,6 +1,6 @@
 // ReSharper disable All - Justification: Example File
 
-using RonSijm.AnaalIJzer.IaC;
+using RonSijm.IJzer.IaC;
 
 var clockReads = new ForbiddenOperation
 {
@@ -37,7 +37,7 @@ var configuration = new ArchitectureConfiguration
 var outputPath = args.FirstOrDefault() ?? Path.Combine(AppContext.BaseDirectory, "Architecture.anl");
 configuration.Save(outputPath, new ArchitectureConfigurationExportOptions
 {
-    SchemaLocation = "../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+    SchemaLocation = "../../../src/Main/RonSijm.IJzer/Scheme/IJzer.xsd"
 });
 
 Console.WriteLine($"Generated {Path.GetFullPath(outputPath)}");

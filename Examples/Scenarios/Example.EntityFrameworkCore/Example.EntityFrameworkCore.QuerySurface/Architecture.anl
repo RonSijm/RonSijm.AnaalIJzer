@@ -1,5 +1,5 @@
 <ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                     xsi:noNamespaceSchemaLocation="../../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+                     xsi:noNamespaceSchemaLocation="../../../../src/Main/RonSijm.IJzer/Scheme/IJzer.xsd"
                      description="An EF Core query may be used fluently, but Application code must not retain the raw IQueryable surface.">
   <Layer name="Application" description="Application services project queries into stable result shapes.">
     <Class endsWith="Service" />

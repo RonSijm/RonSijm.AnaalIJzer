@@ -20,7 +20,7 @@ function Write-Utf8File([string]$Path, [string]$Content) {
 }
 
 $resolvedPackagePath = (Resolve-Path -LiteralPath $PackagePath).Path
-$temporaryDirectory = Join-Path ([System.IO.Path]::GetTempPath()) ("AnaalIJzer-iac-package-smoke-" + [Guid]::NewGuid().ToString("N"))
+$temporaryDirectory = Join-Path ([System.IO.Path]::GetTempPath()) ("IJzer-iac-package-smoke-" + [Guid]::NewGuid().ToString("N"))
 $previousNuGetPackages = $env:NUGET_PACKAGES
 
 try {
@@ -44,9 +44,9 @@ try {
         throw "The IaC package must not declare runtime dependencies: $names."
     }
 
-    $assemblyPath = Join-Path $extractedPackageDirectory "lib\netstandard2.0\RonSijm.AnaalIJzer.IaC.dll"
+    $assemblyPath = Join-Path $extractedPackageDirectory "lib\netstandard2.0\RonSijm.IJzer.IaC.dll"
     if (-not (Test-Path -LiteralPath $assemblyPath)) {
-        throw "The IaC package is missing lib/netstandard2.0/RonSijm.AnaalIJzer.IaC.dll."
+        throw "The IaC package is missing lib/netstandard2.0/RonSijm.IJzer.IaC.dll."
     }
 
     $packageVersion = [string]$nuspec.package.metadata.version
@@ -61,7 +61,7 @@ try {
   </packageSources>
   <packageSourceMapping>
     <packageSource key="package-smoke">
-      <package pattern="RonSijm.AnaalIJzer.IaC" />
+      <package pattern="RonSijm.IJzer.IaC" />
     </packageSource>
     <packageSource key="nuget.org">
       <package pattern="*" />
@@ -77,12 +77,12 @@ try {
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="RonSijm.AnaalIJzer.IaC" Version="$packageVersion" />
+    <PackageReference Include="RonSijm.IJzer.IaC" Version="$packageVersion" />
   </ItemGroup>
 </Project>
 "@
     $consumerSource = @"
-using RonSijm.AnaalIJzer.IaC;
+using RonSijm.IJzer.IaC;
 
 var configuration = new ArchitectureConfiguration
 {

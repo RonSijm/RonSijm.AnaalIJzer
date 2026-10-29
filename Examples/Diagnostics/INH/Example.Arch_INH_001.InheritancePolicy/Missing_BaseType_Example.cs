@@ -2,7 +2,7 @@
 
 using System.Reflection;
 
-[assembly: AssemblyMetadata("AnaalIJzerSettings", """
+[assembly: AssemblyMetadata("IJzerSettings", """
 <ArchitecturalLevels>
   <Layer name="PersistenceEntities">
     <Namespace startsWith="Example.Arch_INH_001.InheritancePolicy.Persistence" />

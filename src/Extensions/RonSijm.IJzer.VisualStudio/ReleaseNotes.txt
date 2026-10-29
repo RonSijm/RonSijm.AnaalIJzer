@@ -1,0 +1,12 @@
+IJzer Visual Studio Companion
+
+- Uses semantic diagnostic IDs in the form ARCH_<CONCERN>_<REASON>.
+- Shows layer badges, gutter glyphs, and declaration background tints for configured IJzer layers.
+- Adds native QuickInfo and WPF tooltip content for layer and dependency-site indicators.
+- Adds the IJzer: Toggle Sites Diagnostics command for inline dependency-site labels.
+- Adds the IJzer: Show Dependency Graphs command with a dockable dependency graph sidebar.
+- Adds the IJzer: Show Status command for active-document troubleshooting.
+- Adds Activity Log and Output window diagnostics for package loading, command registration, editor taggers, config discovery, and snapshot results.
+- Adds graph focus modes to show all graphs, highlight the active graph, or filter to the active graph.
+- Reads the same Architecture.anl or AssemblyMetadata("IJzerSettings", ...) configuration as the analyzer.
+- Targets Visual Studio 2026 and registers the options page for the modern Settings experience.

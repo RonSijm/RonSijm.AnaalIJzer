@@ -1,6 +1,6 @@
 ## Observed dependency cycles
 
-`enforceObservedAcyclic="true"` tells AnaalIJzer to inspect the dependencies that actually occur in source code and fail when those observed edges form a cycle.
+`enforceObservedAcyclic="true"` tells IJzer to inspect the dependencies that actually occur in source code and fail when those observed edges form a cycle.
 
 This is different from `enforceAcyclic`:
 
@@ -37,6 +37,6 @@ Behavior:
 - accepted values are `true`, `false`, `1`, and `0`;
 - invalid values report `ARCH_CONF_003` and disable observed-cycle enforcement;
 - a project build only sees cycles inside that compilation;
-- `arse inspect --solution` can also find cross-project observed cycles.
+- `ijzer inspect --solution` can also find cross-project observed cycles.
 
 See [`Example.Arch_DEP_006.ObservedCycle`](../../Examples/Diagnostics/DEP/Example.Arch_DEP_006.ObservedCycle).

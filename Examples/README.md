@@ -1,6 +1,6 @@
 # Examples
 
-This folder contains runnable sample projects for **RonSijm.AnaalIJzer**. Simple one-file examples keep their top-level config inline in the example source file with `AssemblyMetadata("AnaalIJzerSettings", ...)`, so exact type rules can use `nameof(...)` and stay refactor-safe. Broader multi-file, scenario, or include-focused examples use `Architecture.anl`, which keeps larger rule sets easier to scan. Most examples intentionally fail with documented architectural diagnostics, while a few demonstrate clean configuration or generated documentation output.
+This folder contains runnable sample projects for **RonSijm.IJzer**. Simple one-file examples keep their top-level config inline in the example source file with `AssemblyMetadata("IJzerSettings", ...)`, so exact type rules can use `nameof(...)` and stay refactor-safe. Broader multi-file, scenario, or include-focused examples use `Architecture.anl`, which keeps larger rule sets easier to scan. Most examples intentionally fail with documented architectural diagnostics, while a few demonstrate clean configuration or generated documentation output.
 
 > The repository root [`README.md`](../README.md) is the primary documentation. This file just explains the build wiring of the `Examples/` folder itself.
 
@@ -8,12 +8,12 @@ This folder contains runnable sample projects for **RonSijm.AnaalIJzer**. Simple
 
 ## The analyzer toggle
 
-Because most diagnostic example projects **deliberately fail to build** (that's the point — they trigger `ARCH00X` errors), they would make opening `RonSijm.AnaalIJzer.WithExamples.slnx` in an IDE intolerable if the analyzer were always on. The wiring in [`Directory.Build.props`](Directory.Build.props) gates it behind configuration:
+Because most diagnostic example projects **deliberately fail to build** (that's the point — they trigger `ARCH00X` errors), they would make opening `RonSijm.IJzer.WithExamples.slnx` in an IDE intolerable if the analyzer were always on. The wiring in [`Directory.Build.props`](Directory.Build.props) gates it behind configuration:
 
 | Build                                                          | Analyzer | Notes                                                                |
 | -------------------------------------------------------------- | -------- | -------------------------------------------------------------------- |
 | `dotnet build … -c Debug` *(IDE default)*                      | **OFF**  | Silent. Project loads cleanly, you can browse the source.            |
-| `dotnet build … -c Release`                                    | **ON**   | Diagnostic examples report their `ARCH00X` errors. Generated docs are handled by Arse. |
+| `dotnet build … -c Release`                                    | **ON**   | Diagnostic examples report their `ARCH00X` errors. Generated docs are handled by IJzer Forge. |
 | `dotnet build … -c Debug -p:EnableAnalyzerOnDebug=true`        | **ON**   | One-off Debug run with the analyzer attached.                        |
 | `dotnet build … -p:EnableArchitecturalLevelAnalyzer=true`      | **ON**   | Force-on, regardless of configuration.                               |
 | `dotnet build … -p:EnableArchitecturalLevelAnalyzer=false`     | **OFF**  | Force-off, regardless of configuration.                              |
@@ -121,7 +121,7 @@ Diagnostic examples are grouped by the concern segment in their diagnostic ID. T
 | [`Example.Exceptions`](Features/Example.Exceptions) | [`<Exceptions>`](../README.md#exceptions) |
 | [`Example.IncludeSettings`](Features/Example.IncludeSettings) | [`<Include>`](../README.md#include) |
 | [`Example.IncludeWildcardSettings`](Features/Example.IncludeWildcardSettings) | Wildcard [`<Include>`](../README.md#include) rules, including an optional drop-in folder that may be empty. |
-| [`Example.InfrastructureAsCode`](Features/Example.InfrastructureAsCode) | Generate a strongly typed `.anl` configuration from C# with `RonSijm.AnaalIJzer.IaC`. |
+| [`Example.InfrastructureAsCode`](Features/Example.InfrastructureAsCode) | Generate a strongly typed `.anl` configuration from C# with `RonSijm.IJzer.IaC`. |
 | [`Example.InfrastructureAsCode.DependencyRules`](Features/Example.InfrastructureAsCode.DependencyRules) | Generate allowed dependencies, blocked dependencies, and site filters through the IaC model. |
 | [`Example.InfrastructureAsCode.NestedLayers`](Features/Example.InfrastructureAsCode.NestedLayers) | Generate nested boundaries with outer, egress, and ingress gates. |
 | [`Example.InfrastructureAsCode.OperationPolicies`](Features/Example.InfrastructureAsCode.OperationPolicies) | Generate semantic operation matchers for a direct system-clock policy. |
@@ -152,7 +152,7 @@ Diagnostic examples are grouped by the concern segment in their diagnostic ID. T
 | [`Example.ProjectReferenceBoundaries`](Scenarios/Example.ProjectReferenceBoundaries) | Multi-project scenario showing that an illegal `.csproj` reference raises `ARCH_PROJ_001` even when no source file uses it yet. Projects: `Example.ProjectReferenceBoundaries.Application`, `Example.ProjectReferenceBoundaries.Domain`, `Example.ProjectReferenceBoundaries.Infrastructure`. |
 | [`Example.ProjectReferenceRuleSelectors`](Scenarios/Example.ProjectReferenceRuleSelectors) | Multi-project scenario showing that `From` and `To` selectors narrow an `Application -> Contracts` project-group edge to one exact project pair. Projects: `Example.ProjectReferenceRuleSelectors.Orders.Application`, `Example.ProjectReferenceRuleSelectors.Orders.Contracts`, and `Example.ProjectReferenceRuleSelectors.Payments.Contracts`. |
 | [`Example.RepositoryQuerySurface`](Scenarios/Example.RepositoryQuerySurface) | Repository-owned fluent query surface that must be projected before it becomes an application dependency. |
-| [`Example.SolutionTopology`](Scenarios/Example.SolutionTopology) | Multi-project scenario showing a solution-wide logical module rule that Arse reports as `ARCH_SOL_001` only when solution-topology enforcement is requested. |
+| [`Example.SolutionTopology`](Scenarios/Example.SolutionTopology) | Multi-project scenario showing a solution-wide logical module rule that IJzer Forge reports as `ARCH_SOL_001` only when solution-topology enforcement is requested. |
 
 ### Documentation
 
@@ -168,12 +168,12 @@ Diagnostic examples are grouped by the concern segment in their diagnostic ID. T
 dotnet build Examples\Diagnostics\TYPE\Example.Arch_TYPE_001.ForbiddenType -c Release
 ```
 
-Expected output — one `error ARCH_TYPE_001` and a failed build. That's the example doing its job. Simple one-file examples keep their top-level rule set in `AssemblyMetadata("AnaalIJzerSettings", ...)`; broader examples use `Architecture.anl`.
+Expected output — one `error ARCH_TYPE_001` and a failed build. That's the example doing its job. Simple one-file examples keep their top-level rule set in `AssemblyMetadata("IJzerSettings", ...)`; broader examples use `Architecture.anl`.
 
 To regenerate the committed example report and documentation:
 
 ```cmd
-dotnet run --project src\Tools\RonSijm.AnaalIJzer.Arse -- report --project Examples\Documentation\Example.ReportDemo\Example.ReportDemo.csproj --force
+dotnet run --project src\Tools\RonSijm.IJzer.Forge -- report --project Examples\Documentation\Example.ReportDemo\Example.ReportDemo.csproj --force
 Examples\Documentation\Example.DocumentationDemo\GenerateDocumentation.bat
 ```
 

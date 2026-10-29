@@ -1,9 +1,9 @@
 // ReSharper disable All - Justification: Example File
 
 using System.Reflection;
-using RonSijm.AnaalIJzer.Annotations;
+using RonSijm.IJzer.Annotations;
 
-[assembly: AssemblyMetadata("AnaalIJzerSettings", """
+[assembly: AssemblyMetadata("IJzerSettings", """
 <ArchitecturalLevels>
   <Layer name="Persistence">
     <Class typeName="EntityProjection" />

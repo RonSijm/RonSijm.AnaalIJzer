@@ -1,5 +1,5 @@
 <ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                     xsi:noNamespaceSchemaLocation="../../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+                     xsi:noNamespaceSchemaLocation="../../../../src/Main/RonSijm.IJzer/Scheme/IJzer.xsd"
                      description="Boundary entry points let a parent boundary say which child layers are valid external doors.">
 
   <Layer name="Presentation" description="Outside callers that may enter Ordering only through its contract desk.">

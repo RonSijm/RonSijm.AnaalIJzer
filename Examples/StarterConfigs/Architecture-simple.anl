@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                     xsi:noNamespaceSchemaLocation="../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+                     xsi:noNamespaceSchemaLocation="../../src/Main/RonSijm.IJzer/Scheme/IJzer.xsd"
                      requireRecognizedDependencies="Constructor"
                      enableReport="false"
                      reportPath="architectural-violations.md">

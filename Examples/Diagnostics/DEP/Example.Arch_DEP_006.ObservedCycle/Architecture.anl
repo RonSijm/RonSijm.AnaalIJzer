@@ -1,5 +1,5 @@
 <ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                     xsi:noNamespaceSchemaLocation="../../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+                     xsi:noNamespaceSchemaLocation="../../../../src/Main/RonSijm.IJzer/Scheme/IJzer.xsd"
                      enforceObservedAcyclic="true"
                      description="Observed dependency cycles fail when current code actually forms a layer cycle, even if the configured edges allow both directions.">
 

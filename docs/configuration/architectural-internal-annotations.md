@@ -7,10 +7,10 @@ An entity projection may need to stay `public` because Entity Framework, a seria
 Install the small annotations package in the project that owns such declarations:
 
 ```shell
-dotnet add package RonSijm.AnaalIJzer.Annotations
+dotnet add package RonSijm.IJzer.Annotations
 ```
 
-The package has no analyzer, Roslyn, or runtime dependencies. The normal `RonSijm.AnaalIJzer` analyzer recognizes its attributes by their full metadata names.
+The package has no analyzer, Roslyn, or runtime dependencies. The normal `RonSijm.IJzer` analyzer recognizes its attributes by their full metadata names.
 
 #### Pick the boundary you mean
 
@@ -23,7 +23,7 @@ The package has no analyzer, Roslyn, or runtime dependencies. The normal `RonSij
 `ClassInternal` is useful for a reflection-only public class without making you invent a one-class layer:
 
 ```csharp
-using RonSijm.AnaalIJzer.Annotations;
+using RonSijm.IJzer.Annotations;
 
 [ClassInternal]
 public sealed class ReflectionProjection

@@ -88,6 +88,6 @@ The child policy cannot override an outer denial. The first failure is reported 
 - Inheritance policies do not replace contract purity. A type can inherit the right base class and still violate `<ContractPolicy>`.
 - Inheritance policies check declarations that already exist. They do not classify a type into a layer by themselves; the layer matchers still do that.
 
-Arse includes inheritance-policy findings in `inspect`, `report`, generated documentation, and code evidence. The standalone WPF editor and Visual Studio graph inspector expose the same settings at layer scope.
+IJzer Forge includes inheritance-policy findings in `inspect`, `report`, generated documentation, and code evidence. The standalone WPF editor and Visual Studio graph inspector expose the same settings at layer scope.
 
 **Example projects:** [`Example.Arch_INH_001.InheritancePolicy`](../../Examples/Diagnostics/INH/Example.Arch_INH_001.InheritancePolicy), [`Example.StructuralDeclarationMatchers`](../../Examples/Features/Example.StructuralDeclarationMatchers)

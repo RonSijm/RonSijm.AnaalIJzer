@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <AssemblyName>RonSijm.IJzer.EditorRuntime</AssemblyName>
+        <RootNamespace>RonSijm.IJzer.EditorRuntime</RootNamespace>
+        <LangVersion>latest</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+        <EnforceExtendedAnalyzerRules>false</EnforceExtendedAnalyzerRules>
+        <NoWarn>$(NoWarn);RS2008</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\RonSijm.IJzer.Core.Editor\RonSijm.IJzer.Core.Editor.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.Indicators\RonSijm.IJzer.Core.Indicators.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.OperationPolicies\RonSijm.IJzer.Core.OperationPolicies.csproj" />
+		<ProjectReference Include="..\RonSijm.IJzer.Core.OperationContracts\RonSijm.IJzer.Core.OperationContracts.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.SemanticOperations\RonSijm.IJzer.Core.SemanticOperations.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.Findings\RonSijm.IJzer.Core.Findings.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.Configuration.Compilation\RonSijm.IJzer.Core.Configuration.Compilation.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Engine\RonSijm.IJzer.Engine.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.GraphModel\RonSijm.IJzer.GraphModel.csproj"
+                          SetTargetFramework="TargetFramework=netstandard2.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.14.0" />
+    </ItemGroup>
+
+</Project>

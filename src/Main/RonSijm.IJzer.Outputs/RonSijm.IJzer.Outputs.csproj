@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RonSijm.IJzer.Diagnostics\RonSijm.IJzer.Diagnostics.csproj" />
+    <ProjectReference Include="..\RonSijm.IJzer.Core.Exceptions\RonSijm.IJzer.Core.Exceptions.csproj" />
+    <ProjectReference Include="..\RonSijm.IJzer.Core.LayerModel\RonSijm.IJzer.Core.LayerModel.csproj" />
+	<ProjectReference Include="..\RonSijm.IJzer.Core.Observations\RonSijm.IJzer.Core.Observations.csproj" />
+    <ProjectReference Include="..\RonSijm.IJzer.Core.RuntimeConfig\RonSijm.IJzer.Core.RuntimeConfig.csproj" />
+    <ProjectReference Include="..\RonSijm.IJzer.Core.Indicators\RonSijm.IJzer.Core.Indicators.csproj" />
+    <ProjectReference Include="..\RonSijm.IJzer.Core.Violations\RonSijm.IJzer.Core.Violations.csproj" />
+    <ProjectReference Include="..\RonSijm.IJzer.Core.Findings\RonSijm.IJzer.Core.Findings.csproj" />
+    <ProjectReference Include="..\RonSijm.IJzer.GraphModel\RonSijm.IJzer.GraphModel.csproj" />
+  </ItemGroup>
+
+</Project>

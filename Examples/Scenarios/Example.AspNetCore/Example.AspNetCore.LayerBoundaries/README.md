@@ -1,6 +1,6 @@
 # ASP.NET Core Controller Layer Boundaries
 
-`[ApiController]` is a normal semantic `<Class withAttribute="ApiController" />` matcher. No ASP.NET Core reference is required by AnaalIjzer itself; Roslyn resolves the real attribute in this Web SDK project.
+`[ApiController]` is a normal semantic `<Class withAttribute="ApiController" />` matcher. No ASP.NET Core reference is required by IJzer itself; Roslyn resolves the real attribute in this Web SDK project.
 
 The configuration allows this path:
 

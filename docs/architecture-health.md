@@ -1,12 +1,12 @@
 ## Architecture health
 
-An application can obey every configured edge while its architecture settings quietly drift. `arse inspect` checks both the settings and, when given a project or solution, the code evidence behind them:
+An application can obey every configured edge while its architecture settings quietly drift. `ijzer inspect` checks both the settings and, when given a project or solution, the code evidence behind them:
 
 ```cmd
-arse inspect --project src\MyApp\MyApp.csproj --output docs\architecture-health.md --force
-arse inspect --solution src\MyApp.slnx --output docs\architecture-health.md --force
-arse inspect --solution src\MyApp.slnx --enforce-topology --output build\Artifacts\architecture-health.json --force
-arse inspect --config Architecture.anl --force
+ijzer inspect --project src\MyApp\MyApp.csproj --output docs\architecture-health.md --force
+ijzer inspect --solution src\MyApp.slnx --output docs\architecture-health.md --force
+ijzer inspect --solution src\MyApp.slnx --enforce-topology --output build\Artifacts\architecture-health.json --force
+ijzer inspect --config Architecture.anl --force
 ```
 
 The input decides how far inspection goes:

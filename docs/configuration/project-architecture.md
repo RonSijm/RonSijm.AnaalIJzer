@@ -127,7 +127,7 @@ Roslyn does not reliably expose project-reference provenance by itself.
 
 The analyzer package therefore ships a `buildTransitive` target that writes a small project-reference manifest and adds it as an analyzer `AdditionalFile`. Less elegant than asking the compiler, and it has the distinct advantage of working.
 
-Arse and solution inspection do not need that generated manifest because they can inspect `MSBuildWorkspace` project references directly.
+IJzer Forge and solution inspection do not need that generated manifest because they can inspect `MSBuildWorkspace` project references directly.
 
 For rules about logical modules across an entire solution, use [solution topology](solution-topology.md) instead. `ProjectArchitecture` remains a compiler analyzer feature and produces `ARCH_PROJ_001`; `SolutionTopology` is explicit workspace inspection and produces `ARCH_SOL_001` / `ARCH_SOL_006` report findings.
 
@@ -135,7 +135,7 @@ For rules about logical modules across an entire solution, use [solution topolog
 
 Use [assembly reference policies](assembly-reference-policies.md) for a direct MSBuild
 `<Reference>` / `HintPath` dependency that is neither a project reference nor a NuGet
-package. Those policies are intentionally evaluated by `arse inspect` and `arse report`, not
+package. Those policies are intentionally evaluated by `ijzer inspect` and `ijzer report`, not
 as compiler `ARCHxxx` diagnostics.
 
 ### IDE Fix Support

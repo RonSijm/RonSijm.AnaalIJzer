@@ -4,7 +4,7 @@ Last updated: 2026-09-01
 
 Use this checklist whenever adding a diagnostic, changing a diagnostic's semantics, or introducing a configuration feature whose primary purpose is to produce a new `ARCH_<CONCERN>_<REASON>` finding.
 
-This is intentionally broader than the analyzer itself. An AnaalIJzer diagnostic is a product feature with a rule, configuration, examples, documentation, tests, editor information, and sometimes a user-selected fix.
+This is intentionally broader than the analyzer itself. An IJzer diagnostic is a product feature with a rule, configuration, examples, documentation, tests, editor information, and sometimes a user-selected fix.
 
 Not every section applies to every diagnostic. Mark an item `N/A` only with a short reason in the implementation plan or pull request. Do not silently omit an entire product surface.
 
@@ -37,7 +37,7 @@ Not every section applies to every diagnostic. Mark an item `N/A` only with a sh
 - [ ] State whether repeated child elements are AND conditions or OR alternatives.
 - [ ] State case sensitivity, whitespace handling, wildcard behavior, empty-value behavior, and invalid-value behavior.
 - [ ] State how the rule interacts with nested layers, scoped policies, includes, `appliesToDescendants`, exceptions, allowed/blocked lists, and strict/recognized dependency requirements when applicable.
-- [ ] Decide whether the configuration can be supplied through both `Architecture.anl` and inline `AssemblyMetadata("AnaalIJzerSettings", ...)`.
+- [ ] Decide whether the configuration can be supplied through both `Architecture.anl` and inline `AssemblyMetadata("IJzerSettings", ...)`.
 - [ ] If it cannot safely support inline settings, document the reason and fail closed rather than silently losing configuration.
 - [ ] Define the error behavior for invalid configuration. Invalid input should produce `ARCH_CONF_003` with a useful source location, not an analyzer crash or an ignored rule.
 - [ ] Decide whether an included `.anl` file owns the rule and must be edited directly by a future fixer.
@@ -50,7 +50,7 @@ Not every section applies to every diagnostic. Mark an item `N/A` only with a sh
 - [ ] Add validation for invalid values, incompatible combinations, duplicate names, invalid references, and unsupported scope.
 - [ ] Add materialization into the compiled runtime configuration.
 - [ ] Preserve XML source ownership, path, line, and column information for diagnostics, documentation, graph editing, and fixers.
-- [ ] Update `src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd`, including descriptive comments and every valid enum/token value.
+- [ ] Update `src/Main/RonSijm.IJzer/Scheme/IJzer.xsd`, including descriptive comments and every valid enum/token value.
 - [ ] Add parser and document-model tests for valid values, invalid values, defaults, and source locations.
 - [ ] Add include and inline-metadata coverage if the new configuration is available in those sources.
 - [ ] Confirm configuration merging, splitting, documentation generation, graph snapshots, and configuration editing preserve the new data where applicable.
@@ -96,14 +96,14 @@ Not every section applies to every diagnostic. Mark an item `N/A` only with a sh
 - [ ] Prefer the narrowest exact edit over a broad wildcard, exception, or policy relaxation.
 - [ ] Include a previewable diff and ensure applying the proposal changes configuration only.
 - [ ] Add the diagnostic to `ArchitecturalLevelCodeFixProvider` only if it can surface a valid Roslyn code action.
-- [ ] Confirm the shared proposal collector exposes it to Arse and graph hosts.
+- [ ] Confirm the shared proposal collector exposes it to IJzer Forge and graph hosts.
 - [ ] Add XML, inline metadata, and included-file ownership tests whenever the fixer can touch those source types.
 - [ ] Re-analyze after the fix in an application-level test to prove it resolves the intended finding without creating unrelated changes.
 
 ## 6. Make It Visible In Tooling
 
 - [ ] Update the shared application operation layer if the new rule affects inspect, report, documentation, configuration generation, or fixer output.
-- [ ] Update Arse headless help, operation validation, TUI display, and tests when users need to invoke or understand the feature there.
+- [ ] Update IJzer Forge headless help, operation validation, TUI display, and tests when users need to invoke or understand the feature there.
 - [ ] Update graph model/snapshot output if the rule changes layers, edges, type policies, evidence, violations, or editable configuration.
 - [ ] Update the standalone WPF graph editor if the rule can be displayed, inspected, edited, or fixed there.
 - [ ] Update the Visual Studio extension if the rule should appear in layer information, site diagnostics, QuickInfo, CodeLens, the graph tool window, or graph editing.
@@ -161,7 +161,7 @@ Not every section applies to every diagnostic. Mark an item `N/A` only with a sh
 
 - [ ] Add shared Application/Workspace tests for project and solution inputs when the feature uses workspace analysis or config fixes.
 - [ ] Add example integration coverage that compiles the real project and checks expected diagnostic IDs/counts.
-- [ ] Add Arse command/TUI tests if behavior is exposed there.
+- [ ] Add IJzer Forge command/TUI tests if behavior is exposed there.
 - [ ] Add WPF graph-editor tests for loading, display, filtering, editing, applying fixes, and persistence as applicable.
 - [ ] Add Visual Studio extension tests for snapshot/tooltip/tagger/graph state behavior as applicable.
 - [ ] Run manual Visual Studio Experimental Instance checks for changes that cannot be meaningfully covered outside the IDE.
@@ -178,7 +178,7 @@ Not every section applies to every diagnostic. Mark an item `N/A` only with a sh
 - [ ] Update the mental-model and precedence documentation if the new rule changes how existing concepts interact.
 - [ ] Update documentation/report/diagram pages if generated output gains a new section or column.
 - [ ] Update `docs/configuration/ide-code-fixes.md` with the available fix or the intentional absence of one.
-- [ ] Update Arse, WPF, and Visual Studio component docs when their user-visible behavior changes.
+- [ ] Update IJzer Forge, WPF, and Visual Studio component docs when their user-visible behavior changes.
 - [ ] Regenerate the root README with `pwsh -NoProfile -File docs\build-readme.ps1`.
 - [ ] Validate links and generated documentation with `build\Scripts\Docs\check-docs.ps1`.
 
@@ -202,7 +202,7 @@ Not every section applies to every diagnostic. Mark an item `N/A` only with a sh
 - [ ] Run every affected unit-test project.
 - [ ] Run analyzer tests and the real-example integration tests.
 - [ ] Run Application/Workspace tests for workspace-backed behavior.
-- [ ] Run Arse, WPF, and Visual Studio test projects when their surfaces changed.
+- [ ] Run IJzer Forge, WPF, and Visual Studio test projects when their surfaces changed.
 - [ ] Build the standalone WPF tool and VSIX when their assemblies changed.
 - [ ] Build the relevant examples directly in Release and verify only intended diagnostics appear.
 - [ ] Run documentation generation and checks.

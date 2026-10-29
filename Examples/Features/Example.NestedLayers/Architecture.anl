@@ -1,5 +1,5 @@
 <ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                     xsi:noNamespaceSchemaLocation="../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+                     xsi:noNamespaceSchemaLocation="../../../src/Main/RonSijm.IJzer/Scheme/IJzer.xsd"
                      description="Nested boundaries apply broad module policy first, then narrower egress and ingress policy.">
 
   <Layer name="Ordering" description="The ordering boundary owns order workflows and storage.">

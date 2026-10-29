@@ -1,5 +1,5 @@
 <ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                     xsi:noNamespaceSchemaLocation="../../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+                     xsi:noNamespaceSchemaLocation="../../../../src/Main/RonSijm.IJzer/Scheme/IJzer.xsd"
                      description="An optional policy keeps EF Core mapping attributes out of Domain code.">
   <Layer name="Domain" description="Domain types remain independent from EF Core mapping annotations.">
     <Namespace startsWith="Example.EntityFrameworkCore.DomainPurity.Domain" />

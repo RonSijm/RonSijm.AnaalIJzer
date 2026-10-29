@@ -9,7 +9,7 @@ Use it when the architecture rule is about the shape of an entire loaded solutio
 - a direct project reference needs evidence in a solution report, not a compiler diagnostic;
 - the configured module graph must remain acyclic.
 
-`SolutionTopology` is intentionally evaluated by Arse through `MSBuildWorkspace`, not by the compiler analyzer. A normal project build remains self-contained and does not need to load its sibling projects.
+`SolutionTopology` is intentionally evaluated by IJzer Forge through `MSBuildWorkspace`, not by the compiler analyzer. A normal project build remains self-contained and does not need to load its sibling projects.
 
 ### Example
 
@@ -68,13 +68,13 @@ Blocked rules win. Like `ProjectArchitecture`, a source module enters allowlist 
 ### Run it deliberately
 
 ```cmd
-arse inspect --solution src\Shop\Shop.slnx --enforce-topology --output build\Artifacts\architecture-health.md --force
-arse inspect --solution src\Shop\Shop.slnx --enforce-topology --output build\Artifacts\architecture-health.json --force
+ijzer inspect --solution src\Shop\Shop.slnx --enforce-topology --output build\Artifacts\architecture-health.md --force
+ijzer inspect --solution src\Shop\Shop.slnx --enforce-topology --output build\Artifacts\architecture-health.json --force
 ```
 
-The Markdown report is intended for review. Choosing a `.json` output path writes the same ordered findings as machine-readable evidence, including source and target project paths, module names, the reason, and the matching rule location. Headless Arse returns exit code `3` when the inspection finds a problem.
+The Markdown report is intended for review. Choosing a `.json` output path writes the same ordered findings as machine-readable evidence, including source and target project paths, module names, the reason, and the matching rule location. Headless IJzer Forge returns exit code `3` when the inspection finds a problem.
 
-The repository includes a reusable [Solution topology GitHub workflow](../../.github/workflows/solution-topology.yml). Call it from a product workflow or dispatch it with a solution path; it restores and builds Arse, uploads both evidence files, and fails only after those artifacts are available.
+The repository includes a reusable [Solution topology GitHub workflow](../../.github/workflows/solution-topology.yml). Call it from a product workflow or dispatch it with a solution path; it restores and builds IJzer Forge, uploads both evidence files, and fails only after those artifacts are available.
 
 `ARCH_SOL_001` and `ARCH_SOL_006` are report finding codes, not compiler `ARCH` diagnostics. This distinction is intentional: opening an entire solution is a tooling operation, while an analyzer must stay fast and safe inside a normal project compilation.
 

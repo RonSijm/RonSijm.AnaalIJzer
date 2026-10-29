@@ -20,7 +20,7 @@ function Write-Utf8File([string]$Path, [string]$Content) {
 }
 
 $resolvedPackagePath = (Resolve-Path -LiteralPath $PackagePath).Path
-$temporaryDirectory = Join-Path ([System.IO.Path]::GetTempPath()) ("AnaalIJzer-package-smoke-" + [Guid]::NewGuid().ToString("N"))
+$temporaryDirectory = Join-Path ([System.IO.Path]::GetTempPath()) ("IJzer-package-smoke-" + [Guid]::NewGuid().ToString("N"))
 $previousNuGetPackages = $env:NUGET_PACKAGES
 
 try {
@@ -50,15 +50,15 @@ try {
 
     $packageVersion = [string]$nuspec.package.metadata.version
     foreach ($relativePath in @(
-        "analyzers/dotnet/cs/RonSijm.AnaalIJzer.Diagnostics.dll",
-        "analyzers/dotnet/cs/RonSijm.AnaalIJzer.CodeFixes.dll",
-        "analyzers/dotnet/cs/RonSijm.AnaalIJzer.Engine.dll",
-        "analyzers/dotnet/cs/RonSijm.AnaalIJzer.Core.AssemblyAttributes.dll",
-        "analyzers/dotnet/cs/RonSijm.AnaalIJzer.Core.OperationPolicies.dll",
-        "analyzers/dotnet/cs/RonSijm.AnaalIJzer.Core.OperationContracts.dll",
-        "analyzers/dotnet/cs/RonSijm.AnaalIJzer.Core.SemanticOperations.dll",
-        "buildTransitive/RonSijm.AnaalIJzer.props",
-        "buildTransitive/RonSijm.AnaalIJzer.targets")) {
+        "analyzers/dotnet/cs/RonSijm.IJzer.Diagnostics.dll",
+        "analyzers/dotnet/cs/RonSijm.IJzer.CodeFixes.dll",
+        "analyzers/dotnet/cs/RonSijm.IJzer.Engine.dll",
+        "analyzers/dotnet/cs/RonSijm.IJzer.Core.AssemblyAttributes.dll",
+        "analyzers/dotnet/cs/RonSijm.IJzer.Core.OperationPolicies.dll",
+        "analyzers/dotnet/cs/RonSijm.IJzer.Core.OperationContracts.dll",
+        "analyzers/dotnet/cs/RonSijm.IJzer.Core.SemanticOperations.dll",
+        "buildTransitive/RonSijm.IJzer.props",
+        "buildTransitive/RonSijm.IJzer.targets")) {
         $fullPath = Join-Path $extractedPackageDirectory ($relativePath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
         if (-not (Test-Path -LiteralPath $fullPath)) {
             throw "The analyzer package is missing required asset '$relativePath'."
@@ -76,7 +76,7 @@ try {
   </packageSources>
   <packageSourceMapping>
     <packageSource key="package-smoke">
-      <package pattern="RonSijm.AnaalIJzer" />
+      <package pattern="RonSijm.IJzer" />
     </packageSource>
     <packageSource key="nuget.org">
       <package pattern="*" />
@@ -99,7 +99,7 @@ try {
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="RonSijm.AnaalIJzer" Version="$packageVersion" />
+    <PackageReference Include="RonSijm.IJzer" Version="$packageVersion" />
     <ProjectReference Include="..\target\PackageSmoke.Target.csproj" />
     <AdditionalFiles Include="Architecture.anl" />
   </ItemGroup>

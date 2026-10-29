@@ -1,0 +1,3 @@
+namespace RonSijm.IJzer.ConfigurationEditing.Editing;
+
+public static partial class ArchitectureConfigurationEditService;

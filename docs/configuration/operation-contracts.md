@@ -50,13 +50,13 @@ The compiler analyzer reports a concrete operation-contract diagnostic for each 
 - `ARCH_OPCT_002` when a selected owner or entry point lacks the configured request parameter, or a selected entry point does not directly invoke the selected owner;
 - `ARCH_OPCT_008` when a selected owner or entry point returns the wrong direct response type.
 
-The workspace-backed Arse commands (`arse inspect` and `arse report`) report a separate finding when an operation has no matching owner or more than one matching owner across the inspected scope. The graph editors preserve and edit the source contract; that cardinality fact cannot be proven by one project's compiler analyzer invocation.
+The workspace-backed IJzer Forge commands (`ijzer inspect` and `ijzer report`) report a separate finding when an operation has no matching owner or more than one matching owner across the inspected scope. The graph editors preserve and edit the source contract; that cardinality fact cannot be proven by one project's compiler analyzer invocation.
 
 The check deliberately does not follow helpers, delegates, asynchronous continuations, reflection, or method return values. A direct call is a clear source-level contract; anything broader needs a separate explicit policy rather than an optimistic guess.
 
 ### Tool support
 
-- **Arse:** `inspect` and `report` include operation-owner cardinality findings for a project or solution. `documentation` renders the manifest in XML order.
+- **IJzer Forge:** `inspect` and `report` include operation-owner cardinality findings for a project or solution. `documentation` renders the manifest in XML order.
 - **WPF graph editor and Visual Studio graph host:** the root inspector can add, edit, or remove an `<Operations>` container. It is presented as a source-contract editor, not a dependency graph edge.
 - **Visual Studio editor:** when Sites Diagnostics are enabled, local `ARCH_OPCT_*` violations appear as method-site indicators with QuickInfo.
 - **Code fixes:** none. Connecting an entry point to a workflow, or deciding how to reshape a request/response contract, is a domain decision.

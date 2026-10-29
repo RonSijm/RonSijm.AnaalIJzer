@@ -60,7 +60,7 @@ All architectural dependency sites are supported: `Constructor`, `Method`, `Meth
 
 ### Interaction with layers
 
-Namespace hierarchy policies run before layer dependency rules. When they block a reference, AnaalIJzer reports `ARCH_NS_007` instead of also reporting an `ARCH_DEP_001`, `ARCH_DEP_004`, or `ARCH_DEP_005` for that same reference. When no hierarchy rule blocks it, ordinary layer analysis continues unchanged.
+Namespace hierarchy policies run before layer dependency rules. When they block a reference, IJzer reports `ARCH_NS_007` instead of also reporting an `ARCH_DEP_001`, `ARCH_DEP_004`, or `ARCH_DEP_005` for that same reference. When no hierarchy rule blocks it, ordinary layer analysis continues unchanged.
 
 That separation is intentional:
 

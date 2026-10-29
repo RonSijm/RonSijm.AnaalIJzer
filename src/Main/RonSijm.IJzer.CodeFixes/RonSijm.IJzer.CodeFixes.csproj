@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\RonSijm.IJzer.Core.Configuration.Document\RonSijm.IJzer.Core.Configuration.Document.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.Exceptions\RonSijm.IJzer.Core.Exceptions.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.Findings\RonSijm.IJzer.Core.Findings.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.Indicators\RonSijm.IJzer.Core.Indicators.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Diagnostics\RonSijm.IJzer.Diagnostics.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.14.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="RonSijm.IJzer.Analyzer.Tests" />
+        <InternalsVisibleTo Include="RonSijm.IJzer.Workspace" />
+        <InternalsVisibleTo Include="RonSijm.IJzer.VisualStudio" />
+    </ItemGroup>
+
+</Project>

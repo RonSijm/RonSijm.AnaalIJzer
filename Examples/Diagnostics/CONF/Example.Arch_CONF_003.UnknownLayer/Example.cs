@@ -1,7 +1,7 @@
 // ReSharper disable All - Justification: Example File
 using System.Reflection;
 
-[assembly: AssemblyMetadata("AnaalIJzerSettings", """
+[assembly: AssemblyMetadata("IJzerSettings", """
                                                   <ArchitecturalLevels>
                                                     <Layer name="Application"><Class typeName="OrderService" /></Layer>
                                                     <AllowedDependency from="Application" to="TypoRepository" />

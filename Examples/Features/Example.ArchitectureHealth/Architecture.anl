@@ -1,5 +1,5 @@
 <ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                     xsi:noNamespaceSchemaLocation="../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+                     xsi:noNamespaceSchemaLocation="../../../src/Main/RonSijm.IJzer/Scheme/IJzer.xsd"
                      description="An intentionally untidy architecture used by the validate command example.">
   <Layer name="Application">
     <Class endsWith="Service">

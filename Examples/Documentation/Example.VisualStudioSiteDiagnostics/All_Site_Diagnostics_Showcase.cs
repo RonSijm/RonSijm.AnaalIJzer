@@ -2,7 +2,7 @@
 using System;
 using System.Reflection;
 
-[assembly: AssemblyMetadata("AnaalIJzerSettings", """
+[assembly: AssemblyMetadata("IJzerSettings", """
 <ArchitecturalLevels>
   <Layer name="Showcase">
     <Class endsWith="Showcase" />
@@ -18,7 +18,7 @@ using System.Reflection;
 namespace Example.VisualStudioSiteDiagnostics;
 
 // Open this file in Visual Studio and enable "Show all site diagnostics" or
-// "Show all layer information" under AnaalIJzer > Editor. Each labeled section
+// "Show all layer information" under IJzer > Editor. Each labeled section
 // contains one of the supported dependency-site shapes and builds cleanly.
 [Ingredient]
 public sealed class AllSiteDiagnosticsShowcase : BaseIngredient, IShowcaseIngredient

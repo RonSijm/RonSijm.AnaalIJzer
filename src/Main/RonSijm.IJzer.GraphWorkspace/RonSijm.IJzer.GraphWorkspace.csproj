@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\RonSijm.IJzer.ConfigurationEditing\RonSijm.IJzer.ConfigurationEditing.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.Exceptions\RonSijm.IJzer.Core.Exceptions.csproj" />
+		<ProjectReference Include="..\RonSijm.IJzer.Core.Findings\RonSijm.IJzer.Core.Findings.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.Observations\RonSijm.IJzer.Core.Observations.csproj" />
+		<ProjectReference Include="..\RonSijm.IJzer.Core.ProjectArchitecture\RonSijm.IJzer.Core.ProjectArchitecture.csproj"
+		                  SetTargetFramework="TargetFramework=netstandard2.0" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.RuntimeConfig\RonSijm.IJzer.Core.RuntimeConfig.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Engine\RonSijm.IJzer.Engine.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Graphing\RonSijm.IJzer.Graphing.csproj"
+                          SetTargetFramework="TargetFramework=netstandard2.0" />
+        <ProjectReference Include="..\RonSijm.IJzer.GraphModel\RonSijm.IJzer.GraphModel.csproj"
+                          SetTargetFramework="TargetFramework=netstandard2.0" />
+        <ProjectReference Include="..\RonSijm.IJzer.Workspace\RonSijm.IJzer.Workspace.csproj" />
+    </ItemGroup>
+
+</Project>

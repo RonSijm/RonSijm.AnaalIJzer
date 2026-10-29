@@ -1,51 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                     xsi:noNamespaceSchemaLocation="src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
-                     description="Helpful solution baseline for RonSijm.AnaalIJzer. This configuration groups assemblies by responsibility instead of mirroring every individual project reference, so it stays readable and useful as an architectural example.">
+                     xsi:noNamespaceSchemaLocation="src/Main/RonSijm.IJzer/Scheme/IJzer.xsd"
+                     description="Helpful solution baseline for RonSijm.IJzer. This configuration groups assemblies by responsibility instead of mirroring every individual project reference, so it stays readable and useful as an architectural example.">
   <Layer name="Tests"
          description="Test projects may probe any layer and are kept outside the production dependency flow.">
     <Assembly endsWith=".Tests" />
-    <Assembly exactName="RonSijm.AnaalIJzer.IntegrationTests" />
+    <Assembly exactName="RonSijm.IJzer.IntegrationTests" />
   </Layer>
 
   <Layer name="Foundation"
          description="Shared architectural vocabulary, matcher logic, findings, policies, and configuration primitives.">
-    <Assembly exactName="RonSijm.AnaalIJzer.Annotations" />
-    <Assembly exactName="RonSijm.AnaalIJzer.IaC" />
-    <Assembly startsWith="RonSijm.AnaalIJzer.Core.">
+    <Assembly exactName="RonSijm.IJzer.Annotations" />
+    <Assembly exactName="RonSijm.IJzer.IaC" />
+    <Assembly startsWith="RonSijm.IJzer.Core.">
       <Exceptions>
-        <Assembly exactName="RonSijm.AnaalIJzer.Core.Editor" />
+        <Assembly exactName="RonSijm.IJzer.Core.Editor" />
       </Exceptions>
     </Assembly>
   </Layer>
 
   <Layer name="AnalysisPlatform"
          description="Roslyn-facing analysis, diagnostics, and report generation.">
-    <Assembly exactName="RonSijm.AnaalIJzer" />
-    <Assembly exactName="RonSijm.AnaalIJzer.Engine" />
-    <Assembly exactName="RonSijm.AnaalIJzer.Diagnostics" />
-    <Assembly exactName="RonSijm.AnaalIJzer.Outputs" />
+    <Assembly exactName="RonSijm.IJzer" />
+    <Assembly exactName="RonSijm.IJzer.Engine" />
+    <Assembly exactName="RonSijm.IJzer.Diagnostics" />
+    <Assembly exactName="RonSijm.IJzer.Outputs" />
   </Layer>
 
   <Layer name="ApplicationServices"
          description="Workspace loading, runtime orchestration, editor/runtime bridges, and configuration editing.">
-    <Assembly exactName="RonSijm.AnaalIJzer.Application" />
-    <Assembly exactName="RonSijm.AnaalIJzer.Workspace" />
-    <Assembly exactName="RonSijm.AnaalIJzer.ConfigurationEditing" />
+    <Assembly exactName="RonSijm.IJzer.Application" />
+    <Assembly exactName="RonSijm.IJzer.Workspace" />
+    <Assembly exactName="RonSijm.IJzer.ConfigurationEditing" />
   </Layer>
 
   <Layer name="Graphing"
          description="Graph models, graph layout, graph workspace analysis, and graph editing surfaces.">
-    <Assembly exactName="RonSijm.AnaalIJzer.Core.Editor" />
-    <Assembly exactName="RonSijm.AnaalIJzer.EditorRuntime" />
-    <Assembly startsWith="RonSijm.AnaalIJzer.Graph" />
+    <Assembly exactName="RonSijm.IJzer.Core.Editor" />
+    <Assembly exactName="RonSijm.IJzer.EditorRuntime" />
+    <Assembly startsWith="RonSijm.IJzer.Graph" />
   </Layer>
 
   <Layer name="Tooling"
          description="Human-facing hosts built on top of the analysis, application, and graphing layers.">
-    <Assembly exactName="RonSijm.AnaalIJzer.Arse" />
-    <Assembly exactName="RonSijm.AnaalIJzer.GraphEditor.Standalone" />
-    <Assembly exactName="RonSijm.AnaalIJzer.VisualStudio" />
+    <Assembly exactName="RonSijm.IJzer.Forge" />
+    <Assembly exactName="RonSijm.IJzer.GraphEditor.Standalone" />
+    <Assembly exactName="RonSijm.IJzer.VisualStudio" />
   </Layer>
 
   <AllowedDependency from="*" to="Foundation" appliesToDescendants="true"

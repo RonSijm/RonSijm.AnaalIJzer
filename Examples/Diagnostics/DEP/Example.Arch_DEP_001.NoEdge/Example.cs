@@ -6,7 +6,7 @@
 using System.Reflection;
 
 // Inline config keeps example rules next to the code they validate.
-[assembly: AssemblyMetadata("AnaalIJzerSettings", """
+[assembly: AssemblyMetadata("IJzerSettings", """
                                                   <ArchitecturalLevels>
 
                                                     <Layer name="Customer">

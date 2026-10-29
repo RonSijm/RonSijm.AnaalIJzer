@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\RonSijm.IJzer.Core.Matchers\RonSijm.IJzer.Core.Matchers.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.Exceptions\RonSijm.IJzer.Core.Exceptions.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.NameRules\RonSijm.IJzer.Core.NameRules.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.Contracts\RonSijm.IJzer.Core.Contracts.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.Inheritance\RonSijm.IJzer.Core.Inheritance.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.ReturnValues\RonSijm.IJzer.Core.ReturnValues.csproj" />
+		<ProjectReference Include="..\RonSijm.IJzer.Core.OperationPolicies\RonSijm.IJzer.Core.OperationPolicies.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.Visibility\RonSijm.IJzer.Core.Visibility.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.ApiSurface\RonSijm.IJzer.Core.ApiSurface.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.EntryPoints\RonSijm.IJzer.Core.EntryPoints.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.SourceLocations\RonSijm.IJzer.Core.SourceLocations.csproj" />
+    </ItemGroup>
+
+</Project>
+

@@ -26,7 +26,7 @@ jobs:
         shell: pwsh
         run: ./build/Scripts/Testing/check-portable-project-files.ps1
       - name: Restore cross-platform test graph
-        run: dotnet restore src/RonSijm.AnaalIJzer.CrossPlatform.slnx --disable-parallel --disable-build-servers -m:1 -p:UseSharedCompilation=false
+        run: dotnet restore src/RonSijm.IJzer.CrossPlatform.slnx --disable-parallel --disable-build-servers -m:1 -p:UseSharedCompilation=false
       - name: Run cross-platform tests
         shell: pwsh
         run: ./build/Scripts/Testing/test-all.ps1 -Configuration Debug -SkipWindowsOnly -NoRestore -CollectCoverage -ResultsDirectory ./coverage
@@ -43,7 +43,7 @@ jobs:
       - name: Upload NuGet package artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: AnaalIJzer-NuGet
+          name: IJzer-NuGet
           path: |
             build/Artifacts/Packages/*.nupkg
             build/Artifacts/Packages/*.snupkg
@@ -60,11 +60,11 @@ jobs:
       - name: Build graph editor artifact
         run: build\Scripts\GraphEditor\build-graph-editor-standalone.bat
       - name: Test graph editor WPF support code
-        run: dotnet test src\Tests\RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests\RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests.csproj --configuration Release --disable-build-servers -m:1 -p:UseSharedCompilation=false
+        run: dotnet test src\Tests\RonSijm.IJzer.GraphEditor.Wpf.Tests\RonSijm.IJzer.GraphEditor.Wpf.Tests.csproj --configuration Release --disable-build-servers -m:1 -p:UseSharedCompilation=false
       - name: Upload graph editor artifact
         uses: actions/upload-artifact@v4
         with:
-          name: AnaalIJzer-GraphEditor-Standalone
+          name: IJzer-GraphEditor-Standalone
           path: build\Artifacts\GraphEditor.Standalone\**
       - name: Package graph editor release asset
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -81,7 +81,7 @@ jobs:
           $releaseDirectory = Join-Path (Resolve-Path .).Path "build\Artifacts\Releases"
           New-Item -ItemType Directory -Force -Path $releaseDirectory | Out-Null
 
-          $zipRelativePath = "build/Artifacts/Releases/AnaalIJzer-GraphEditor-Standalone-$version.zip"
+          $zipRelativePath = "build/Artifacts/Releases/IJzer-GraphEditor-Standalone-$version.zip"
           $zipFullPath = Join-Path (Resolve-Path .).Path ($zipRelativePath -replace '/', '\')
           if (Test-Path -LiteralPath $zipFullPath) {
             Remove-Item -LiteralPath $zipFullPath -Force
@@ -90,7 +90,7 @@ jobs:
           Compress-Archive -Path (Join-Path $artifactDirectory "*") -DestinationPath $zipFullPath -Force
 
           "tag=graph-editor-v$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
-          "name=AnaalIJzer Graph Editor $version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "name=IJzer Graph Editor $version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
           "file=$zipRelativePath" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
       - name: Publish graph editor release
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -99,6 +99,6 @@ jobs:
           tag_name: ${{ steps.graph_editor_release.outputs.tag }}
           target_commitish: ${{ github.ref_name }}
           name: ${{ steps.graph_editor_release.outputs.name }}
-          body: Standalone WPF graph editor for AnaalIJzer architecture settings.
+          body: Standalone WPF graph editor for IJzer architecture settings.
           files: ${{ steps.graph_editor_release.outputs.file }}
           overwrite_files: true

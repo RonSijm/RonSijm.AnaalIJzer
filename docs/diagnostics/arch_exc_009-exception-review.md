@@ -8,7 +8,7 @@ It appears when an exception matcher:
 - has an invalid `expiresOn` date;
 - has already expired;
 - is close to expiry;
-- or, in Arse health inspection, is stale and matches no type in the inspected scope.
+- or, in IJzer Forge health inspection, is stale and matches no type in the inspected scope.
 
 Example warning:
 

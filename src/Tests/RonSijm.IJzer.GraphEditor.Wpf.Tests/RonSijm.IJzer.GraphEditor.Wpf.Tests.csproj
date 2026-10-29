@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <Import Project="../../../build/Settings/Net472ReferenceAssemblies.props" />
+
+    <PropertyGroup>
+        <TargetFramework>net472</TargetFramework>
+        <OutputType>Exe</OutputType>
+        <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
+        <UseWPF>true</UseWPF>
+        <LangVersion>latest</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsTestProject>true</IsTestProject>
+        <IsPackable>false</IsPackable>
+        <NoWarn>$(NoWarn);MSB3277</NoWarn>
+        <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+        <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="AwesomeAssertions" Version="9.4.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+        <PackageReference Include="System.Collections.Immutable" Version="9.0.0" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="xunit.v3" Version="3.2.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Main\RonSijm.IJzer.GraphApplication\RonSijm.IJzer.GraphApplication.csproj" />
+        <ProjectReference Include="..\..\Main\RonSijm.IJzer.GraphModel\RonSijm.IJzer.GraphModel.csproj" />
+        <ProjectReference Include="..\..\Main\RonSijm.IJzer.GraphEditor.Wpf\RonSijm.IJzer.GraphEditor.Wpf.csproj" />
+        <ProjectReference Include="..\..\Main\RonSijm.IJzer.Graphing.Wpf\RonSijm.IJzer.Graphing.Wpf.csproj" />
+        <ProjectReference Include="..\..\Main\RonSijm.IJzer.Graphing\RonSijm.IJzer.Graphing.csproj" />
+    </ItemGroup>
+
+</Project>

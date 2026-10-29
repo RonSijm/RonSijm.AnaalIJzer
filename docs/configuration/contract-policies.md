@@ -97,7 +97,7 @@ The child policy cannot override an outer denial. The first failure is reported 
 - Contract purity does not decide whether a public signature leaks a forbidden layer. That is an API-surface concern (`ARCH_API_001` / `ARCH_API_010`).
 - Contract purity is not inferred from a layer name such as `Contracts`; it only runs when `<ContractPolicy>` is present. A folder named `Contracts` is a naming convention, not a guarantee, no matter how firmly it is stated in a design review.
 
-Arse includes contract-purity findings in `inspect`, `report`, generated documentation, and code evidence. The standalone WPF editor and Visual Studio graph inspector expose the same settings as token checklists and booleans.
+IJzer Forge includes contract-purity findings in `inspect`, `report`, generated documentation, and code evidence. The standalone WPF editor and Visual Studio graph inspector expose the same settings as token checklists and booleans.
 
 **Focused example projects:**
 

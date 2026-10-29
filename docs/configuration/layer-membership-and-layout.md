@@ -13,12 +13,12 @@ That rule says what a type *is*. It does not say where the type happens to live 
 
 ### The design boundary
 
-AnaalIJzer intentionally does not assign a layer from:
+IJzer intentionally does not assign a layer from:
 
 - a `.csproj` name or project path;
 - a source folder, including its child folders;
 - a solution-folder entry;
-- a project property such as `AnaalIJzerProjectLayer`;
+- a project property such as `IJzerProjectLayer`;
 - an attribute, `.editorconfig` entry, package reference, or observed call graph.
 
 The `.anl` configuration is the single source of truth for layer definitions and membership. A type has one canonical layer path, such as `Ordering/Application`; it is not a collection of unrelated physical labels.
@@ -51,7 +51,7 @@ Another option was a project-side declaration:
 ```xml
 <!-- Not supported. -->
 <PropertyGroup>
-  <AnaalIJzerProjectLayer>/Ordering</AnaalIJzerProjectLayer>
+  <IJzerProjectLayer>/Ordering</IJzerProjectLayer>
 </PropertyGroup>
 ```
 

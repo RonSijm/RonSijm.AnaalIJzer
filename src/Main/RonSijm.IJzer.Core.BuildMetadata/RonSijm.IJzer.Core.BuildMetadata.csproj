@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\RonSijm.IJzer.Core.Configuration.Document\RonSijm.IJzer.Core.Configuration.Document.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="RonSijm.IJzer.Engine" />
+        <InternalsVisibleTo Include="RonSijm.IJzer" />
+        <InternalsVisibleTo Include="RonSijm.IJzer.EditorRuntime" />
+        <InternalsVisibleTo Include="RonSijm.IJzer.Workspace" />
+        <InternalsVisibleTo Include="RonSijm.IJzer.Core.BuildMetadata.Tests" />
+        <InternalsVisibleTo Include="RonSijm.IJzer.Analyzer.Tests" />
+    </ItemGroup>
+
+</Project>

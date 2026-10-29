@@ -6,7 +6,7 @@
 using System.Reflection;
 
 // Inline config keeps example rules next to the code they validate.
-[assembly: AssemblyMetadata("AnaalIJzerSettings", """
+[assembly: AssemblyMetadata("IJzerSettings", """
                                                   <ArchitecturalLevels requireRecognizedDependencies="Constructor"
                                                                        enableReport="true"
                                                                        reportPath="../Generated/architectural-violations.md"

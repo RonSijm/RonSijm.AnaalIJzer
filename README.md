@@ -2,15 +2,15 @@
 
 # IJzer
 
-An **A**nalyzer for **N**-dimensional **A**dvanced **A**rchitectural **L**ayering.
+Compile-time architecture rules for .NET.
 
-[![NuGet](https://img.shields.io/nuget/v/RonSijm.AnaalIJzer.svg)](https://www.nuget.org/packages/RonSijm.AnaalIJzer)
-[![NuGet Downloads](https://img.shields.io/nuget/dt/RonSijm.AnaalIJzer.svg)](https://www.nuget.org/packages/RonSijm.AnaalIJzer)
-[![codecov](https://codecov.io/gh/RonSijm/RonSijm.AnaalIJzer/branch/main/graph/badge.svg)](https://codecov.io/gh/RonSijm/RonSijm.AnaalIJzer)
+[![NuGet](https://img.shields.io/nuget/v/RonSijm.IJzer.svg)](https://www.nuget.org/packages/RonSijm.IJzer)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/RonSijm.IJzer.svg)](https://www.nuget.org/packages/RonSijm.IJzer)
+[![codecov](https://codecov.io/gh/RonSijm/RonSijm.IJzer/branch/main/graph/badge.svg)](https://codecov.io/gh/RonSijm/RonSijm.IJzer)
 
 ## Introduction
 
-I built Anaal IJzer to turn architecture rules from review comments into compiler diagnostics. You define named layers and explicit allowed dependency edges in an XML file, and the analyzer checks that types only depend on permitted layers. That is mostly it. The rest of the project is what happened after "just check a few layers" acquired tooling, diagrams, fixers, and quite a lot more XML.
+I built IJzer to turn architecture rules from review comments into compiler diagnostics. You define named layers and explicit allowed dependency edges in an XML file, and the analyzer checks that types only depend on permitted layers. That is mostly it. The rest of the project is what happened after "just check a few layers" acquired tooling, diagrams, fixers, and quite a lot more XML.
 
 ## How this README is built
 
@@ -29,8 +29,8 @@ The compose order is defined in [`docs/_readme-order.txt`](docs/_readme-order.tx
 | [`docs/setup.md`](docs/setup.md) | NuGet setup, `.anl` settings files, inline settings, and shared project configuration. |
 | [`docs/configuration/ide-code-fixes.md`](docs/configuration/ide-code-fixes.md) | Which diagnostics have IDE fixers, what they edit, and where the analyzer tests live. |
 | [`docs/components/visual-studio-addon.md`](docs/components/visual-studio-addon.md) | Visual Studio companion extension behavior, options, graph editor, and CodeLens UI. |
-| [`docs/tools/arse.md`](docs/tools/arse.md) | Arse command/TUI usage, reports, generated config, documentation, and file associations. |
-| [`docs/tools/anaaltomy.md`](docs/tools/anaaltomy.md) | Anaaltomy compiled-code statistics, SQLite storage, and Git-history trend analysis. |
+| [`docs/tools/forge.md`](docs/tools/forge.md) | IJzer Forge command/TUI usage, reports, generated config, documentation, and file associations. |
+| [`docs/tools/gauge.md`](docs/tools/gauge.md) | IJzer Gauge compiled-code statistics, SQLite storage, and Git-history trend analysis. |
 | [`docs/components/wpf-graph-editor.md`](docs/components/wpf-graph-editor.md) | Standalone WPF graph editor usage and graph image export. |
 | [`docs/configuration/mental-model.md`](docs/configuration/mental-model.md) | Beginner-friendly rule precedence and the "four questions" model. |
 | [`docs/configuration/*.md`](docs/configuration/) | Detailed settings reference for layers, dependency rules, type policies, exceptions, name rules, reports, and generated documentation. |
@@ -58,7 +58,7 @@ The compose order is defined in [`docs/_readme-order.txt`](docs/_readme-order.tx
 
 Before explaining the problem, let me explain how I'm explaining the problems. In a lot of cases I'm using 'A restaurant' as an example.
 
-This is because architecture terms such as `Controller`, `ViewModel`, `Handler`, or `Slice` come with prior knowledge and expectations about MVC, MVVM, vertical slices, and other specific styles. Using them in the introductory examples could make an incidental name look like a rule or imply that Anaal IJzer prefers one of those architectures.
+This is because architecture terms such as `Controller`, `ViewModel`, `Handler`, or `Slice` come with prior knowledge and expectations about MVC, MVVM, vertical slices, and other specific styles. Using them in the introductory examples could make an incidental name look like a rule or imply that IJzer prefers one of those architectures.
 
 I use a restaurant as the deliberately opinionated **example domain**, not as a prescribed software architecture.
 
@@ -76,7 +76,7 @@ Imagine a restaurant with four roles:
 
 Without tooling, these rules live only in code-review comments and tribal knowledge. Tribal knowledge has a habit of accepting an offer elsewhere and leaving with all of the reasoning and none of the documentation. This analyzer turns the rules into compile errors.
 
-Architecture test projects can verify some of these concerns after a test run. Anaal IJzer reports configured violations in the editor and during compilation. Architecture tests remain useful for checks over built assemblies and external binaries.
+Architecture test projects can verify some of these concerns after a test run. IJzer reports configured violations in the editor and during compilation. Architecture tests remain useful for checks over built assemblies and external binaries.
 
 ---
 
@@ -109,7 +109,7 @@ Chef ──► Chef          ❌ ARCH_DEP_005 - same layer
 
 [Roslyn](https://github.com/dotnet/roslyn/blob/main/docs/wiki/Roslyn-Overview.md) is the .NET compiler platform behind C# and Visual Basic. Instead of exposing only a command that turns source files into assemblies, Roslyn exposes the compiler pipeline as APIs: syntax trees represent parsed source, semantic models bind syntax to symbols and types, and a `Compilation` is an immutable snapshot of the complete program being compiled.
 
-Anaal IJzer is a C# `DiagnosticAnalyzer`. It runs inside that compiler pipeline in Visual Studio, Rider, `dotnet build`, and CI; it is not a post-build reflection scan and does not execute application code.
+IJzer is a C# `DiagnosticAnalyzer`. It runs inside that compiler pipeline in Visual Studio, Rider, `dotnet build`, and CI; it is not a post-build reflection scan and does not execute application code.
 
 ```mermaid
 flowchart LR
@@ -125,10 +125,10 @@ flowchart LR
 
 The integration points are:
 
-1. [`ArchitecturalLevelAnalyzer`](src/Main/RonSijm.AnaalIJzer.Engine/ArchitecturalLevelAnalyzer.cs) is marked with `[DiagnosticAnalyzer(LanguageNames.CSharp)]`, which makes it discoverable as a C# analyzer.
-2. For each compilation snapshot, its `CompilationStartAction` reads `Architecture.anl` from Roslyn's `AdditionalFiles`, or reads inline `AssemblyMetadata("AnaalIJzerSettings", ...)`. The parsed configuration is then reused by every callback registered for that compilation.
+1. [`ArchitecturalLevelAnalyzer`](src/Main/RonSijm.IJzer.Engine/ArchitecturalLevelAnalyzer.cs) is marked with `[DiagnosticAnalyzer(LanguageNames.CSharp)]`, which makes it discoverable as a C# analyzer.
+2. For each compilation snapshot, its `CompilationStartAction` reads `Architecture.anl` from Roslyn's `AdditionalFiles`, or reads inline `AssemblyMetadata("IJzerSettings", ...)`. The parsed configuration is then reused by every callback registered for that compilation.
 3. It registers `SyntaxNodeAction` callbacks only for syntax that can introduce an architectural dependency: type and constructor declarations, methods, fields, properties, locals, object creation, invocations, attributes, inheritance, and static member access. Generated code is ignored, and callbacks may run concurrently.
-4. [`LayerDependencyAnalyzer`](src/Main/RonSijm.AnaalIJzer.Engine/Analysis/BoundaryRules/LayerDependencies/LayerDependencyAnalyzer.cs) uses the callback's `SemanticModel` to resolve syntax to real Roslyn symbols such as `ITypeSymbol`. This is why aliases, inferred local types, generic type arguments, implemented interfaces, and referenced types can be evaluated by their actual type identity instead of by source text alone.
+4. [`LayerDependencyAnalyzer`](src/Main/RonSijm.IJzer.Engine/Analysis/BoundaryRules/LayerDependencies/LayerDependencyAnalyzer.cs) uses the callback's `SemanticModel` to resolve syntax to real Roslyn symbols such as `ITypeSymbol`. This is why aliases, inferred local types, generic type arguments, implemented interfaces, and referenced types can be evaluated by their actual type identity instead of by source text alone.
 5. The resolved caller and dependency symbols are matched to configured layer paths. The dependency graph evaluates the relevant boundary gates, blocked rules, site filters, recognized-dependency requirements, and forbidden patterns. A failure is returned to Roslyn with `ReportDiagnostic`, including the source location and diagnostic properties such as `Site`.
 6. Configuration failures and configured cycles are reported at the end of the compilation as ARCH_CONF_003 or ARCH_CONF_006. If there is no configuration source, no dependency callbacks are registered and the analyzer remains silent.
 
@@ -137,7 +137,7 @@ Because the same analyzer participates in design-time and command-line compilati
 ---
 ## Why compiler-level enforcement matters
 
-Anaal IJzer is a compile-time architecture and structural-policy guard for .NET. It overlaps with test-runner architecture checks such as NetArchTest and ArchUnitNET, static-analysis platforms such as NDepend, and the old Visual Studio layer-diagram validation. Its compiler integration also supports policies that ordinary runtime tests do not inspect.
+IJzer is a compile-time architecture and structural-policy guard for .NET. It overlaps with test-runner architecture checks such as NetArchTest and ArchUnitNET, static-analysis platforms such as NDepend, and the old Visual Studio layer-diagram validation. Its compiler integration also supports policies that ordinary runtime tests do not inspect.
 
 ### Architecture tests are useful, but solve a different problem
 
@@ -159,19 +159,19 @@ public void Presentation_Should_Not_Depend_On_Persistence()
 
 That is valuable for broad assertions about an assembly or a set of published types. It is not equivalent to compiler-level enforcement:
 
-1. **Feedback and location are different.** A test reports from the test project when the test suite runs. Anaal IJzer reports on the exact source construct during design-time analysis and compilation, so the editor squiggle and CI error point to the same dependency, return expression, or declaration.
+1. **Feedback and location are different.** A test reports from the test project when the test suite runs. IJzer reports on the exact source construct during design-time analysis and compilation, so the editor squiggle and CI error point to the same dependency, return expression, or declaration.
 
 2. **Behavioural tests only see executed paths.** A `return null`, a sentinel return value, or a `throw` deep in a branch can remain invisible until a test happens to execute that path. Static type-level architecture tests can assert a relationship between types, but they do not automatically inspect every method body and every relevant syntax site.
 
-3. **Complete source inspection needs a compiler host.** A test suite could add custom Roslyn or IL inspection for every return, invocation, generic argument, inheritance site, or declaration it cares about. That is effectively building a compiler inspection in a test runner. Anaal IJzer is already hosted at that point: Roslyn visits every configured matching site in the compilation, including code that no test executes.
+3. **Complete source inspection needs a compiler host.** A test suite could add custom Roslyn or IL inspection for every return, invocation, generic argument, inheritance site, or declaration it cares about. That is effectively building a compiler inspection in a test runner. IJzer is already hosted at that point: Roslyn visits every configured matching site in the compilation, including code that no test executes.
 
 4. **Policy is distinct from behaviour.** A failing behaviour test says a scenario no longer works. A failing architectural policy says the code shape itself is not permitted, even when the scenario still works perfectly. Both are important, but they should be visible and owned separately.
 
 5. **Configuration is the policy surface.** With `Architecture.anl`, layer relationships, type policies, site restrictions, and structural observations are explicit configuration. Changing the policy does not require inventing another test method or burying the rule in test code.
 
-### What Anaal IJzer adds
+### What IJzer adds
 
-Anaal IJzer uses Roslyn's semantic model to resolve the symbols behind the source. That gives the rules a few useful properties:
+IJzer uses Roslyn's semantic model to resolve the symbols behind the source. That gives the rules a few useful properties:
 
 - aliases and fully qualified names resolve to the same symbol;
 - inferred locals still have a real type;
@@ -188,7 +188,7 @@ Runtime coverage cannot prove a source-site rule unless it executes every releva
 
 ### Complementary tools
 
-Architecture tests still have a place for broad checks over shipped assemblies, external binaries, or intentional test-suite-level assertions. Behavioural and integration tests remain essential for proving that the application works. Anaal IJzer complements them by making configured structural and semantic policies part of ordinary compilation, with immediate feedback at the offending line.
+Architecture tests still have a place for broad checks over shipped assemblies, external binaries, or intentional test-suite-level assertions. Behavioural and integration tests remain essential for proving that the application works. IJzer complements them by making configured structural and semantic policies part of ordinary compilation, with immediate feedback at the offending line.
 
 ## Setup
 
@@ -197,14 +197,14 @@ Architecture tests still have a place for broad checks over shipped assemblies, 
 Add the analyzer package to the project you want to validate:
 
 ```powershell
-dotnet add package RonSijm.AnaalIJzer
+dotnet add package RonSijm.IJzer
 ```
 
 Or add the package reference directly to your `.csproj`:
 
 ```xml
 <ItemGroup>
-    <PackageReference Include="RonSijm.AnaalIJzer" Version="0.3.5" PrivateAssets="all" />
+    <PackageReference Include="RonSijm.IJzer" Version="0.3.5" PrivateAssets="all" />
 </ItemGroup>
 ```
 
@@ -239,21 +239,21 @@ Add a file called `Architecture.anl` to the **root of the project you want to an
 
 ### Why `.anl` instead of `.xml`?
 
-`Architecture.anl` is an XML document. I originally used the ordinary `.xml` extension and later changed only the extension, not the format. Settings still use the `<ArchitecturalLevels>` root, standard XML tooling, and the AnaalIJzer XSD schema.
+`Architecture.anl` is an XML document. I originally used the ordinary `.xml` extension and later changed only the extension, not the format. Settings still use the `<ArchitecturalLevels>` root, standard XML tooling, and the IJzer XSD schema.
 
 I chose `.anl` for a couple of practical reasons:
 
 - It gives the settings file an architectural identity instead of making it look like unrelated application data.
   - A generic `Architecture.xml` tends to get filed under "legacy config of uncertain ownership" and removed during a tidy-up sprint.
 - It gives the tools a stable file type to recognize.
-  - Arse and the standalone graph editor can register themselves as `.anl` handlers.
+  - IJzer Forge and the standalone graph editor can register themselves as `.anl` handlers.
   - The Visual Studio companion can open an `.anl` file in its dependency-graph editor.
 
-Add an XSD schema hint when you want XML-aware editors to validate element and attribute names while you edit. The schema is [AnaalIJzer.xsd](src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd); generated configurations can place a copy beside `Architecture.anl`:
+Add an XSD schema hint when you want XML-aware editors to validate element and attribute names while you edit. The schema is [IJzer.xsd](src/Main/RonSijm.IJzer/Scheme/IJzer.xsd); generated configurations can place a copy beside `Architecture.anl`:
 
 ```xml
 <ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                     xsi:noNamespaceSchemaLocation="AnaalIJzer.xsd">
+                     xsi:noNamespaceSchemaLocation="IJzer.xsd">
   <!-- Rules go here. -->
 </ArchitecturalLevels>
 ```
@@ -276,9 +276,25 @@ If the config uses `<Include>`, register the included settings files too:
 </ItemGroup>
 ```
 
-The analyzer uses `Architecture.anl` as the explicit top-level settings file convention; other settings files are only read when referenced through `<Include>` or passed directly to Arse.
+The analyzer uses `Architecture.anl` as the explicit top-level settings file convention; other settings files are only read when referenced through `<Include>` or passed directly to IJzer Forge.
 
 Skipping this step is the single most common setup mistake. Roslyn never receives the file, the analyzer finds no configuration, and it reports nothing - which looks exactly like a perfectly layered codebase until someone checks.
+
+### The Error List shows an IJzer error, but the editor shows no squiggle
+
+If the Error List contains an `ARCH_*` diagnostic with the correct file and line, the analyzer is loaded and has produced a source diagnostic. A missing underline then belongs to the editor's live-analysis or highlighting settings, not to `Architecture.anl`.
+
+Check these settings:
+
+1. In Visual Studio, open `Tools > Options > Text Editor > C# > Advanced` and make sure `Run background code analysis for` is not set to `None`. `Current document` is enough for the file you are editing.
+2. If ReSharper is installed, open `ReSharper > Options > Environment > Editor > Visual Studio Features` and clear both squiggle-suppression options while testing:
+   - `Hide all Visual Studio squiggles and file health indicator`;
+   - `Hide only those Visual Studio squiggles that duplicate ReSharper code analysis highlightings`.
+   - JetBrains documents that the first option hides Visual Studio's error highlighting and leaves only ReSharper highlighting visible. The duplicate-only option has also hidden non-duplicate custom Roslyn diagnostics in affected ReSharper versions.
+   - IJzer is a Roslyn analyzer, so its native squiggle is one of the Visual Studio highlights hidden by that option.
+3. After replacing a local analyzer package, close and reopen the solution. Visual Studio keeps analyzer assemblies loaded for the lifetime of the project session and may otherwise continue using the previous DLL.
+
+The relevant behavior is documented by [Visual Studio live code analysis](https://learn.microsoft.com/en-us/visualstudio/code-quality/configure-live-code-analysis-scope-managed-code?view=visualstudio) and [ReSharper's Visual Studio Features options](https://www.jetbrains.com/help/resharper/Reference__Options__Environment__Visual_Studio_Integration.html).
 
 ### 4. Share the same config with `Directory.Build.props`
 
@@ -287,7 +303,7 @@ If several projects should use the same `Architecture.anl`, put the XML next to 
 ```xml
 <Project>
   <ItemGroup>
-    <PackageReference Include="RonSijm.AnaalIJzer" Version="0.3.5" PrivateAssets="all" />
+    <PackageReference Include="RonSijm.IJzer" Version="0.3.5" PrivateAssets="all" />
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)Architecture.anl" Link="Architecture.anl" />
   </ItemGroup>
 </Project>
@@ -312,7 +328,7 @@ For small examples and throwaway projects, you can put the XML directly in code 
 ```csharp
 using System.Reflection;
 
-[assembly: AssemblyMetadata("AnaalIJzerSettings", $"""
+[assembly: AssemblyMetadata("IJzerSettings", $"""
 <ArchitecturalLevels>
   <Layer name="Presentation">
     <Class endsWith="Endpoint" />
@@ -334,13 +350,13 @@ using System.Reflection;
 public sealed class OrderRepository { }
 ```
 
-The analyzer recognizes `AssemblyMetadata("AnaalIJzerSettings", "...")` and reads the second constructor argument as XML. No custom helper attribute or extra package reference is needed.
+The analyzer recognizes `AssemblyMetadata("IJzerSettings", "...")` and reads the second constructor argument as XML. No custom helper attribute or extra package reference is needed.
 
 If both config sources exist, `Architecture.anl` wins and the inline metadata value is ignored without comment. If carefully crafted inline rules suddenly stop applying, look for a file someone added last week.
 
 The practical split is:
 
-- **One-file examples and very small projects** use `AssemblyMetadata("AnaalIJzerSettings", ...)`.
+- **One-file examples and very small projects** use `AssemblyMetadata("IJzerSettings", ...)`.
   - Exact type-name rules can use `nameof(...)`, so a refactor breaks at compile time instead of quietly breaking the config.
 - **Broader examples and real rule sets** use `.anl` files.
   - XML is easier to read once the settings need includes, nested layers, or several policy families.
@@ -373,7 +389,7 @@ It adds four visual workflows to Visual Studio 2026:
 - **Layer information**: badges, CodeLens-style summaries, gutter glyphs, highlights, and QuickInfo explain configured layers.
 - **Sites Diagnostics**: optional inline labels identify architectural sites such as constructors, fields, locals, inheritance, and generic arguments.
 - **Dependency graphs**: a dockable sidebar shows the configured layer graph, follows the active file, and can focus the graph that affects it.
-- **Configuration fixes**: the graph can preview and apply the same configuration-fix proposals that appear through analyzer light bulbs and Arse.
+- **Configuration fixes**: the graph can preview and apply the same configuration-fix proposals that appear through analyzer light bulbs and IJzer Forge.
 
 The screenshots below isolate a setting or tightly related set of settings so a reader can tell exactly what each control changes.
 
@@ -385,20 +401,20 @@ Build the VSIX from the repository root:
 build\Scripts\Addon\build-vs-extension.cmd
 ```
 
-The script writes `RonSijm.AnaalIJzer.VisualStudio.vsix` to `build\Artifacts\VisualStudio`. Install that VSIX into Visual Studio 2026 to enable the editor companion. Each build stamps a timestamp-based extension version so Visual Studio recognizes it as newer than the previous local build.
+The script writes `RonSijm.IJzer.VisualStudio.vsix` to `build\Artifacts\VisualStudio`. Install that VSIX into Visual Studio 2026 to enable the editor companion. Each build stamps a timestamp-based extension version so Visual Studio recognizes it as newer than the previous local build.
 
-The GitHub `build-vsix.yml` workflow builds and uploads the VSIX artifact on Windows. On pushes to `main`, it also submits the VSIX to Visual Studio Marketplace when the repository secret `VS_MARKETPLACE_TOKEN` is configured. Marketplace metadata lives in `src\Extensions\RonSijm.AnaalIJzer.VisualStudio\marketplace-publish.json`.
+The GitHub `build-vsix.yml` workflow builds and uploads the VSIX artifact on Windows. On pushes to `main`, it also submits the VSIX to Visual Studio Marketplace when the repository secret `VS_MARKETPLACE_TOKEN` is configured. Marketplace metadata lives in `src\Extensions\RonSijm.IJzer.VisualStudio\marketplace-publish.json`.
 
-The companion reads the same `Architecture.anl` or `AssemblyMetadata("AnaalIJzerSettings", ...)` configuration as the analyzer through Visual Studio's Roslyn workspace. If no AnaalIJzer config exists, it renders nothing - an empty editor means "nothing is configured", not "everything is in order". If the config is invalid, the companion stays quiet and leaves the existing `ARCH_CONF_003` analyzer diagnostic as the source of truth.
+The companion reads the same `Architecture.anl` or `AssemblyMetadata("IJzerSettings", ...)` configuration as the analyzer through Visual Studio's Roslyn workspace. If no IJzer config exists, it renders nothing - an empty editor means "nothing is configured", not "everything is in order". If the config is invalid, the companion stays quiet and leaves the existing `ARCH_CONF_003` analyzer diagnostic as the source of truth.
 
 ### Layer information on declarations
 
-Layer indicators are controlled from Visual Studio 2026 Settings under `AnaalIJzer > Editor`:
+Layer indicators are controlled from Visual Studio 2026 Settings under `IJzer > Editor`:
 
 | Option | Default | Meaning |
 |---|---:|---|
 | Show layer badges | On | Shows the resolved canonical layer path after a type declaration identifier. |
-| Show layer metadata above declarations | On | Shows a clickable CodeLens-style AnaalIJzer summary above a type declaration. |
+| Show layer metadata above declarations | On | Shows a clickable CodeLens-style IJzer summary above a type declaration. |
 | Show layer badges when not in layer | Off | Shows a neutral `not in layer` badge for a type that does not match any configured layer. |
 | Show global layer rules in badge hover | Off | Includes wildcard rules such as `* (any layer)` in badge hover details. |
 | Show mini call graph in badge hover | On | Shows a compact one-to-one dependency chain in badge hover details when the graph is linear. |
@@ -408,7 +424,7 @@ Layer indicators are controlled from Visual Studio 2026 Settings under `AnaalIJz
 
 Use this settings page to choose how much architectural context appears in the editor. Glyphs and badges support scanning; hover and CodeLens content provide additional detail on demand.
 
-![AnaalIJzer editor settings](Examples/Assets/VisualStudio/editor-settings.png)
+![IJzer editor settings](Examples/Assets/VisualStudio/editor-settings.png)
 
 **Layer badge.** A badge gives a type its configured architectural role directly beside its declaration. It is the quickest way to answer “where does this type belong?” without leaving the file.
 
@@ -504,9 +520,9 @@ When the solution has `<SolutionTopology>`, the sidebar adds a separate read-onl
 
 ### Configuration fixes from the graph
 
-When the graph comes from an active C# document in a loaded Visual Studio project, it exposes `Configuration fixes` in both the root inspector and the selected layer or connection inspector. The same shared configuration-fix proposal catalog is used by Roslyn light bulbs, `arse fixes`, and the standalone graph editor. It can:
+When the graph comes from an active C# document in a loaded Visual Studio project, it exposes `Configuration fixes` in both the root inspector and the selected layer or connection inspector. The same shared configuration-fix proposal catalog is used by Roslyn light bulbs, `ijzer fixes`, and the standalone graph editor. It can:
 
-- scan the active project for fixable AnaalIJzer diagnostics;
+- scan the active project for fixable IJzer diagnostics;
 - show the target file, risk level, and preview diff for each proposal;
 - apply one selected proposal and immediately refresh the graph.
 
@@ -518,18 +534,18 @@ Detached `.anl` files still open in the graph editor, but they do not automatica
 
 Use `Extensions > IJzer > Show Status` if the editor appears quiet. It analyzes the active document and reports whether the file is part of Visual Studio's Roslyn workspace, whether settings were found, how many layer/site indicators were produced, and whether configuration issues are suppressing visual adornments. It is faster than the traditional method of restarting Visual Studio three times and hoping.
 
-The companion writes logs to Visual Studio's Activity Log and to an Output pane named `AnaalIJzer`.
+The companion writes logs to Visual Studio's Activity Log and to an Output pane named `IJzer`.
 
 If settings, commands, or editor visuals do not appear:
 
 1. Run `Extensions > IJzer > Show Status`.
 2. Start Visual Studio with logging enabled.
 3. Reproduce the issue.
-4. Search the Activity Log and `AnaalIJzer` Output pane.
+4. Search the Activity Log and `IJzer` Output pane.
 
 The first missing event usually tells you which half is broken:
 
-- No `AnaalIJzer` entries at all means the VSIX package is not loading.
+- No `IJzer` entries at all means the VSIX package is not loading.
 - Package initialization without tagger entries means the editor MEF component is not being created for the active C# view.
 
 For local validation, use the [Visual Studio companion manual acceptance checklist](docs/visual-studio-companion-manual-acceptance.md).
@@ -537,7 +553,7 @@ For local validation, use the [Visual Studio companion manual acceptance checkli
 The extension looks for settings in this order:
 
 - analyzer `AdditionalFiles`;
-- inline `AssemblyMetadata("AnaalIJzerSettings", ...)`;
+- inline `AssemblyMetadata("IJzerSettings", ...)`;
 - as an editor-only convenience, the nearest `Architecture.anl` above the active document.
 
 An invalid config intentionally produces no adornments. `ARCH_CONF_003` remains the source of truth instead of decorating the editor with guesses from a half-parsed file.
@@ -548,16 +564,16 @@ The implementation uses:
 
 - MEF taggers, glyphs, and inline adornments;
 - option pages and Fonts & Colors format definitions;
-- shared snapshot logic from `RonSijm.AnaalIJzer.Editor`.
+- shared snapshot logic from `RonSijm.IJzer.Editor`.
 
 The last part matters: the extension does not maintain its own slightly different interpretation of config parsing and layer matching.
 
 ## IDE code fixes
 
-Visual Studio and Rider can now apply AnaalIJzer fixes against both:
+Visual Studio and Rider can now apply IJzer fixes against both:
 
 - file-based `Architecture.anl`;
-- inline `AssemblyMetadata("AnaalIJzerSettings", ...)`.
+- inline `AssemblyMetadata("IJzerSettings", ...)`.
 
 The analyzer still owns the diagnostics. The code-fix layer only proposes deterministic edits that are local, previewable, and unlikely to invent architecture by accident. Silently widening a boundary because a build went red is how a layering rule turns into a layering suggestion.
 
@@ -566,7 +582,7 @@ There are two families of fixes:
 - **source fixes** change C# code directly;
 - **configuration fixes** change `Architecture.anl` or inline `AssemblyMetadata`.
 
-Arse reuses the same configuration-fix catalog headlessly through `arse fixes` and `arse apply-fix`. That means the light-bulb suggestions you see in the IDE and the proposal list you can review in CI or a terminal come from the same underlying fix implementations.
+IJzer Forge reuses the same configuration-fix catalog headlessly through `ijzer fixes` and `ijzer apply-fix`. That means the light-bulb suggestions you see in the IDE and the proposal list you can review in CI or a terminal come from the same underlying fix implementations.
 
 The Visual Studio dependency-graph tool window now reuses that same shared catalog as well. From `Extensions > IJzer > Show Dependency Graphs`, the graph can load fix proposals for the active project, preview the config diff, and apply one proposal without leaving the graph view. The root inspector shows the full project list, while selecting or right-clicking a layer or dependency connection switches to a filtered selection-scoped view.
 
@@ -609,24 +625,24 @@ For the broader mental model, ownership rules, and risk labels, see [Configurati
   - if a rule came from an included `.anl`, that included file is edited;
   - if the config came from inline `AssemblyMetadata`, the source file containing the assembly attribute is rewritten.
 
-For a light-bulb-friendly baseline, start with the analyzer tests in `src/Tests/RonSijm.AnaalIJzer.Analyzer.Tests/Diagnostics/`.
+For a light-bulb-friendly baseline, start with the analyzer tests in `src/Tests/RonSijm.IJzer.Analyzer.Tests/Diagnostics/`.
 
-For the end-to-end headless path, see `src/Tests/RonSijm.AnaalIJzer.Application.Tests/ApplicationOperations/ApplicationOperationsTests.ConfigurationFixes.cs`.
+For the end-to-end headless path, see `src/Tests/RonSijm.IJzer.Application.Tests/ApplicationOperations/ApplicationOperationsTests.ConfigurationFixes.cs`.
 
-For real example-project coverage, including expected proposal titles for included `.anl`, inline `AssemblyMetadata`, site filters, name rules, source locations, and project architecture scenarios, see `src/Tests/RonSijm.AnaalIJzer.IntegrationTests/ExampleConfigurationFixIntegrationTests.cs`.
+For real example-project coverage, including expected proposal titles for included `.anl`, inline `AssemblyMetadata`, site filters, name rules, source locations, and project architecture scenarios, see `src/Tests/RonSijm.IJzer.IntegrationTests/ExampleConfigurationFixIntegrationTests.cs`.
 
-For Visual Studio graph-window state coverage, including preserving the active project context across graph refreshes, see `src/Tests/RonSijm.AnaalIJzer.VisualStudio.Tests/Graphs/ArchitectureGraphToolWindowStateTests.cs`.
+For Visual Studio graph-window state coverage, including preserving the active project context across graph refreshes, see `src/Tests/RonSijm.IJzer.VisualStudio.Tests/Graphs/ArchitectureGraphToolWindowStateTests.cs`.
 
 ## Configuration fixers
 
-Configuration fixers are the part of AnaalIJzer that edit the architecture settings instead of editing your C# code.
+Configuration fixers are the part of IJzer that edit the architecture settings instead of editing your C# code.
 
 For a configured cycle (`ARCH_CONF_006`), the fixer presents the exact allowed edges in the cycle and lets you choose one to block or remove. It does not choose an architectural direction on your behalf. An observed source-code cycle (`ARCH_DEP_006`) has no configuration fixer: changing a rule would not remove the code dependency that created it.
 
 That distinction matters:
 
 - a **source fix** changes code, such as renaming a declaration;
-- a **configuration fix** changes `Architecture.anl` or inline `AssemblyMetadata("AnaalIJzerSettings", ...)`.
+- a **configuration fix** changes `Architecture.anl` or inline `AssemblyMetadata("IJzerSettings", ...)`.
 
 Use configuration fixers when the code is acceptable but the rule set needs a narrow, explicit update.
 
@@ -652,7 +668,7 @@ The same shared fixer catalog is reused by three hosts:
 |---|---|
 | Visual Studio / Rider light bulbs | apply source fixes and configuration fixes from diagnostics |
 | Visual Studio dependency graph | preview and apply configuration fixes from the active project, including layer- and dependency-scoped graph selections |
-| Arse | list proposals with `arse fixes` and apply one with `arse apply-fix` |
+| IJzer Forge | list proposals with `ijzer fixes` and apply one with `ijzer apply-fix` |
 | WPF graph editor | load, preview, filter, and apply configuration fixes from project or solution input |
 
 The host UI changes, but the proposal generation is shared. That keeps the terminal, graph editor, and IDE from disagreeing about what a safe config change looks like.
@@ -684,7 +700,7 @@ In practice:
 
 ### Typical flow
 
-1. AnaalIJzer reports a diagnostic.
+1. IJzer reports a diagnostic.
 2. The fixer catalog checks whether a deterministic config edit exists.
 3. A proposal is created with title, reason, target file, and preview diff.
 4. The host shows that proposal.
@@ -712,12 +728,12 @@ The current configuration-fix coverage is documented in [IDE code fixes](docs/co
 
 The feature is intentionally covered at several levels:
 
-- analyzer fixer tests: `src/Tests/RonSijm.AnaalIJzer.Analyzer.Tests/Diagnostics/`
-- application-level project and solution flows: `src/Tests/RonSijm.AnaalIJzer.Application.Tests/ApplicationOperations/ApplicationOperationsTests.ConfigurationFixes.cs`
-- real example-project expectations: `src/Tests/RonSijm.AnaalIJzer.IntegrationTests/ExampleConfigurationFixIntegrationTests.cs`
-- WPF graph-editor selection filtering: `src/Tests/RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests/Controls/ArchitectureGraphEditorControlPersistenceTests.ConfigurationFixSelection.cs`
-- Visual Studio graph context preservation: `src/Tests/RonSijm.AnaalIJzer.VisualStudio.Tests/Graphs/ArchitectureGraphToolWindowStateTests.cs`
-- Arse command-line support: `src/Tests/RonSijm.AnaalIJzer.Arse.Tests/`
+- analyzer fixer tests: `src/Tests/RonSijm.IJzer.Analyzer.Tests/Diagnostics/`
+- application-level project and solution flows: `src/Tests/RonSijm.IJzer.Application.Tests/ApplicationOperations/ApplicationOperationsTests.ConfigurationFixes.cs`
+- real example-project expectations: `src/Tests/RonSijm.IJzer.IntegrationTests/ExampleConfigurationFixIntegrationTests.cs`
+- WPF graph-editor selection filtering: `src/Tests/RonSijm.IJzer.GraphEditor.Wpf.Tests/Controls/ArchitectureGraphEditorControlPersistenceTests.ConfigurationFixSelection.cs`
+- Visual Studio graph context preservation: `src/Tests/RonSijm.IJzer.VisualStudio.Tests/Graphs/ArchitectureGraphToolWindowStateTests.cs`
+- IJzer Forge command-line support: `src/Tests/RonSijm.IJzer.Forge.Tests/`
 
 ### When not to use one
 
@@ -728,19 +744,19 @@ Sometimes the right fix is still a code change, not a config change:
 - extracting an interface or projection to the right layer;
 - deleting a bad dependency instead of allowing it.
 
-AnaalIJzer should help with both kinds of repair, but it should not use a config escape hatch when the code is simply wrong. A rule relaxed to make one build green tends to be quoted six months later as deliberate design.
+IJzer should help with both kinds of repair, but it should not use a config escape hatch when the code is simply wrong. A rule relaxed to make one build green tends to be quoted six months later as deliberate design.
 
-## Arse TUI
+## IJzer Forge TUI
 
-Arse means **A**rchitecture **R**ule **S**tandalone **E**xecutable. I wanted one standalone host for inspecting projects, generating settings, writing reports, and doing the other jobs that should not happen inside a compiler analyzer. The name followed from there, I suppose. It loads a real project or solution with `MSBuildWorkspace`, so it sees the same compiled `AnaalIJzerSettings` metadata value as the analyzer. It can also generate documentation directly from a specific XML settings file.
+IJzer Forge is the standalone host for inspecting projects, generating settings, applying fixes, and writing reports. It loads a real project or solution with `MSBuildWorkspace`, so it sees the same compiled `IJzerSettings` metadata value as the analyzer. It can also generate documentation directly from a specific XML settings file.
 
 ```powershell
-dotnet tool install --global RonSijm.AnaalIJzer.Arse
+dotnet tool install --global RonSijm.IJzer.Forge
 ```
 
 ### Interactive mode
 
-Run `arse` without arguments for the interactive terminal interface built with [RazorConsole](https://github.com/RazorConsole/RazorConsole).
+Run `ijzer` without arguments for the interactive terminal interface built with [RazorConsole](https://github.com/RazorConsole/RazorConsole).
 
 - Path fields show matching directories and relevant files while you type.
   - Use Up/Down to select a suggestion.
@@ -754,29 +770,29 @@ Run `arse` without arguments for the interactive terminal interface built with [
 Supply a command to use the same executable without the TUI:
 
 ```cmd
-arse generate-config --project src\MyApp\MyApp.csproj --output Architecture.anl
-arse generate-config --solution src\MyApp.slnx --strategy helpful --output Architecture.anl
-arse generate-config --project src\MyApp\MyApp.csproj --strategy conventions --minimum-confidence 0.95 --minimum-support 10 --generate-documentation --include-input
-arse export-config --project src\MyApp\MyApp.csproj --output Architecture.anl
-arse documentation --project src\MyApp\MyApp.csproj --output docs\architecture-documentation.md --force
-arse documentation --config Architecture.anl --output docs\architecture-documentation.md --force
-arse report        --project src\MyApp\MyApp.csproj --output docs\architectural-violations.md --force
-arse report        --solution src\MyApp.slnx --output docs\architectural-violations.md --force
-arse inspect       --project src\MyApp\MyApp.csproj --output docs\architecture-health.md --force
-arse inspect       --solution src\MyApp.slnx --output docs\architecture-health.md --force
-arse inspect       --solution src\MyApp.slnx --enforce-topology --output build\Artifacts\architecture-health.json --force
-arse fixes         --project src\MyApp\MyApp.csproj
-arse fixes         --solution src\MyApp.slnx --output docs\architecture-fixes.md --force
-arse apply-fix     --project src\MyApp\MyApp.csproj --fix-id fix-abc123
-arse merge-config  --config Shared.anl --config Project.anl --output Architecture.anl --force
-arse split-config  --config Architecture.anl --output ArchitectureRules --force
-arse format-config --config Architecture.anl
-arse explain-config --config Architecture.anl --output docs\architecture-explanation.md --force
+ijzer generate-config --project src\MyApp\MyApp.csproj --output Architecture.anl
+ijzer generate-config --solution src\MyApp.slnx --strategy helpful --output Architecture.anl
+ijzer generate-config --project src\MyApp\MyApp.csproj --strategy conventions --minimum-confidence 0.95 --minimum-support 10 --generate-documentation --include-input
+ijzer export-config --project src\MyApp\MyApp.csproj --output Architecture.anl
+ijzer documentation --project src\MyApp\MyApp.csproj --output docs\architecture-documentation.md --force
+ijzer documentation --config Architecture.anl --output docs\architecture-documentation.md --force
+ijzer report        --project src\MyApp\MyApp.csproj --output docs\architectural-violations.md --force
+ijzer report        --solution src\MyApp.slnx --output docs\architectural-violations.md --force
+ijzer inspect       --project src\MyApp\MyApp.csproj --output docs\architecture-health.md --force
+ijzer inspect       --solution src\MyApp.slnx --output docs\architecture-health.md --force
+ijzer inspect       --solution src\MyApp.slnx --enforce-topology --output build\Artifacts\architecture-health.json --force
+ijzer fixes         --project src\MyApp\MyApp.csproj
+ijzer fixes         --solution src\MyApp.slnx --output docs\architecture-fixes.md --force
+ijzer apply-fix     --project src\MyApp\MyApp.csproj --fix-id fix-abc123
+ijzer merge-config  --config Shared.anl --config Project.anl --output Architecture.anl --force
+ijzer split-config  --config Architecture.anl --output ArchitectureRules --force
+ijzer format-config --config Architecture.anl
+ijzer explain-config --config Architecture.anl --output docs\architecture-explanation.md --force
 ```
 
 ### Generate a baseline
 
-`generate-config` inspects source-defined types and the dependency sites already present in the project. It infers layers from the first namespace segment below the project's common namespace, falling back to familiar type suffixes such as `Controller`, `Service`, `Repository`, `Handler` and `Projection`. The command writes both `Architecture.anl` and a local `AnaalIJzer.xsd`, then runs the analyzer against the generated XML before accepting the result - a generator that emits configuration its own analyzer rejects would not be much of a favour.
+`generate-config` inspects source-defined types and the dependency sites already present in the project. It infers layers from the first namespace segment below the project's common namespace, falling back to familiar type suffixes such as `Controller`, `Service`, `Repository`, `Handler` and `Projection`. The command writes both `Architecture.anl` and a local `IJzer.xsd`, then runs the analyzer against the generated XML before accepting the result - a generator that emits configuration its own analyzer rejects would not be much of a favour.
 
 The generation strategy controls how observed dependencies become rules:
 
@@ -791,13 +807,13 @@ The generation strategy controls how observed dependencies become rules:
 For a solution-wide baseline, generate `Architecture.anl` beside the solution or in an ancestor directory:
 
 ```cmd
-arse generate-config --solution src\MyApp.slnx --strategy helpful --output Architecture.anl
-arse inspect --solution src\MyApp.slnx --output build\Artifacts\architecture-health.md --force
+ijzer generate-config --solution src\MyApp.slnx --strategy helpful --output Architecture.anl
+ijzer inspect --solution src\MyApp.slnx --output build\Artifacts\architecture-health.md --force
 ```
 
-Solution inspection still respects project-specific `Architecture.anl` and inline `AssemblyMetadata("AnaalIJzerSettings", ...)` first. If a project has no local config, Arse applies the nearest `Architecture.anl` found from the solution directory upward. Shared solution configs are inspected against the combined solution evidence, so assembly matchers and dependency edges are not reported as unused just because they do not apply to every project individually.
+Solution inspection still respects project-specific `Architecture.anl` and inline `AssemblyMetadata("IJzerSettings", ...)` first. If a project has no local config, IJzer Forge applies the nearest `Architecture.anl` found from the solution directory upward. Shared solution configs are inspected against the combined solution evidence, so assembly matchers and dependency edges are not reported as unused just because they do not apply to every project individually.
 
-AnaalIJzer dogfoods this flow with [`build\Scripts\Arse\inspect-self-architecture.cmd`](build/Scripts/Arse/inspect-self-architecture.cmd), using a helpful solution baseline instead of a strict hand-authored policy.
+IJzer dogfoods this flow with [`build\Scripts\Forge\inspect-self-architecture.cmd`](build/Scripts/Forge/inspect-self-architecture.cmd), using a helpful solution baseline instead of a strict hand-authored policy.
 
 #### Convention thresholds
 
@@ -812,7 +828,7 @@ Think of confidence as **“is this edge popular enough?”** and support as **�
 
 #### One project, different thresholds
 
-Suppose Arse observes ten distinct active caller types in the `Presentation` layer:
+Suppose IJzer Forge observes ten distinct active caller types in the `Presentation` layer:
 
 | Existing callers | Observed dependency | Confidence | Support |
 |---:|---|---:|---:|
@@ -824,10 +840,10 @@ An **active caller** is a distinct type in the source layer that has at least on
 Run convention generation several times against that same project, changing only the thresholds:
 
 ```cmd
-arse generate-config --project Shop.csproj --strategy conventions --minimum-confidence 0.75 --minimum-support 5 --output Architecture.75-5.anl
-arse generate-config --project Shop.csproj --strategy conventions --minimum-confidence 0.90 --minimum-support 5 --output Architecture.90-5.anl
-arse generate-config --project Shop.csproj --strategy conventions --minimum-confidence 0.75 --minimum-support 9 --output Architecture.75-9.anl
-arse generate-config --project Shop.csproj --strategy conventions --minimum-confidence 0.20 --minimum-support 2 --output Architecture.20-2.anl
+ijzer generate-config --project Shop.csproj --strategy conventions --minimum-confidence 0.75 --minimum-support 5 --output Architecture.75-5.anl
+ijzer generate-config --project Shop.csproj --strategy conventions --minimum-confidence 0.90 --minimum-support 5 --output Architecture.90-5.anl
+ijzer generate-config --project Shop.csproj --strategy conventions --minimum-confidence 0.75 --minimum-support 9 --output Architecture.75-9.anl
+ijzer generate-config --project Shop.csproj --strategy conventions --minimum-confidence 0.20 --minimum-support 2 --output Architecture.20-2.anl
 ```
 
 The same evidence now produces four different results:
@@ -854,9 +870,9 @@ The first invocation treats `Presentation --> Application` as the dominant conve
 <AllowedDependency from="Presentation" to="Application" />
 ```
 
-The two outlier endpoint names are illustrative; Arse writes the actual fully qualified caller names it found. If **no** edge from a source layer reaches both thresholds, Arse does not guess: it preserves every observed edge from that layer as an ambiguous snapshot.
+The two outlier endpoint names are illustrative; IJzer Forge writes the actual fully qualified caller names it found. If **no** edge from a source layer reaches both thresholds, IJzer Forge does not guess: it preserves every observed edge from that layer as an ambiguous snapshot.
 
-The executable counterpart lives in [`src/Tests/RonSijm.AnaalIJzer.Application.Tests/ApplicationOperations`](src/Tests/RonSijm.AnaalIJzer.Application.Tests/ApplicationOperations). The theory cases there run this same 8/2 setup with the four threshold combinations above and verify the generated edges, ambiguity fallback, and exceptions.
+The executable counterpart lives in [`src/Tests/RonSijm.IJzer.Application.Tests/ApplicationOperations`](src/Tests/RonSijm.IJzer.Application.Tests/ApplicationOperations). The theory cases there run this same 8/2 setup with the four threshold combinations above and verify the generated edges, ambiguity fallback, and exceptions.
 
 Generated `<Exceptions>` use the analyzer's existing ratchet semantics: the caller is exempt from that layer matcher, so all of that caller's dependencies are grandfathered. Review these entries before adopting the file. Convention mode identifies statistically dominant structure; it cannot prove architectural intent. Eight classes doing the same thing is evidence of a habit, which is not automatically evidence of a decision.
 
@@ -893,7 +909,7 @@ The related commands have deliberately different jobs:
   - Add `--enforce-topology` to evaluate `<SolutionTopology>` as `ARCH_SOL_001` / `ARCH_SOL_006` findings without changing normal project builds.
 - **JSON output** contains the same ordered findings as machine-readable evidence.
 
-Headless Arse exits with code `3` when findings require review. That gives CI something concrete to fail on instead of producing a report everybody agrees to read later.
+Headless IJzer Forge exits with code `3` when findings require review. That gives CI something concrete to fail on instead of producing a report everybody agrees to read later.
 
 ### Merge, split, format, and explain settings
 
@@ -905,7 +921,7 @@ Headless Arse exits with code `3` when findings require review. That gives CI so
 - One `Graph.XX.<layers>.anl` file per disconnected dependency graph.
 - `Shared.anl` for global rules such as `<Forbidden>`, when needed.
 
-The manifest includes every generated file, so it remains a complete replacement for the original configuration. Wildcard dependencies connect every named layer and therefore prevent those layers from being split into separate graphs. In Arse's interactive mode, enter multiple merge inputs separated by semicolons.
+The manifest includes every generated file, so it remains a complete replacement for the original configuration. Wildcard dependencies connect every named layer and therefore prevent those layers from being split into separate graphs. In IJzer Forge's interactive mode, enter multiple merge inputs separated by semicolons.
 
 `format-config` normalizes the XML formatting of an `.anl` file. Without `--output`, it formats the input file in place. Use `--output` when you want to preview the normalized version beside the original.
 
@@ -913,21 +929,21 @@ The manifest includes every generated file, so it remains a complete replacement
 
 ### Configuration fixes
 
-`fixes` lists configuration-backed proposals from the same Roslyn fixer catalog used by the IDE. One diagnostic may offer several proposals, for example adding a missing `AllowedDependency`, widening `allowedSites`, or relaxing `blockedSites`. Arse shows the proposals with stable ids, a risk label, the target file, and a preview diff so you can review them before applying anything.
+`fixes` lists configuration-backed proposals from the same Roslyn fixer catalog used by the IDE. One diagnostic may offer several proposals, for example adding a missing `AllowedDependency`, widening `allowedSites`, or relaxing `blockedSites`. IJzer Forge shows the proposals with stable ids, a risk label, the target file, and a preview diff so you can review them before applying anything.
 
-`apply-fix` applies one of those proposal ids back to the owning settings source. If the rule came from an included `.anl`, Arse edits that included file. If the project uses inline `AssemblyMetadata("AnaalIJzerSettings", ...)`, Arse rewrites only the metadata string in the owning source file. After applying a fix, Arse reruns the proposal collection so you can immediately see what remains.
+`apply-fix` applies one of those proposal ids back to the owning settings source. If the rule came from an included `.anl`, IJzer Forge edits that included file. If the project uses inline `AssemblyMetadata("IJzerSettings", ...)`, IJzer Forge rewrites only the metadata string in the owning source file. After applying a fix, IJzer Forge reruns the proposal collection so you can immediately see what remains.
 
-The executable coverage lives in [`src/Tests/RonSijm.AnaalIJzer.Application.Tests/ApplicationOperations/ApplicationOperationsTests.ConfigurationFixes.cs`](src/Tests/RonSijm.AnaalIJzer.Application.Tests/ApplicationOperations/ApplicationOperationsTests.ConfigurationFixes.cs). Those tests exercise both file-based and inline settings projects end to end: list proposals, apply one fix, and verify that the proposal list becomes empty afterward.
+The executable coverage lives in [`src/Tests/RonSijm.IJzer.Application.Tests/ApplicationOperations/ApplicationOperationsTests.ConfigurationFixes.cs`](src/Tests/RonSijm.IJzer.Application.Tests/ApplicationOperations/ApplicationOperationsTests.ConfigurationFixes.cs). Those tests exercise both file-based and inline settings projects end to end: list proposals, apply one fix, and verify that the proposal list becomes empty afterward.
 
 ### One operation catalog
 
-Arse's interactive and headless modes share `RonSijm.AnaalIJzer.Application`. Its `ToolOperationCatalog`, `ToolRequest` and `ToolRunner` own the available operations, supported inputs, validation and execution behavior, keeping both modes in feature parity.
+IJzer Forge's interactive and headless modes share `RonSijm.IJzer.Application`. Its `ToolOperationCatalog`, `ToolRequest` and `ToolRunner` own the available operations, supported inputs, validation and execution behavior, keeping both modes in feature parity.
 
-# Anaaltomy Statistics
+# IJzer Gauge Statistics
 
-Anaaltomy is a standalone compiled-code statistics tool. It measures the shape of C# projects with Roslyn and keeps the results in SQLite so the same measurements can be compared across the current tree and Git history.
+IJzer Gauge is a standalone compiled-code statistics tool. It measures the shape of C# projects with Roslyn and keeps the results in SQLite so the same measurements can be compared across the current tree and Git history.
 
-It is deliberately separate from AnaalIJzer's architecture rules:
+It is deliberately separate from IJzer's architecture rules:
 
 - It does not need `Architecture.anl`.
 - It does not run `ARCHxxx` diagnostics or classify code into layers.
@@ -936,28 +952,28 @@ It is deliberately separate from AnaalIJzer's architecture rules:
 ## Install
 
 ```powershell
-dotnet tool install --global RonSijm.Anaaltomy
-anaaltomy --help
+dotnet tool install --global RonSijm.IJzer.Gauge
+ijzer-gauge --help
 ```
 
-The global command is `anaaltomy`.
+The global command is `ijzer-gauge`.
 
 To build the tool and its NuGet package locally from this repository, run:
 
 ```cmd
-build\Scripts\Anaaltomy\build-anaaltomy.bat
+build\Scripts\Gauge\build-gauge.bat
 ```
 
-The compiled tool is written to `build\Artifacts\Anaaltomy`. The global-tool packages are written to `build\Artifacts\Anaaltomy\Packages`, ready for local installation or manual upload to NuGet.org.
+The compiled tool is written to `build\Artifacts\Gauge`. The global-tool packages are written to `build\Artifacts\Gauge\Packages`, ready for local installation or manual upload to NuGet.org.
 
 ## Scan The Current Tree
 
 Choose exactly one input shape and an explicit SQLite database path. A sensible database location is under `build\Artifacts`, rather than beside source files.
 
 ```powershell
-anaaltomy scan --project .\src\Pizza\Pizza.csproj --database .\build\Artifacts\statistics.db
-anaaltomy scan --solution .\Pizza.slnx --database .\build\Artifacts\statistics.db
-anaaltomy scan --directory .\src --database .\build\Artifacts\statistics.db
+ijzer-gauge scan --project .\src\Pizza\Pizza.csproj --database .\build\Artifacts\statistics.db
+ijzer-gauge scan --solution .\Pizza.slnx --database .\build\Artifacts\statistics.db
+ijzer-gauge scan --directory .\src --database .\build\Artifacts\statistics.db
 ```
 
 `scan` loads real C# project compilations through `MSBuildWorkspace`. It understands project references, conditional compilation, language versions, linked files, and target frameworks instead of guessing from raw text.
@@ -972,7 +988,7 @@ Useful scan options:
 | `--restore-mode auto\|never\|always` | `auto` | Control restore before project evaluation. |
 | `--allow-partial` | off | Return exit code `0` even when a project could only be partially scanned. |
 
-Compiler errors do not discard usable observations. Anaaltomy stores the available measurements and marks the affected project and scan as partial. It exits with code `3` unless `--allow-partial` is supplied.
+Compiler errors do not discard usable observations. IJzer Gauge stores the available measurements and marks the affected project and scan as partial. It exits with code `3` unless `--allow-partial` is supplied.
 
 ## What It Measures
 
@@ -995,20 +1011,20 @@ Generated code is excluded by default. Metadata/framework types are not counted 
 SQLite is the canonical store. JSON and CSV are export formats, not the source of truth.
 
 ```powershell
-anaaltomy summary --database .\build\Artifacts\statistics.db
-anaaltomy trend --database .\build\Artifacts\statistics.db --dimension DependencySite --bucket Local
-anaaltomy compare --database .\build\Artifacts\statistics.db --from v0.2.0 --to HEAD
-anaaltomy commits --database .\build\Artifacts\statistics.db --dimension TypeKind --bucket Record
-anaaltomy export --database .\build\Artifacts\statistics.db --format json --output .\build\Artifacts\statistics.json
-anaaltomy export --database .\build\Artifacts\statistics.db --format csv --output .\build\Artifacts\statistics.csv
-anaaltomy export --database .\build\Artifacts\statistics.db --format markdown --output .\build\Artifacts\statistics.md
-anaaltomy export-database --database .\build\Artifacts\statistics.db --format json --output-directory .\build\Artifacts\statistics-json
-anaaltomy export-database --database .\build\Artifacts\statistics.db --format csv --output-directory .\build\Artifacts\statistics-csv
-anaaltomy export-database --database .\build\Artifacts\statistics.db --format markdown --output-directory .\build\Artifacts\statistics-md
-anaaltomy chart --database .\build\Artifacts\statistics.db --output-directory .\build\Artifacts\charts
-anaaltomy chart --database .\build\Artifacts\statistics.db --output-directory .\build\Artifacts\charts --dimension DependencySite
-anaaltomy chart --database .\build\Artifacts\statistics.db --output-directory .\build\Artifacts\charts --group --dimension MemberAccessibility --group-by MemberKind
-anaaltomy chart --database .\build\Artifacts\statistics.db --output-directory .\build\Artifacts\charts --trend --dimension DependencySite --bucket Local
+ijzer-gauge summary --database .\build\Artifacts\statistics.db
+ijzer-gauge trend --database .\build\Artifacts\statistics.db --dimension DependencySite --bucket Local
+ijzer-gauge compare --database .\build\Artifacts\statistics.db --from v0.2.0 --to HEAD
+ijzer-gauge commits --database .\build\Artifacts\statistics.db --dimension TypeKind --bucket Record
+ijzer-gauge export --database .\build\Artifacts\statistics.db --format json --output .\build\Artifacts\statistics.json
+ijzer-gauge export --database .\build\Artifacts\statistics.db --format csv --output .\build\Artifacts\statistics.csv
+ijzer-gauge export --database .\build\Artifacts\statistics.db --format markdown --output .\build\Artifacts\statistics.md
+ijzer-gauge export-database --database .\build\Artifacts\statistics.db --format json --output-directory .\build\Artifacts\statistics-json
+ijzer-gauge export-database --database .\build\Artifacts\statistics.db --format csv --output-directory .\build\Artifacts\statistics-csv
+ijzer-gauge export-database --database .\build\Artifacts\statistics.db --format markdown --output-directory .\build\Artifacts\statistics-md
+ijzer-gauge chart --database .\build\Artifacts\statistics.db --output-directory .\build\Artifacts\charts
+ijzer-gauge chart --database .\build\Artifacts\statistics.db --output-directory .\build\Artifacts\charts --dimension DependencySite
+ijzer-gauge chart --database .\build\Artifacts\statistics.db --output-directory .\build\Artifacts\charts --group --dimension MemberAccessibility --group-by MemberKind
+ijzer-gauge chart --database .\build\Artifacts\statistics.db --output-directory .\build\Artifacts\charts --trend --dimension DependencySite --bucket Local
 ```
 
 The query commands answer different questions:
@@ -1035,7 +1051,7 @@ SQLite remains the source of truth. The exported files are portable snapshots fo
 - Without `--dimension`, it writes one horizontal bar chart for every populated dimension.
   - Type kinds, dependency sites, type accessibility, member accessibility, and member kinds each get their own chart.
 - Every title names the scanned project, solution, or folder.
-  - For example: `Anaaltomy Dependency Site breakdown of 'Azure.Storage.Blobs'`.
+  - For example: `IJzer Gauge Dependency Site breakdown of 'Azure.Storage.Blobs'`.
 - `--group` creates a grouped breakdown from the latest scan.
   - Use `--group-by <dimension>` to choose the grouping dimension explicitly.
 - `--trend --dimension <dimension> --bucket <bucket>` creates a line chart across stored Git-history points.
@@ -1062,14 +1078,14 @@ The database starts with an explicit schema-version table and keeps repositories
 
 ## Scan Git History Safely
 
-Historical scans use a temporary detached Git worktree outside your active checkout. Anaaltomy never checks out a historical revision in the worktree you are using to write code.
+Historical scans use a temporary detached Git worktree outside your active checkout. IJzer Gauge never checks out a historical revision in the worktree you are using to write code.
 
 Scanning all reachable history must be explicit:
 
 ```powershell
-anaaltomy history --repository . --from-root --database .\build\Artifacts\statistics.db
-anaaltomy history --repository . --from v0.2.0 --to HEAD --database .\build\Artifacts\statistics.db
-anaaltomy history --repository . --from-root --first-parent --max-commits 50 --database .\build\Artifacts\statistics.db
+ijzer-gauge history --repository . --from-root --database .\build\Artifacts\statistics.db
+ijzer-gauge history --repository . --from v0.2.0 --to HEAD --database .\build\Artifacts\statistics.db
+ijzer-gauge history --repository . --from-root --first-parent --max-commits 50 --database .\build\Artifacts\statistics.db
 ```
 
 History selection is explicit:
@@ -1077,16 +1093,16 @@ History selection is explicit:
 - Use either `--from-root` or `--from <revision>`.
   - The tool rejects an unbounded accidental history scan.
 - Add `--first-parent` to follow the primary integration path.
-- Without it, Anaaltomy scans every reachable commit in topological order.
+- Without it, IJzer Gauge scans every reachable commit in topological order.
 - Merge commits are scanned as their resulting source tree and retain both parent links in SQLite.
 
 Historical scans default to `--restore-mode always`, because an isolated worktree may not have restored assets. They can be resumed:
 
 ```powershell
-anaaltomy history --repository . --from-root --resume --database .\build\Artifacts\statistics.db
+ijzer-gauge history --repository . --from-root --resume --database .\build\Artifacts\statistics.db
 ```
 
-Completed commit scans with the same scan definition are skipped; incomplete or failed commits are retried. Anaaltomy records a failure and continues when it can, returning exit code `3` unless `--allow-partial` was requested.
+Completed commit scans with the same scan definition are skipped; incomplete or failed commits are retried. IJzer Gauge records a failure and continues when it can, returning exit code `3` unless `--allow-partial` was requested.
 
 ## Safety And Exit Codes
 
@@ -1099,7 +1115,7 @@ Completed commit scans with the same scan definition are skipped; incomplete or 
 | `3` | Partial scan, unresolved project, or failed historical commit. |
 | `4` | SQLite migration or persistence failure. |
 
-Use `anaaltomy --help` for the complete option list.
+Use `ijzer-gauge --help` for the complete option list.
 
 ## WPF graph editor component
 
@@ -1107,10 +1123,10 @@ The WPF graph editor is the reusable visual editor behind the standalone graph e
 
 | Project | Purpose |
 |---|---|
-| `src/Main/RonSijm.AnaalIJzer.Graphing` | Shared graph view models and layout grouping. |
-| `src/Main/RonSijm.AnaalIJzer.Graphing.Wpf` | WPF/Nodify controls for viewing and editing architecture graphs. |
-| `src/Tools/RonSijm.AnaalIJzer.GraphEditor.Standalone` | Small executable harness for testing the WPF component outside Visual Studio. |
-| `src/Extensions/RonSijm.AnaalIJzer.VisualStudio` | Hosts the same WPF component inside the Visual Studio companion extension. |
+| `src/Main/RonSijm.IJzer.Graphing` | Shared graph view models and layout grouping. |
+| `src/Main/RonSijm.IJzer.Graphing.Wpf` | WPF/Nodify controls for viewing and editing architecture graphs. |
+| `src/Tools/RonSijm.IJzer.GraphEditor.Standalone` | Small executable harness for testing the WPF component outside Visual Studio. |
+| `src/Extensions/RonSijm.IJzer.VisualStudio` | Hosts the same WPF component inside the Visual Studio companion extension. |
 
 The central controls are `ArchitectureGraphEditorControl` and `ArchitectureGraphCanvas`. Given an `ArchitectureGraphSnapshot`, they:
 
@@ -1121,7 +1137,7 @@ The central controls are `ArchitectureGraphEditorControl` and `ArchitectureGraph
   - That graph shows configured modules beside observed direct project references.
   - It is for investigation; topology edits still belong in the authoritative `Architecture.anl` file.
 
-The editor is source-aware. It can edit XML settings files and inline `AssemblyMetadata("AnaalIJzerSettings", ...)` settings, then reload through the same configuration-reading path used by the analyzer tooling. The graph supports:
+The editor is source-aware. It can edit XML settings files and inline `AssemblyMetadata("IJzerSettings", ...)` settings, then reload through the same configuration-reading path used by the analyzer tooling. The graph supports:
 
 - dragging and resizing nested layer groups;
 - collapsing graph groups;
@@ -1133,13 +1149,13 @@ The editor is source-aware. It can edit XML settings files and inline `AssemblyM
 - editing layer matchers, scoped type policies, includes and root settings from the inspector;
 - exporting the currently rendered graph surface to a PNG image.
 
-When the standalone harness is opened from a `.csproj`, `.sln`, or `.slnx`, the graph exposes `Configuration fixes` in both the root inspector and the selected layer or connection inspector. That panel uses the same shared configuration-fix catalog as the Roslyn light bulbs and `arse fixes`, shows preview diffs, and can apply one proposal and immediately reload the diagram.
+When the standalone harness is opened from a `.csproj`, `.sln`, or `.slnx`, the graph exposes `Configuration fixes` in both the root inspector and the selected layer or connection inspector. That panel uses the same shared configuration-fix catalog as the Roslyn light bulbs and `ijzer fixes`, shows preview diffs, and can apply one proposal and immediately reload the diagram.
 
 Right-clicking a layer or connection also offers a direct `Show configuration fixes` entry point. The resulting inspector view filters the loaded proposal list to the selected layer or dependency pair.
 
 The component itself is not a Roslyn analyzer; dragging a box changes configuration, not code. The responsibilities are split like this:
 
-- `RonSijm.AnaalIJzer.ConfigurationEditing` edits the configuration model.
+- `RonSijm.IJzer.ConfigurationEditing` edits the configuration model.
 - Visual Studio builds graph snapshots from the active Roslyn workspace.
 - The standalone harness can open `Architecture.anl`, a project, a solution, or a legacy `.xml` input.
   - Project and solution inputs use the shared `MSBuildWorkspace` host.
@@ -1182,27 +1198,27 @@ build\Scripts\GraphEditor\build-graph-editor-standalone.bat
 The script writes the runnable output to `build\Artifacts\GraphEditor.Standalone`. You can also run the project output directly:
 
 ```cmd
-src\Tools\RonSijm.AnaalIJzer.GraphEditor.Standalone\bin\Release\net10.0-windows\RonSijm.AnaalIJzer.GraphEditor.Standalone.exe path\to\Architecture.anl
-src\Tools\RonSijm.AnaalIJzer.GraphEditor.Standalone\bin\Release\net10.0-windows\RonSijm.AnaalIJzer.GraphEditor.Standalone.exe path\to\MySolution.slnx
+src\Tools\RonSijm.IJzer.GraphEditor.Standalone\bin\Release\net10.0-windows\RonSijm.IJzer.GraphEditor.Standalone.exe path\to\Architecture.anl
+src\Tools\RonSijm.IJzer.GraphEditor.Standalone\bin\Release\net10.0-windows\RonSijm.IJzer.GraphEditor.Standalone.exe path\to\MySolution.slnx
 ```
 
 Use `Tools > Associate .anl files` in the standalone editor to make Windows open `.anl` files with the graph editor. The same operation is available from the executable:
 
 ```cmd
-RonSijm.AnaalIJzer.GraphEditor.Standalone.exe --associate-anl
-RonSijm.AnaalIJzer.GraphEditor.Standalone.exe --unassociate-anl
+RonSijm.IJzer.GraphEditor.Standalone.exe --associate-anl
+RonSijm.IJzer.GraphEditor.Standalone.exe --unassociate-anl
 ```
 
 The GitHub `build_main.yml` workflow:
 
 - builds the Windows-only editor;
 - uploads `build\Artifacts\GraphEditor.Standalone` as a workflow artifact;
-- publishes `AnaalIJzer-GraphEditor-Standalone-<version>.zip` as a release asset;
+- publishes `IJzer-GraphEditor-Standalone-<version>.zip` as a release asset;
 - replaces an existing `graph-editor-v<version>` release and tag before publishing the same version again.
 
-The standalone graph editor is not shipped as a `dotnet tool install` package. The .NET SDK does not support `PackAsTool` for WPF or WindowsDesktop projects, so the packaging decision was made for us: Arse remains the command-line .NET tool while the graph editor is distributed as a Windows executable artifact and hosted inside the Visual Studio extension.
+The standalone graph editor is not shipped as a `dotnet tool install` package. The .NET SDK does not support `PackAsTool` for WPF or WindowsDesktop projects, so the packaging decision was made for us: IJzer Forge remains the command-line .NET tool while the graph editor is distributed as a Windows executable artifact and hosted inside the Visual Studio extension.
 
-`RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests` covers:
+`RonSijm.IJzer.GraphEditor.Wpf.Tests` covers:
 
 - persistence from visual and inline-settings edits;
 - context menus and connector-created dependencies;
@@ -1385,18 +1401,18 @@ The XML root element is `<ArchitecturalLevels>`. It supports the child elements 
 
 ## Infrastructure as code
 
-Large `.anl` files can become awkward to maintain by hand. `RonSijm.AnaalIJzer.IaC` provides the same configuration vocabulary as a dependency-free C# object model and exports it to the XML-based `.anl` format.
+Large `.anl` files can become awkward to maintain by hand. `RonSijm.IJzer.IaC` provides the same configuration vocabulary as a dependency-free C# object model and exports it to the XML-based `.anl` format.
 
 Install the authoring package in a small generator project:
 
 ```cmd
-dotnet add package RonSijm.AnaalIJzer.IaC
+dotnet add package RonSijm.IJzer.IaC
 ```
 
 Then describe the configuration in C#:
 
 ```csharp
-using RonSijm.AnaalIJzer.IaC;
+using RonSijm.IJzer.IaC;
 
 var configuration = new ArchitectureConfiguration
 {
@@ -1443,7 +1459,7 @@ The examples keep each IaC use case in its own generator project:
 
 ### `<Include>`
 
-Merges another architecture settings file into the current config. Use this when a project has a small local config but shares layer definitions or common edges from another file. The top-level config can be either `Architecture.anl` or `AssemblyMetadata("AnaalIJzerSettings", ...)`; included settings files must still be passed to Roslyn as `AdditionalFiles`.
+Merges another architecture settings file into the current config. Use this when a project has a small local config but shares layer definitions or common edges from another file. The top-level config can be either `Architecture.anl` or `AssemblyMetadata("IJzerSettings", ...)`; included settings files must still be passed to Roslyn as `AdditionalFiles`.
 
 **Example projects:** [`Example.IncludeSettings`](Examples/Features/Example.IncludeSettings), [`Example.IncludeWildcardSettings`](Examples/Features/Example.IncludeWildcardSettings)
 
@@ -1824,12 +1840,12 @@ That rule says what a type *is*. It does not say where the type happens to live 
 
 ### The design boundary
 
-AnaalIJzer intentionally does not assign a layer from:
+IJzer intentionally does not assign a layer from:
 
 - a `.csproj` name or project path;
 - a source folder, including its child folders;
 - a solution-folder entry;
-- a project property such as `AnaalIJzerProjectLayer`;
+- a project property such as `IJzerProjectLayer`;
 - an attribute, `.editorconfig` entry, package reference, or observed call graph.
 
 The `.anl` configuration is the single source of truth for layer definitions and membership. A type has one canonical layer path, such as `Ordering/Application`; it is not a collection of unrelated physical labels.
@@ -1862,7 +1878,7 @@ Another option was a project-side declaration:
 ```xml
 <!-- Not supported. -->
 <PropertyGroup>
-  <AnaalIJzerProjectLayer>/Ordering</AnaalIJzerProjectLayer>
+  <IJzerProjectLayer>/Ordering</IJzerProjectLayer>
 </PropertyGroup>
 ```
 
@@ -2264,7 +2280,7 @@ public class OrderManager(OrderStore store) { }
 
 #### Code fix
 
-Forbidden-rule diagnostics with an originating matcher register an **"Add '`TypeName`' to exceptions"** code action that appends the offending type to that matcher's `<Exceptions>` block, creating the block if needed. This works for both `Architecture.anl` and inline `AssemblyMetadata("AnaalIJzerSettings", ...)`, and if the matcher came from an included file the fix edits that owning file instead of the top-level one.
+Forbidden-rule diagnostics with an originating matcher register an **"Add '`TypeName`' to exceptions"** code action that appends the offending type to that matcher's `<Exceptions>` block, creating the block if needed. This works for both `Architecture.anl` and inline `AssemblyMetadata("IJzerSettings", ...)`, and if the matcher came from an included file the fix edits that owning file instead of the top-level one.
 
 Allow-list failures are different: there is no single matcher to except, so the IDE offers an **allow-list** fixer instead that adds an exact `<Class typeName="..."/>` matcher to every applicable `<Allowed>` list. ARCH_DEP_002 also has no exception action; it offers layer classification or `requireRecognizedDependencies` relaxation because that is what actually resolves the finding.
 
@@ -2366,7 +2382,7 @@ Behavior:
 - Invalid `expiresOn` reports `ARCH_EXC_009`.
 - Expired exceptions report `ARCH_EXC_009` and fail closed.
 - Expiring-soon exceptions report `ARCH_EXC_009` but remain active.
-- Stale exceptions are reported by Arse health inspection, not by normal project compilation.
+- Stale exceptions are reported by IJzer Forge health inspection, not by normal project compilation.
 
 See also:
 
@@ -2650,7 +2666,7 @@ The child policy cannot override a parent failure. The first failing policy is r
 - Whether a CLR-public declaration should remain internal to a class, assembly, or layer is handled by [architectural-internal annotations](docs/configuration/architectural-internal-annotations.md) (`ARCH_VIS_007`).
 - Whether an interface or contract contains an allowed kind of member is a separate contract-purity concern (`ARCH_CONT_008`).
 
-Arse includes visibility findings in `inspect`, `report`, generated documentation, and code evidence. The standalone WPF editor and Visual Studio graph inspector provide checkable target/accessibility controls and autosave the same `.anl` or inline metadata source.
+IJzer Forge includes visibility findings in `inspect`, `report`, generated documentation, and code evidence. The standalone WPF editor and Visual Studio graph inspector provide checkable target/accessibility controls and autosave the same `.anl` or inline metadata source.
 
 **Example project:** [`Example.Arch_VIS_001.VisibilityPolicy`](Examples/Diagnostics/VIS/Example.Arch_VIS_001.VisibilityPolicy)
 
@@ -2663,10 +2679,10 @@ An entity projection may need to stay `public` because Entity Framework, a seria
 Install the small annotations package in the project that owns such declarations:
 
 ```shell
-dotnet add package RonSijm.AnaalIJzer.Annotations
+dotnet add package RonSijm.IJzer.Annotations
 ```
 
-The package has no analyzer, Roslyn, or runtime dependencies. The normal `RonSijm.AnaalIJzer` analyzer recognizes its attributes by their full metadata names.
+The package has no analyzer, Roslyn, or runtime dependencies. The normal `RonSijm.IJzer` analyzer recognizes its attributes by their full metadata names.
 
 #### Pick the boundary you mean
 
@@ -2679,7 +2695,7 @@ The package has no analyzer, Roslyn, or runtime dependencies. The normal `RonSij
 `ClassInternal` is useful for a reflection-only public class without making you invent a one-class layer:
 
 ```csharp
-using RonSijm.AnaalIJzer.Annotations;
+using RonSijm.IJzer.Annotations;
 
 [ClassInternal]
 public sealed class ReflectionProjection
@@ -2828,7 +2844,7 @@ The child policy cannot override an outer denial. The first failure is reported 
 - Inheritance policies do not replace contract purity. A type can inherit the right base class and still violate `<ContractPolicy>`.
 - Inheritance policies check declarations that already exist. They do not classify a type into a layer by themselves; the layer matchers still do that.
 
-Arse includes inheritance-policy findings in `inspect`, `report`, generated documentation, and code evidence. The standalone WPF editor and Visual Studio graph inspector expose the same settings at layer scope.
+IJzer Forge includes inheritance-policy findings in `inspect`, `report`, generated documentation, and code evidence. The standalone WPF editor and Visual Studio graph inspector expose the same settings at layer scope.
 
 **Example projects:** [`Example.Arch_INH_001.InheritancePolicy`](Examples/Diagnostics/INH/Example.Arch_INH_001.InheritancePolicy), [`Example.StructuralDeclarationMatchers`](Examples/Features/Example.StructuralDeclarationMatchers)
 
@@ -2931,7 +2947,7 @@ The child policy cannot override an outer denial. The first failure is reported 
 - Contract purity does not decide whether a public signature leaks a forbidden layer. That is an API-surface concern (`ARCH_API_001` / `ARCH_API_010`).
 - Contract purity is not inferred from a layer name such as `Contracts`; it only runs when `<ContractPolicy>` is present. A folder named `Contracts` is a naming convention, not a guarantee, no matter how firmly it is stated in a design review.
 
-Arse includes contract-purity findings in `inspect`, `report`, generated documentation, and code evidence. The standalone WPF editor and Visual Studio graph inspector expose the same settings as token checklists and booleans.
+IJzer Forge includes contract-purity findings in `inspect`, `report`, generated documentation, and code evidence. The standalone WPF editor and Visual Studio graph inspector expose the same settings as token checklists and booleans.
 
 **Focused example projects:**
 
@@ -3053,7 +3069,7 @@ Roslyn analyzers receive project inputs, not permission to search the solution f
 
 `Literal` has a dedicated `value` attribute. It deliberately supports an empty value, so `<Literal value="" />` means an empty string. Numeric enum casts are unwrapped before matching, so `<Literal value="0" />` also catches `return (PizzaStatus)0;`.
 
-The usual matcher attributes also work where Roslyn can resolve the expression: `typeName`, `exactName`, `exactFullName`, `endsWith`, `startsWith`, `contains`, `regex`, `inherits`, `implements`, `withAttribute`, `withAccessModifier`, and `typeKind`. For example, the annotation matcher above uses the invoked method symbol’s attribute name. That remains configuration-driven: AnaalIJzer does not reference `JetBrains.Annotations`.
+The usual matcher attributes also work where Roslyn can resolve the expression: `typeName`, `exactName`, `exactFullName`, `endsWith`, `startsWith`, `contains`, `regex`, `inherits`, `implements`, `withAttribute`, `withAccessModifier`, and `typeKind`. For example, the annotation matcher above uses the invoked method symbol’s attribute name. That remains configuration-driven: IJzer does not reference `JetBrains.Annotations`.
 
 The analyzer only rejects values returned **unchanged**. A handling expression such as `lookup.FindPizza() ?? Pizza.Margherita` is not a direct `Invocation` return, because the kitchen has made an explicit fallback decision.
 
@@ -3131,7 +3147,7 @@ All architectural dependency sites are supported: `Constructor`, `Method`, `Meth
 
 ### Interaction with layers
 
-Namespace hierarchy policies run before layer dependency rules. When they block a reference, AnaalIJzer reports `ARCH_NS_007` instead of also reporting an `ARCH_DEP_001`, `ARCH_DEP_004`, or `ARCH_DEP_005` for that same reference. When no hierarchy rule blocks it, ordinary layer analysis continues unchanged.
+Namespace hierarchy policies run before layer dependency rules. When they block a reference, IJzer reports `ARCH_NS_007` instead of also reporting an `ARCH_DEP_001`, `ARCH_DEP_004`, or `ARCH_DEP_005` for that same reference. When no hierarchy rule blocks it, ordinary layer analysis continues unchanged.
 
 That separation is intentional:
 
@@ -3154,7 +3170,7 @@ There is no automatic code fix for `ARCH_NS_007`. The analyzer can identify the 
 
 `<ForbiddenOperations>` rejects one selected resolved API operation inside an owning layer and its descendants. It is intentionally narrower than `<Forbidden>`: you can forbid `DateTime.UtcNow` without forbidding `DateTime`, or forbid `Environment.MachineName` while still allowing `Environment.NewLine`.
 
-This is a semantic policy. AnaalIJzer compares Roslyn symbols, so an alias and a fully qualified spelling resolve to the same member. It does not need, and does not take, a dependency on the assembly that defines the selected member or attribute.
+This is a semantic policy. IJzer compares Roslyn symbols, so an alias and a fully qualified spelling resolve to the same member. It does not need, and does not take, a dependency on the assembly that defines the selected member or attribute.
 
 ```xml
 <Layer name="Kitchen">
@@ -3237,7 +3253,7 @@ When Sites Diagnostics is enabled in the Visual Studio companion, a matching ope
 
 This is deliberately more precise than an ordinary dependency rule and less ambitious than a business-process proof.
 
-AnaalIJzer can prove that:
+IJzer can prove that:
 
 - a configured `PizzaSafetyCheck.Validate()` call exists;
 - it dominates a configured `PizzaOven.Bake()` call in C# control flow;
@@ -3330,7 +3346,7 @@ Ordering rules add a related target:
 
 The surrounding tools reuse the same configuration model:
 
-- Arse validates, documents, merges, splits, and reports the policies.
+- IJzer Forge validates, documents, merges, splits, and reports the policies.
 - The WPF and Visual Studio graph editors preserve and edit the layer-scoped XML.
 - The Visual Studio companion shows concrete `ARCH_OPER_*` results through Sites Diagnostics and QuickInfo.
 
@@ -3395,13 +3411,13 @@ The compiler analyzer reports a concrete operation-contract diagnostic for each 
 - `ARCH_OPCT_002` when a selected owner or entry point lacks the configured request parameter, or a selected entry point does not directly invoke the selected owner;
 - `ARCH_OPCT_008` when a selected owner or entry point returns the wrong direct response type.
 
-The workspace-backed Arse commands (`arse inspect` and `arse report`) report a separate finding when an operation has no matching owner or more than one matching owner across the inspected scope. The graph editors preserve and edit the source contract; that cardinality fact cannot be proven by one project's compiler analyzer invocation.
+The workspace-backed IJzer Forge commands (`ijzer inspect` and `ijzer report`) report a separate finding when an operation has no matching owner or more than one matching owner across the inspected scope. The graph editors preserve and edit the source contract; that cardinality fact cannot be proven by one project's compiler analyzer invocation.
 
 The check deliberately does not follow helpers, delegates, asynchronous continuations, reflection, or method return values. A direct call is a clear source-level contract; anything broader needs a separate explicit policy rather than an optimistic guess.
 
 ### Tool support
 
-- **Arse:** `inspect` and `report` include operation-owner cardinality findings for a project or solution. `documentation` renders the manifest in XML order.
+- **IJzer Forge:** `inspect` and `report` include operation-owner cardinality findings for a project or solution. `documentation` renders the manifest in XML order.
 - **WPF graph editor and Visual Studio graph host:** the root inspector can add, edit, or remove an `<Operations>` container. It is presented as a source-contract editor, not a dependency graph edge.
 - **Visual Studio editor:** when Sites Diagnostics are enabled, local `ARCH_OPCT_*` violations appear as method-site indicators with QuickInfo.
 - **Code fixes:** none. Connecting an entry point to a workflow, or deciding how to reshape a request/response contract, is a domain decision.
@@ -3482,7 +3498,7 @@ Use exactly one of `index` or `name`. Every child `<Argument>` must match, so th
 Assembly attribute policies are root-level rules. They do not belong to a C# layer, dependency edge, or syntactic site: the check runs once against the completed compilation's assembly metadata.
 
 - The analyzer produces `ARCH_ASSM_001` and a report row with the assembly, attribute type, rule, and reason.
-- Arse documentation and violation reports render the policies in authored configuration order.
+- IJzer Forge documentation and violation reports render the policies in authored configuration order.
 - The shared configuration editor used by the WPF graph editor and Visual Studio graph window can inspect, add, edit, and remove root-level `<AssemblyAttributePolicy>` elements. They are shown as source-metadata policies rather than dependency-graph edges.
 - There is no automatic code fix. Removing a friend, adding one to an allow list, or changing a generated project item requires an explicit ownership decision.
 
@@ -3497,7 +3513,7 @@ This feature checks **compiled assembly attributes**, including those generated 
 
 ## ASP.NET Core example pack
 
-AnaalIJzer does not need an ASP.NET Core dependency to enforce many useful Web API rules. Roslyn resolves the symbols in your application; the ordinary matcher and policy vocabulary can then select facts such as `[ApiController]`, `ControllerBase`, action parameters, public return types, and direct method calls.
+IJzer does not need an ASP.NET Core dependency to enforce many useful Web API rules. Roslyn resolves the symbols in your application; the ordinary matcher and policy vocabulary can then select facts such as `[ApiController]`, `ControllerBase`, action parameters, public return types, and direct method calls.
 
 The runnable [`Example.AspNetCore`](Examples/Scenarios/Example.AspNetCore) pack uses real `Microsoft.NET.Sdk.Web` projects to show four framework-neutral rules:
 
@@ -3526,7 +3542,7 @@ These rules examine explicit source semantics. They do **not** infer route templ
 
 ## Entity Framework Core example pack
 
-AnaalIJzer does not need an Entity Framework Core dependency to enforce useful persistence boundaries. Roslyn resolves the EF Core symbols in the application project; ordinary matchers and policies then select facts such as `DbContext`, `IQueryable<T>`, `IEntityTypeConfiguration<T>`, `Migration`, and `[Index]`.
+IJzer does not need an Entity Framework Core dependency to enforce useful persistence boundaries. Roslyn resolves the EF Core symbols in the application project; ordinary matchers and policies then select facts such as `DbContext`, `IQueryable<T>`, `IEntityTypeConfiguration<T>`, `Migration`, and `[Index]`.
 
 The runnable [`Example.EntityFrameworkCore`](Examples/Scenarios/Example.EntityFrameworkCore) pack uses real `Microsoft.EntityFrameworkCore` packages to demonstrate six framework-neutral configurations:
 
@@ -3562,9 +3578,9 @@ The package deliberately makes no claim to diagnose N+1 queries, query performan
 
 ### Generated code analysis
 
-AnaalIJzer excludes files Roslyn identifies as generated by default. Generated output is often large, changes frequently, and is owned by a source generator, designer, or another build step. Checking it without an explicit decision can turn one architectural rule into a noisy stream of findings that nobody can safely act on.
+IJzer excludes files Roslyn identifies as generated by default. Generated output is often large, changes frequently, and is owned by a source generator, designer, or another build step. Checking it without an explicit decision can turn one architectural rule into a noisy stream of findings that nobody can safely act on.
 
-`<GeneratedCode>` is the deliberate opt-in. It affects compiler diagnostics, Arse inspection and reports, graph code evidence, and Visual Studio layer/site information alike. It does not change normal source analysis: non-generated C# files are always in scope.
+`<GeneratedCode>` is the deliberate opt-in. It affects compiler diagnostics, IJzer Forge inspection and reports, graph code evidence, and Visual Studio layer/site information alike. It does not change normal source analysis: non-generated C# files are always in scope.
 
 ```xml
 <ArchitecturalLevels>
@@ -3590,7 +3606,7 @@ AnaalIJzer excludes files Roslyn identifies as generated by default. Generated o
 
 Each `<Path>` uses the ordinary textual matcher attributes: `typeName`, `exactName`, `startsWith`, `endsWith`, `contains`, and `regex`. Attributes on one path are combined with AND semantics; sibling paths are alternatives. `IncludeConfigured` requires at least one valid path. `IncludeAll` and `Exclude` reject path children as invalid configuration (`ARCH_CONF_003`) so the intent stays unambiguous.
 
-The scope can technically be supplied through `AssemblyMetadata("AnaalIJzerSettings", ...)`, but a file-based `Architecture.anl` is usually clearer because it can describe several generated files and their ownership without crowding a source file.
+The scope can technically be supplied through `AssemblyMetadata("IJzerSettings", ...)`, but a file-based `Architecture.anl` is usually clearer because it can describe several generated files and their ownership without crowding a source file.
 
 The Visual Studio companion and WPF graph editor honor the scope when they collect code evidence: generated types, sites, and violations become visible only when the same configuration would analyze them. The graph itself remains an architecture graph, not a source-generator browser.
 
@@ -3725,7 +3741,7 @@ Roslyn does not reliably expose project-reference provenance by itself.
 
 The analyzer package therefore ships a `buildTransitive` target that writes a small project-reference manifest and adds it as an analyzer `AdditionalFile`. Less elegant than asking the compiler, and it has the distinct advantage of working.
 
-Arse and solution inspection do not need that generated manifest because they can inspect `MSBuildWorkspace` project references directly.
+IJzer Forge and solution inspection do not need that generated manifest because they can inspect `MSBuildWorkspace` project references directly.
 
 For rules about logical modules across an entire solution, use [solution topology](docs/configuration/solution-topology.md) instead. `ProjectArchitecture` remains a compiler analyzer feature and produces `ARCH_PROJ_001`; `SolutionTopology` is explicit workspace inspection and produces `ARCH_SOL_001` / `ARCH_SOL_006` report findings.
 
@@ -3733,7 +3749,7 @@ For rules about logical modules across an entire solution, use [solution topolog
 
 Use [assembly reference policies](docs/configuration/assembly-reference-policies.md) for a direct MSBuild
 `<Reference>` / `HintPath` dependency that is neither a project reference nor a NuGet
-package. Those policies are intentionally evaluated by `arse inspect` and `arse report`, not
+package. Those policies are intentionally evaluated by `ijzer inspect` and `ijzer report`, not
 as compiler `ARCHxxx` diagnostics.
 
 ### IDE Fix Support
@@ -3756,7 +3772,7 @@ other assembly dependencies that are neither a `ProjectReference` nor a NuGet pa
 
 This is deliberately a **workspace policy**, not a compiler analyzer diagnostic. A normal
 Roslyn analyzer execution cannot reliably discover the complete MSBuild provenance of an
-assembly reference. Run `arse inspect` or `arse report` against a project or solution to
+assembly reference. Run `ijzer inspect` or `ijzer report` against a project or solution to
 evaluate it.
 
 ```xml
@@ -3786,8 +3802,8 @@ Given this project file:
 </ItemGroup>
 ```
 
-`arse inspect --project Shop.Domain.csproj` reports an **Assembly reference policy**
-finding. `arse report` adds a separate workspace section with the source project, assembly
+`ijzer inspect --project Shop.Domain.csproj` reports an **Assembly reference policy**
+finding. `ijzer report` adds a separate workspace section with the source project, assembly
 identity, raw `HintPath`, and policy reason. A regular `dotnet build` remains free of a new
 `ARCHxxx` result for this rule.
 
@@ -3827,7 +3843,7 @@ replacing it with a project boundary, or deliberately adjusting the policy is an
 decision rather than a mechanically safe text edit.
 
 **Focused scenario:** [`Example.AssemblyReferenceBoundaries`](Examples/Scenarios/Example.AssemblyReferenceBoundaries)
-contains a clean project build and an intentionally failing Arse inspection.
+contains a clean project build and an intentionally failing IJzer Forge inspection.
 
 ## Solution topology
 
@@ -3840,7 +3856,7 @@ Use it when the architecture rule is about the shape of an entire loaded solutio
 - a direct project reference needs evidence in a solution report, not a compiler diagnostic;
 - the configured module graph must remain acyclic.
 
-`SolutionTopology` is intentionally evaluated by Arse through `MSBuildWorkspace`, not by the compiler analyzer. A normal project build remains self-contained and does not need to load its sibling projects.
+`SolutionTopology` is intentionally evaluated by IJzer Forge through `MSBuildWorkspace`, not by the compiler analyzer. A normal project build remains self-contained and does not need to load its sibling projects.
 
 ### Example
 
@@ -3899,13 +3915,13 @@ Blocked rules win. Like `ProjectArchitecture`, a source module enters allowlist 
 ### Run it deliberately
 
 ```cmd
-arse inspect --solution src\Shop\Shop.slnx --enforce-topology --output build\Artifacts\architecture-health.md --force
-arse inspect --solution src\Shop\Shop.slnx --enforce-topology --output build\Artifacts\architecture-health.json --force
+ijzer inspect --solution src\Shop\Shop.slnx --enforce-topology --output build\Artifacts\architecture-health.md --force
+ijzer inspect --solution src\Shop\Shop.slnx --enforce-topology --output build\Artifacts\architecture-health.json --force
 ```
 
-The Markdown report is intended for review. Choosing a `.json` output path writes the same ordered findings as machine-readable evidence, including source and target project paths, module names, the reason, and the matching rule location. Headless Arse returns exit code `3` when the inspection finds a problem.
+The Markdown report is intended for review. Choosing a `.json` output path writes the same ordered findings as machine-readable evidence, including source and target project paths, module names, the reason, and the matching rule location. Headless IJzer Forge returns exit code `3` when the inspection finds a problem.
 
-The repository includes a reusable [Solution topology GitHub workflow](.github/workflows/solution-topology.yml). Call it from a product workflow or dispatch it with a solution path; it restores and builds Arse, uploads both evidence files, and fails only after those artifacts are available.
+The repository includes a reusable [Solution topology GitHub workflow](.github/workflows/solution-topology.yml). Call it from a product workflow or dispatch it with a solution path; it restores and builds IJzer Forge, uploads both evidence files, and fails only after those artifacts are available.
 
 `ARCH_SOL_001` and `ARCH_SOL_006` are report finding codes, not compiler `ARCH` diagnostics. This distinction is intentional: opening an entire solution is a tooling operation, while an analyzer must stay fast and safe inside a normal project compilation.
 
@@ -4157,7 +4173,7 @@ Attributes on one `<Source>` are combined with AND semantics. Separate `<Source>
 
 Default: `Project`.
 
-`Configuration` is only valid for file-based settings. Inline `AssemblyMetadata("AnaalIJzerSettings", ...)` has no physical settings directory, so that combination reports `ARCH_CONF_003`.
+`Configuration` is only valid for file-based settings. Inline `AssemblyMetadata("IJzerSettings", ...)` has no physical settings directory, so that combination reports `ARCH_CONF_003`.
 
 ### Partial types
 
@@ -4177,7 +4193,7 @@ See [`Example.SourceLocations`](Examples/Features/Example.SourceLocations), wher
 
 ## Observed dependency cycles
 
-`enforceObservedAcyclic="true"` tells AnaalIJzer to inspect the dependencies that actually occur in source code and fail when those observed edges form a cycle.
+`enforceObservedAcyclic="true"` tells IJzer to inspect the dependencies that actually occur in source code and fail when those observed edges form a cycle.
 
 This is different from `enforceAcyclic`:
 
@@ -4214,7 +4230,7 @@ Behavior:
 - accepted values are `true`, `false`, `1`, and `0`;
 - invalid values report `ARCH_CONF_003` and disable observed-cycle enforcement;
 - a project build only sees cycles inside that compilation;
-- `arse inspect --solution` can also find cross-project observed cycles.
+- `ijzer inspect --solution` can also find cross-project observed cycles.
 
 See [`Example.Arch_DEP_006.ObservedCycle`](Examples/Diagnostics/DEP/Example.Arch_DEP_006.ObservedCycle).
 
@@ -4293,7 +4309,7 @@ dotnet_diagnostic.ARCH_DEP_002.severity = warning
 
 ### `enableReport` / `reportPath` attributes
 
-When `enableReport="true"` is set on `<ArchitecturalLevels>`, Arse uses `reportPath` as the default output for `arse report`. Fixing the path in configuration keeps CI and local runs writing to the same file, instead of two reports disagreeing with each other from different folders. The path is resolved relative to the config file; for inline `AssemblyMetadata("AnaalIJzerSettings", ...)`, it is resolved relative to the project file. If omitted, Arse defaults to `architectural-violations.md` next to the project. Solution-level reports use the first configured project as the representative settings source; if no `reportPath` is enabled there, Arse writes `architectural-violations.md` next to the solution.
+When `enableReport="true"` is set on `<ArchitecturalLevels>`, IJzer Forge uses `reportPath` as the default output for `ijzer report`. Fixing the path in configuration keeps CI and local runs writing to the same file, instead of two reports disagreeing with each other from different folders. The path is resolved relative to the config file; for inline `AssemblyMetadata("IJzerSettings", ...)`, it is resolved relative to the project file. If omitted, IJzer Forge defaults to `architectural-violations.md` next to the project. Solution-level reports use the first configured project as the representative settings source; if no `reportPath` is enabled there, IJzer Forge writes `architectural-violations.md` next to the solution.
 
 ```xml
 <ArchitecturalLevels enableReport="true"
@@ -4304,7 +4320,7 @@ When `enableReport="true"` is set on `<ArchitecturalLevels>`, Arse uses `reportP
 
 ### `enableDocumentation` / `documentationPath` attributes
 
-When `enableDocumentation="true"` is set, Arse uses `documentationPath` as the default output for `arse documentation`. The generated Markdown contains Mermaid dependency diagrams, site-filter labels, allowed and forbidden type-policy summaries with their scopes, and the XML rules with their descriptions in configuration order. Path resolution mirrors `reportPath`; the default is `architecture-documentation.md` next to the project. Generated documentation is only accurate while it is still being generated, which is exactly why the path belongs in configuration rather than in someone's shell history.
+When `enableDocumentation="true"` is set, IJzer Forge uses `documentationPath` as the default output for `ijzer documentation`. The generated Markdown contains Mermaid dependency diagrams, site-filter labels, allowed and forbidden type-policy summaries with their scopes, and the XML rules with their descriptions in configuration order. Path resolution mirrors `reportPath`; the default is `architecture-documentation.md` next to the project. Generated documentation is only accurate while it is still being generated, which is exactly why the path belongs in configuration rather than in someone's shell history.
 
 ```xml
 <ArchitecturalLevels enableDocumentation="true"
@@ -4946,7 +4962,7 @@ For configuration-backed fixes, the IDE can add the reported accessibility to `a
 
 ### ARCH_VIS_007 - Architectural-internal boundary violation
 
-Reported when code references or publicly exposes a declaration marked with an AnaalIJzer architectural-internal annotation from outside its selected boundary.
+Reported when code references or publicly exposes a declaration marked with an IJzer architectural-internal annotation from outside its selected boundary.
 
 The available boundaries are:
 
@@ -5141,7 +5157,7 @@ It appears when an exception matcher:
 - has an invalid `expiresOn` date;
 - has already expired;
 - is close to expiry;
-- or, in Arse health inspection, is stale and matches no type in the inspected scope.
+- or, in IJzer Forge health inspection, is stale and matches no type in the inspected scope.
 
 Example warning:
 
@@ -5211,7 +5227,7 @@ Important behavior:
 - `ARCH_DEP_006` only appears when `enforceObservedAcyclic="true"` is enabled;
 - the cycle is built from observed source dependency sites, not from hypothetical allowed edges;
 - direct diagnostics such as `ARCH_DEP_001` and `ARCH_DEP_004` still report separately;
-- `arse inspect --solution` can find cross-project observed cycles that one project build cannot see by itself.
+- `ijzer inspect --solution` can find cross-project observed cycles that one project build cannot see by itself.
 
 See [`Example.Arch_DEP_006.ObservedCycle`](Examples/Diagnostics/DEP/Example.Arch_DEP_006.ObservedCycle).
 
@@ -5289,7 +5305,7 @@ Typical fixes:
 - move the method outside the layer only when the policy is layer-scoped; a global policy intentionally follows every method;
 - narrow the policy only when that direct return is intentionally allowed.
 
-There is no automatic code fix. The policy tells AnaalIJzer which return expression is unacceptable; it cannot know which domain-specific value, result type, variable name, fallback, or exception behavior is correct. The analyzer recognises the rejected shape; it has no opinion about what your domain should say instead.
+There is no automatic code fix. The policy tells IJzer which return expression is unacceptable; it cannot know which domain-specific value, result type, variable name, fallback, or exception behavior is correct. The analyzer recognises the rejected shape; it has no opinion about what your domain should say instead.
 
 **Focused examples:** [`Example.Arch_RET_001.ExplicitNullReturn`](Examples/Diagnostics/RET/Example.Arch_RET_001.ExplicitNullReturn), [`Example.Arch_RET_001.AnnotatedInvocationReturn`](Examples/Diagnostics/RET/Example.Arch_RET_001.AnnotatedInvocationReturn), [`Example.Arch_RET_001.ConfiguredLiteralReturns`](Examples/Diagnostics/RET/Example.Arch_RET_001.ConfiguredLiteralReturns), [`Example.Arch_RET_001.DirectInvocationReturn`](Examples/Diagnostics/RET/Example.Arch_RET_001.DirectInvocationReturn), and [`Example.GlobalReturnValuePolicy`](Examples/Features/Example.GlobalReturnValuePolicy).
 
@@ -5331,7 +5347,7 @@ Typical fixes:
 - move service resolution to the composition root rather than locating a dependency in application code;
 - narrow the policy only when that exact operation is intentionally allowed in the owning layer.
 
-There is no automatic code fix. AnaalIJzer can identify the selected forbidden operation, but the correct architectural replacement belongs to the application.
+There is no automatic code fix. IJzer can identify the selected forbidden operation, but the correct architectural replacement belongs to the application.
 
 **Focused examples:** [`Example.Arch_OPER_001.ClockAccess`](Examples/Diagnostics/OPER/Example.Arch_OPER_001.ClockAccess), [`Example.Arch_OPER_001.BlockingTaskAccess`](Examples/Diagnostics/OPER/Example.Arch_OPER_001.BlockingTaskAccess), [`Example.Arch_OPER_001.ServiceLocation`](Examples/Diagnostics/OPER/Example.Arch_OPER_001.ServiceLocation), and [`Example.Arch_OPER_001.SelectedEnvironmentMember`](Examples/Diagnostics/OPER/Example.Arch_OPER_001.SelectedEnvironmentMember).
 
@@ -5733,7 +5749,7 @@ Write the justification either way. A suppression with a reason is a documented 
 
 ## Violation report
 
-In addition to inline diagnostics, Arse can write a Markdown summary of every violation it finds. Enable a default path by setting `enableReport="true"` on the `<ArchitecturalLevels>` root and optionally `reportPath`, or pass `--output` directly:
+In addition to inline diagnostics, IJzer Forge can write a Markdown summary of every violation it finds. Enable a default path by setting `enableReport="true"` on the `<ArchitecturalLevels>` root and optionally `reportPath`, or pass `--output` directly:
 
 ```xml
 <ArchitecturalLevels enableReport="true"
@@ -5743,8 +5759,8 @@ In addition to inline diagnostics, Arse can write a Markdown summary of every vi
 ```
 
 ```cmd
-arse report --project src\MyApp\MyApp.csproj --force
-arse report --solution src\MyApp.slnx --output docs\architectural-violations.md --force
+ijzer report --project src\MyApp\MyApp.csproj --force
+ijzer report --solution src\MyApp.slnx --output docs\architectural-violations.md --force
 ```
 
 The report does a few specific things:
@@ -5760,7 +5776,7 @@ It is a violation report, not a second health report with a different filename.
 - **Onboarding** - point new contributors at a single file that summarizes the project's layering health.
 - **Bootstrapping** - start with `requireRecognizedDependencies="Constructor"` and `enableReport="true"` on a legacy codebase, copy the suggested `<Layer>` snippets into the config, then add more sites deliberately.
 
-The report is written by `RonSijm.AnaalIJzer.Reporting.ArchitecturalViolationReporter`. Arse runs the analyzer in-process with Roslyn, converts the resulting diagnostics into report rows, and writes the file explicitly. Normal analyzer builds do not perform filesystem I/O, because an analyzer that writes files during a parallel build is a support ticket waiting to be filed.
+The report is written by `RonSijm.IJzer.Reporting.ArchitecturalViolationReporter`. IJzer Forge runs the analyzer in-process with Roslyn, converts the resulting diagnostics into report rows, and writes the file explicitly. Normal analyzer builds do not perform filesystem I/O, because an analyzer that writes files during a parallel build is a support ticket waiting to be filed.
 
 Assembly-metadata failures (`ARCH_ASSM_001`) are reported in a dedicated table with the current assembly, emitted attribute type, matching policy rule, and reason. The table includes project-file-generated attributes such as `InternalsVisibleTo` even when they do not map to a handwritten source location.
 
@@ -5771,22 +5787,22 @@ This repository ships a [rendered example report](Examples/Documentation/Generat
 Regenerate it from the repo root:
 
 ```cmd
-dotnet run --project src\Tools\RonSijm.AnaalIJzer.Arse -- report --project Examples\Documentation\Example.ReportDemo\Example.ReportDemo.csproj --force
+dotnet run --project src\Tools\RonSijm.IJzer.Forge -- report --project Examples\Documentation\Example.ReportDemo\Example.ReportDemo.csproj --force
 ```
 
-**In your own codebase**, install the tool and run `arse report --project path\to\Project.csproj` or `arse report --solution path\to\Solution.slnx`. Pass `--output` to override the default path, and `--force` to overwrite an existing file.
+**In your own codebase**, install the tool and run `ijzer report --project path\to\Project.csproj` or `ijzer report --solution path\to\Solution.slnx`. Pass `--output` to override the default path, and `--force` to overwrite an existing file.
 
 ---
 
 ## Architecture health
 
-An application can obey every configured edge while its architecture settings quietly drift. `arse inspect` checks both the settings and, when given a project or solution, the code evidence behind them:
+An application can obey every configured edge while its architecture settings quietly drift. `ijzer inspect` checks both the settings and, when given a project or solution, the code evidence behind them:
 
 ```cmd
-arse inspect --project src\MyApp\MyApp.csproj --output docs\architecture-health.md --force
-arse inspect --solution src\MyApp.slnx --output docs\architecture-health.md --force
-arse inspect --solution src\MyApp.slnx --enforce-topology --output build\Artifacts\architecture-health.json --force
-arse inspect --config Architecture.anl --force
+ijzer inspect --project src\MyApp\MyApp.csproj --output docs\architecture-health.md --force
+ijzer inspect --solution src\MyApp.slnx --output docs\architecture-health.md --force
+ijzer inspect --solution src\MyApp.slnx --enforce-topology --output build\Artifacts\architecture-health.json --force
+ijzer inspect --config Architecture.anl --force
 ```
 
 The input decides how far inspection goes:
@@ -5812,7 +5828,7 @@ Unused edges and dead matchers are the configuration equivalent of unreachable c
 
 For configurations that grow large, a single graph is not always enough. A diagram can show the arrows while still leaving the reader to guess what a wildcard, site filter, include, or type policy was meant to protect.
 
-Arse can therefore generate one Markdown document containing:
+IJzer Forge can therefore generate one Markdown document containing:
 
 - [Mermaid](https://mermaid.js.org/) dependency diagrams;
 - layer and edge descriptions;
@@ -5844,13 +5860,13 @@ The output is one Markdown file:
 XML-only documentation remains the lightweight default and does not load or compile an application:
 
 ```cmd
-arse documentation --config Architecture.anl --include-input
+ijzer documentation --config Architecture.anl --include-input
 ```
 
 For a project-backed document, add `--include-code-evidence`:
 
 ```cmd
-arse documentation --project MyApplication.csproj --include-code-evidence --include-input
+ijzer documentation --project MyApplication.csproj --include-code-evidence --include-input
 ```
 
 The optional code-evidence section evaluates the rules against the current Roslyn compilation. It adds:
@@ -5862,7 +5878,7 @@ The optional code-evidence section evaluates the rules against the current Rosly
 
 This uses the analyzer's actual rule resolution, including document order, semantic matchers, and nested exceptions. It does not rebuild a cheaper approximation for the documentation and hope nobody notices the difference.
 
-`--include-input` is independent of code evidence. It appends an **Input Configuration** section containing the root XML and a short note identifying it as the source for the document. With project input, `Architecture.anl` is included when present; otherwise the evaluated `AssemblyMetadata("AnaalIJzerSettings", ...)` XML is included. Without this flag, documentation output remains unchanged.
+`--include-input` is independent of code evidence. It appends an **Input Configuration** section containing the root XML and a short note identifying it as the source for the document. With project input, `Architecture.anl` is included when present; otherwise the evaluated `AssemblyMetadata("IJzerSettings", ...)` XML is included. Without this flag, documentation output remains unchanged.
 
 Edges with `allowedSites`, `blockedSites`, or `appliesToDescendants` get both a Mermaid label and a table row. The table also identifies the boundary gate that owns the rule. This keeps nested egress, ingress, and cascading rules distinguishable even when they resolve to the same canonical endpoints.
 
@@ -5879,7 +5895,7 @@ Descriptions are especially useful for repository query surfaces. You might allo
 
 That documents the intent clearly: the repository owns the query surface, while outside layers receive a projected DTO rather than keeping a queryable object around where extra application logic can creep in. A diagram on its own shows which arrows exist; only the descriptions record why anyone drew them.
 
-The documentation is written by `RonSijm.AnaalIJzer.Reporting.ArchitectureDocumentationGenerator`. Arse's `report` and `documentation` commands are independent - run either, both, or neither.
+The documentation is written by `RonSijm.IJzer.Reporting.ArchitectureDocumentationGenerator`. IJzer Forge's `report` and `documentation` commands are independent - run either, both, or neither.
 
 ### Example documentation
 
@@ -5891,16 +5907,16 @@ Regenerate it from the repo root:
 Examples\Documentation\Example.DocumentationDemo\GenerateDocumentation.bat
 ```
 
-The [example batch file](Examples/Documentation/Example.DocumentationDemo/GenerateDocumentation.bat) invokes Arse with `--config` and targets that example's `Architecture.anl` directly.
+The [example batch file](Examples/Documentation/Example.DocumentationDemo/GenerateDocumentation.bat) invokes IJzer Forge with `--config` and targets that example's `Architecture.anl` directly.
 
 In your own project:
 
-- use `arse documentation --project path\to\Project.csproj --include-code-evidence --include-input` when the document should include compiled code evidence;
-- use `arse documentation --config path\to\Architecture.anl --include-input` when the settings alone are enough;
+- use `ijzer documentation --project path\to\Project.csproj --include-code-evidence --include-input` when the document should include compiled code evidence;
+- use `ijzer documentation --config path\to\Architecture.anl --include-input` when the settings alone are enough;
 - pass `--output` to override `documentationPath`;
 - pass `--force` to overwrite an existing file.
 
-Documentation coverage is guarded by [`ToolRunner_GeneratesDocumentationForSupportedConfigurationFeatures`](src/Tests/RonSijm.AnaalIJzer.IntegrationTests/ExampleApplicationIntegrationTests.cs), which runs the real `arse documentation --config` path against a feature-matrix XML containing nested layers, descriptions, type policies, exceptions, rename fixes, site filters, wildcard rules and input inclusion.
+Documentation coverage is guarded by [`ToolRunner_GeneratesDocumentationForSupportedConfigurationFeatures`](src/Tests/RonSijm.IJzer.IntegrationTests/ExampleApplicationIntegrationTests.cs), which runs the real `ijzer documentation --config` path against a feature-matrix XML containing nested layers, descriptions, type policies, exceptions, rename fixes, site filters, wildcard rules and input inclusion.
 
 Root-level source-metadata policies such as `<AssemblyAttributePolicy>` are rendered in authored configuration order and in their own table. They describe emitted assembly attributes rather than dependency graph edges, so they appear as policy documentation instead of Mermaid nodes.
 
@@ -5908,7 +5924,7 @@ Root-level source-metadata policies such as `<AssemblyAttributePolicy>` are rend
 
 ## No config source = no diagnostics
 
-If no `Architecture.anl` additional file or `AssemblyMetadata("AnaalIJzerSettings", ...)` value is present, the analyzer is completely silent. This makes the analyzer **opt-in per project**: you can reference it centrally and activate it only in projects that supply configuration. Adoption can then happen one project at a time, which is usually the only pace at which adoption happens at all.
+If no `Architecture.anl` additional file or `AssemblyMetadata("IJzerSettings", ...)` value is present, the analyzer is completely silent. This makes the analyzer **opt-in per project**: you can reference it centrally and activate it only in projects that supply configuration. Adoption can then happen one project at a time, which is usually the only pace at which adoption happens at all.
 
 ---
 
@@ -5922,10 +5938,10 @@ If the written explanation is not clicking yet, clone the repository and open th
 
 The analyzer reports `ARCH_<CONCERN>_<REASON>` diagnostics and deliberately does not write files during compilation. Roslyn analyzers run in IDEs, build servers, and design-time builds, so keeping them free of filesystem side effects avoids surprising writes and follows Roslyn's analyzer guidance.
 
-The shared tooling engine is the explicit generation host used by both Arse modes. It can load a project with `MSBuildWorkspace` or read an XML settings file directly for documentation. For project-backed operations it reads the same `Architecture.anl` / `AssemblyMetadata("AnaalIJzerSettings", ...)` config as the analyzer and runs the analyzer in-process when a violation report is needed:
+The shared tooling engine is the explicit generation host used by both IJzer Forge modes. It can load a project with `MSBuildWorkspace` or read an XML settings file directly for documentation. For project-backed operations it reads the same `Architecture.anl` / `AssemblyMetadata("IJzerSettings", ...)` config as the analyzer and runs the analyzer in-process when a violation report is needed:
 
 - `generate-config` inspects a project and writes a validated baseline configuration.
-- `export-config` persists compiled inline `AnaalIJzerSettings` XML.
+- `export-config` persists compiled inline `IJzerSettings` XML.
 - `documentation` renders dependency diagrams and rule descriptions with `ArchitectureDocumentationGenerator`.
 - `report` runs the analyzer and renders diagnostics with `ArchitecturalViolationReporter`.
 - `merge-config` flattens XML files and transitive includes into one configuration.

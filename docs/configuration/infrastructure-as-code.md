@@ -1,17 +1,17 @@
 ## Infrastructure as code
 
-Large `.anl` files can become awkward to maintain by hand. `RonSijm.AnaalIJzer.IaC` provides the same configuration vocabulary as a dependency-free C# object model and exports it to the XML-based `.anl` format.
+Large `.anl` files can become awkward to maintain by hand. `RonSijm.IJzer.IaC` provides the same configuration vocabulary as a dependency-free C# object model and exports it to the XML-based `.anl` format.
 
 Install the authoring package in a small generator project:
 
 ```cmd
-dotnet add package RonSijm.AnaalIJzer.IaC
+dotnet add package RonSijm.IJzer.IaC
 ```
 
 Then describe the configuration in C#:
 
 ```csharp
-using RonSijm.AnaalIJzer.IaC;
+using RonSijm.IJzer.IaC;
 
 var configuration = new ArchitectureConfiguration
 {

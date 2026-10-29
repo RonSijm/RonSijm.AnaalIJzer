@@ -1,6 +1,6 @@
 ### ARCH_VIS_007 - Architectural-internal boundary violation
 
-Reported when code references or publicly exposes a declaration marked with an AnaalIJzer architectural-internal annotation from outside its selected boundary.
+Reported when code references or publicly exposes a declaration marked with an IJzer architectural-internal annotation from outside its selected boundary.
 
 The available boundaries are:
 

@@ -1,5 +1,5 @@
 <ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                     xsi:noNamespaceSchemaLocation="../../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+                     xsi:noNamespaceSchemaLocation="../../../../src/Main/RonSijm.IJzer/Scheme/IJzer.xsd"
                      description="EF Core migrations belong with the persistence deployment artifacts that own them.">
   <Layer name="Migration" description="Migration subclasses belong below Persistence/Migrations.">
     <Class inherits="Migration" />

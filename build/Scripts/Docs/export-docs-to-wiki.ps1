@@ -17,7 +17,7 @@ if ([string]::IsNullOrWhiteSpace($OutputPath)) {
 }
 
 if ([string]::IsNullOrWhiteSpace($Repository)) {
-    $Repository = "RonSijm/RonSijm.AnaalIJzer"
+    $Repository = "RonSijm/RonSijm.IJzer"
 }
 
 function Get-NormalizedRelativePath {
@@ -250,7 +250,7 @@ New-Item -ItemType Directory -Path $OutputPath | Out-Null
 
 $generatedFiles = [System.Collections.Generic.List[string]]::new()
 $pageTitles = [System.Collections.Generic.Dictionary[string, string]]::new([System.StringComparer]::OrdinalIgnoreCase)
-$marker = "<!-- Generated from RonSijm.AnaalIJzer repository docs. Do not edit in the wiki; edit docs/ and let the publish-wiki workflow sync it. -->"
+$marker = "<!-- Generated from RonSijm.IJzer repository docs. Do not edit in the wiki; edit docs/ and let the publish-wiki workflow sync it. -->"
 
 foreach ($doc in $orderedDocs) {
     $sourcePath = Join-Path $docsRoot $doc
@@ -285,6 +285,6 @@ foreach ($doc in $orderedDocs) {
 Set-Content -LiteralPath (Join-Path $OutputPath "_Sidebar.md") -Value ($sidebarLines -join "`r`n") -Encoding UTF8
 $generatedFiles.Add("_Sidebar.md")
 
-Set-Content -LiteralPath (Join-Path $OutputPath ".anaalijzer-generated-files") -Value ($generatedFiles | Sort-Object) -Encoding UTF8
+Set-Content -LiteralPath (Join-Path $OutputPath ".ijzer-generated-files") -Value ($generatedFiles | Sort-Object) -Encoding UTF8
 
 Write-Host "Exported $($generatedFiles.Count) wiki file(s) to $OutputPath"

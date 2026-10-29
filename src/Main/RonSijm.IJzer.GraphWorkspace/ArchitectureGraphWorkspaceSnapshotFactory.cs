@@ -1,0 +1,82 @@
+using System.Collections.Immutable;
+using RonSijm.IJzer.Core.Configuration.Document.Model;
+using RonSijm.IJzer.Core.Configuration.Document.Sources;
+using RonSijm.IJzer.GraphModel.Building;
+using RonSijm.IJzer.GraphModel.Loading;
+using RonSijm.IJzer.GraphModel.Model;
+using RonSijm.IJzer.Workspace.Analysis;
+
+namespace RonSijm.IJzer.GraphWorkspace;
+
+internal static partial class ArchitectureGraphWorkspaceSnapshotFactory
+{
+    public static ArchitectureGraphSnapshot CreateForProject(string projectPath, ProjectAnalysisResult project, CancellationToken cancellationToken)
+    {
+        if (project.Config.HasLayers || project.Config.HasSolutionTopology)
+        {
+            var result = CreateSnapshot([project], project, null, cancellationToken);
+
+            return result;
+        }
+
+        if (TryResolveConfigurationSource(project, out var source))
+        {
+            var result = ArchitectureGraphXmlSnapshotLoader.Load(source);
+
+            return result;
+        }
+
+        var creationTargets = ArchitectureConfigurationSourceDiscovery.CreateConfigurationCreationTargets(projectPath, null);
+        var resultWithoutConfiguration = CreateNoConfigurationSnapshot(creationTargets);
+
+        return resultWithoutConfiguration;
+    }
+
+    public static ArchitectureGraphSnapshot CreateForSolution(string solutionPath, SolutionAnalysisResult solution, CancellationToken cancellationToken)
+    {
+        var representativeProject = solution.FirstConfiguredProject;
+        if (representativeProject is not null)
+        {
+            var result = CreateSnapshot(solution.Projects, representativeProject, solution, cancellationToken);
+
+            return result;
+        }
+
+        var configuredButEmptyProject = solution.Projects.FirstOrDefault(project => TryResolveConfigurationSource(project, out _));
+        if (configuredButEmptyProject is not null && TryResolveConfigurationSource(configuredButEmptyProject, out var source))
+        {
+            var result = ArchitectureGraphXmlSnapshotLoader.Load(source);
+
+            return result;
+        }
+
+        var creationTargets = ArchitectureConfigurationSourceDiscovery.CreateConfigurationCreationTargets(null, solutionPath);
+        var resultWithoutConfiguration = CreateNoConfigurationSnapshot(creationTargets);
+
+        return resultWithoutConfiguration;
+    }
+
+    private static ArchitectureGraphSnapshot CreateNoConfigurationSnapshot(ImmutableArray<ArchitectureConfigurationCreationTarget> creationTargets)
+    {
+        var result = ArchitectureGraphSnapshotFactory.CreateNoConfigurationSnapshot(creationTargets);
+
+        return result;
+    }
+
+    private static ArchitectureGraphSnapshot CreateSnapshot(
+        ImmutableArray<ProjectAnalysisResult> projects,
+        ProjectAnalysisResult representativeProject,
+        SolutionAnalysisResult? solution,
+        CancellationToken cancellationToken)
+    {
+        var source = ResolveConfigurationSource(representativeProject);
+        var configSnapshot = ArchitectureGraphXmlSnapshotLoader.Load(source);
+        var evidence = CreateEvidence(projects, representativeProject.Config, cancellationToken);
+        var exceptionReviews = CreateExceptionReviews(projects, representativeProject.Config, cancellationToken);
+        var result = representativeProject.Config.HasSolutionTopology
+            ? AttachSolutionTopology(configSnapshot, representativeProject.Config, solution, evidence, exceptionReviews)
+            : ArchitectureGraphSnapshotFactory.AttachEvidence(configSnapshot, evidence, exceptionReviews);
+
+        return result;
+    }
+}

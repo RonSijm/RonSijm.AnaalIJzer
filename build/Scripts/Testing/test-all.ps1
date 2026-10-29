@@ -4,7 +4,7 @@ param(
 	[switch]$NoBuild,
 	[switch]$NoRestore,
 	[switch]$CollectCoverage,
-	[string]$CoverageRunSettings = "src/Tests/RonSijm.AnaalIJzer.Analyzer.Tests/coverlet.runsettings",
+	[string]$CoverageRunSettings = "src/Tests/RonSijm.IJzer.Analyzer.Tests/coverlet.runsettings",
 	[string]$ResultsDirectory = "./coverage",
 	[switch]$SkipWindowsOnly
 )

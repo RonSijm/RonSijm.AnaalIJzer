@@ -5,7 +5,7 @@
 using System;
 using System.Reflection;
 
-[assembly: AssemblyMetadata("AnaalIJzerSettings", """
+[assembly: AssemblyMetadata("IJzerSettings", """
 <ArchitecturalLevels>
   <Layer name="Kitchen">
     <Class endsWith="Kitchen" />

@@ -1,5 +1,5 @@
 <ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                     xsi:noNamespaceSchemaLocation="../../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+                     xsi:noNamespaceSchemaLocation="../../../../src/Main/RonSijm.IJzer/Scheme/IJzer.xsd"
                      description="A named restaurant operation has one kitchen owner and selected waiter entry points.">
   <Layer name="Controller" description="Waiters receive an order and pass it to the kitchen.">
     <Class endsWith="Controller" />

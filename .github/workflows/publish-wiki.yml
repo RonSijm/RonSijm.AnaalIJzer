@@ -69,7 +69,7 @@ jobs:
         run: |
           $wikiPath = Resolve-Path -LiteralPath wiki
           $generatedSource = Resolve-Path -LiteralPath build/Artifacts/Wiki
-          $generatedList = Join-Path $wikiPath ".anaalijzer-generated-files"
+          $generatedList = Join-Path $wikiPath ".ijzer-generated-files"
 
           if (Test-Path -LiteralPath $generatedList) {
               $previousFiles = Get-Content -LiteralPath $generatedList -Encoding UTF8

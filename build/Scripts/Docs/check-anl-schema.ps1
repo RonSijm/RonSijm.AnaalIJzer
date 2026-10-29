@@ -3,7 +3,7 @@ $ErrorActionPreference = "Stop"
 
 $scriptDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repositoryRoot = Resolve-Path (Join-Path $scriptDirectory "..\..\..")
-$schemaPath = Join-Path $repositoryRoot "src\Main\RonSijm.AnaalIJzer\Scheme\AnaalIJzer.xsd"
+$schemaPath = Join-Path $repositoryRoot "src\Main\RonSijm.IJzer\Scheme\IJzer.xsd"
 
 Add-Type -AssemblyName System.Xml
 
@@ -51,4 +51,4 @@ if ($failures.Count -gt 0) {
     throw "$($failures.Count) .anl schema validation failure(s)."
 }
 
-Write-Host "Validated $($files.Count) .anl file(s) against AnaalIJzer.xsd."
+Write-Host "Validated $($files.Count) .anl file(s) against IJzer.xsd."

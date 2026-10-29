@@ -85,6 +85,6 @@ The child policy cannot override a parent failure. The first failing policy is r
 - Whether a CLR-public declaration should remain internal to a class, assembly, or layer is handled by [architectural-internal annotations](architectural-internal-annotations.md) (`ARCH_VIS_007`).
 - Whether an interface or contract contains an allowed kind of member is a separate contract-purity concern (`ARCH_CONT_008`).
 
-Arse includes visibility findings in `inspect`, `report`, generated documentation, and code evidence. The standalone WPF editor and Visual Studio graph inspector provide checkable target/accessibility controls and autosave the same `.anl` or inline metadata source.
+IJzer Forge includes visibility findings in `inspect`, `report`, generated documentation, and code evidence. The standalone WPF editor and Visual Studio graph inspector provide checkable target/accessibility controls and autosave the same `.anl` or inline metadata source.
 
 **Example project:** [`Example.Arch_VIS_001.VisibilityPolicy`](../../Examples/Diagnostics/VIS/Example.Arch_VIS_001.VisibilityPolicy)

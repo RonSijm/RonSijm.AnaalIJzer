@@ -26,7 +26,7 @@ Important behavior:
 - `ARCH_DEP_006` only appears when `enforceObservedAcyclic="true"` is enabled;
 - the cycle is built from observed source dependency sites, not from hypothetical allowed edges;
 - direct diagnostics such as `ARCH_DEP_001` and `ARCH_DEP_004` still report separately;
-- `arse inspect --solution` can find cross-project observed cycles that one project build cannot see by itself.
+- `ijzer inspect --solution` can find cross-project observed cycles that one project build cannot see by itself.
 
 See [`Example.Arch_DEP_006.ObservedCycle`](../../Examples/Diagnostics/DEP/Example.Arch_DEP_006.ObservedCycle).
 

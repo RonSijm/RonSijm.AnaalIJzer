@@ -1,13 +1,13 @@
 ## Configuration fixers
 
-Configuration fixers are the part of AnaalIJzer that edit the architecture settings instead of editing your C# code.
+Configuration fixers are the part of IJzer that edit the architecture settings instead of editing your C# code.
 
 For a configured cycle (`ARCH_CONF_006`), the fixer presents the exact allowed edges in the cycle and lets you choose one to block or remove. It does not choose an architectural direction on your behalf. An observed source-code cycle (`ARCH_DEP_006`) has no configuration fixer: changing a rule would not remove the code dependency that created it.
 
 That distinction matters:
 
 - a **source fix** changes code, such as renaming a declaration;
-- a **configuration fix** changes `Architecture.anl` or inline `AssemblyMetadata("AnaalIJzerSettings", ...)`.
+- a **configuration fix** changes `Architecture.anl` or inline `AssemblyMetadata("IJzerSettings", ...)`.
 
 Use configuration fixers when the code is acceptable but the rule set needs a narrow, explicit update.
 
@@ -33,7 +33,7 @@ The same shared fixer catalog is reused by three hosts:
 |---|---|
 | Visual Studio / Rider light bulbs | apply source fixes and configuration fixes from diagnostics |
 | Visual Studio dependency graph | preview and apply configuration fixes from the active project, including layer- and dependency-scoped graph selections |
-| Arse | list proposals with `arse fixes` and apply one with `arse apply-fix` |
+| IJzer Forge | list proposals with `ijzer fixes` and apply one with `ijzer apply-fix` |
 | WPF graph editor | load, preview, filter, and apply configuration fixes from project or solution input |
 
 The host UI changes, but the proposal generation is shared. That keeps the terminal, graph editor, and IDE from disagreeing about what a safe config change looks like.
@@ -65,7 +65,7 @@ In practice:
 
 ### Typical flow
 
-1. AnaalIJzer reports a diagnostic.
+1. IJzer reports a diagnostic.
 2. The fixer catalog checks whether a deterministic config edit exists.
 3. A proposal is created with title, reason, target file, and preview diff.
 4. The host shows that proposal.
@@ -93,12 +93,12 @@ The current configuration-fix coverage is documented in [IDE code fixes](ide-cod
 
 The feature is intentionally covered at several levels:
 
-- analyzer fixer tests: `src/Tests/RonSijm.AnaalIJzer.Analyzer.Tests/Diagnostics/`
-- application-level project and solution flows: `src/Tests/RonSijm.AnaalIJzer.Application.Tests/ApplicationOperations/ApplicationOperationsTests.ConfigurationFixes.cs`
-- real example-project expectations: `src/Tests/RonSijm.AnaalIJzer.IntegrationTests/ExampleConfigurationFixIntegrationTests.cs`
-- WPF graph-editor selection filtering: `src/Tests/RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests/Controls/ArchitectureGraphEditorControlPersistenceTests.ConfigurationFixSelection.cs`
-- Visual Studio graph context preservation: `src/Tests/RonSijm.AnaalIJzer.VisualStudio.Tests/Graphs/ArchitectureGraphToolWindowStateTests.cs`
-- Arse command-line support: `src/Tests/RonSijm.AnaalIJzer.Arse.Tests/`
+- analyzer fixer tests: `src/Tests/RonSijm.IJzer.Analyzer.Tests/Diagnostics/`
+- application-level project and solution flows: `src/Tests/RonSijm.IJzer.Application.Tests/ApplicationOperations/ApplicationOperationsTests.ConfigurationFixes.cs`
+- real example-project expectations: `src/Tests/RonSijm.IJzer.IntegrationTests/ExampleConfigurationFixIntegrationTests.cs`
+- WPF graph-editor selection filtering: `src/Tests/RonSijm.IJzer.GraphEditor.Wpf.Tests/Controls/ArchitectureGraphEditorControlPersistenceTests.ConfigurationFixSelection.cs`
+- Visual Studio graph context preservation: `src/Tests/RonSijm.IJzer.VisualStudio.Tests/Graphs/ArchitectureGraphToolWindowStateTests.cs`
+- IJzer Forge command-line support: `src/Tests/RonSijm.IJzer.Forge.Tests/`
 
 ### When not to use one
 
@@ -109,4 +109,4 @@ Sometimes the right fix is still a code change, not a config change:
 - extracting an interface or projection to the right layer;
 - deleting a bad dependency instead of allowing it.
 
-AnaalIJzer should help with both kinds of repair, but it should not use a config escape hatch when the code is simply wrong. A rule relaxed to make one build green tends to be quoted six months later as deliberate design.
+IJzer should help with both kinds of repair, but it should not use a config escape hatch when the code is simply wrong. A rule relaxed to make one build green tends to be quoted six months later as deliberate design.

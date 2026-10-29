@@ -1,8 +1,8 @@
 # Entity Framework Core Example Pack
 
-This pack uses real Entity Framework Core types from the `Microsoft.EntityFrameworkCore` packages. AnaalIjzer remains framework-neutral: the example projects supply the EF Core references, while the analyzer evaluates ordinary Roslyn symbols and the configured rules.
+This pack uses real Entity Framework Core types from the `Microsoft.EntityFrameworkCore` packages. IJzer remains framework-neutral: the example projects supply the EF Core references, while the analyzer evaluates ordinary Roslyn symbols and the configured rules.
 
-| Project | Existing AnaalIjzer capability | Intended result |
+| Project | Existing IJzer capability | Intended result |
 | --- | --- | --- |
 | [`Example.EntityFrameworkCore.ContextBoundary`](Example.EntityFrameworkCore.ContextBoundary) | Keep `DbContext` injection inside a repository boundary. | One `ARCH_DEP_001` for an Application service that injects `DbContext` directly. |
 | [`Example.EntityFrameworkCore.ContextCreation`](Example.EntityFrameworkCore.ContextCreation) | Restrict `new DbContext()` to a context factory through the `New` site. | One `ARCH_DEP_001` for Application code that creates a context itself. |

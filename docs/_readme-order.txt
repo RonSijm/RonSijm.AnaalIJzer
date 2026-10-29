@@ -5,8 +5,8 @@ setup.md
 components/visual-studio-addon.md
 configuration/ide-code-fixes.md
 configuration/config-fixers.md
-tools/arse.md
-tools/anaaltomy.md
+tools/forge.md
+tools/gauge.md
 components/wpf-graph-editor.md
 configuration/mental-model.md
 configuration/index.md

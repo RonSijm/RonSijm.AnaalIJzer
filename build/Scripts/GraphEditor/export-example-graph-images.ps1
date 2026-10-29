@@ -56,18 +56,18 @@ if (-not $writesFlatOutput) {
 	Clear-DirectoryIfSafe $fullStagingDirectory
 }
 
-$projectPath = Join-Path $repositoryRoot "src\Tools\RonSijm.AnaalIJzer.GraphEditor.Standalone\RonSijm.AnaalIJzer.GraphEditor.Standalone.csproj"
+$projectPath = Join-Path $repositoryRoot "src\Tools\RonSijm.IJzer.GraphEditor.Standalone\RonSijm.IJzer.GraphEditor.Standalone.csproj"
 if (-not $NoBuild) {
-	Write-Host "Building AnaalIJzer Graph Editor..."
+	Write-Host "Building IJzer Graph Editor..."
 	dotnet build $projectPath --configuration $Configuration --disable-build-servers -m:1 -p:UseSharedCompilation=false
 	if ($LASTEXITCODE -ne 0) {
 		exit $LASTEXITCODE
 	}
 }
 
-$executablePath = Join-Path $repositoryRoot "src\Tools\RonSijm.AnaalIJzer.GraphEditor.Standalone\bin\$Configuration\net10.0-windows\RonSijm.AnaalIJzer.GraphEditor.Standalone.exe"
+$executablePath = Join-Path $repositoryRoot "src\Tools\RonSijm.IJzer.GraphEditor.Standalone\bin\$Configuration\net10.0-windows\RonSijm.IJzer.GraphEditor.Standalone.exe"
 if (-not (Test-Path $executablePath)) {
-	throw "AnaalIJzer Graph Editor executable was not found: $executablePath"
+	throw "IJzer Graph Editor executable was not found: $executablePath"
 }
 
 $examplesRoot = Join-Path $repositoryRoot "Examples"

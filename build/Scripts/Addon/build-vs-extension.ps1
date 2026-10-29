@@ -6,10 +6,10 @@ param(
 $ErrorActionPreference = "Stop"
 $scriptDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repositoryRoot = (Resolve-Path (Join-Path $scriptDirectory "..\..\..")).Path
-$solution = Join-Path $repositoryRoot "src\Extensions\RonSijm.AnaalIJzer.VisualStudio\RonSijm.AnaalIJzer.VisualStudio.slnx"
-$vsixOutput = Join-Path $repositoryRoot "src\Extensions\RonSijm.AnaalIJzer.VisualStudio\bin\$Configuration\net472\RonSijm.AnaalIJzer.VisualStudio.vsix"
+$solution = Join-Path $repositoryRoot "src\Extensions\RonSijm.IJzer.VisualStudio\RonSijm.IJzer.VisualStudio.slnx"
+$vsixOutput = Join-Path $repositoryRoot "src\Extensions\RonSijm.IJzer.VisualStudio\bin\$Configuration\net472\RonSijm.IJzer.VisualStudio.vsix"
 $artifactOutput = Join-Path $repositoryRoot "build\Artifacts\VisualStudio"
-$artifactVsix = Join-Path $artifactOutput "RonSijm.AnaalIJzer.VisualStudio.vsix"
+$artifactVsix = Join-Path $artifactOutput "RonSijm.IJzer.VisualStudio.vsix"
 
 function Remove-DirectoryInsideRepository([string]$Path) {
 	$fullPath = [System.IO.Path]::GetFullPath($Path)
@@ -22,7 +22,7 @@ function Remove-DirectoryInsideRepository([string]$Path) {
 	}
 }
 
-Write-Host "Building AnaalIJzer Visual Studio extension..."
+Write-Host "Building IJzer Visual Studio extension..."
 & dotnet build $solution --configuration $Configuration --disable-build-servers -m:1 -p:UseSharedCompilation=false
 if ($LASTEXITCODE -ne 0) {
 	exit $LASTEXITCODE

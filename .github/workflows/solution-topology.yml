@@ -42,11 +42,11 @@ jobs:
         with:
           global-json-file: global.json
 
-      - name: Restore Arse
-        run: dotnet restore src/Tools/RonSijm.AnaalIJzer.Arse/RonSijm.AnaalIJzer.Arse.csproj --disable-parallel --disable-build-servers -m:1 -p:UseSharedCompilation=false
+      - name: Restore IJzer Forge
+        run: dotnet restore src/Tools/RonSijm.IJzer.Forge/RonSijm.IJzer.Forge.csproj --disable-parallel --disable-build-servers -m:1 -p:UseSharedCompilation=false
 
-      - name: Build Arse
-        run: dotnet build src/Tools/RonSijm.AnaalIJzer.Arse/RonSijm.AnaalIJzer.Arse.csproj --no-restore --configuration "$BUILD_CONFIGURATION" --disable-build-servers -m:1 -p:UseSharedCompilation=false
+      - name: Build IJzer Forge
+        run: dotnet build src/Tools/RonSijm.IJzer.Forge/RonSijm.IJzer.Forge.csproj --no-restore --configuration "$BUILD_CONFIGURATION" --disable-build-servers -m:1 -p:UseSharedCompilation=false
 
       - name: Inspect solution topology as Markdown
         id: inspect_markdown
@@ -54,7 +54,7 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path $env:ARTIFACT_DIRECTORY -Force | Out-Null
-          dotnet src/Tools/RonSijm.AnaalIJzer.Arse/bin/$env:BUILD_CONFIGURATION/net10.0/RonSijm.AnaalIJzer.Arse.dll inspect --solution $env:SOLUTION_PATH --configuration $env:BUILD_CONFIGURATION --enforce-topology --output "$env:ARTIFACT_DIRECTORY/architecture-health.md" --force
+          dotnet src/Tools/RonSijm.IJzer.Forge/bin/$env:BUILD_CONFIGURATION/net10.0/RonSijm.IJzer.Forge.dll inspect --solution $env:SOLUTION_PATH --configuration $env:BUILD_CONFIGURATION --enforce-topology --output "$env:ARTIFACT_DIRECTORY/architecture-health.md" --force
           exit $LASTEXITCODE
 
       - name: Inspect solution topology as JSON
@@ -62,7 +62,7 @@ jobs:
         continue-on-error: true
         shell: pwsh
         run: |
-          dotnet src/Tools/RonSijm.AnaalIJzer.Arse/bin/$env:BUILD_CONFIGURATION/net10.0/RonSijm.AnaalIJzer.Arse.dll inspect --solution $env:SOLUTION_PATH --configuration $env:BUILD_CONFIGURATION --enforce-topology --output "$env:ARTIFACT_DIRECTORY/architecture-health.json" --force
+          dotnet src/Tools/RonSijm.IJzer.Forge/bin/$env:BUILD_CONFIGURATION/net10.0/RonSijm.IJzer.Forge.dll inspect --solution $env:SOLUTION_PATH --configuration $env:BUILD_CONFIGURATION --enforce-topology --output "$env:ARTIFACT_DIRECTORY/architecture-health.json" --force
           exit $LASTEXITCODE
 
       - name: Upload topology evidence

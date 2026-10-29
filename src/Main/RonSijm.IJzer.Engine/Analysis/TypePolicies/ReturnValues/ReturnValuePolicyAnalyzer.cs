@@ -1,0 +1,129 @@
+using System.Collections.Immutable;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Diagnostics;
+using RonSijm.IJzer.Core.Findings;
+using RonSijm.IJzer.Core.Indicators;
+using RonSijm.IJzer.Core.LayerModel;
+using RonSijm.IJzer.Core.Matchers.Observations;
+using RonSijm.IJzer.Core.ReturnValues.Policies;
+using RonSijm.IJzer.Diagnostics;
+using RonSijm.IJzer.Engine.Analysis.BoundaryRules.LayerDependencies;
+using AnalyzerConfig = RonSijm.IJzer.Core.RuntimeConfig.Config.Model.AnalyzerConfig;
+
+namespace RonSijm.IJzer.Engine.Analysis.TypePolicies.ReturnValues;
+
+internal static class ReturnValuePolicyAnalyzer
+{
+    internal static void AnalyzeReturnStatement(SyntaxNodeAnalysisContext context, AnalyzerConfig config)
+    {
+        var returnStatement = (ReturnStatementSyntax)context.Node;
+        if (returnStatement.Expression is null)
+        {
+            return;
+        }
+
+        AnalyzeReturnExpression(context, config, returnStatement, returnStatement.Expression);
+    }
+
+    internal static void AnalyzeArrowExpressionClause(SyntaxNodeAnalysisContext context, AnalyzerConfig config)
+    {
+        var arrow = (ArrowExpressionClauseSyntax)context.Node;
+        if (arrow.Parent is not MethodDeclarationSyntax and not LocalFunctionStatementSyntax)
+        {
+            return;
+        }
+
+        AnalyzeReturnExpression(context, config, arrow, arrow.Expression);
+    }
+
+    private static void AnalyzeReturnExpression(SyntaxNodeAnalysisContext context, AnalyzerConfig config, SyntaxNode returnSite, ExpressionSyntax expression)
+    {
+        if (!TryGetReturningMethod(context, expression, out var method))
+        {
+            return;
+        }
+
+        var caller = LayerDependencyAnalyzer.TryGetCallerLayer(context, config, returnSite);
+        var directExpression = UnwrapNonHandlingExpression(expression);
+        LayerMatch? callerMatch = caller is { } callerInfo ? callerInfo.Match : null;
+        var evaluation = config.EvaluateReturnValuePolicies(callerMatch, directExpression, context.SemanticModel, context.CancellationToken);
+        if (evaluation is null)
+        {
+            return;
+        }
+
+        Report(context, caller, method, directExpression, expression.GetLocation(), evaluation.Value);
+    }
+
+    private static bool TryGetReturningMethod(SyntaxNodeAnalysisContext context, ExpressionSyntax expression, out IMethodSymbol method)
+    {
+        var enclosingSymbol = context.SemanticModel.GetEnclosingSymbol(expression.SpanStart, context.CancellationToken) as IMethodSymbol;
+        if (enclosingSymbol is null || enclosingSymbol.MethodKind is not (MethodKind.Ordinary or MethodKind.LocalFunction))
+        {
+            method = null!;
+            return false;
+        }
+
+        method = enclosingSymbol;
+        return true;
+    }
+
+    private static ExpressionSyntax UnwrapNonHandlingExpression(ExpressionSyntax expression)
+    {
+        var current = expression;
+        while (true)
+        {
+            var next = current switch
+            {
+                ParenthesizedExpressionSyntax parenthesized => parenthesized.Expression,
+                CastExpressionSyntax cast => cast.Expression,
+                AwaitExpressionSyntax awaitExpression => awaitExpression.Expression,
+                BinaryExpressionSyntax binary when binary.IsKind(SyntaxKind.AsExpression) => binary.Left,
+                PostfixUnaryExpressionSyntax postfix when postfix.OperatorToken.IsKind(SyntaxKind.ExclamationToken) => postfix.Operand,
+                _ => null
+            };
+            if (next is null)
+            {
+                break;
+            }
+
+            current = next;
+        }
+
+        var result = current;
+
+        return result;
+    }
+
+    private static void Report(SyntaxNodeAnalysisContext context, (string TypeName, LayerMatch Match)? caller, IMethodSymbol method, ExpressionSyntax returnedExpression, Location location, ReturnValuePolicyEvaluation evaluation)
+    {
+        var callerTypeName = caller?.TypeName ?? method.ContainingType?.Name ?? "UnknownType";
+        var callerLayerName = caller?.Match.Layer.Name ?? "unclassified";
+        var rule = evaluation.Rule;
+        var properties = ImmutableDictionary<string, string?>.Empty
+            .Add(ArchitecturalDiagnostics.PropertyCallerTypeName, callerTypeName)
+            .Add(ArchitecturalDiagnostics.PropertyCallerLayerName, callerLayerName)
+            .Add(ArchitecturalDiagnostics.PropertyDeclaredSymbolName, method.Name)
+            .Add(ArchitecturalDiagnostics.PropertyDeclarationTarget, DependencySites.MethodReturn)
+            .Add(ArchitecturalDiagnostics.PropertySite, DependencySites.MethodReturn)
+            .Add(ArchitecturalDiagnostics.PropertyReturnValueRuleTarget, rule.Matcher.Target.ToString())
+            .Add(ArchitecturalDiagnostics.PropertyReturnedExpressionKind, CodeObservationMatchTargetClassifier.GetDisplayName(returnedExpression))
+            .Add(ArchitecturalDiagnostics.PropertyReturnValueRule, rule.DisplayName)
+            .Add(ArchitecturalDiagnostics.PropertyReturnValueRuleMode, evaluation.RuleMode.ToString())
+            .Add(ArchitecturalDiagnostics.PropertyViolationReason, evaluation.Reason)
+            .Add(ArchitecturalDiagnostics.PropertyRuleXmlPath, rule.XmlPath)
+            .Add(ArchitecturalDiagnostics.PropertyRuleXmlLine, rule.XmlLineNumber.ToString(System.Globalization.CultureInfo.InvariantCulture))
+            .Add(ArchitecturalDiagnostics.PropertyRuleXmlCol, rule.XmlLinePosition.ToString(System.Globalization.CultureInfo.InvariantCulture));
+
+        context.ReportDiagnostic(ArchitecturalDiagnostics.CreateDiagnostic(
+            ArchitecturalDiagnostics.ReturnNotAllowed,
+            location,
+            properties,
+            method.Name,
+            callerLayerName,
+            DependencySites.MethodReturn,
+            evaluation.Reason));
+    }
+}

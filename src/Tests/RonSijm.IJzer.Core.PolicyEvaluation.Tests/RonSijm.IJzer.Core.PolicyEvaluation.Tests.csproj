@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsTestProject>true</IsTestProject>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="AwesomeAssertions" Version="9.4.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+        <PackageReference Include="coverlet.collector" Version="6.0.2" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+          <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="xunit.v3" Version="3.2.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Main\RonSijm.IJzer.Core.PolicyEvaluation\RonSijm.IJzer.Core.PolicyEvaluation.csproj" />
+        <ProjectReference Include="..\..\Main\RonSijm.IJzer.Core.NamespaceHierarchy\RonSijm.IJzer.Core.NamespaceHierarchy.csproj" />
+        <ProjectReference Include="..\..\Main\RonSijm.IJzer.Core.ReturnValues\RonSijm.IJzer.Core.ReturnValues.csproj" />
+        <ProjectReference Include="..\..\Main\RonSijm.IJzer.Core.LayerModel\RonSijm.IJzer.Core.LayerModel.csproj" />
+        <ProjectReference Include="..\..\Main\RonSijm.IJzer.Core.DependencyRules\RonSijm.IJzer.Core.DependencyRules.csproj" />
+        <ProjectReference Include="..\..\Main\RonSijm.IJzer.Core.Exceptions\RonSijm.IJzer.Core.Exceptions.csproj" />
+        <ProjectReference Include="..\..\Main\RonSijm.IJzer.Core.Matchers\RonSijm.IJzer.Core.Matchers.csproj" />
+        <ProjectReference Include="..\..\Main\RonSijm.IJzer.Core.NameRules\RonSijm.IJzer.Core.NameRules.csproj" />
+        <ProjectReference Include="..\..\Main\RonSijm.IJzer.Core.Contracts\RonSijm.IJzer.Core.Contracts.csproj" />
+        <ProjectReference Include="..\..\Main\RonSijm.IJzer.Core.Visibility\RonSijm.IJzer.Core.Visibility.csproj" />
+        <ProjectReference Include="..\..\Main\RonSijm.IJzer.Core.ApiSurface\RonSijm.IJzer.Core.ApiSurface.csproj" />
+        <ProjectReference Include="..\..\Main\RonSijm.IJzer.Core.EntryPoints\RonSijm.IJzer.Core.EntryPoints.csproj" />
+        <ProjectReference Include="..\..\Main\RonSijm.IJzer.Core.SourceLocations\RonSijm.IJzer.Core.SourceLocations.csproj" />
+    </ItemGroup>
+
+</Project>

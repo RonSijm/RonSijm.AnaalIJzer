@@ -1,0 +1,63 @@
+using System.Collections.Concurrent;
+using System.Collections.Immutable;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Diagnostics;
+using RonSijm.IJzer.Core.Findings;
+using RonSijm.IJzer.Core.NameRules;
+using RonSijm.IJzer.Core.Violations;
+using RonSijm.IJzer.Diagnostics;
+
+namespace RonSijm.IJzer.Engine.Analysis.NamingRules;
+
+public static partial class LayerDependencyAnalyzer
+{
+    private static void ReportNameRuleViolation(SyntaxNodeAnalysisContext context, ConcurrentBag<ViolationRecord> violations, string callerTypeName, string callerLayerName, NameRuleViolation violation, Location reportLocation)
+    {
+        var diagnostic = CreateNameRuleDiagnostic(callerTypeName, callerLayerName, violation, reportLocation);
+        context.ReportDiagnostic(diagnostic);
+        RecordNameRuleViolation(violations, callerTypeName, callerLayerName, violation);
+    }
+
+    private static void ReportNameRuleViolation(OperationBlockAnalysisContext context, ConcurrentBag<ViolationRecord> violations, string callerTypeName, string callerLayerName, NameRuleViolation violation, Location reportLocation)
+    {
+        var diagnostic = CreateNameRuleDiagnostic(callerTypeName, callerLayerName, violation, reportLocation);
+        context.ReportDiagnostic(diagnostic);
+        RecordNameRuleViolation(violations, callerTypeName, callerLayerName, violation);
+    }
+
+    private static Diagnostic CreateNameRuleDiagnostic(string callerTypeName, string callerLayerName, NameRuleViolation violation, Location reportLocation)
+    {
+        var properties = BoundaryRules.LayerDependencies.LayerDependencyAnalyzer.AddViolationProperties(
+                ImmutableDictionary<string, string?>.Empty
+                    .Add(ArchitecturalDiagnostics.PropertySite, violation.Site)
+                    .Add(ArchitecturalDiagnostics.PropertyNameRuleKind, violation.RuleKind.ToString())
+                    .Add(ArchitecturalDiagnostics.PropertySourceName, violation.SourceName)
+                    .Add(ArchitecturalDiagnostics.PropertyTargetName, violation.TargetName)
+                    .Add(ArchitecturalDiagnostics.PropertyNormalizedSourceName, violation.NormalizedSourceName)
+                    .Add(ArchitecturalDiagnostics.PropertyNormalizedTargetName, violation.NormalizedTargetName)
+                    .Add(ArchitecturalDiagnostics.PropertyTypeName, violation.RuleKind == NameRuleKind.RequireDeclarationNameMatchesType ? violation.SourceName : null)
+                    .Add(ArchitecturalDiagnostics.PropertyDeclaredName, violation.RuleKind == NameRuleKind.RequireDeclarationNameMatchesType ? violation.TargetName : null)
+                    .Add(ArchitecturalDiagnostics.PropertyRuleXmlPath, violation.XmlPath)
+                    .Add(ArchitecturalDiagnostics.PropertyRuleXmlLine, violation.XmlLineNumber.ToString())
+                    .Add(ArchitecturalDiagnostics.PropertyRuleXmlCol, violation.XmlLinePosition.ToString()),
+                callerTypeName,
+                callerLayerName,
+                violation.TargetName,
+                violation.LayerName,
+                violation.Reason,
+                null);
+
+        var result = ArchitecturalDiagnostics.CreateDiagnostic(
+            ArchitecturalDiagnostics.NameShapeMismatch,
+            reportLocation,
+            properties,
+            callerTypeName, callerLayerName, violation.RuleKind, violation.Site, violation.Reason);
+
+        return result;
+    }
+
+    private static void RecordNameRuleViolation(ConcurrentBag<ViolationRecord> violations, string callerTypeName, string callerLayerName, NameRuleViolation violation)
+    {
+        violations.Add(new ViolationRecord(ArchitecturalDiagnosticIds.NameShapeMismatch, callerTypeName, callerLayerName, violation.SourceName, violation.TargetName, violation.Reason, null));
+    }
+}

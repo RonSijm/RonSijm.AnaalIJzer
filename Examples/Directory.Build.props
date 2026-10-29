@@ -1,7 +1,7 @@
 <Project>
 
-  <Import Project="..\build\Settings\RonSijm.AnaalIJzer.props"
-          Condition="Exists('..\build\Settings\RonSijm.AnaalIJzer.props')" />
+  <Import Project="..\build\Settings\RonSijm.IJzer.props"
+          Condition="Exists('..\build\Settings\RonSijm.IJzer.props')" />
 
   <!--
     Shared MSBuild props for every example project under Examples/.
@@ -32,21 +32,21 @@
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     <!-- Suppress "parameter unread" - example classes are intentionally minimal stubs -->
     <NoWarn>CS9113</NoWarn>
-    <AnaalIJzerEngineProjectPath>$(MSBuildThisFileDirectory)..\src\Main\RonSijm.AnaalIJzer.Engine\RonSijm.AnaalIJzer.Engine.csproj</AnaalIJzerEngineProjectPath>
+    <IJzerEngineProjectPath>$(MSBuildThisFileDirectory)..\src\Main\RonSijm.IJzer.Engine\RonSijm.IJzer.Engine.csproj</IJzerEngineProjectPath>
     <EnableArchitecturalLevelAnalyzer Condition="'$(EnableArchitecturalLevelAnalyzer)' == '' AND '$(Configuration)' == 'Release'">true</EnableArchitecturalLevelAnalyzer>
     <EnableArchitecturalLevelAnalyzer Condition="'$(EnableArchitecturalLevelAnalyzer)' == '' AND '$(EnableAnalyzerOnDebug)' == 'true'">true</EnableArchitecturalLevelAnalyzer>
     <EnableArchitecturalLevelAnalyzer Condition="'$(EnableArchitecturalLevelAnalyzer)' == ''">false</EnableArchitecturalLevelAnalyzer>
   </PropertyGroup>
 
-  <Target Name="AttachAnaalIJzerExampleAnalyzers"
+  <Target Name="AttachIJzerExampleAnalyzers"
           BeforeTargets="CoreCompile"
           Condition="'$(EnableArchitecturalLevelAnalyzer)' == 'true'">
-    <MSBuild Projects="$(AnaalIJzerEngineProjectPath)"
+    <MSBuild Projects="$(IJzerEngineProjectPath)"
              Targets="Build"
              Properties="Configuration=$(Configuration)" />
 
     <ItemGroup>
-      <Analyzer Include="$([System.IO.Path]::GetDirectoryName('$(AnaalIJzerEngineProjectPath)'))\bin\$(Configuration)\netstandard2.0\RonSijm.AnaalIJzer*.dll" />
+      <Analyzer Include="$([System.IO.Path]::GetDirectoryName('$(IJzerEngineProjectPath)'))\bin\$(Configuration)\netstandard2.0\RonSijm.IJzer*.dll" />
     </ItemGroup>
   </Target>
 
@@ -55,7 +55,7 @@
     <AdditionalFiles Include="$(MSBuildProjectDirectory)\..\*.anl" />
   </ItemGroup>
 
-  <Import Project="..\build\Settings\RonSijm.AnaalIJzer.targets"
-          Condition="Exists('..\build\Settings\RonSijm.AnaalIJzer.targets')" />
+  <Import Project="..\build\Settings\RonSijm.IJzer.targets"
+          Condition="Exists('..\build\Settings\RonSijm.IJzer.targets')" />
 
 </Project>

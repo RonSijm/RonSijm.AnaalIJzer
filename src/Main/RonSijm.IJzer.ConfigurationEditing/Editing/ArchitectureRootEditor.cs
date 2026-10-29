@@ -1,0 +1,79 @@
+using System.Collections.Immutable;
+using RonSijm.IJzer.ConfigurationEditing.Editing.Root;
+using RonSijm.IJzer.Core.Configuration.Document.Documents;
+using RonSijm.IJzer.Core.Configuration.Document.Model;
+
+namespace RonSijm.IJzer.ConfigurationEditing.Editing;
+
+internal static class ArchitectureRootEditor
+{
+    internal static ArchitectureConfigurationDocumentOperationResult SetRootSettings(
+        ArchitectureConfigurationSource source,
+        string? description,
+        string? requireRecognizedDependencies,
+        bool enforceAcyclic,
+        bool enableReport,
+        string? reportPath,
+        bool enableDocumentation,
+        string? documentationPath,
+        bool enableExceptionPolicy,
+        bool requireExceptionReason,
+        bool requireExceptionOwner,
+        bool requireExceptionExpiresOn,
+        int exceptionWarnBeforeDays,
+        string? exceptionPolicyDescription)
+    {
+        var result = ArchitectureRootSettingsEditor.SetRootSettings(
+            source,
+            description,
+            requireRecognizedDependencies,
+            enforceAcyclic,
+            enableReport,
+            reportPath,
+            enableDocumentation,
+            documentationPath,
+            enableExceptionPolicy,
+            requireExceptionReason,
+            requireExceptionOwner,
+            requireExceptionExpiresOn,
+            exceptionWarnBeforeDays,
+            exceptionPolicyDescription);
+
+        return result;
+    }
+
+    internal static ArchitectureConfigurationDocumentOperationResult AddGlobalTypePolicyMatcher(ArchitectureConfigurationSource source, string policyKind, string elementKind, ImmutableDictionary<string, string> attributes)
+    {
+        var result = ArchitectureRootCompositionEditor.AddGlobalTypePolicyMatcher(source, policyKind, elementKind, attributes);
+
+        return result;
+    }
+
+    internal static ArchitectureConfigurationDocumentOperationResult AddInclude(ArchitectureConfigurationSource source, string path, bool allowNoMatches)
+    {
+        var result = ArchitectureRootCompositionEditor.AddInclude(source, path, allowNoMatches);
+
+        return result;
+    }
+
+    internal static ArchitectureConfigurationDocumentOperationResult AddOperationContracts(ArchitectureConfigurationSource source, ImmutableDictionary<string, string> attributes, string childXml)
+    {
+        var result = ArchitectureRootCompositionEditor.AddOperationContracts(source, attributes, childXml);
+
+        return result;
+    }
+
+    internal static ArchitectureConfigurationDocumentOperationResult AddAssemblyAttributePolicy(ArchitectureConfigurationSource source, ImmutableDictionary<string, string> attributes, string childXml)
+    {
+        var result = ArchitectureRootCompositionEditor.AddAssemblyAttributePolicy(source, attributes, childXml);
+
+        return result;
+    }
+
+    internal static ArchitectureConfigurationDocumentOperationResult AddNamespaceHierarchyPolicy(ArchitectureConfigurationSource source, ImmutableDictionary<string, string> attributes, string childXml)
+    {
+        var result = ArchitectureRootCompositionEditor.AddNamespaceHierarchyPolicy(source, attributes, childXml);
+
+        return result;
+    }
+}

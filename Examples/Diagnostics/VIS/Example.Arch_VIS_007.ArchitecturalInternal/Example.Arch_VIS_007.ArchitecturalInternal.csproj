@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\src\Main\RonSijm.AnaalIJzer.Annotations\RonSijm.AnaalIJzer.Annotations.csproj" />
+    <ProjectReference Include="..\..\..\..\src\Main\RonSijm.IJzer.Annotations\RonSijm.IJzer.Annotations.csproj" />
   </ItemGroup>
 
 </Project>

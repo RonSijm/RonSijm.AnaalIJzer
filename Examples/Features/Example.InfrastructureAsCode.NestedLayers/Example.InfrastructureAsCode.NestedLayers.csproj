@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Main\RonSijm.AnaalIJzer.IaC\RonSijm.AnaalIJzer.IaC.csproj" />
+    <ProjectReference Include="..\..\..\src\Main\RonSijm.IJzer.IaC\RonSijm.IJzer.IaC.csproj" />
   </ItemGroup>
 
 </Project>

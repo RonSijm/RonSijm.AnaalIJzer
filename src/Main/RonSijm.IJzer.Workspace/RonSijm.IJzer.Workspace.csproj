@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="../../../build/Settings/MSBuildWorkspacePackageReferences.props" />
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RonSijm.IJzer.Engine\RonSijm.IJzer.Engine.csproj" />
+    <ProjectReference Include="..\RonSijm.IJzer.Core.RuntimeConfig\RonSijm.IJzer.Core.RuntimeConfig.csproj" />
+    <ProjectReference Include="..\RonSijm.IJzer.Core.BuildMetadata\RonSijm.IJzer.Core.BuildMetadata.csproj" />
+    <ProjectReference Include="..\RonSijm.IJzer.CodeFixes\RonSijm.IJzer.CodeFixes.csproj" />
+    <ProjectReference Include="..\RonSijm.IJzer.ConfigurationEditing\RonSijm.IJzer.ConfigurationEditing.csproj"
+                      SetTargetFramework="TargetFramework=netstandard2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="RonSijm.IJzer.Application" />
+    <InternalsVisibleTo Include="RonSijm.IJzer.Application.Tests" />
+    <InternalsVisibleTo Include="RonSijm.IJzer.GraphWorkspace" />
+    <InternalsVisibleTo Include="RonSijm.IJzer.GraphWorkspace.Tests" />
+    <InternalsVisibleTo Include="RonSijm.IJzer.IntegrationTests" />
+    <InternalsVisibleTo Include="RonSijm.IJzer.Workspace.Tests" />
+  </ItemGroup>
+
+</Project>

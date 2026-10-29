@@ -21,7 +21,7 @@ The participating projects are `Example.SolutionTopology.Web`,
 The solution inspection fails with one `ARCH_SOL_001` finding:
 
 ```cmd
-arse inspect --solution Example.SolutionTopology.slnx --enforce-topology
+ijzer inspect --solution Example.SolutionTopology.slnx --enforce-topology
 ```
 
 That result points at the actual `Example.SolutionTopology.Application ->

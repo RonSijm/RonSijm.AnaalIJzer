@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <Import Project="../../../build/Settings/NetFxCompatibleProjectTargetFramework.props" />
+
+    <PropertyGroup>
+        <TargetFrameworks>net472;net10.0-windows</TargetFrameworks>
+        <LangVersion>latest</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <UseWPF>true</UseWPF>
+        <EnableWindowsTargeting>true</EnableWindowsTargeting>
+        <IsPackable>false</IsPackable>
+        <GraphingWpfProjectTargetFramework Condition="'$(TargetFramework)' == 'net472'">net472</GraphingWpfProjectTargetFramework>
+        <GraphingWpfProjectTargetFramework Condition="'$(GraphingWpfProjectTargetFramework)' == ''">net10.0-windows</GraphingWpfProjectTargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
+        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net472" Version="1.0.3" PrivateAssets="all" Condition="'$(TargetFramework)' == 'net472'" />
+        <PackageReference Include="Nodify" Version="7.3.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\RonSijm.IJzer.Core.Matchers\RonSijm.IJzer.Core.Matchers.csproj"
+                          SetTargetFramework="TargetFramework=netstandard2.0" />
+        <ProjectReference Include="..\RonSijm.IJzer.GraphApplication\RonSijm.IJzer.GraphApplication.csproj"
+                          SetTargetFramework="TargetFramework=netstandard2.0" />
+        <ProjectReference Include="..\RonSijm.IJzer.Graphing.Wpf\RonSijm.IJzer.Graphing.Wpf.csproj"
+                          SetTargetFramework="TargetFramework=$(GraphingWpfProjectTargetFramework)" />
+        <ProjectReference Include="..\RonSijm.IJzer.ConfigurationEditing\RonSijm.IJzer.ConfigurationEditing.csproj"
+                          SetTargetFramework="TargetFramework=$(NetFxCompatibleProjectTargetFramework)" />
+        <ProjectReference Include="..\RonSijm.IJzer.GraphModel\RonSijm.IJzer.GraphModel.csproj"
+                          SetTargetFramework="TargetFramework=$(NetFxCompatibleProjectTargetFramework)" />
+        <ProjectReference Include="..\RonSijm.IJzer.Graphing\RonSijm.IJzer.Graphing.csproj"
+                          SetTargetFramework="TargetFramework=$(NetFxCompatibleProjectTargetFramework)" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>RonSijm.IJzer.GraphEditor.Wpf.Tests</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+
+</Project>

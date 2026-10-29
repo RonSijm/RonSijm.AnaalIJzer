@@ -1,0 +1,62 @@
+using System.Collections.Immutable;
+using Microsoft.CodeAnalysis;
+using RonSijm.IJzer.Core.Findings;
+using RonSijm.IJzer.Core.Violations;
+using AnalyzerConfiguration = RonSijm.IJzer.Core.RuntimeConfig.Config.Model.AnalyzerConfig;
+
+namespace RonSijm.IJzer.Outputs.Violations;
+
+/// <summary>
+///     Facade for architectural violation report generation.
+/// </summary>
+internal static class ArchitecturalViolationReporter
+{
+    internal static ImmutableArray<ArchitectureFinding> CreateFindings(IEnumerable<Diagnostic> diagnostics)
+    {
+        var result = diagnostics
+            .Select(diagnostic => ArchitectureFindingFactory.FromDiagnostic(diagnostic))
+            .ToImmutableArray();
+
+        return result;
+    }
+
+    internal static ImmutableArray<ArchitectureFinding> CreateFindings(IEnumerable<ViolationRecord> violations)
+    {
+        var result = violations
+            .Select(violation => violation.ToArchitectureFinding())
+            .ToImmutableArray();
+
+        return result;
+    }
+
+    internal static string GenerateMarkdownReport(IEnumerable<Diagnostic> diagnostics, AnalyzerConfiguration config, string? assemblyName)
+    {
+        var result = GenerateMarkdownReport(diagnostics, config, assemblyName, "Assembly");
+
+        return result;
+    }
+
+    internal static string GenerateMarkdownReport(IEnumerable<Diagnostic> diagnostics, AnalyzerConfiguration config, string? inputName, string inputLabel)
+    {
+        var records = diagnostics
+            .Select(ViolationRecordFactory.TryCreate)
+            .OfType<ViolationRecord>();
+        var result = ViolationMarkdownReportBuilder.Generate(records, config, inputName, inputLabel);
+
+        return result;
+    }
+
+    internal static string GenerateMarkdownReport(IEnumerable<ViolationRecord> violationBag, AnalyzerConfiguration config, string? assemblyName)
+    {
+        var result = GenerateMarkdownReport(violationBag, config, assemblyName, "Assembly");
+
+        return result;
+    }
+
+    internal static string GenerateMarkdownReport(IEnumerable<ViolationRecord> violationBag, AnalyzerConfiguration config, string? inputName, string inputLabel)
+    {
+        var result = ViolationMarkdownReportBuilder.Generate(violationBag, config, inputName, inputLabel);
+
+        return result;
+    }
+}

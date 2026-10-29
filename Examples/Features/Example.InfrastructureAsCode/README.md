@@ -1,6 +1,6 @@
 # Infrastructure as code
 
-This example writes an AnaalIJzer configuration in C# instead of maintaining a larger XML document by hand.
+This example writes an IJzer configuration in C# instead of maintaining a larger XML document by hand.
 
 - `nameof(Customer)` keeps layer names and matcher names attached to the code being described.
 - The object model follows the same structure as the `.anl` XML language.

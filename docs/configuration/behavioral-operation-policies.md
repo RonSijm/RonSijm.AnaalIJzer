@@ -4,7 +4,7 @@
 
 This is deliberately more precise than an ordinary dependency rule and less ambitious than a business-process proof.
 
-AnaalIJzer can prove that:
+IJzer can prove that:
 
 - a configured `PizzaSafetyCheck.Validate()` call exists;
 - it dominates a configured `PizzaOven.Bake()` call in C# control flow;
@@ -97,7 +97,7 @@ Ordering rules add a related target:
 
 The surrounding tools reuse the same configuration model:
 
-- Arse validates, documents, merges, splits, and reports the policies.
+- IJzer Forge validates, documents, merges, splits, and reports the policies.
 - The WPF and Visual Studio graph editors preserve and edit the layer-scoped XML.
 - The Visual Studio companion shows concrete `ARCH_OPER_*` results through Sites Diagnostics and QuickInfo.
 

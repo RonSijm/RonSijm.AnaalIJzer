@@ -5,7 +5,7 @@ This project intentionally contains a permitted dependency cycle, an unused edge
 Run:
 
 ```powershell
-arse inspect --project .\Example.ArchitectureHealth.csproj --output .\architecture-health.md --force
+ijzer inspect --project .\Example.ArchitectureHealth.csproj --output .\architecture-health.md --force
 ```
 
 The analyzer itself reports no dependency violation because both observed directions are allowed. The health report highlights configuration drift and structural risks that are not individual illegal dependency sites.

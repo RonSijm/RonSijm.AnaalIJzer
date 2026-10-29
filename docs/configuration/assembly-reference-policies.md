@@ -6,7 +6,7 @@ other assembly dependencies that are neither a `ProjectReference` nor a NuGet pa
 
 This is deliberately a **workspace policy**, not a compiler analyzer diagnostic. A normal
 Roslyn analyzer execution cannot reliably discover the complete MSBuild provenance of an
-assembly reference. Run `arse inspect` or `arse report` against a project or solution to
+assembly reference. Run `ijzer inspect` or `ijzer report` against a project or solution to
 evaluate it.
 
 ```xml
@@ -36,8 +36,8 @@ Given this project file:
 </ItemGroup>
 ```
 
-`arse inspect --project Shop.Domain.csproj` reports an **Assembly reference policy**
-finding. `arse report` adds a separate workspace section with the source project, assembly
+`ijzer inspect --project Shop.Domain.csproj` reports an **Assembly reference policy**
+finding. `ijzer report` adds a separate workspace section with the source project, assembly
 identity, raw `HintPath`, and policy reason. A regular `dotnet build` remains free of a new
 `ARCHxxx` result for this rule.
 
@@ -77,4 +77,4 @@ replacing it with a project boundary, or deliberately adjusting the policy is an
 decision rather than a mechanically safe text edit.
 
 **Focused scenario:** [`Example.AssemblyReferenceBoundaries`](../../Examples/Scenarios/Example.AssemblyReferenceBoundaries)
-contains a clean project build and an intentionally failing Arse inspection.
+contains a clean project build and an intentionally failing IJzer Forge inspection.

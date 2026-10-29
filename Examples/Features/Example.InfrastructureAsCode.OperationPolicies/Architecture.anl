@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ArchitecturalLevels description="Kitchens receive a clock dependency instead of reading the system clock directly." xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd">
+<ArchitecturalLevels description="Kitchens receive a clock dependency instead of reading the system clock directly." xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../src/Main/RonSijm.IJzer/Scheme/IJzer.xsd">
   <Layer name="Application">
     <Class endsWith="Kitchen" />
     <ForbiddenOperations description="Application code may not inspect the machine's clock.">

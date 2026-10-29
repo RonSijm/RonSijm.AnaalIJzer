@@ -8,10 +8,10 @@ $scriptDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repositoryRoot = (Resolve-Path (Join-Path $scriptDirectory "..\..\..")).Path
 $legacyAllowedPaths = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
 @(
-	"src/Main/RonSijm.AnaalIJzer.Core.Findings/Diagnostics/ArchitectureDiagnosticIdMigrationCatalog.cs",
-	"src/Main/RonSijm.AnaalIJzer.Engine/AnalyzerReleases.Shipped.md",
-	"src/Main/RonSijm.AnaalIJzer.Engine/AnalyzerReleases.Unshipped.md",
-	"src/Tests/RonSijm.AnaalIJzer.Application.Tests/ApplicationOperations/ApplicationOperationsTests.DiagnosticIdMigration.cs"
+	"src/Main/RonSijm.IJzer.Core.Findings/Diagnostics/ArchitectureDiagnosticIdMigrationCatalog.cs",
+	"src/Main/RonSijm.IJzer.Engine/AnalyzerReleases.Shipped.md",
+	"src/Main/RonSijm.IJzer.Engine/AnalyzerReleases.Unshipped.md",
+	"src/Tests/RonSijm.IJzer.Application.Tests/ApplicationOperations/ApplicationOperationsTests.DiagnosticIdMigration.cs"
 ) | ForEach-Object { [void]$legacyAllowedPaths.Add($_) }
 
 $textExtensions = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
@@ -20,7 +20,7 @@ $textExtensions = [System.Collections.Generic.HashSet[string]]::new([System.Stri
 
 $legacyPattern = [regex]'\b(?:ARCH|TOPO)[0-9]{3}\b'
 $hardCodedNewIdPattern = [regex]'"ARCH_[A-Z][A-Z0-9]*_[0-9]{3}"'
-$publishedIdSource = "src/Main/RonSijm.AnaalIJzer.Core.Findings/ArchitecturalDiagnosticIds.cs"
+$publishedIdSource = "src/Main/RonSijm.IJzer.Core.Findings/ArchitecturalDiagnosticIds.cs"
 $failures = [System.Collections.Generic.List[string]]::new()
 $trackedFiles = & git -C $repositoryRoot ls-files --cached --others --exclude-standard
 if ($LASTEXITCODE -ne 0) {

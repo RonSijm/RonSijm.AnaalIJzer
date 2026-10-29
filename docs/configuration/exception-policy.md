@@ -45,7 +45,7 @@ Behavior:
 - Invalid `expiresOn` reports `ARCH_EXC_009`.
 - Expired exceptions report `ARCH_EXC_009` and fail closed.
 - Expiring-soon exceptions report `ARCH_EXC_009` but remain active.
-- Stale exceptions are reported by Arse health inspection, not by normal project compilation.
+- Stale exceptions are reported by IJzer Forge health inspection, not by normal project compilation.
 
 See also:
 

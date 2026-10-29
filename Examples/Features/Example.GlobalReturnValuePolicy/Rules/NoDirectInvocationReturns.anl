@@ -1,5 +1,5 @@
 <ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                     xsi:noNamespaceSchemaLocation="../../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd">
+                     xsi:noNamespaceSchemaLocation="../../../../src/Main/RonSijm.IJzer/Scheme/IJzer.xsd">
   <ReturnValuePolicy description="The kitchen does not serve the result of an oven call directly.">
     <Invocation description="Assign the oven result to a named value before serving it." />
   </ReturnValuePolicy>

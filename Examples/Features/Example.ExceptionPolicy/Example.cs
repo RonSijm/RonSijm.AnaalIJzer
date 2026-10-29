@@ -1,7 +1,7 @@
 // ReSharper disable All - Justification: Example File
 using System.Reflection;
 
-[assembly: AssemblyMetadata("AnaalIJzerSettings", """
+[assembly: AssemblyMetadata("IJzerSettings", """
 <ArchitecturalLevels>
   <ExceptionPolicy requireOwner="true"
                    description="Temporary exceptions must name who owns them." />

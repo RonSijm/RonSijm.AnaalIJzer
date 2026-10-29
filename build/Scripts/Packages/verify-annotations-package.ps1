@@ -20,7 +20,7 @@ function Write-Utf8File([string]$Path, [string]$Content) {
 }
 
 $resolvedPackagePath = (Resolve-Path -LiteralPath $PackagePath).Path
-$temporaryDirectory = Join-Path ([System.IO.Path]::GetTempPath()) ("AnaalIJzer-annotations-package-smoke-" + [Guid]::NewGuid().ToString("N"))
+$temporaryDirectory = Join-Path ([System.IO.Path]::GetTempPath()) ("IJzer-annotations-package-smoke-" + [Guid]::NewGuid().ToString("N"))
 $previousNuGetPackages = $env:NUGET_PACKAGES
 
 try {
@@ -44,9 +44,9 @@ try {
         throw "The annotations package must not declare runtime dependencies: $names."
     }
 
-    $assemblyPath = Join-Path $extractedPackageDirectory "lib\netstandard2.0\RonSijm.AnaalIJzer.Annotations.dll"
+    $assemblyPath = Join-Path $extractedPackageDirectory "lib\netstandard2.0\RonSijm.IJzer.Annotations.dll"
     if (-not (Test-Path -LiteralPath $assemblyPath)) {
-        throw "The annotations package is missing lib/netstandard2.0/RonSijm.AnaalIJzer.Annotations.dll."
+        throw "The annotations package is missing lib/netstandard2.0/RonSijm.IJzer.Annotations.dll."
     }
 
     $packageVersion = [string]$nuspec.package.metadata.version
@@ -61,7 +61,7 @@ try {
   </packageSources>
   <packageSourceMapping>
     <packageSource key="package-smoke">
-      <package pattern="RonSijm.AnaalIJzer.Annotations" />
+      <package pattern="RonSijm.IJzer.Annotations" />
     </packageSource>
     <packageSource key="nuget.org">
       <package pattern="*" />
@@ -76,12 +76,12 @@ try {
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="RonSijm.AnaalIJzer.Annotations" Version="$packageVersion" />
+    <PackageReference Include="RonSijm.IJzer.Annotations" Version="$packageVersion" />
   </ItemGroup>
 </Project>
 "@
     $consumerSource = @"
-using RonSijm.AnaalIJzer.Annotations;
+using RonSijm.IJzer.Annotations;
 
 [ClassInternal]
 public sealed class ReflectionProjection

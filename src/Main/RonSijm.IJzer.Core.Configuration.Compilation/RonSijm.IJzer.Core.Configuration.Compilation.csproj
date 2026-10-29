@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+        <EnforceExtendedAnalyzerRules>false</EnforceExtendedAnalyzerRules>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="RonSijm.IJzer" />
+        <InternalsVisibleTo Include="RonSijm.IJzer.EditorRuntime" />
+        <InternalsVisibleTo Include="RonSijm.IJzer.Core.Configuration.Compilation.Tests" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\RonSijm.IJzer.Core.AssemblyAttributes\RonSijm.IJzer.Core.AssemblyAttributes.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.ApiSurface\RonSijm.IJzer.Core.ApiSurface.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.Configuration.Document\RonSijm.IJzer.Core.Configuration.Document.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.Contracts\RonSijm.IJzer.Core.Contracts.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.DependencyRules\RonSijm.IJzer.Core.DependencyRules.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.EntryPoints\RonSijm.IJzer.Core.EntryPoints.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.Exceptions\RonSijm.IJzer.Core.Exceptions.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.Inheritance\RonSijm.IJzer.Core.Inheritance.csproj" />
+		<ProjectReference Include="..\RonSijm.IJzer.Core.NamespaceHierarchy\RonSijm.IJzer.Core.NamespaceHierarchy.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.ReturnValues\RonSijm.IJzer.Core.ReturnValues.csproj" />
+		<ProjectReference Include="..\RonSijm.IJzer.Core.OperationPolicies\RonSijm.IJzer.Core.OperationPolicies.csproj" />
+		<ProjectReference Include="..\RonSijm.IJzer.Core.OperationContracts\RonSijm.IJzer.Core.OperationContracts.csproj" />
+		<ProjectReference Include="..\RonSijm.IJzer.Core.SemanticOperations\RonSijm.IJzer.Core.SemanticOperations.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.LayerModel\RonSijm.IJzer.Core.LayerModel.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.Matchers\RonSijm.IJzer.Core.Matchers.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.NameRules\RonSijm.IJzer.Core.NameRules.csproj" />
+		<ProjectReference Include="..\RonSijm.IJzer.Core.Observations\RonSijm.IJzer.Core.Observations.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.PolicyEvaluation\RonSijm.IJzer.Core.PolicyEvaluation.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.ProjectArchitecture\RonSijm.IJzer.Core.ProjectArchitecture.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.RuntimeConfig\RonSijm.IJzer.Core.RuntimeConfig.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.SourceLocations\RonSijm.IJzer.Core.SourceLocations.csproj" />
+        <ProjectReference Include="..\RonSijm.IJzer.Core.Visibility\RonSijm.IJzer.Core.Visibility.csproj" />
+    </ItemGroup>
+
+</Project>
+

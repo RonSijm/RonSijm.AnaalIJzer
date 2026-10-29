@@ -1,0 +1,71 @@
+using System.Collections.Immutable;
+using RonSijm.IJzer.Core.AssemblyAttributes.Model;
+using RonSijm.IJzer.Core.DependencyRules;
+using RonSijm.IJzer.Core.Exceptions;
+using RonSijm.IJzer.Core.LayerModel;
+using RonSijm.IJzer.Core.OperationContracts.Model;
+using RonSijm.IJzer.Core.ProjectArchitecture;
+using RonSijm.IJzer.Core.ProjectArchitecture.SolutionTopology;
+using RonSijm.IJzer.Core.NamespaceHierarchy.Policies;
+using RonSijm.IJzer.Core.ReturnValues.Policies;
+
+namespace RonSijm.IJzer.Core.Configuration.Compilation.Compilation;
+
+internal readonly struct ArchitectureConfigurationMaterializationResult
+{
+    internal ArchitectureConfigurationMaterializationResult(
+        CompiledLayerCatalog layerCatalog,
+        ImmutableArray<DependencyEdge> dependencyEdges,
+        ImmutableDictionary<string, ImmutableHashSet<string>> layerRequiredRecognizedDependencySites,
+        ImmutableArray<ArchitectureExceptionDefinition> exceptionDefinitions,
+        ImmutableArray<ArchitectureExceptionReview> exceptionReviews,
+        ImmutableArray<string> layerNames,
+        ImmutableArray<ArchitectureForbiddenPattern> forbiddenPatterns,
+        ProjectArchitectureConfig projectArchitecture,
+        SolutionTopologyConfig solutionTopology = default,
+        OperationContractCatalog operationContracts = default,
+        AssemblyAttributePolicyCatalog assemblyAttributePolicies = default,
+        ImmutableArray<ReturnValuePolicy> globalReturnValuePolicies = default,
+        ImmutableArray<NamespaceHierarchyPolicy> namespaceHierarchyPolicies = default)
+    {
+        LayerCatalog = layerCatalog;
+        DependencyEdges = dependencyEdges;
+        LayerRequiredRecognizedDependencySites = layerRequiredRecognizedDependencySites;
+        ExceptionDefinitions = exceptionDefinitions;
+        ExceptionReviews = exceptionReviews;
+        LayerNames = layerNames;
+        ForbiddenPatterns = forbiddenPatterns;
+        ProjectArchitecture = projectArchitecture;
+        SolutionTopology = solutionTopology;
+        OperationContracts = operationContracts;
+        AssemblyAttributePolicies = assemblyAttributePolicies;
+        GlobalReturnValuePolicies = globalReturnValuePolicies.IsDefault ? ImmutableArray<ReturnValuePolicy>.Empty : globalReturnValuePolicies;
+        NamespaceHierarchyPolicies = namespaceHierarchyPolicies.IsDefault ? ImmutableArray<NamespaceHierarchyPolicy>.Empty : namespaceHierarchyPolicies;
+    }
+
+    internal CompiledLayerCatalog LayerCatalog { get; }
+
+    internal ImmutableArray<DependencyEdge> DependencyEdges { get; }
+
+    internal ImmutableDictionary<string, ImmutableHashSet<string>> LayerRequiredRecognizedDependencySites { get; }
+
+    internal ImmutableArray<ArchitectureExceptionDefinition> ExceptionDefinitions { get; }
+
+    internal ImmutableArray<ArchitectureExceptionReview> ExceptionReviews { get; }
+
+    internal ImmutableArray<string> LayerNames { get; }
+
+    internal ImmutableArray<ArchitectureForbiddenPattern> ForbiddenPatterns { get; }
+
+    internal ProjectArchitectureConfig ProjectArchitecture { get; }
+
+    internal SolutionTopologyConfig SolutionTopology { get; }
+
+    internal OperationContractCatalog OperationContracts { get; }
+
+    internal AssemblyAttributePolicyCatalog AssemblyAttributePolicies { get; }
+
+    internal ImmutableArray<ReturnValuePolicy> GlobalReturnValuePolicies { get; }
+
+    internal ImmutableArray<NamespaceHierarchyPolicy> NamespaceHierarchyPolicies { get; }
+}

@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <Import Project="../../../build/Settings/NetFxCompatibleProjectTargetFramework.props" />
+
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
+        <LangVersion>latest</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net472" Version="1.0.3" PrivateAssets="all" Condition="'$(TargetFramework)' == 'net472'" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\RonSijm.IJzer.GraphModel\RonSijm.IJzer.GraphModel.csproj"
+                          SetTargetFramework="TargetFramework=$(NetFxCompatibleProjectTargetFramework)" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>RonSijm.IJzer.GraphEditor.Wpf</_Parameter1>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>RonSijm.IJzer.GraphEditor.Wpf.Tests</_Parameter1>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>RonSijm.IJzer.GraphEditor.Standalone</_Parameter1>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>RonSijm.IJzer.Graphing.Tests</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+
+</Project>

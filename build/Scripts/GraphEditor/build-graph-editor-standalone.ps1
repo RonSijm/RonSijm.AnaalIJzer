@@ -6,10 +6,10 @@ param(
 $ErrorActionPreference = "Stop"
 $scriptDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repositoryRoot = (Resolve-Path (Join-Path $scriptDirectory "..\..\..")).Path
-$project = Join-Path $repositoryRoot "src\Tools\RonSijm.AnaalIJzer.GraphEditor.Standalone\RonSijm.AnaalIJzer.GraphEditor.Standalone.csproj"
-$sourceOutput = Join-Path $repositoryRoot "src\Tools\RonSijm.AnaalIJzer.GraphEditor.Standalone\bin\$Configuration\net10.0-windows"
+$project = Join-Path $repositoryRoot "src\Tools\RonSijm.IJzer.GraphEditor.Standalone\RonSijm.IJzer.GraphEditor.Standalone.csproj"
+$sourceOutput = Join-Path $repositoryRoot "src\Tools\RonSijm.IJzer.GraphEditor.Standalone\bin\$Configuration\net10.0-windows"
 $artifactOutput = Join-Path $repositoryRoot "build\Artifacts\GraphEditor.Standalone"
-$executableOutput = Join-Path $artifactOutput "RonSijm.AnaalIJzer.GraphEditor.Standalone.exe"
+$executableOutput = Join-Path $artifactOutput "RonSijm.IJzer.GraphEditor.Standalone.exe"
 
 function Remove-DirectoryInsideRepository([string]$Path) {
 	$fullPath = [System.IO.Path]::GetFullPath($Path)
@@ -22,7 +22,7 @@ function Remove-DirectoryInsideRepository([string]$Path) {
 	}
 }
 
-Write-Host "Building AnaalIJzer standalone graph editor..."
+Write-Host "Building IJzer standalone graph editor..."
 & dotnet build $project --configuration $Configuration --disable-build-servers -m:1 -p:UseSharedCompilation=false
 if ($LASTEXITCODE -ne 0) {
 	exit $LASTEXITCODE

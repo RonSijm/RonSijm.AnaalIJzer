@@ -1,5 +1,5 @@
 <ArchitecturalLevels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                     xsi:noNamespaceSchemaLocation="../../../../src/Main/RonSijm.AnaalIJzer/Scheme/AnaalIJzer.xsd"
+                     xsi:noNamespaceSchemaLocation="../../../../src/Main/RonSijm.IJzer/Scheme/IJzer.xsd"
                      description="An ASP.NET Core controller may delegate to application code, which may reach persistence.">
   <Layer name="Endpoint" description="Public HTTP controllers accept requests and delegate them.">
     <Class withAttribute="ApiController" />

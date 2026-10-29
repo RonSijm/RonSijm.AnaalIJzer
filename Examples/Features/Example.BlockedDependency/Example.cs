@@ -1,7 +1,7 @@
 // ReSharper disable All - Justification: Example File
 using System.Reflection;
 
-[assembly: AssemblyMetadata("AnaalIJzerSettings", """
+[assembly: AssemblyMetadata("IJzerSettings", """
                                                   <ArchitecturalLevels>
                                                     <Layer name="Controller"><Class endsWith="Controller" /></Layer>
                                                     <Layer name="Application"><Class endsWith="Service" /></Layer>

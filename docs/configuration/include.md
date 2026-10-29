@@ -1,6 +1,6 @@
 ### `<Include>`
 
-Merges another architecture settings file into the current config. Use this when a project has a small local config but shares layer definitions or common edges from another file. The top-level config can be either `Architecture.anl` or `AssemblyMetadata("AnaalIJzerSettings", ...)`; included settings files must still be passed to Roslyn as `AdditionalFiles`.
+Merges another architecture settings file into the current config. Use this when a project has a small local config but shares layer definitions or common edges from another file. The top-level config can be either `Architecture.anl` or `AssemblyMetadata("IJzerSettings", ...)`; included settings files must still be passed to Roslyn as `AdditionalFiles`.
 
 **Example projects:** [`Example.IncludeSettings`](../../Examples/Features/Example.IncludeSettings), [`Example.IncludeWildcardSettings`](../../Examples/Features/Example.IncludeWildcardSettings)
 

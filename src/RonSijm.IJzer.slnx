@@ -1,0 +1,116 @@
+<Solution>
+  <Folder Name="/Extensions/">
+    <Project Path="Extensions/RonSijm.IJzer.VisualStudio/RonSijm.IJzer.VisualStudio.csproj" />
+  </Folder>
+  <Folder Name="/Main/" />
+  <Folder Name="/Main/Annotations/">
+    <Project Path="Main/RonSijm.IJzer.Annotations/RonSijm.IJzer.Annotations.csproj" />
+  </Folder>
+  <Folder Name="/Main/Analyzer/">
+    <Project Path="Main/RonSijm.IJzer/RonSijm.IJzer.csproj" />
+    <Project Path="Main/RonSijm.IJzer.Diagnostics/RonSijm.IJzer.Diagnostics.csproj" />
+    <Project Path="Main/RonSijm.IJzer.CodeFixes/RonSijm.IJzer.CodeFixes.csproj" />
+    <Project Path="Main/RonSijm.IJzer.Engine/RonSijm.IJzer.Engine.csproj" />
+  </Folder>
+  <Folder Name="/Main/Application/">
+    <Project Path="Main/RonSijm.IJzer.Application/RonSijm.IJzer.Application.csproj" />
+    <Project Path="Main/RonSijm.IJzer.Outputs/RonSijm.IJzer.Outputs.csproj" />
+  </Folder>
+  <Folder Name="/Main/Configuration/">
+    <Project Path="Main/RonSijm.IJzer.IaC/RonSijm.IJzer.IaC.csproj" />
+    <Project Path="Main/RonSijm.IJzer.Core.BuildMetadata/RonSijm.IJzer.Core.BuildMetadata.csproj" />
+    <Project Path="Main/RonSijm.IJzer.Core.Configuration.Compilation/RonSijm.IJzer.Core.Configuration.Compilation.csproj" />
+    <Project Path="Main/RonSijm.IJzer.Core.Configuration.Document/RonSijm.IJzer.Core.Configuration.Document.csproj" />
+    <Project Path="Main/RonSijm.IJzer.Core.Matchers/RonSijm.IJzer.Core.Matchers.csproj" />
+    <Project Path="Main/RonSijm.IJzer.Core.RuntimeConfig/RonSijm.IJzer.Core.RuntimeConfig.csproj" />
+  </Folder>
+  <Folder Name="/Main/Core/" />
+  <Folder Name="/Main/Core/Model/">
+    <Project Path="Main/RonSijm.IJzer.Core.Findings/RonSijm.IJzer.Core.Findings.csproj" />
+    <Project Path="Main/RonSijm.IJzer.Core.Indicators/RonSijm.IJzer.Core.Indicators.csproj" />
+    <Project Path="Main/RonSijm.IJzer.Core.LayerModel/RonSijm.IJzer.Core.LayerModel.csproj" />
+    <Project Path="Main/RonSijm.IJzer.Core.Observations/RonSijm.IJzer.Core.Observations.csproj" />
+    <Project Path="Main/RonSijm.IJzer.Core.SemanticOperations/RonSijm.IJzer.Core.SemanticOperations.csproj" />
+    <Project Path="Main/RonSijm.IJzer.Core.Violations/RonSijm.IJzer.Core.Violations.csproj" />
+  </Folder>
+  <Folder Name="/Main/Core/Policies/">
+    <Project Path="Main/RonSijm.IJzer.Core.ApiSurface/RonSijm.IJzer.Core.ApiSurface.csproj" />
+    <Project Path="Main/RonSijm.IJzer.Core.Contracts/RonSijm.IJzer.Core.Contracts.csproj" />
+    <Project Path="Main/RonSijm.IJzer.Core.DependencyRules/RonSijm.IJzer.Core.DependencyRules.csproj" />
+    <Project Path="Main/RonSijm.IJzer.Core.EntryPoints/RonSijm.IJzer.Core.EntryPoints.csproj" />
+    <Project Path="Main/RonSijm.IJzer.Core.Exceptions/RonSijm.IJzer.Core.Exceptions.csproj" />
+    <Project Path="Main/RonSijm.IJzer.Core.Inheritance/RonSijm.IJzer.Core.Inheritance.csproj" />
+    <Project Path="Main/RonSijm.IJzer.Core.NameRules/RonSijm.IJzer.Core.NameRules.csproj" />
+	<Project Path="Main/RonSijm.IJzer.Core.NamespaceHierarchy/RonSijm.IJzer.Core.NamespaceHierarchy.csproj" />
+	<Project Path="Main/RonSijm.IJzer.Core.OperationPolicies/RonSijm.IJzer.Core.OperationPolicies.csproj" />
+	<Project Path="Main/RonSijm.IJzer.Core.OperationContracts/RonSijm.IJzer.Core.OperationContracts.csproj" />
+    <Project Path="Main/RonSijm.IJzer.Core.PolicyEvaluation/RonSijm.IJzer.Core.PolicyEvaluation.csproj" />
+    <Project Path="Main/RonSijm.IJzer.Core.ProjectArchitecture/RonSijm.IJzer.Core.ProjectArchitecture.csproj" />
+    <Project Path="Main/RonSijm.IJzer.Core.SourceLocations/RonSijm.IJzer.Core.SourceLocations.csproj" />
+    <Project Path="Main/RonSijm.IJzer.Core.Visibility/RonSijm.IJzer.Core.Visibility.csproj" />
+  </Folder>
+  <Folder Name="/Main/Editor/">
+    <Project Path="Main/RonSijm.IJzer.Core.Editor/RonSijm.IJzer.Core.Editor.csproj" />
+    <Project Path="Main/RonSijm.IJzer.EditorRuntime/RonSijm.IJzer.EditorRuntime.csproj" />
+  </Folder>
+  <Folder Name="/Main/Editing/">
+    <Project Path="Main/RonSijm.IJzer.ConfigurationEditing/RonSijm.IJzer.ConfigurationEditing.csproj" />
+  </Folder>
+  <Folder Name="/Main/Graphing/">
+    <Project Path="Main/RonSijm.IJzer.GraphApplication/RonSijm.IJzer.GraphApplication.csproj" />
+    <Project Path="Main/RonSijm.IJzer.GraphEditor.Wpf/RonSijm.IJzer.GraphEditor.Wpf.csproj" />
+    <Project Path="Main/RonSijm.IJzer.GraphModel/RonSijm.IJzer.GraphModel.csproj" />
+    <Project Path="Main/RonSijm.IJzer.Graphing/RonSijm.IJzer.Graphing.csproj" />
+    <Project Path="Main/RonSijm.IJzer.Graphing.Wpf/RonSijm.IJzer.Graphing.Wpf.csproj" />
+    <Project Path="Main/RonSijm.IJzer.GraphWorkspace/RonSijm.IJzer.GraphWorkspace.csproj" />
+  </Folder>
+  <Folder Name="/Main/Workspace/">
+    <Project Path="Main/RonSijm.IJzer.Workspace/RonSijm.IJzer.Workspace.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/RonSijm.IJzer.IaC.Tests/RonSijm.IJzer.IaC.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.ConfigurationEditing.Tests/RonSijm.IJzer.ConfigurationEditing.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.Core.BuildMetadata.Tests/RonSijm.IJzer.Core.BuildMetadata.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.Core.Configuration.Compilation.Tests/RonSijm.IJzer.Core.Configuration.Compilation.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.Core.Configuration.Document.Tests/RonSijm.IJzer.Core.Configuration.Document.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.Core.Contracts.Tests/RonSijm.IJzer.Core.Contracts.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.Core.Editor.Tests/RonSijm.IJzer.Core.Editor.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.Core.Exceptions.Tests/RonSijm.IJzer.Core.Exceptions.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.Core.Findings.Tests/RonSijm.IJzer.Core.Findings.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.Core.Indicators.Tests/RonSijm.IJzer.Core.Indicators.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.Core.Matchers.Tests/RonSijm.IJzer.Core.Matchers.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.Core.Observations.Tests/RonSijm.IJzer.Core.Observations.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.Core.SemanticOperations.Tests/RonSijm.IJzer.Core.SemanticOperations.Tests.csproj" />
+	<Project Path="Tests/RonSijm.IJzer.Core.OperationPolicies.Tests/RonSijm.IJzer.Core.OperationPolicies.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.Core.OperationContracts.Tests/RonSijm.IJzer.Core.OperationContracts.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.Core.ProjectArchitecture.Tests/RonSijm.IJzer.Core.ProjectArchitecture.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.Core.DependencyRules.Tests/RonSijm.IJzer.Core.DependencyRules.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.Core.EntryPoints.Tests/RonSijm.IJzer.Core.EntryPoints.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.Core.ApiSurface.Tests/RonSijm.IJzer.Core.ApiSurface.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.Core.NameRules.Tests/RonSijm.IJzer.Core.NameRules.Tests.csproj" />
+	<Project Path="Tests/RonSijm.IJzer.Core.NamespaceHierarchy.Tests/RonSijm.IJzer.Core.NamespaceHierarchy.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.Core.SourceLocations.Tests/RonSijm.IJzer.Core.SourceLocations.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.Core.LayerModel.Tests/RonSijm.IJzer.Core.LayerModel.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.Core.PolicyEvaluation.Tests/RonSijm.IJzer.Core.PolicyEvaluation.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.Core.RuntimeConfig.Tests/RonSijm.IJzer.Core.RuntimeConfig.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.Core.Visibility.Tests/RonSijm.IJzer.Core.Visibility.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.Core.Inheritance.Tests/RonSijm.IJzer.Core.Inheritance.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.Core.Violations.Tests/RonSijm.IJzer.Core.Violations.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.GraphModel.Tests/RonSijm.IJzer.GraphModel.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.GraphApplication.Tests/RonSijm.IJzer.GraphApplication.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.GraphEditor.Wpf.Tests/RonSijm.IJzer.GraphEditor.Wpf.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.Graphing.Tests/RonSijm.IJzer.Graphing.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.IntegrationTests/RonSijm.IJzer.IntegrationTests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.Forge.Tests/RonSijm.IJzer.Forge.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.Outputs.Tests/RonSijm.IJzer.Outputs.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.Application.Tests/RonSijm.IJzer.Application.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.Analyzer.Tests/RonSijm.IJzer.Analyzer.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.EditorRuntime.Tests/RonSijm.IJzer.EditorRuntime.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.VisualStudio.Tests/RonSijm.IJzer.VisualStudio.Tests.csproj" />
+    <Project Path="Tests/RonSijm.IJzer.Workspace.Tests/RonSijm.IJzer.Workspace.Tests.csproj" />
+  </Folder>
+  <Folder Name="/Tools/">
+    <Project Path="Tools/RonSijm.IJzer.GraphEditor.Standalone/RonSijm.IJzer.GraphEditor.Standalone.csproj" />
+    <Project Path="Tools/RonSijm.IJzer.Forge/RonSijm.IJzer.Forge.csproj" />
+  </Folder>
+</Solution>

@@ -4,10 +4,10 @@ The WPF graph editor is the reusable visual editor behind the standalone graph e
 
 | Project | Purpose |
 |---|---|
-| `src/Main/RonSijm.AnaalIJzer.Graphing` | Shared graph view models and layout grouping. |
-| `src/Main/RonSijm.AnaalIJzer.Graphing.Wpf` | WPF/Nodify controls for viewing and editing architecture graphs. |
-| `src/Tools/RonSijm.AnaalIJzer.GraphEditor.Standalone` | Small executable harness for testing the WPF component outside Visual Studio. |
-| `src/Extensions/RonSijm.AnaalIJzer.VisualStudio` | Hosts the same WPF component inside the Visual Studio companion extension. |
+| `src/Main/RonSijm.IJzer.Graphing` | Shared graph view models and layout grouping. |
+| `src/Main/RonSijm.IJzer.Graphing.Wpf` | WPF/Nodify controls for viewing and editing architecture graphs. |
+| `src/Tools/RonSijm.IJzer.GraphEditor.Standalone` | Small executable harness for testing the WPF component outside Visual Studio. |
+| `src/Extensions/RonSijm.IJzer.VisualStudio` | Hosts the same WPF component inside the Visual Studio companion extension. |
 
 The central controls are `ArchitectureGraphEditorControl` and `ArchitectureGraphCanvas`. Given an `ArchitectureGraphSnapshot`, they:
 
@@ -18,7 +18,7 @@ The central controls are `ArchitectureGraphEditorControl` and `ArchitectureGraph
   - That graph shows configured modules beside observed direct project references.
   - It is for investigation; topology edits still belong in the authoritative `Architecture.anl` file.
 
-The editor is source-aware. It can edit XML settings files and inline `AssemblyMetadata("AnaalIJzerSettings", ...)` settings, then reload through the same configuration-reading path used by the analyzer tooling. The graph supports:
+The editor is source-aware. It can edit XML settings files and inline `AssemblyMetadata("IJzerSettings", ...)` settings, then reload through the same configuration-reading path used by the analyzer tooling. The graph supports:
 
 - dragging and resizing nested layer groups;
 - collapsing graph groups;
@@ -30,13 +30,13 @@ The editor is source-aware. It can edit XML settings files and inline `AssemblyM
 - editing layer matchers, scoped type policies, includes and root settings from the inspector;
 - exporting the currently rendered graph surface to a PNG image.
 
-When the standalone harness is opened from a `.csproj`, `.sln`, or `.slnx`, the graph exposes `Configuration fixes` in both the root inspector and the selected layer or connection inspector. That panel uses the same shared configuration-fix catalog as the Roslyn light bulbs and `arse fixes`, shows preview diffs, and can apply one proposal and immediately reload the diagram.
+When the standalone harness is opened from a `.csproj`, `.sln`, or `.slnx`, the graph exposes `Configuration fixes` in both the root inspector and the selected layer or connection inspector. That panel uses the same shared configuration-fix catalog as the Roslyn light bulbs and `ijzer fixes`, shows preview diffs, and can apply one proposal and immediately reload the diagram.
 
 Right-clicking a layer or connection also offers a direct `Show configuration fixes` entry point. The resulting inspector view filters the loaded proposal list to the selected layer or dependency pair.
 
 The component itself is not a Roslyn analyzer; dragging a box changes configuration, not code. The responsibilities are split like this:
 
-- `RonSijm.AnaalIJzer.ConfigurationEditing` edits the configuration model.
+- `RonSijm.IJzer.ConfigurationEditing` edits the configuration model.
 - Visual Studio builds graph snapshots from the active Roslyn workspace.
 - The standalone harness can open `Architecture.anl`, a project, a solution, or a legacy `.xml` input.
   - Project and solution inputs use the shared `MSBuildWorkspace` host.
@@ -79,27 +79,27 @@ build\Scripts\GraphEditor\build-graph-editor-standalone.bat
 The script writes the runnable output to `build\Artifacts\GraphEditor.Standalone`. You can also run the project output directly:
 
 ```cmd
-src\Tools\RonSijm.AnaalIJzer.GraphEditor.Standalone\bin\Release\net10.0-windows\RonSijm.AnaalIJzer.GraphEditor.Standalone.exe path\to\Architecture.anl
-src\Tools\RonSijm.AnaalIJzer.GraphEditor.Standalone\bin\Release\net10.0-windows\RonSijm.AnaalIJzer.GraphEditor.Standalone.exe path\to\MySolution.slnx
+src\Tools\RonSijm.IJzer.GraphEditor.Standalone\bin\Release\net10.0-windows\RonSijm.IJzer.GraphEditor.Standalone.exe path\to\Architecture.anl
+src\Tools\RonSijm.IJzer.GraphEditor.Standalone\bin\Release\net10.0-windows\RonSijm.IJzer.GraphEditor.Standalone.exe path\to\MySolution.slnx
 ```
 
 Use `Tools > Associate .anl files` in the standalone editor to make Windows open `.anl` files with the graph editor. The same operation is available from the executable:
 
 ```cmd
-RonSijm.AnaalIJzer.GraphEditor.Standalone.exe --associate-anl
-RonSijm.AnaalIJzer.GraphEditor.Standalone.exe --unassociate-anl
+RonSijm.IJzer.GraphEditor.Standalone.exe --associate-anl
+RonSijm.IJzer.GraphEditor.Standalone.exe --unassociate-anl
 ```
 
 The GitHub `build_main.yml` workflow:
 
 - builds the Windows-only editor;
 - uploads `build\Artifacts\GraphEditor.Standalone` as a workflow artifact;
-- publishes `AnaalIJzer-GraphEditor-Standalone-<version>.zip` as a release asset;
+- publishes `IJzer-GraphEditor-Standalone-<version>.zip` as a release asset;
 - replaces an existing `graph-editor-v<version>` release and tag before publishing the same version again.
 
-The standalone graph editor is not shipped as a `dotnet tool install` package. The .NET SDK does not support `PackAsTool` for WPF or WindowsDesktop projects, so the packaging decision was made for us: Arse remains the command-line .NET tool while the graph editor is distributed as a Windows executable artifact and hosted inside the Visual Studio extension.
+The standalone graph editor is not shipped as a `dotnet tool install` package. The .NET SDK does not support `PackAsTool` for WPF or WindowsDesktop projects, so the packaging decision was made for us: IJzer Forge remains the command-line .NET tool while the graph editor is distributed as a Windows executable artifact and hosted inside the Visual Studio extension.
 
-`RonSijm.AnaalIJzer.GraphEditor.Wpf.Tests` covers:
+`RonSijm.IJzer.GraphEditor.Wpf.Tests` covers:
 
 - persistence from visual and inline-settings edits;
 - context menus and connector-created dependencies;

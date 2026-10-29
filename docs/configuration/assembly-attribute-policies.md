@@ -72,7 +72,7 @@ Use exactly one of `index` or `name`. Every child `<Argument>` must match, so th
 Assembly attribute policies are root-level rules. They do not belong to a C# layer, dependency edge, or syntactic site: the check runs once against the completed compilation's assembly metadata.
 
 - The analyzer produces `ARCH_ASSM_001` and a report row with the assembly, attribute type, rule, and reason.
-- Arse documentation and violation reports render the policies in authored configuration order.
+- IJzer Forge documentation and violation reports render the policies in authored configuration order.
 - The shared configuration editor used by the WPF graph editor and Visual Studio graph window can inspect, add, edit, and remove root-level `<AssemblyAttributePolicy>` elements. They are shown as source-metadata policies rather than dependency-graph edges.
 - There is no automatic code fix. Removing a friend, adding one to an allow list, or changing a generated project item requires an explicit ownership decision.
 

@@ -2,7 +2,7 @@
 
 using System.Reflection;
 
-[assembly: AssemblyMetadata("AnaalIJzerSettings", """
+[assembly: AssemblyMetadata("IJzerSettings", """
 <ArchitecturalLevels>
   <Layer name="RepositoryQuerySurface">
     <Class endsWith="Queryable" />

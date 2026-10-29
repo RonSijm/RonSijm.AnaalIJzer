@@ -8,7 +8,7 @@ Use [`Example.VisualStudioSiteDiagnostics`](../../Documentation/Example.VisualSt
 
 | File | Capture |
 |---|---|
-| `editor-settings.png` | `AnaalIJzer > Editor` settings with declaration-layer controls visible. |
+| `editor-settings.png` | `IJzer > Editor` settings with declaration-layer controls visible. |
 | `layer-badge.png` | Only `Show layer badges`, with one canonical layer-path badge. |
 | `layer-codelens.png` | Only `Show layer metadata above declarations`, with its clickable summary. |
 | `not-in-layer-badge.png` | `Show layer badges when not in layer`, with an unmatched type. |

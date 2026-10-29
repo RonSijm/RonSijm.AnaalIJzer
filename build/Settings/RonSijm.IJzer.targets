@@ -1,0 +1,57 @@
+<Project>
+  <Target Name="GenerateIJzerReferenceManifest"
+          BeforeTargets="CoreCompile"
+          Condition="'$(EnableArchitecturalLevelAnalyzer)' != 'false'">
+    <PropertyGroup>
+      <IJzerReferenceManifestDirectory Condition="'$(IJzerReferenceManifestDirectory)' == ''">$(IntermediateOutputPath)IJzer\</IJzerReferenceManifestDirectory>
+      <IJzerReferenceManifestPath Condition="'$(IJzerReferenceManifestPath)' == ''">$(IJzerReferenceManifestDirectory)$(IJzerReferenceManifestFileName)</IJzerReferenceManifestPath>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <_IJzerDirectPackageReference Include="@(PackageReference)"
+                                         Condition="'%(PackageReference.Identity)' != ''" />
+      <_IJzerResolvedProjectReference Include="%(ProjectReference.FullPath)"
+                                           Condition="'%(ProjectReference.FullPath)' != '' and '%(ProjectReference.ReferenceOutputAssembly)' != 'false'" />
+      <_IJzerResolvedPackageAsset Include="@(ReferencePath)"
+                                       Condition="'%(ReferencePath.NuGetPackageId)' != '' and '%(ReferencePath.NuGetPackageVersion)' != ''" />
+    </ItemGroup>
+
+    <PropertyGroup>
+      <_IJzerDirectPackageIds>;@(_IJzerDirectPackageReference->'%(PackageReference.Identity)';);</_IJzerDirectPackageIds>
+    </PropertyGroup>
+
+    <RemoveDuplicates Inputs="@(_IJzerResolvedProjectReference)">
+      <Output TaskParameter="Filtered" ItemName="_IJzerDistinctProjectReference" />
+    </RemoveDuplicates>
+
+    <RemoveDuplicates Inputs="@(_IJzerResolvedPackageAsset)">
+      <Output TaskParameter="Filtered" ItemName="_IJzerDistinctResolvedPackageAsset" />
+    </RemoveDuplicates>
+
+    <ItemGroup>
+      <_IJzerPackageManifestLine Include="Package&#x9;$(MSBuildProjectFullPath)&#x9;%(_IJzerDistinctResolvedPackageAsset.NuGetPackageId)&#x9;%(_IJzerDistinctResolvedPackageAsset.NuGetPackageVersion)&#x9;Direct"
+                                      Condition="'%(_IJzerDistinctResolvedPackageAsset.NuGetPackageId)' != '' and $([System.String]::Copy('$(_IJzerDirectPackageIds)').Contains(';%(_IJzerDistinctResolvedPackageAsset.NuGetPackageId);'))" />
+      <_IJzerPackageManifestLine Include="Package&#x9;$(MSBuildProjectFullPath)&#x9;%(_IJzerDistinctResolvedPackageAsset.NuGetPackageId)&#x9;%(_IJzerDistinctResolvedPackageAsset.NuGetPackageVersion)&#x9;Transitive"
+                                      Condition="'%(_IJzerDistinctResolvedPackageAsset.NuGetPackageId)' != '' and !$([System.String]::Copy('$(_IJzerDirectPackageIds)').Contains(';%(_IJzerDistinctResolvedPackageAsset.NuGetPackageId);'))" />
+    </ItemGroup>
+
+    <RemoveDuplicates Inputs="@(_IJzerPackageManifestLine)">
+      <Output TaskParameter="Filtered" ItemName="_IJzerDistinctPackageManifestLine" />
+    </RemoveDuplicates>
+
+    <ItemGroup>
+      <_IJzerHeaderManifestLine Include="IJzerReferenceManifest/1" />
+      <_IJzerProjectManifestLine Include="Project&#x9;$(MSBuildProjectFullPath)&#x9;%(_IJzerDistinctProjectReference.Identity)"
+                                      Condition="'%(_IJzerDistinctProjectReference.Identity)' != ''" />
+    </ItemGroup>
+
+    <MakeDir Directories="$(IJzerReferenceManifestDirectory)" />
+    <WriteLinesToFile File="$(IJzerReferenceManifestPath)"
+                      Lines="@(_IJzerHeaderManifestLine);@(_IJzerProjectManifestLine);@(_IJzerDistinctPackageManifestLine)"
+                      Overwrite="true" />
+
+    <ItemGroup>
+      <AdditionalFiles Include="$(IJzerReferenceManifestPath)" />
+    </ItemGroup>
+  </Target>
+</Project>

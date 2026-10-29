@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <IJzerReferenceManifestFileName Condition="'$(IJzerReferenceManifestFileName)' == ''">IJzerReferenceManifest.txt</IJzerReferenceManifestFileName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <CompilerVisibleProperty Include="MSBuildProjectDirectory" />
+  </ItemGroup>
+</Project>

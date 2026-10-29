@@ -7,5 +7,5 @@ Run `GenerateDocumentation.bat` to generate the committed documentation directly
 The equivalent command from the repository root is:
 
 ```cmd
-dotnet run --project src\Tools\RonSijm.AnaalIJzer.Arse -- documentation --config Examples\Documentation\Example.DocumentationDemo\Architecture.anl --force
+dotnet run --project src\Tools\RonSijm.IJzer.Forge -- documentation --config Examples\Documentation\Example.DocumentationDemo\Architecture.anl --force
 ```

@@ -1,9 +1,9 @@
 ## IDE code fixes
 
-Visual Studio and Rider can now apply AnaalIJzer fixes against both:
+Visual Studio and Rider can now apply IJzer fixes against both:
 
 - file-based `Architecture.anl`;
-- inline `AssemblyMetadata("AnaalIJzerSettings", ...)`.
+- inline `AssemblyMetadata("IJzerSettings", ...)`.
 
 The analyzer still owns the diagnostics. The code-fix layer only proposes deterministic edits that are local, previewable, and unlikely to invent architecture by accident. Silently widening a boundary because a build went red is how a layering rule turns into a layering suggestion.
 
@@ -12,7 +12,7 @@ There are two families of fixes:
 - **source fixes** change C# code directly;
 - **configuration fixes** change `Architecture.anl` or inline `AssemblyMetadata`.
 
-Arse reuses the same configuration-fix catalog headlessly through `arse fixes` and `arse apply-fix`. That means the light-bulb suggestions you see in the IDE and the proposal list you can review in CI or a terminal come from the same underlying fix implementations.
+IJzer Forge reuses the same configuration-fix catalog headlessly through `ijzer fixes` and `ijzer apply-fix`. That means the light-bulb suggestions you see in the IDE and the proposal list you can review in CI or a terminal come from the same underlying fix implementations.
 
 The Visual Studio dependency-graph tool window now reuses that same shared catalog as well. From `Extensions > IJzer > Show Dependency Graphs`, the graph can load fix proposals for the active project, preview the config diff, and apply one proposal without leaving the graph view. The root inspector shows the full project list, while selecting or right-clicking a layer or dependency connection switches to a filtered selection-scoped view.
 
@@ -55,10 +55,10 @@ For the broader mental model, ownership rules, and risk labels, see [Configurati
   - if a rule came from an included `.anl`, that included file is edited;
   - if the config came from inline `AssemblyMetadata`, the source file containing the assembly attribute is rewritten.
 
-For a light-bulb-friendly baseline, start with the analyzer tests in `src/Tests/RonSijm.AnaalIJzer.Analyzer.Tests/Diagnostics/`.
+For a light-bulb-friendly baseline, start with the analyzer tests in `src/Tests/RonSijm.IJzer.Analyzer.Tests/Diagnostics/`.
 
-For the end-to-end headless path, see `src/Tests/RonSijm.AnaalIJzer.Application.Tests/ApplicationOperations/ApplicationOperationsTests.ConfigurationFixes.cs`.
+For the end-to-end headless path, see `src/Tests/RonSijm.IJzer.Application.Tests/ApplicationOperations/ApplicationOperationsTests.ConfigurationFixes.cs`.
 
-For real example-project coverage, including expected proposal titles for included `.anl`, inline `AssemblyMetadata`, site filters, name rules, source locations, and project architecture scenarios, see `src/Tests/RonSijm.AnaalIJzer.IntegrationTests/ExampleConfigurationFixIntegrationTests.cs`.
+For real example-project coverage, including expected proposal titles for included `.anl`, inline `AssemblyMetadata`, site filters, name rules, source locations, and project architecture scenarios, see `src/Tests/RonSijm.IJzer.IntegrationTests/ExampleConfigurationFixIntegrationTests.cs`.
 
-For Visual Studio graph-window state coverage, including preserving the active project context across graph refreshes, see `src/Tests/RonSijm.AnaalIJzer.VisualStudio.Tests/Graphs/ArchitectureGraphToolWindowStateTests.cs`.
+For Visual Studio graph-window state coverage, including preserving the active project context across graph refreshes, see `src/Tests/RonSijm.IJzer.VisualStudio.Tests/Graphs/ArchitectureGraphToolWindowStateTests.cs`.

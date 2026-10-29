@@ -3,7 +3,7 @@ using System.Reflection;
 
 // Inline XML keeps tiny examples readable: the config and the code it checks
 // stay next to each other in the project.
-[assembly: AssemblyMetadata("AnaalIJzerSettings", """
+[assembly: AssemblyMetadata("IJzerSettings", """
                                                   <ArchitecturalLevels>
                                                     <Layer name="Presentation">
                                                       <Class endsWith="Endpoint" />
